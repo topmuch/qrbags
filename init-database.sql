@@ -135,3 +135,46 @@ COMMENT ON TABLE subscriptions IS 'User subscription data from Stripe';
 COMMENT ON COLUMN profiles.subscription_status IS 'Current subscription tier: free, pro, premium';
 COMMENT ON COLUMN subscriptions.status IS 'Stripe subscription status';
 COMMENT ON COLUMN subscriptions.current_period_end IS 'When the current billing period ends';
+-- qr_lots (pour les agences)
+CREATE TABLE qr_lots (
+  id TEXT PRIMARY KEY,
+  agency_id UUID REFERENCES auth.users(id),
+  airline_id UUID, -- optionnel
+  total_quantity INT DEFAULT 500,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- baggage_items (un par bagage activé)
+CREATE TABLE baggage_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  qr_lot_id TEXT REFERENCES qr_lots(id),
+  baggage_number INT, -- 1, 2, 3...
+  owner_email TEXT,
+  owner_phone TEXT,
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- scans
+CREATE TABLE scans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  baggage_item_id UUID REFERENCES baggage_items(id),
+  city TEXT,
+  scanned_at TIMESTAMPTZ DEFAULT NOW(),
+  ip_address INET
+);
+
+-- RLS
+ALTER TABLE qr_lots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE baggage_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scans ENABLE ROW LEVEL SECURITY;
+
+-- Politiques
+CREATE POLICY "Agencies manage own lots" ON qr_lots
+  FOR ALL USING (auth.uid() = agency_id);
+
+CREATE POLICY "Owners see their baggage" ON baggage_items
+  FOR SELECT USING (auth.uid()::text = owner_email); -- ou via token
+
+CREATE POLICY "Anyone can scan" ON scans
+  FOR INSERT WITH CHECK (true);
