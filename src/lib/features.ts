@@ -73,7 +73,7 @@ export const FEATURE_DEFINITIONS = [
     description: '🤖 Détecte les scans suspects (multiples IPs, pays différents) et affiche des alertes. Fallback: règles métier classiques.',
     category: 'ai',
     icon: 'Shield',
-    enabled: false,
+    enabled: true,
   },
   {
     key: 'ai_translation',
@@ -81,7 +81,7 @@ export const FEATURE_DEFINITIONS = [
     description: '🤖 Traduit automatiquement les messages WhatsApp dans la langue du propriétaire. Gratuit ≤500 req/jour.',
     category: 'ai',
     icon: 'Languages',
-    enabled: false,
+    enabled: true,
   },
   {
     key: 'ai_message_summary',
@@ -89,7 +89,7 @@ export const FEATURE_DEFINITIONS = [
     description: '🤖 Génère un résumé en 1 ligne des longs messages partenaires via Hugging Face API.',
     category: 'ai',
     icon: 'Sparkles',
-    enabled: false,
+    enabled: true,
   },
   {
     key: 'ai_qr_suggestions',
@@ -97,7 +97,7 @@ export const FEATURE_DEFINITIONS = [
     description: '🤖 Recommande un volume de QR codes aux agences basé sur l\'historique. Régression linéaire simple.',
     category: 'ai',
     icon: 'Brain',
-    enabled: false,
+    enabled: true,
   },
 ] as const;
 

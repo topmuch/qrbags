@@ -58,6 +58,10 @@ model Baggage {
   lastLocation      String?
   declaredLostAt    DateTime? // Timestamp when baggage was declared lost
   foundAt           DateTime? // Timestamp when baggage was found
+  // Founder information (person who found the baggage)
+  founderName       String?   // Name of the finder
+  founderPhone      String?   // WhatsApp number of the finder
+  founderAt         DateTime? // Timestamp when founder info was submitted
   agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   scanLogs          ScanLog[]
 }
@@ -138,6 +142,25 @@ model Message {
   recipientAgencyId String? // Pour les messages du superadmin vers une agence spécifique
   subject     String?  // Subject line for assistance messages
   content     String   // JSON ou texte brut
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Notification model - real-time alerts for SuperAdmin
+// Notification types:
+// - "baggage_declared_lost": Agency declared a baggage as lost
+// - "baggage_found": Lost baggage was found
+// - "new_assistance_message": New assistance message from agency
+// - "urgent_scan": Urgent scan on lost baggage
+model Notification {
+  id          String   @id @default(cuid())
+  type        String   // "baggage_declared_lost", "baggage_found", "new_assistance_message", "urgent_scan"
+  userId      String?  // null = broadcast to all superadmins
+  agencyId    String?  // Reference to agency if applicable
+  baggageId   String?  // Reference to baggage if applicable
+  message     String   // Notification message
+  data        String?  // JSON additional data
+  read        Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

@@ -318,7 +318,13 @@ export async function getQRSuggestion(agencyId: string): Promise<QRSuggestion | 
     });
 
     if (baggages.length === 0) {
-      return null;
+      // Return default suggestion for new agencies
+      return {
+        recommended: 50,
+        basedOn: 'Nouvelle agence - Valeur par défaut',
+        confidence: 0.3,
+        breakdown: { lastYear: 0, growth: 10, margin: 10 }
+      };
     }
 
     // Group by year

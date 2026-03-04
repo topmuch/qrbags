@@ -384,6 +384,7 @@ export default function ScanPage() {
         body: JSON.stringify({
           location: otherLocation.trim() || "Non précisé",
           finderName: finderName.trim(),
+          finderPhone: finderPhone.trim(),
           message: '',
           latitude: sharedPosition?.lat,
           longitude: sharedPosition?.lng,

@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -7,43 +9,40 @@ type Theme = 'light' | 'dark';
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
+  mounted: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// Helper to get initial theme (runs on client only)
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  const savedTheme = localStorage.getItem('theme') as Theme | null;
+  if (savedTheme) return savedTheme;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Use function initializer to read from localStorage once on mount
   const [mounted, setMounted] = useState(false);
-  
-  const getSavedTheme = useCallback((): Theme => {
-    if (typeof window === 'undefined') return 'light';
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') return saved;
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-    return 'light';
-  }, []);
-  
-  // Initialize with a function to avoid running on server
   const [theme, setTheme] = useState<Theme>('light');
 
-  // Sync theme after hydration
+  // Initialize on mount
   useEffect(() => {
-    const savedTheme = getSavedTheme();
-    if (savedTheme !== theme) {
-      setTheme(savedTheme);
-    }
+    const initial = getInitialTheme();
+    setTheme(initial);
     setMounted(true);
-    // Only run once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Apply theme to document
   useEffect(() => {
     if (!mounted) return;
-    
+
     const root = document.documentElement;
+    
+    // Apply theme instantly (no transition during change)
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
+    root.style.colorScheme = theme;
     localStorage.setItem('theme', theme);
   }, [theme, mounted]);
 
@@ -51,7 +50,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   }, []);
 
-  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+  const value = useMemo(() => ({ theme, toggleTheme, mounted }), [theme, toggleTheme, mounted]);
 
   return (
     <ThemeContext.Provider value={value}>

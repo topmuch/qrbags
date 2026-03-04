@@ -604,7 +604,7 @@ export default function VoyageursAdminPage() {
             <div className="flex gap-2">
               <button
                 onClick={expandAll}
-                className="px-4 py-2 bg-black text-white rounded-xl font-medium hover:bg-slate-800 transition-colors"
+                className="px-4 py-2 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors"
               >
                 Tout ouvrir
               </button>

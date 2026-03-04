@@ -4,46 +4,55 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Light theme colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
+  /* Modern Light Theme Colors */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
   --bg-tertiary: #f1f5f9;
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
   --border-color: #e2e8f0;
   --card-bg: #ffffff;
-  --sidebar-bg: #ff7f00;
-  --sidebar-text: #ffffff;
   
-  /* KPI Card Colors - Vibrant Multicolor */
-  --kpi-purple: #8b5cf6;
-  --kpi-purple-light: #a78bfa;
-  --kpi-blue: #3b82f6;
-  --kpi-blue-light: #60a5fa;
-  --kpi-cyan: #06b6d4;
-  --kpi-cyan-light: #22d3ee;
-  --kpi-teal: #14b8a6;
-  --kpi-teal-light: #2dd4bf;
+  /* Primary Brand Colors */
+  --primary: #10b981;
+  --primary-light: #34d399;
+  --primary-dark: #059669;
+  
+  /* Sidebar Colors - White Modern */
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #475569;
+  --sidebar-text-active: #10b981;
+  --sidebar-border: #e2e8f0;
+  --sidebar-hover: #f8fafc;
+  --sidebar-active-bg: rgba(16, 185, 129, 0.1);
+  
+  /* KPI Card Colors - Modern Gradient */
   --kpi-green: #10b981;
-  --kpi-green-light: #34d399;
+  --kpi-green-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --kpi-blue: #3b82f6;
+  --kpi-blue-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --kpi-purple: #8b5cf6;
+  --kpi-purple-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   --kpi-orange: #f59e0b;
-  --kpi-orange-light: #fbbf24;
+  --kpi-orange-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --kpi-cyan: #06b6d4;
+  --kpi-cyan-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
   --kpi-red: #ef4444;
-  --kpi-red-light: #f87171;
+  --kpi-red-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   --kpi-pink: #ec4899;
-  --kpi-pink-light: #f472b6;
+  --kpi-pink-gradient: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
   --kpi-indigo: #6366f1;
-  --kpi-indigo-light: #818cf8;
+  --kpi-indigo-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   
   /* Theme variables for shadcn */
-  --background: 0 0% 100%;
+  --background: 210 40% 98%;
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-  --primary: 24 100% 50%;
+  --primary: 160 84% 39%;
   --primary-foreground: 0 0% 100%;
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
@@ -55,12 +64,12 @@
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 24 100% 50%;
+  --ring: 160 84% 39%;
   --radius: 0.75rem;
 }
 
 .dark {
-  /* Dark theme colors */
+  /* Modern Dark Theme Colors */
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
@@ -69,8 +78,14 @@
   --text-muted: #64748b;
   --border-color: #334155;
   --card-bg: #1e293b;
-  --sidebar-bg: #ff7f00;
-  --sidebar-text: #ffffff;
+  
+  /* Sidebar Colors - Dark Modern */
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #10b981;
+  --sidebar-border: #334155;
+  --sidebar-hover: #334155;
+  --sidebar-active-bg: rgba(16, 185, 129, 0.15);
   
   /* Theme variables for shadcn */
   --background: 222.2 84% 4.9%;
@@ -79,7 +94,7 @@
   --card-foreground: 210 40% 98%;
   --popover: 222.2 84% 4.9%;
   --popover-foreground: 210 40% 98%;
-  --primary: 24 100% 50%;
+  --primary: 160 84% 39%;
   --primary-foreground: 0 0% 100%;
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
@@ -91,7 +106,7 @@
   --destructive-foreground: 210 40% 98%;
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 24 100% 50%;
+  --ring: 160 84% 39%;
 }
 
 @theme inline {
@@ -156,24 +171,24 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff7f00;
+  background: #10b981;
 }
 
 /* ============================================
-   🎨 COLORFUL KPI CARDS (CoreUI Style)
+   🎨 MODERN KPI CARDS (Clean Design)
    ============================================ */
 
-/* KPI Card Base */
+/* KPI Card Base - Modern Clean Style */
 .kpi-card {
   position: relative;
   overflow: hidden;
   border-radius: 16px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: white;
 }
 
 .kpi-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
 }
 
 .kpi-card::before {
@@ -184,93 +199,93 @@
   right: 0;
   bottom: 0;
   opacity: 0.1;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%);
   pointer-events: none;
 }
 
 /* KPI Card Color Variants */
-.kpi-card-purple {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.35);
+.kpi-card-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
 }
 
-.kpi-card-purple:hover {
-  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.45);
+.kpi-card-green:hover {
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.35);
 }
 
 .kpi-card-blue {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25);
 }
 
 .kpi-card-blue:hover {
-  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.45);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.35);
 }
 
-.kpi-card-cyan {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-  box-shadow: 0 8px 32px rgba(6, 182, 212, 0.35);
+.kpi-card-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
 }
 
-.kpi-card-cyan:hover {
-  box-shadow: 0 12px 40px rgba(6, 182, 212, 0.45);
-}
-
-.kpi-card-teal {
-  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-  box-shadow: 0 8px 32px rgba(20, 184, 166, 0.35);
-}
-
-.kpi-card-teal:hover {
-  box-shadow: 0 12px 40px rgba(20, 184, 166, 0.45);
-}
-
-.kpi-card-green {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.35);
-}
-
-.kpi-card-green:hover {
-  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.45);
+.kpi-card-purple:hover {
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);
 }
 
 .kpi-card-orange {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
 }
 
 .kpi-card-orange:hover {
-  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.45);
+  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35);
+}
+
+.kpi-card-cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.25);
+}
+
+.kpi-card-cyan:hover {
+  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.35);
+}
+
+.kpi-card-teal {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  box-shadow: 0 4px 20px rgba(20, 184, 166, 0.25);
+}
+
+.kpi-card-teal:hover {
+  box-shadow: 0 8px 30px rgba(20, 184, 166, 0.35);
 }
 
 .kpi-card-red {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  box-shadow: 0 8px 32px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
 }
 
 .kpi-card-red:hover {
-  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.45);
+  box-shadow: 0 8px 30px rgba(239, 68, 68, 0.35);
 }
 
 .kpi-card-pink {
   background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.35);
+  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.25);
 }
 
 .kpi-card-pink:hover {
-  box-shadow: 0 12px 40px rgba(236, 72, 153, 0.45);
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.35);
 }
 
 .kpi-card-indigo {
   background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
 }
 
 .kpi-card-indigo:hover {
-  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
 }
 
-/* Mini Chart */
+/* Mini Chart Bars */
 .mini-chart-bars {
   display: flex;
   align-items: flex-end;
@@ -281,13 +296,13 @@
 
 .mini-chart-bar {
   flex: 1;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.35);
   border-radius: 2px;
-  transition: height 0.3s ease;
+  transition: height 0.3s ease, background 0.2s ease;
 }
 
 .mini-chart-bar:hover {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 /* Trend Indicators */
@@ -303,7 +318,88 @@
   color: #fcd34d;
 }
 
-/* Animations */
+/* ============================================
+   🎯 MODERN SIDEBAR STYLES
+   ============================================ */
+
+.sidebar-modern {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: var(--sidebar-text);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-active);
+}
+
+.sidebar-item.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text-active);
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: 0 4px 4px 0;
+}
+
+.sidebar-category {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 24px 16px 8px;
+}
+
+/* ============================================
+   📊 STAT CARDS (White Background)
+   ============================================ */
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   🎬 ANIMATIONS
+   ============================================ */
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -312,6 +408,15 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -326,8 +431,21 @@
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .animate-slide-up {
   animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 .animate-count-up {
@@ -335,53 +453,176 @@
 }
 
 /* Stagger Animation */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
-.stagger-6 { animation-delay: 0.6s; }
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
 
-/* Dark mode specific adjustments */
+/* ============================================
+   🌙 DARK MODE ADJUSTMENTS
+   ============================================ */
+
 .dark .kpi-card::before {
   opacity: 0.15;
 }
 
-/* Light mode specific adjustments */
 .light .kpi-card::before {
   opacity: 0.1;
 }
 
-/* Sidebar Dark Mode Support */
-.sidebar-light {
-  background: #ff7f00;
+.dark .stat-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   🔘 BUTTONS & INTERACTIVE
+   ============================================ */
+
+.btn-primary {
+  background: var(--primary);
   color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.sidebar-dark {
-  background: #ff7f00;
-  color: white;
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-/* Card Background for both modes */
-.card-light {
-  background: white;
-  border: 1px solid #e2e8f0;
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
 }
 
-.card-dark {
-  background: #1e293b;
-  border: 1px solid #334155;
+.btn-secondary:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 /* Input focus states */
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: #ff7f00 !important;
-  box-shadow: 0 0 0 2px rgba(255, 127, 0, 0.2) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
 }
 
-/* Smooth transitions for theme change */
-body, .sidebar-transition, .card-transition {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+/* ============================================
+   🌓 THEME TRANSITION (Smooth but no flicker)
+   ============================================ */
+
+/* Disable all transitions during theme change to prevent flicker */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: none !important;
+}
+
+/* Normal smooth transitions (not during theme change) */
+body * {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0ms; /* Instant by default */
+}
+
+/* ============================================
+   📋 TABLE STYLES
+   ============================================ */
+
+.table-modern {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-modern th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-modern th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.table-modern th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.table-modern td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-modern tr:last-child td {
+  border-bottom: none;
+}
+
+.table-modern tr:hover td {
+  background: var(--bg-tertiary);
+}
+
+/* ============================================
+   🏷️ BADGES & STATUS
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+/* ============================================
+   📱 RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .sidebar-modern {
+    position: fixed;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar-modern.open {
+    transform: translateX(0);
+  }
 }

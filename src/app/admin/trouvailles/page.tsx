@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import AdminLayout from '@/components/admin/NewAdminLayout';
 import {
   Search,
   Eye,
@@ -154,10 +153,12 @@ export default function TrouvaillesPage() {
   ];
 
   return (
-    <AdminLayout 
-      title="Trouvailles"
-      subtitle="Historique de tous les scans effectués"
-    >
+    <>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Trouvailles</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Historique de tous les scans effectués</p>
+      </div>
       {/* Action Buttons */}
       <div className="flex gap-2 mb-6">
         <button
@@ -169,7 +170,7 @@ export default function TrouvaillesPage() {
         </button>
         <button
           onClick={exportCSV}
-          className="px-4 py-2 bg-black text-white rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors flex items-center gap-2"
         >
           <Download className="w-4 h-4" />
           Export CSV
@@ -199,8 +200,8 @@ export default function TrouvaillesPage() {
                 onClick={() => setDateFilter(btn.id)}
                 className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                   dateFilter === btn.id
-                    ? 'bg-black text-white'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
                 {btn.label}
@@ -216,8 +217,8 @@ export default function TrouvaillesPage() {
                 onClick={() => setStatusFilter(btn.id)}
                 className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                   statusFilter === btn.id
-                    ? 'bg-black text-white'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
                 {btn.label}
@@ -460,6 +461,6 @@ export default function TrouvaillesPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 }

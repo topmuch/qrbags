@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import AdminLayout from '@/components/admin/NewAdminLayout';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Search,
@@ -250,10 +249,12 @@ export default function EtiquettesPage() {
   ];
 
   return (
-    <AdminLayout 
-      title="Les Étiquettes"
-      subtitle="Gérez vos lots de QR codes anti-fraude"
-    >
+    <>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Les Étiquettes</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Gérez vos lots de QR codes anti-fraude</p>
+      </div>
       {/* Action Buttons */}
       <div className="flex gap-2 mb-6">
         <button
@@ -265,7 +266,7 @@ export default function EtiquettesPage() {
         </button>
         <Link
           href="/admin/generer"
-          className="px-4 py-2 bg-black text-white rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Générer nouveaux
@@ -307,8 +308,8 @@ export default function EtiquettesPage() {
               onClick={() => setTypeFilter(btn.id)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 typeFilter === btn.id
-                  ? 'bg-black text-white'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
               }`}
             >
               {btn.label}
@@ -560,6 +561,6 @@ export default function EtiquettesPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 }

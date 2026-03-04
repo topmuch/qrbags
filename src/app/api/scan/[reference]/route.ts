@@ -104,7 +104,7 @@ export async function POST(
     const { reference } = await params;
     const body = await request.json();
 
-    const { location, finderName, message, latitude, longitude, country, city, ipAddress } = body;
+    const { location, finderName, finderPhone, message, latitude, longitude, country, city, ipAddress } = body;
 
     const baggage = await db.baggage.findUnique({
       where: { reference }
@@ -131,14 +131,32 @@ export async function POST(
       }
     });
 
-    // Update baggage last scan info
+    // Check if baggage is declared lost (urgent case)
+    const isDeclaredLost = baggage.declaredLostAt && !baggage.foundAt;
+
+    // Update baggage with last scan info and founder information
+    const updateData: Record<string, unknown> = {
+      lastScanDate: new Date(),
+      lastLocation: location,
+      status: baggage.status === 'active' ? 'scanned' : baggage.status,
+    };
+
+    // Store founder information if provided
+    if (finderName && finderName.trim()) {
+      updateData.founderName = finderName.trim();
+      updateData.founderAt = new Date();
+    }
+    
+    if (finderPhone && finderPhone.trim()) {
+      updateData.founderPhone = finderPhone.trim();
+    }
+
+    // If baggage was declared lost and founder provides info, this is an important recovery step
+    // Keep the 'lost' status until agency confirms recovery
+
     await db.baggage.update({
       where: { id: baggage.id },
-      data: {
-        lastScanDate: new Date(),
-        lastLocation: location,
-        status: baggage.status === 'active' ? 'scanned' : baggage.status,
-      }
+      data: updateData
     });
 
     // Generate WhatsApp message
@@ -147,13 +165,20 @@ export async function POST(
       : location ? `📍 Lieu: ${location}` : '';
 
     const finderText = finderName ? `👤 Trouvé par: ${finderName}` : '';
+    const finderPhoneText = finderPhone ? `📱 Contact: ${finderPhone}` : '';
     const messageText = message ? `💬 Message: ${message}` : '';
 
+    let urgencyPrefix = '🔍 QRBag - Bagage trouvé !';
+    if (isDeclaredLost) {
+      urgencyPrefix = '🚨 URGENT - Bagage perdu retrouvé !';
+    }
+
     const whatsappMessage = encodeURIComponent(
-      `🔍 QRBag - Bagage trouvé !\n\n` +
+      `${urgencyPrefix}\n\n` +
       `📦 Référence: ${reference}\n` +
       `${locationText}\n` +
       `${finderText}\n` +
+      `${finderPhoneText}\n` +
       `${messageText}\n\n` +
       `Merci de contacter la personne qui a trouvé votre bagage.`
     );
@@ -164,7 +189,8 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      whatsappUrl
+      whatsappUrl,
+      isDeclaredLost
     });
 
   } catch (error) {

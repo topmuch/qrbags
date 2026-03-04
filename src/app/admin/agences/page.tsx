@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/admin/NewAdminLayout';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -164,11 +163,13 @@ export default function AgencesPage() {
   };
 
   return (
-    <AdminLayout 
-      title="Agences Partenaires"
-      subtitle="Gérez les agences de voyage partenaires"
-    >
-      <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Agences Partenaires</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Gérez les agences de voyage partenaires</p>
+      </div>
+
         {/* Success Message */}
         {successMessage && (
           <div className="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-center gap-2">
@@ -180,7 +181,7 @@ export default function AgencesPage() {
         <div className="flex items-center justify-end mb-8">
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-black hover:bg-slate-800 text-white rounded-xl">
+              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl">
                 <Plus className="w-4 h-4 mr-2" />
                 Nouvelle agence
               </Button>
@@ -263,8 +264,8 @@ export default function AgencesPage() {
                     />
                   </div>
                 </div>
-                <Button 
-                  className="w-full bg-black hover:bg-slate-800 text-white rounded-xl" 
+                <Button
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl"
                   onClick={handleCreateAgency}
                   disabled={agencyCreating}
                 >
@@ -343,6 +344,5 @@ export default function AgencesPage() {
           </CardContent>
         </Card>
       </div>
-    </AdminLayout>
   );
 }

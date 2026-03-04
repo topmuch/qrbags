@@ -105,16 +105,28 @@ const FEATURE_DEFINITIONS = [
 // GET - Fetch all feature flags
 export async function GET() {
   try {
-    let existingFlags = [];
+    type FeatureFlagType = {
+      id: string;
+      key: string;
+      label: string;
+      description: string;
+      category: string;
+      icon: string | null;
+      enabled: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    };
     
+    let existingFlags: FeatureFlagType[] = [];
+
     try {
       existingFlags = await db.featureFlag.findMany();
     } catch (dbError) {
       console.error('Database query error:', dbError);
       // Continue with empty array
     }
-    
-    const existingKeys = new Set(existingFlags.map((f: { key: string }) => f.key));
+
+    const existingKeys = new Set(existingFlags.map((f) => f.key));
 
     // Create missing flags from definitions
     const missingFlags = FEATURE_DEFINITIONS.filter(
@@ -143,8 +155,8 @@ export async function GET() {
     }
 
     // Return all flags grouped by category
-    const categories: Record<string, typeof existingFlags> = {};
-    existingFlags.forEach((flag: { category: string }) => {
+    const categories: Record<string, FeatureFlagType[]> = {};
+    existingFlags.forEach((flag) => {
       if (!categories[flag.category]) {
         categories[flag.category] = [];
       }

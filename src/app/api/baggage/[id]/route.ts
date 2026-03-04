@@ -1,6 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// PUT - Update a baggage by ID
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+
+    // Check if baggage exists
+    const existingBaggage = await db.baggage.findUnique({
+      where: { id },
+    });
+
+    if (!existingBaggage) {
+      return NextResponse.json(
+        { error: 'Baggage not found' },
+        { status: 404 }
+      );
+    }
+
+    // Prepare update data
+    const updateData: Record<string, unknown> = {};
+    
+    if (body.travelerFirstName !== undefined) {
+      updateData.travelerFirstName = body.travelerFirstName || null;
+    }
+    if (body.travelerLastName !== undefined) {
+      updateData.travelerLastName = body.travelerLastName || null;
+    }
+    if (body.whatsappOwner !== undefined) {
+      updateData.whatsappOwner = body.whatsappOwner || null;
+    }
+    if (body.status !== undefined) {
+      updateData.status = body.status;
+    }
+
+    // Update the baggage
+    const updatedBaggage = await db.baggage.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return NextResponse.json({
+      success: true,
+      baggage: {
+        id: updatedBaggage.id,
+        reference: updatedBaggage.reference,
+        travelerFirstName: updatedBaggage.travelerFirstName,
+        travelerLastName: updatedBaggage.travelerLastName,
+        whatsappOwner: updatedBaggage.whatsappOwner,
+        status: updatedBaggage.status,
+      }
+    });
+
+  } catch (error) {
+    console.error('Update baggage error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE - Delete a baggage by ID
 export async function DELETE(
   request: NextRequest,
@@ -66,22 +130,28 @@ export async function GET(
     }
 
     return NextResponse.json({
-      baggage: {
-        id: baggage.id,
-        reference: baggage.reference,
-        type: baggage.type,
-        travelerFirstName: baggage.travelerFirstName,
-        travelerLastName: baggage.travelerLastName,
-        whatsappOwner: baggage.whatsappOwner,
-        baggageIndex: baggage.baggageIndex,
-        baggageType: baggage.baggageType,
-        status: baggage.status,
-        createdAt: baggage.createdAt,
-        expiresAt: baggage.expiresAt,
-        lastScanDate: baggage.lastScanDate,
-        lastLocation: baggage.lastLocation,
-        agency: baggage.agency?.name || null,
-      }
+      id: baggage.id,
+      reference: baggage.reference,
+      type: baggage.type,
+      travelerFirstName: baggage.travelerFirstName,
+      travelerLastName: baggage.travelerLastName,
+      whatsappOwner: baggage.whatsappOwner,
+      baggageIndex: baggage.baggageIndex,
+      baggageType: baggage.baggageType,
+      status: baggage.status,
+      agencyId: baggage.agencyId,
+      agency: baggage.agency ? {
+        id: baggage.agency.id,
+        name: baggage.agency.name,
+        email: baggage.agency.email,
+        phone: baggage.agency.phone,
+      } : null,
+      createdAt: baggage.createdAt,
+      expiresAt: baggage.expiresAt,
+      lastScanDate: baggage.lastScanDate,
+      lastLocation: baggage.lastLocation,
+      declaredLostAt: baggage.declaredLostAt,
+      foundAt: baggage.foundAt,
     });
 
   } catch (error) {

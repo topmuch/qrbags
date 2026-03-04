@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/admin/NewAdminLayout';
 import {
   Settings,
   MessageSquare,
@@ -218,10 +217,12 @@ export default function FonctionnalitesPage() {
   };
 
   return (
-    <AdminLayout
-      title="APIs & Fonctionnalités"
-      subtitle="Activez ou désactivez les fonctionnalités du système"
-    >
+    <>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">APIs & Fonctionnalités</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Activez ou désactivez les fonctionnalités du système</p>
+      </div>
       {/* Refresh Button */}
       <div className="flex justify-end mb-4">
         <button
@@ -303,6 +304,6 @@ export default function FonctionnalitesPage() {
             </div>
           </div>
         )}
-    </AdminLayout>
+    </>
   );
 }

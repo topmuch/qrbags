@@ -42,6 +42,16 @@ export interface GenerateBaggageOptions {
   count: 1 | 3;
 }
 
+// Generate baggage with individual traveler info
+export interface GenerateIndividualOptions {
+  type: 'hajj' | 'voyageur';
+  firstName: string;
+  lastName: string;
+  whatsapp: string;
+  duration: '72h' | '1y';
+  baggageCount: 1 | 3;
+}
+
 // Generate unique set ID
 export function generateSetId(type: 'hajj' | 'voyageur'): string {
   const year = new Date().getFullYear();

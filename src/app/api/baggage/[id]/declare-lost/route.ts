@@ -38,6 +38,23 @@ export async function PUT(
       }
     });
 
+    // 🔔 Create notification for SuperAdmin
+    await db.notification.create({
+      data: {
+        type: 'baggage_declared_lost',
+        userId: null, // broadcast to all superadmins
+        agencyId: baggage.agencyId,
+        baggageId: baggage.id,
+        message: `🚨 L'agence ${baggage.agency?.name || 'Inconnue'} a déclaré le bagage ${baggage.reference} comme perdu`,
+        data: JSON.stringify({
+          reference: baggage.reference,
+          agencyName: baggage.agency?.name,
+          type: baggage.type,
+        }),
+        read: false,
+      }
+    });
+
     return NextResponse.json({
       success: true,
       message: 'Baggage declared as lost',

@@ -38,6 +38,35 @@ export async function PUT(
       }
     });
 
+    // Mark any existing "baggage_declared_lost" notifications for this baggage as read
+    await db.notification.updateMany({
+      where: {
+        baggageId: baggage.id,
+        type: 'baggage_declared_lost',
+        read: false,
+      },
+      data: {
+        read: true,
+      }
+    });
+
+    // 🔔 Create notification for SuperAdmin
+    await db.notification.create({
+      data: {
+        type: 'baggage_found',
+        userId: null, // broadcast to all superadmins
+        agencyId: baggage.agencyId,
+        baggageId: baggage.id,
+        message: `Le bagage ${baggage.reference} a été marqué comme retrouvé !`,
+        data: JSON.stringify({
+          reference: baggage.reference,
+          agencyName: baggage.agency?.name,
+          type: baggage.type,
+        }),
+        read: false,
+      }
+    });
+
     return NextResponse.json({
       success: true,
       message: 'Baggage marked as found',

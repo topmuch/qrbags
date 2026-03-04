@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/admin/NewAdminLayout';
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -244,12 +243,13 @@ export default function MessagesPage() {
   };
 
   return (
-    <AdminLayout 
-      title="Messages"
-      subtitle="Gérez vos messages et demandes"
-      unreadMessages={unreadCount}
-    >
+    <>
       <div className="max-w-6xl mx-auto">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Messages</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Gérez vos messages et demandes</p>
+      </div>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -504,7 +504,7 @@ export default function MessagesPage() {
                     setShowModal(false);
                     setShowReplyModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-xl hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"
                 >
                   <Send className="w-4 h-4" />
                   Répondre à l'agence
@@ -631,7 +631,7 @@ export default function MessagesPage() {
                     }
                   }}
                   disabled={replySubmitting || !replyContent.trim()}
-                  className="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {replySubmitting ? (
                     <>
@@ -650,6 +650,6 @@ export default function MessagesPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 }

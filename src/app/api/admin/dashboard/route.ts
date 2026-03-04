@@ -47,7 +47,7 @@ export async function GET() {
     ).length;
 
     // Get daily activations for the last 7 days
-    const last7Days = [];
+    const last7Days: { day: string; count: number }[] = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -82,7 +82,17 @@ export async function GET() {
     });
 
     // Format recent activities
-    const recentActivities = recentScans.map((scan, index) => {
+    type ActivityType = {
+      id: string;
+      type: 'scan' | 'activation';
+      name: string;
+      reference: string;
+      time: string;
+      details: string;
+      status: 'success';
+    };
+
+    const recentActivities: ActivityType[] = recentScans.map((scan) => {
       const timeAgo = getTimeAgo(new Date(scan.createdAt));
       const name = scan.baggage.travelerFirstName 
         ? `${scan.baggage.travelerFirstName} ${scan.baggage.travelerLastName || ''} - ${scan.baggage.type === 'hajj' ? 'Hajj' : 'Voyageur'}`
@@ -101,7 +111,7 @@ export async function GET() {
 
     // If no scans, add some placeholder activities from activations
     if (recentActivities.length === 0) {
-      const recentActivations = baggages
+      const recentActivations: ActivityType[] = baggages
         .filter(b => b.status === 'active' && b.travelerFirstName)
         .slice(0, 5)
         .map((b, index) => ({

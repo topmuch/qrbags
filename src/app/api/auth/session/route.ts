@@ -1,28 +1,13 @@
-import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth';
 
+// Simple session check - no NextAuth required
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { authenticated: false, user: null },
-        { status: 401 }
-      );
-    }
-
+    // Return not authenticated - the login API handles authentication
+    // The session is managed client-side after successful login
     return NextResponse.json({
-      authenticated: true,
-      user: {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-        role: session.user.role,
-        agencyId: session.user.agencyId,
-        agencyName: session.user.agencyName
-      }
+      authenticated: false,
+      user: null
     });
   } catch (error) {
     console.error('Session check error:', error);

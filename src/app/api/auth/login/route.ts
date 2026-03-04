@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         agencyId: user.agencyId,
         agency: user.agency,
       },
-      redirectUrl: role === 'admin' ? '/admin/dashboard' : '/dashboard/agency',
+      redirectUrl: role === 'superadmin' ? '/admin/tableau-de-bord' : '/agence/tableau-de-bord',
     });
   } catch (error) {
     console.error('Login error:', error);
