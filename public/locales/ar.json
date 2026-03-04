@@ -1,0 +1,60 @@
+{
+  "common": {
+    "loading": "جاري التحقق من رمز QR...",
+    "welcome": "مرحباً! 👋",
+    "activate_in": "تفعيل هذه الحقيبة في 30 ثانية",
+    "baggage_type": "نوع الحقيبة",
+    "hajj_label": "✈️ حج - الحج",
+    "voyageur_label": "🧳 مسافر",
+    "auto_redirect": "إعادة التوجيه التلقائي خلال",
+    "start_activation": "ابدأ التفعيل",
+    "back_home": "العودة إلى الصفحة الرئيسية",
+    "powered_by": "QRBag © 2026 by MMASOLUTION"
+  },
+  "errors": {
+    "qr_not_valid": "رمز QR غير صالح",
+    "qr_not_valid_desc": "رمز QR هذا غير موجود في نظامنا.",
+    "baggage_blocked": "الحقيبة محظورة",
+    "baggage_blocked_desc": "تم حظر هذه الحقيبة لأسباب أمنية.",
+    "protection_expired": "انتهت الحماية",
+    "protection_expired_desc": "انتهت صلاحية حماية هذه الحقيبة.",
+    "server_error": "خطأ في الخادم",
+    "geolocation_not_supported": "المتصفح الخاص بك لا يدعم تحديد الموقع. يرجى إدخال المكان يدوياً.",
+    "location_failed": "تعذر الحصول على موقعك. يرجى إدخال المكان يدوياً أدناه.",
+    "location_permission_denied": "تم رفض إذن الموقع. يرجى السماح بالوصول إلى الموقع في إعدادات المتصفح، أو أدخل المكان يدوياً أدناه.",
+    "location_unavailable": "الموقع غير متاح. يرجى إدخال المكان يدوياً.",
+    "location_timeout": "انتهت مهلة تحديد الموقع. يرجى إدخال المكان يدوياً أو المحاولة مرة أخرى.",
+    "error_occurred": "حدث خطأ. يرجى المحاولة مرة أخرى."
+  },
+  "finder": {
+    "found_baggage": "هل وجدت هذه الحقيبة؟",
+    "help_owner": "ساعد المالك في استردادها بنقرات قليلة.",
+    "help_pilgrim": "ساعد الحاج في استرداد حقيبته.",
+    "where_is_baggage": "أين توجد الحقيبة؟",
+    "share_gps": "📍 مشاركة موقع GPS",
+    "locating": "جاري التحديد...",
+    "position_confirmed": "الموقع:",
+    "location_optional": "المكان بالتفصيل (اختياري)",
+    "location_placeholder": "مثال: فندق Hilton، جدة *",
+    "location_placeholder_hajj": "مثال: فندق في مكة *",
+    "location_warning": "يرجى أولاً مشاركة موقعك أو إدخال مكان.",
+    "your_info": "معلوماتك",
+    "first_name": "اسمك الأول *",
+    "whatsapp": "رقم الواتساب الخاص بك *",
+    "whatsapp_placeholder": "+966 50 123 4567",
+    "sending": "جاري الإرسال...",
+    "send_to_owner": "📤 إرسال إلى المالك",
+    "privacy_notice": "لا يتم تخزين معلوماتك الشخصية."
+  },
+  "whatsapp": {
+    "baggage_found": "📦 *QRBag – تم العثور على الحقيبة!*",
+    "reference": "📍 *المرجع* :",
+    "location": "📍 *المكان* :",
+    "map": "🗺️ *الخريطة* :",
+    "location_not_shared": "لم يتم مشاركة الموقع",
+    "found_by": "👤 *عثر عليها* :",
+    "contact": "📱 *الاتصال* :",
+    "pickup_message": "👉 شكراً لاسترجاعها بسرعة.",
+    "signature": "*QRBag – احمِ أمتعتك براحة بال.*"
+  }
+}
