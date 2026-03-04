@@ -22,7 +22,10 @@ import {
   Users,
   Package,
   Moon,
-  Sun
+  Sun,
+  Sparkles,
+  Lightbulb,
+  RefreshCw
 } from "lucide-react";
 import { DEMO_AGENCY } from './layout';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -142,6 +145,151 @@ function QuickActionCard({
     return <Link href={href}>{content}</Link>;
   }
   return <div onClick={onClick}>{content}</div>;
+}
+
+// AI Suggestions Component
+function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) {
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchSuggestion = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/ai/suggestions?agencyId=${agencyId}`);
+      const data = await response.json();
+      if (data.success && data.suggestion) {
+        setSuggestion(data.suggestion);
+      } else {
+        setError('Impossible de charger les suggestions');
+      }
+    } catch (err) {
+      console.error('Error fetching AI suggestion:', err);
+      setError('Erreur lors du chargement');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuggestion();
+  }, [agencyId]);
+
+  // Generate contextual suggestions based on stats
+  const getContextualSuggestions = () => {
+    const suggestions = [];
+    
+    if (stats.lost > 0) {
+      suggestions.push({
+        icon: '⚠️',
+        title: 'Bagages perdus',
+        text: `Vous avez ${stats.lost} bagage(s) signalé(s) comme perdu(s). Contactez rapidement les voyageurs concernés.`,
+        color: 'bg-red-50 border-red-200 text-red-700'
+      });
+    }
+    
+    if (stats.pending > 5) {
+      suggestions.push({
+        icon: '⏳',
+        title: 'Activation en attente',
+        text: `${stats.pending} bagages sont en attente d'activation. Envoyez un rappel aux voyageurs.`,
+        color: 'bg-amber-50 border-amber-200 text-amber-700'
+      });
+    }
+    
+    if (stats.scanned > 0) {
+      suggestions.push({
+        icon: '🔍',
+        title: 'Scans récents',
+        text: `${stats.scanned} bagage(s) ont été scanné(s) récemment. Vérifiez les localisations.`,
+        color: 'bg-blue-50 border-blue-200 text-blue-700'
+      });
+    }
+    
+    if (stats.total > 0 && stats.pending === 0 && stats.lost === 0) {
+      suggestions.push({
+        icon: '✅',
+        title: 'Excellent !',
+        text: 'Tous vos bagages sont actifs et bien suivis. Continuez comme ça !',
+        color: 'bg-green-50 border-green-200 text-green-700'
+      });
+    }
+    
+    return suggestions;
+  };
+
+  const contextualSuggestions = getContextualSuggestions();
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 transition-colors duration-300">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff7f00] to-[#ff9f40] flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Suggestions IA</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Recommandations personnalisées</p>
+          </div>
+        </div>
+        <button
+          onClick={fetchSuggestion}
+          disabled={loading}
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          title="Actualiser"
+        >
+          <RefreshCw className={`w-4 h-4 text-slate-500 dark:text-slate-400 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
+      {/* Contextual Suggestions */}
+      <div className="space-y-3 mb-4">
+        {contextualSuggestions.map((sugg, index) => (
+          <div
+            key={index}
+            className={`p-4 rounded-xl border ${sugg.color} dark:bg-opacity-20`}
+          >
+            <div className="flex items-start gap-3">
+              <span className="text-xl">{sugg.icon}</span>
+              <div>
+                <p className="font-medium">{sugg.title}</p>
+                <p className="text-sm opacity-80">{sugg.text}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* AI Generated Suggestion */}
+      {loading && (
+        <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-xl animate-pulse">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#ff7f00] animate-pulse" />
+            <span className="text-slate-500 dark:text-slate-400 text-sm">Analyse en cours...</span>
+          </div>
+        </div>
+      )}
+
+      {suggestion && !loading && (
+        <div className="p-4 bg-gradient-to-r from-[#ff7f00]/10 to-[#ff9f40]/10 border border-[#ff7f00]/20 rounded-xl">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="w-5 h-5 text-[#ff7f00] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-slate-700 dark:text-slate-300 font-medium mb-1">Conseil IA</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">{suggestion}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function AgencyDashboardPage() {
@@ -394,6 +542,11 @@ export default function AgencyDashboardPage() {
           color="#10b981"
           href="/dashboard/agency/trouvailles"
         />
+      </div>
+
+      {/* AI Suggestions */}
+      <div className="mb-8">
+        <AISuggestions agencyId={DEMO_AGENCY.id} stats={stats} />
       </div>
 
       {/* Search Bar */}
