@@ -61,9 +61,14 @@ function Navigation() {
                 Démo
               </Button>
             </Link>
-            <Link href="/login">
-              <Button variant="ghost" className="text-[#e0e6f0] hover:text-[#b8860b]">
-                Connexion
+            <Link href="/login?role=agency">
+              <Button variant="ghost" className="text-[#b8860b] hover:text-[#d4af37] border border-[#b8860b]/30">
+                Espace Agence
+              </Button>
+            </Link>
+            <Link href="/login?role=admin">
+              <Button variant="ghost" className="text-[#ff2a6d] hover:text-[#e01e5a] border border-[#ff2a6d]/30">
+                SuperAdmin
               </Button>
             </Link>
             <Link href="/devenir-partenaire">
@@ -93,8 +98,11 @@ function Navigation() {
               <Link href="/demo" onClick={() => setIsOpen(false)}>
                 <Button variant="ghost" className="w-full text-[#ff2a6d]">Voir la Démo</Button>
               </Link>
-              <Link href="/login" onClick={() => setIsOpen(false)}>
-                <Button variant="ghost" className="w-full text-[#e0e6f0]">Connexion</Button>
+              <Link href="/login?role=agency" onClick={() => setIsOpen(false)}>
+                <Button variant="ghost" className="w-full text-[#b8860b] border border-[#b8860b]/30">Espace Agence</Button>
+              </Link>
+              <Link href="/login?role=admin" onClick={() => setIsOpen(false)}>
+                <Button variant="ghost" className="w-full text-[#ff2a6d] border border-[#ff2a6d]/30">SuperAdmin</Button>
               </Link>
               <Link href="/devenir-partenaire" onClick={() => setIsOpen(false)}>
                 <Button className="w-full bg-[#ff2a6d] hover:bg-[#e01e5a] text-white">Devenir Partenaire</Button>

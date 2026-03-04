@@ -1,312 +1,268 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import {
+  QrCode,
+  Scan,
+  Shield,
+  BarChart3,
+  Settings,
+  Users,
+  Eye,
+  EyeOff,
+  Loader2
+} from "lucide-react";
 
-// Types pour les contenus spécifiques
-interface LoginContent {
-  title: string;
-  subtitle: string;
-  features: Array<{
-    icon: string;
-    iconBg: string;
-    title: string;
-    description: string;
-  }>;
-  footerText: string;
-  formTitle: string;
-  formSubtitle: string;
-  formIcon: string;
-  primaryColor: string;
-  primaryColorHover: string;
-  linkText: string;
-  linkHref: string;
-}
+// Agency Login Features
+const agencyFeatures = [
+  { icon: "✅", title: "Scan en temps réel", desc: "Suivez chaque bagage dès qu'il est scanné" },
+  { icon: "⚡", title: "Commande en 1 clic", desc: "Générez des lots de QR en 30 secondes" },
+  { icon: "📊", title: "Dashboard intuitif", desc: "Suivi des pèlerins, statuts, trouvailles" },
+  { icon: "🛠️", title: "Support 24/7", desc: "Nous sommes là pour vous aider — sans délai" }
+];
 
-// Contenu pour l'agence
-const agencyContent: LoginContent = {
-  title: 'QRBag pour les agences de voyage',
-  features: [
-    {
-      icon: '✓',
-      iconBg: '#1e7e34',
-      title: 'Scan en temps réel',
-      description: 'suivez chaque bagage dès qu\'il est scanné',
-    },
-    {
-      icon: '✓',
-      iconBg: '#1e7e34',
-      title: 'Commande en 1 clic',
-      description: 'générez des lots de QR codes en 30s',
-    },
-    {
-      icon: '✓',
-      iconBg: '#1e7e34',
-      title: 'Dashboard intuitif',
-      description: 'suivi des pèlerins, statuts, trouvailles',
-    },
-    {
-      icon: '✓',
-      iconBg: '#1e7e34',
-      title: 'Support 24/7',
-      description: 'nous sommes là pour vous aider',
-    },
-  ],
-  footerText: 'Plus de 500 agences font déjà confiance à QRBag pour protéger les bagages de leurs pèlerins.',
-  formTitle: 'Espace Agence',
-  formSubtitle: 'Connectez-vous à votre dashboard',
-  formIcon: '🏢',
-  primaryColor: '#b8860b',
-  primaryColorHover: '#d4af37',
-  linkText: 'Devenez partenaire',
-  linkHref: '/devenir-partenaire',
+// Admin Login Features
+const adminFeatures = [
+  { icon: "🔐", title: "Sécurité renforcée", desc: "Authentification stricte, logs complets, feature flags" },
+  { icon: "📈", title: "Tableau de bord centralisé", desc: "Suivi en temps réel de toutes les activités" },
+  { icon: "⚙️", title: "Intégrations API", desc: "Activez Green API, géoloc, PDF à la demande" },
+  { icon: "👥", title: "Gestion des rôles", desc: "Agences, pèlerins, voyageurs, admins — tout contrôlé" }
+];
+
+// Demo Accounts
+const demoAccounts = {
+  agency: { email: "agence@qrbag.com", password: "agence123" },
+  admin: { email: "admin@qrbag.com", password: "admin123" }
 };
 
-// Contenu pour le SuperAdmin
-const adminContent: LoginContent = {
-  title: 'QRBag pour les administrateurs',
-  features: [
-    {
-      icon: '✓',
-      iconBg: '#ff2a6d',
-      title: 'Contrôle total',
-      description: 'gérez agences, QR, utilisateurs, API',
-    },
-    {
-      icon: '✓',
-      iconBg: '#ff2a6d',
-      title: 'Tableau de bord centralisé',
-      description: 'suivi en temps réel de toutes les activités',
-    },
-    {
-      icon: '✓',
-      iconBg: '#ff2a6d',
-      title: 'Intégrations API',
-      description: 'activez Green API, géoloc, PDF à la demande',
-    },
-    {
-      icon: '✓',
-      iconBg: '#ff2a6d',
-      title: 'Sécurité renforcée',
-      description: 'authentification stricte, logs complets, feature flags',
-    },
-  ],
-  footerText: 'QRBag est conçu pour les équipes techniques qui veulent un système scalable, sécurisé et évolutif.',
-  formTitle: 'Espace Administrateur',
-  formSubtitle: 'Accédez au panneau de contrôle',
-  formIcon: '🔐',
-  primaryColor: '#ff2a6d',
-  primaryColorHover: '#e0195c',
-  linkText: 'Contactez-nous',
-  linkHref: '/contact',
-};
-
-function LoginPageContent() {
-  const searchParams = useSearchParams();
+export default function LoginPage() {
   const router = useRouter();
-  const role = searchParams.get('role');
-
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'agency';
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
-  // Redirection par défaut vers agency
+  const isAdmin = role === 'admin';
+  const features = isAdmin ? adminFeatures : agencyFeatures;
+  const buttonColor = isAdmin ? '#ff2a6d' : '#b8860b';
+  const buttonHover = isAdmin ? '#e01e5a' : '#d4af37';
+
+  // Redirect if already logged in
   useEffect(() => {
-    if (!role) {
-      router.replace('/login?role=agency');
-    }
-  }, [role, router]);
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/session');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated) {
+            router.push(isAdmin ? '/admin/dashboard' : '/dashboard/agency');
+          }
+        }
+      } catch {
+        // Not logged in, continue
+      }
+    };
+    checkSession();
+  }, [router, isAdmin]);
 
-  // Sélection du contenu selon le rôle
-  const content = role === 'admin' ? adminContent : agencyContent;
-
-  // Handler pour le switch de rôle
-  const handleRoleSwitch = (newRole: string) => {
-    setError('');
-    router.push(`/login?role=${newRole}`);
-  };
-
-  // Handler pour la connexion
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setLoading(true);
 
     try {
-      // Utiliser NextAuth pour la connexion
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          password,
+          role: isAdmin ? 'superadmin' : 'agency'
+        }),
       });
 
-      if (result?.error) {
-        setError('Identifiants incorrects');
-        setIsLoading(false);
-        return;
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Redirect based on role
+        router.push(isAdmin ? '/admin/dashboard' : '/dashboard/agency');
+      } else {
+        setError(data.error || 'Identifiants incorrects');
       }
-
-      // Vérifier le rôle après connexion
-      const sessionResponse = await fetch('/api/auth/session');
-      const sessionData = await sessionResponse.json();
-
-      if (!sessionData.authenticated || !sessionData.user) {
-        setError('Erreur lors de la récupération de la session');
-        setIsLoading(false);
-        return;
-      }
-
-      const userRole = sessionData.user.role;
-      const expectedRole = role || 'agency';
-
-      // Vérifier que le rôle correspond
-      if (expectedRole === 'admin' && userRole !== 'superadmin') {
-        setError('Accès non autorisé - Administrateur requis');
-        setIsLoading(false);
-        return;
-      }
-
-      if (expectedRole === 'agency' && userRole !== 'agency' && userRole !== 'superadmin') {
-        setError('Accès non autorisé - Agence requise');
-        setIsLoading(false);
-        return;
-      }
-
-      // Sauvegarder les infos utilisateur dans localStorage
-      localStorage.setItem('user', JSON.stringify(sessionData.user));
-      localStorage.setItem('isLoggedIn', 'true');
-
-      // Rediriger vers le bon dashboard
-      const redirectUrl = userRole === 'superadmin' ? '/admin/dashboard' : '/dashboard/agency';
-      router.push(redirectUrl);
-    } catch (err) {
-      console.error('Login error:', err);
+    } catch {
       setError('Erreur de connexion. Veuillez réessayer.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  const fillDemoAccount = () => {
+    const account = demoAccounts[isAdmin ? 'admin' : 'agency'];
+    setEmail(account.email);
+    setPassword(account.password);
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex">
-      {/* Colonne gauche - Fond sombre */}
-      <div className="hidden lg:flex w-1/2 bg-[#080c1a] text-white p-8 flex-col justify-center relative overflow-hidden">
-        {/* Background pattern optionnel */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-[#b8860b] blur-3xl"></div>
-          <div className="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-[#ff2a6d] blur-3xl"></div>
-        </div>
-
-        <div className="max-w-md relative z-10">
-          <h2 className="text-2xl font-bold mb-6">{content.title}</h2>
-
-          <ul className="space-y-4 text-[#e0e6f0]">
-            {content.features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center mt-0.5 shrink-0 text-white text-xs font-bold"
-                  style={{ backgroundColor: feature.iconBg }}
-                >
-                  {feature.icon}
+    <div className="min-h-screen bg-[#f9fafb] flex">
+      {/* Left Column - Dark Demo Section */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#080c1a] text-white p-8 md:p-12 flex-col justify-center">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-3xl font-bold mb-6">
+            {isAdmin ? 'QRBag — SuperAdmin' : 'QRBag pour les agences de voyage'}
+          </h2>
+          
+          {/* Demo Illustration */}
+          <div className="relative mb-8">
+            <div className="w-full h-80 rounded-2xl bg-gradient-to-br from-[#1e3a2e] to-[#0d152a] flex items-center justify-center overflow-hidden">
+              <div className="text-center p-6">
+                <div className="inline-flex items-center gap-3 mb-4">
+                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${isAdmin ? 'bg-[#ff2a6d]' : 'bg-[#b8860b]'}`}>
+                    {isAdmin ? (
+                      <Shield className="w-7 h-7 text-white" />
+                    ) : (
+                      <QrCode className="w-7 h-7 text-white" />
+                    )}
+                  </div>
+                  <span className="text-2xl font-bold">
+                    {isAdmin ? 'Contrôle total' : 'Scan en 30s'}
+                  </span>
                 </div>
-                <span>
-                  <strong>{feature.title}</strong> — {feature.description}
-                </span>
+                <p className="text-[#e0e6f0] max-w-sm text-lg">
+                  {isAdmin 
+                    ? 'Gérez agences, QR, utilisateurs, API — tout depuis un seul tableau de bord.'
+                    : 'Suivez chaque bagage dès qu\'il est scanné — sans application, sans batterie.'
+                  }
+                </p>
+              </div>
+            </div>
+            
+            {/* Badge */}
+            <div className={`absolute bottom-4 ${isAdmin ? 'right-4' : 'left-4'} bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg text-sm flex items-center gap-2`}>
+              {isAdmin ? (
+                <>
+                  <Shield className="w-4 h-4" />
+                  Sécurisé • RGPD • Auto-hébergé
+                </>
+              ) : (
+                <>
+                  💡 +500 agences font déjà confiance à QRBag
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Features List */}
+          <ul className="space-y-4 text-[#e0e6f0]">
+            {features.map((item, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="text-xl mt-0.5">{item.icon}</span>
+                <div>
+                  <h3 className="font-semibold text-white">{item.title}</h3>
+                  <p className="text-sm opacity-80">{item.desc}</p>
+                </div>
               </li>
             ))}
           </ul>
-
-          <div className="mt-8">
-            <p className="text-sm opacity-80">{content.footerText}</p>
-          </div>
-
-          {/* Switch de rôle */}
-          <div className="mt-8 pt-6 border-t border-white/10">
-            <p className="text-sm opacity-60 mb-3">Vous êtes...</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleRoleSwitch('agency')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  role === 'agency' || !role
-                    ? 'bg-[#b8860b] text-white'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
-              >
-                🏢 Une agence
-              </button>
-              <button
-                onClick={() => handleRoleSwitch('admin')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  role === 'admin'
-                    ? 'bg-[#ff2a6d] text-white'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
-              >
-                🔐 Administrateur
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Colonne droite - Formulaire */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-8">
+      {/* Right Column - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-10 bg-[#f9fafb]">
         <div className="w-full max-w-md">
-          {/* Logo et titre */}
+          {/* Logo + Title */}
           <div className="text-center mb-8">
-            <a href="/" className="inline-block mb-4">
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-4xl">🎒</span>
-                <span className="text-2xl font-bold text-[#080c1a]">QRBag</span>
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: buttonColor }}
+              >
+                <span className="text-white font-bold text-lg">QR</span>
               </div>
-            </a>
-            <div className="inline-flex items-center gap-2 mb-2">
-              <span className="text-3xl">{content.formIcon}</span>
-              <h1 className="text-3xl font-bold text-gray-900">{content.formTitle}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {isAdmin ? 'Espace Administrateur' : 'Espace Agence'}
+              </h1>
             </div>
-            <p className="text-gray-600">{content.formSubtitle}</p>
+            <p className="text-gray-600">Connectez-vous à votre dashboard sécurisé</p>
           </div>
 
-          {/* Message d'erreur */}
+          {/* Role Switcher */}
+          <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
+            <Link
+              href="/login?role=agency"
+              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all text-center ${
+                !isAdmin 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Agence
+            </Link>
+            <Link
+              href="/login?role=admin"
+              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all text-center ${
+                isAdmin 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              SuperAdmin
+            </Link>
+          </div>
+
+          {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-center gap-2">
+              <span>⚠️</span>
               {error}
             </div>
           )}
 
-          {/* Formulaire */}
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1">
+              <label className="block text-gray-700 text-sm font-medium mb-2">
                 Email <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all outline-none text-gray-900 bg-white"
-                placeholder="vous@exemple.com"
+                className="w-full px-4 py-3.5 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition"
+                style={{ '--tw-ring-color': buttonColor } as React.CSSProperties}
+                placeholder={isAdmin ? "admin@qrbag.com" : "vous@agence.com"}
                 required
-                disabled={isLoading}
               />
             </div>
 
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1">
+              <label className="block text-gray-700 text-sm font-medium mb-2">
                 Mot de passe <span className="text-red-500">*</span>
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all outline-none text-gray-900 bg-white"
-                placeholder="••••••••"
-                required
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3.5 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition pr-12"
+                  style={{ '--tw-ring-color': buttonColor } as React.CSSProperties}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between">
@@ -315,116 +271,97 @@ function LoginPageContent() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="mr-2 w-4 h-4 rounded border-gray-300"
-                  style={{ accentColor: content.primaryColor }}
+                  className="mr-2 h-4 w-4 rounded border-gray-300 focus:ring-2"
+                  style={{ accentColor: buttonColor }}
                 />
                 <span className="text-sm text-gray-600">Se souvenir de moi</span>
               </label>
-              <a
-                href="#"
-                className="text-sm font-medium hover:underline"
-                style={{ color: content.primaryColor }}
-              >
+              <a href="#" className="text-sm font-medium hover:underline" style={{ color: buttonColor }}>
                 Mot de passe oublié ?
               </a>
             </div>
 
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full text-white py-3 rounded-lg font-bold transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                style={{
-                  backgroundColor: content.primaryColor,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading) {
-                    e.currentTarget.style.backgroundColor = content.primaryColorHover;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = content.primaryColor;
-                }}
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Connexion...
-                  </>
-                ) : (
-                  'Se connecter →'
-                )}
-              </button>
-            </div>
-
-            {/* Comptes de démo */}
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-xs text-gray-500 mb-2 font-medium">Comptes de démonstration :</p>
-              <div className="text-xs text-gray-600 space-y-1">
-                <p><strong>Admin:</strong> admin@qrbag.com / admin123</p>
-                <p><strong>Agence:</strong> agence@qrbag.com / agence123</p>
-              </div>
-            </div>
-
-            {/* Lien inscription */}
-            <p className="text-center text-sm text-gray-600 mt-6">
-              Pas de compte ?{' '}
-              <a
-                href={content.linkHref}
-                className="font-medium hover:underline"
-                style={{ color: content.primaryColor }}
-              >
-                {content.linkText}
-              </a>
-            </p>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full text-white py-3.5 rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+              style={{ backgroundColor: buttonColor }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = buttonHover)}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = buttonColor)}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Connexion...
+                </>
+              ) : (
+                <>
+                  Se connecter
+                  <span>→</span>
+                </>
+              )}
+            </button>
           </form>
 
-          {/* Mobile: Switch de rôle */}
-          <div className="lg:hidden mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-500 text-center mb-3">Vous êtes...</p>
-            <div className="flex justify-center gap-3">
+          {/* Footer Link */}
+          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+            <p className="text-gray-600 text-sm">
+              {isAdmin ? (
+                <>
+                  Accès réservé ?{' '}
+                  <a href="#" className="font-medium hover:underline" style={{ color: buttonColor }}>
+                    Contactez-nous
+                  </a>
+                </>
+              ) : (
+                <>
+                  Pas de compte ?{' '}
+                  <Link href="/partenaires" className="font-medium hover:underline" style={{ color: buttonColor }}>
+                    Devenez partenaire
+                  </Link>
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Demo Accounts */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Comptes de démonstration
+              </h3>
               <button
-                onClick={() => handleRoleSwitch('agency')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  role === 'agency' || !role
-                    ? 'text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                style={{
-                  backgroundColor: role === 'agency' || !role ? '#b8860b' : undefined,
-                }}
+                type="button"
+                onClick={fillDemoAccount}
+                className="text-xs font-medium hover:underline"
+                style={{ color: buttonColor }}
               >
-                🏢 Une agence
-              </button>
-              <button
-                onClick={() => handleRoleSwitch('admin')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  role === 'admin'
-                    ? 'text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                style={{
-                  backgroundColor: role === 'admin' ? '#ff2a6d' : undefined,
-                }}
-              >
-                🔐 Administrateur
+                Remplir
               </button>
             </div>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-medium">
+                  {isAdmin ? 'SuperAdmin' : 'Agence'}
+                </span>
+                <span className="text-gray-500 font-mono">
+                  {demoAccounts[isAdmin ? 'admin' : 'agency'].email} / {demoAccounts[isAdmin ? 'admin' : 'agency'].password}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Role Info */}
+          <div className="lg:hidden mt-6 p-4 bg-[#080c1a] rounded-xl text-white">
+            <p className="text-sm text-center opacity-80">
+              {isAdmin 
+                ? '🔐 SuperAdmin : Gérez agences, QR, utilisateurs, API'
+                : '✅ Agence : Suivez vos bagages en temps réel'
+              }
+            </p>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#b8860b]"></div>
-      </div>
-    }>
-      <LoginPageContent />
-    </Suspense>
   );
 }

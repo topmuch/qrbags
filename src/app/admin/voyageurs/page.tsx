@@ -182,7 +182,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages }: { isOpen: boolean; setIs
         {/* User Section */}
         <div className="p-4 border-t border-white/10">
           <Link
-            href="/"
+            href="/login?role=admin"
             className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
           >
             <LogOut className="w-5 h-5" />
