@@ -12,25 +12,44 @@ datasource db {
 
 // User model - supports both superadmin and agency users
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  name      String?
-  password  String?
-  role      String     @default("agency") // "superadmin" or "agency"
-  agencyId  String?
-  agency    Agency?    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  sessions  Session[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id         String      @id @default(cuid())
+  email      String      @unique
+  name       String?
+  password   String?
+  role       String      @default("agency") // "superadmin" or "agency"
+  agencyId   String?
+  agency     Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  sessions   Session[]
+  loginLogs  LoginLog[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 }
 
 // Session model - secure HTTP-only cookie based sessions
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent    String?  // Browser identification
+  ipAddress    String?  // IP address at login
+  lastActivity DateTime @default(now()) // Last activity timestamp
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
+
+// LoginLog model - audit trail for all login attempts
+model LoginLog {
+  id           String    @id @default(cuid())
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email        String    // Email used for login attempt
+  success      Boolean   @default(false) // Whether login succeeded
+  failureReason String?  // Reason for failure if applicable
+  ipAddress    String?   // IP address
+  userAgent    String?   // Browser/client info
+  country      String?   // Country from IP
+  city         String?   // City from IP
+  createdAt    DateTime  @default(now())
 }
 
 // Agency model - pilgrimage agencies

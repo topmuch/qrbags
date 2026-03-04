@@ -25,7 +25,8 @@ import {
   ChevronDown,
   HelpCircle,
   FileText,
-  BarChart3
+  BarChart3,
+  Shield
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -60,6 +61,8 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
     { label: "Trouvailles", icon: <Search className="w-5 h-5" />, href: "/admin/trouvailles" },
     { label: "ANALYSE", icon: null, isCategory: true },
     { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/admin/rapports" },
+    { label: "SÉCURITÉ", icon: null, isCategory: true },
+    { label: "Sécurité & Audit", icon: <Shield className="w-5 h-5" />, href: "/admin/securite" },
     { label: "PARAMÈTRES", icon: null, isCategory: true },
     { label: "Paramètres", icon: <Settings className="w-5 h-5" />, href: "/admin/parametres" },
     { label: "Fonctionnalités", icon: <Globe className="w-5 h-5" />, href: "/admin/parametres/fonctionnalites" },
