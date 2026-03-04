@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { createSession } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,6 +53,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Créer une session sécurisée avec cookie HTTP-only
+    await createSession(user.id);
+
     // Retourner les infos utilisateur (sans le mot de passe)
     return NextResponse.json({
       success: true,
@@ -63,7 +67,7 @@ export async function POST(request: NextRequest) {
         agencyId: user.agencyId,
         agency: user.agency,
       },
-      redirectUrl: role === 'superadmin' ? '/admin/tableau-de-bord' : '/agence/tableau-de-bord',
+      redirectUrl: user.role === 'superadmin' ? '/admin/tableau-de-bord' : '/agence/tableau-de-bord',
     });
   } catch (error) {
     console.error('Login error:', error);

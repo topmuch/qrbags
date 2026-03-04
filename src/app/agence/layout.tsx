@@ -292,8 +292,8 @@ export default function AgencyRootLayout({
   }, [user, loading, isAgency, router, pathname]);
 
   // Handle logout
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.replace('/agence/connexion');
   };
 

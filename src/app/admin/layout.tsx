@@ -266,8 +266,8 @@ export default function AdminRootLayout({
   }, [user, loading, isSuperAdmin, router, pathname]);
 
   // Handle logout
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.replace('/admin/connexion');
   };
 

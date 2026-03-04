@@ -1,27 +1,12 @@
 import { NextResponse } from 'next/server';
+import { deleteSession } from '@/lib/session';
 
 export async function POST() {
   try {
-    const response = NextResponse.json({ success: true });
+    // Delete session from database and clear cookie
+    await deleteSession();
 
-    // Clear the NextAuth session cookies
-    response.cookies.set('next-auth.session-token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      expires: new Date(0),
-    });
-
-    response.cookies.set('next-auth.csrf-token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      expires: new Date(0),
-    });
-
-    return response;
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Logout error:', error);
     return NextResponse.json(

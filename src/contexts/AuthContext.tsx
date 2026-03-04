@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 export interface User {
   id: string;
   email: string;
-  name: string;
+  name: string | null;
   role: 'superadmin' | 'agency';
   agencyId?: string | null;
   agency?: {
@@ -25,10 +25,11 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (userData: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isSuperAdmin: boolean;
   isAgency: boolean;
+  refreshSession: () => Promise<void>;
 }
 
 // Create context
@@ -36,14 +37,12 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   login: () => {},
-  logout: () => {},
+  logout: async () => {},
   isAuthenticated: false,
   isSuperAdmin: false,
   isAgency: false,
+  refreshSession: async () => {},
 });
-
-// Storage key
-const AUTH_STORAGE_KEY = 'qrbag_user';
 
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -52,40 +51,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Initialize auth state from localStorage (run once on mount)
-  useEffect(() => {
-    const initAuth = () => {
-      try {
-        const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-        if (stored) {
-          const userData = JSON.parse(stored) as User;
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Auth init error:', error);
-        localStorage.removeItem(AUTH_STORAGE_KEY);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch session from server (cookie-based)
+  const fetchSession = useCallback(async () => {
+    try {
+      const response = await fetch('/api/auth/session');
+      const data = await response.json();
 
-    // Use setTimeout to ensure localStorage is available
-    if (typeof window !== 'undefined') {
-      setTimeout(initAuth, 0);
+      if (data.authenticated && data.user) {
+        setUser(data.user as User);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error fetching session:', error);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  // Login function
+  // Initialize auth state from server session
+  useEffect(() => {
+    fetchSession();
+  }, [fetchSession]);
+
+  // Login function - called after successful login API call
   const login = useCallback((userData: User) => {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userData));
     setUser(userData);
   }, []);
 
-  // Logout function
-  const logout = useCallback(() => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    setUser(null);
+  // Logout function - calls logout API and clears state
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      setUser(null);
+    }
   }, []);
+
+  // Refresh session from server
+  const refreshSession = useCallback(async () => {
+    await fetchSession();
+  }, [fetchSession]);
 
   // Computed values
   const isAuthenticated = !!user;
@@ -102,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated,
         isSuperAdmin,
         isAgency,
+        refreshSession,
       }}
     >
       {children}
@@ -120,7 +130,7 @@ export function useAuth() {
 
 // Hook for protected routes
 export function useRequireAuth(allowedRole?: 'superadmin' | 'agency') {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, refreshSession } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -145,7 +155,7 @@ export function useRequireAuth(allowedRole?: 'superadmin' | 'agency') {
     }
   }, [user, loading, allowedRole, router, pathname]);
 
-  return { user, loading, logout };
+  return { user, loading, logout, refreshSession };
 }
 
 export default AuthContext;

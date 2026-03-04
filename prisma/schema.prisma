@@ -12,15 +12,25 @@ datasource db {
 
 // User model - supports both superadmin and agency users
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String     @id @default(cuid())
+  email     String     @unique
   name      String?
   password  String?
-  role      String   @default("agency") // "superadmin" or "agency"
+  role      String     @default("agency") // "superadmin" or "agency"
   agencyId  String?
-  agency    Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  agency    Agency?    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  sessions  Session[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// Session model - secure HTTP-only cookie based sessions
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 // Agency model - pilgrimage agencies
