@@ -10,7 +10,7 @@ const individualSchema = z.object({
   firstName: z.string().min(2).max(50),
   lastName: z.string().min(2).max(50),
   whatsapp: z.string().min(6).max(20),
-  duration: z.enum(['72h', '1y']),
+  duration: z.enum(['7d', '1y']),
   baggageCount: z.number().min(1).max(3),
 });
 
@@ -94,7 +94,7 @@ async function generateBaggagesWithTraveler(options: {
   firstName: string;
   lastName: string;
   whatsapp: string;
-  duration: '72h' | '1y';
+  duration: '7d' | '1y';
   baggageCount: 1 | 3;
 }): Promise<string[]> {
   const { type, firstName, lastName, whatsapp, duration, baggageCount } = options;

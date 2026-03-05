@@ -46,6 +46,8 @@ export async function GET(
         status: 'expired',
         message: 'Ce bagage a expiré',
         theme: 'error',
+        expiredAt: baggage.expiresAt.toISOString(),
+        agency: baggage.agency?.name || null,
         baggage: {
           type: baggage.type,
           travelerName: `${baggage.travelerFirstName} ${baggage.travelerLastName}`

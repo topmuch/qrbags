@@ -119,7 +119,7 @@ function HeroSection() {
             <div className="text-white/70 text-sm">À partir de</div>
           </div>
           <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-            <div className="text-3xl font-bold text-white">72h</div>
+            <div className="text-3xl font-bold text-white">7 jours</div>
             <div className="text-white/70 text-sm">Ou 1 an</div>
           </div>
         </div>
@@ -209,7 +209,7 @@ function ProcedureSection() {
 function AdvantagesSection() {
   const advantages = [
     { icon: "✅", text: "1 ou 3 bagages (selon besoin)" },
-    { icon: "✅", text: "Durée personnalisée : 72h ou 1 an" },
+    { icon: "✅", text: "Durée personnalisée : 7 jours ou 1 an" },
     { icon: "✅", text: "Aucune agence requise — vous gérez tout" },
     { icon: "✅", text: "Pas d'application, pas de batterie, pas de GPS" },
     { icon: "✅", text: "Certifié RGPD — données protégées" },
@@ -265,7 +265,7 @@ function PricingSection() {
       title: "Voyage unique",
       subtitle: "Idéal pour un voyage",
       price: "4 €",
-      duration: "72h de protection",
+      duration: "7 jours de protection",
       features: [
         "3 étiquettes QR incluses",
         "Support WhatsApp",

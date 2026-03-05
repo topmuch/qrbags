@@ -48,7 +48,7 @@ export interface GenerateIndividualOptions {
   firstName: string;
   lastName: string;
   whatsapp: string;
-  duration: '72h' | '1y';
+  duration: '7d' | '1y';
   baggageCount: 1 | 3;
 }
 
@@ -102,7 +102,7 @@ export function calculateExpirationDate(type: 'hajj' | 'voyageur', subtype?: 'st
       if (subtype === 'tag') {
         return new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // +365 days
       }
-      return new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000); // +5 days (sticker)
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days (sticker) - changed from 72h
     default:
       return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
   }

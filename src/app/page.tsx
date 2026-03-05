@@ -459,7 +459,7 @@ function PricingSection() {
     {
       title: "Pour 1 voyage",
       price: "4 €",
-      duration: "72h de protection",
+      duration: "7 jours de protection",
       features: [
         "3 étiquettes QR incluses",
         "Support WhatsApp",

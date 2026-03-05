@@ -455,7 +455,19 @@ export default function ScanPage() {
   }
 
   if (baggageData?.status === 'expired') {
-    return <ErrorScreen type="expired" t={t} lang={lang} setLang={setLang} />;
+    // Redirect to dedicated expired page with reference info
+    const expiredAt = (baggageData as any).expiredAt || '';
+    const agencyName = (baggageData as any).agency || '';
+    const params = new URLSearchParams({
+      ref: reference,
+      ...(expiredAt && { expired: expiredAt }),
+      ...(agencyName && { agency: agencyName })
+    });
+    // Use window.location for immediate redirect
+    if (typeof window !== 'undefined') {
+      window.location.href = `/expired?${params.toString()}`;
+    }
+    return <LoadingScreen t={t} />;
   }
 
   // Check if baggage is declared lost (Page 3 - Lost Baggage)
