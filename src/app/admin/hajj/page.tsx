@@ -240,7 +240,7 @@ export default function HajjAdminPage() {
       <div className="flex gap-2 mb-6">
         <Button
           variant="outline"
-          className="border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-xl"
+          className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl"
           onClick={handleExportCSV}
         >
           <Download className="w-4 h-4 mr-2" />
@@ -248,7 +248,7 @@ export default function HajjAdminPage() {
         </Button>
         <Button
           variant="outline"
-          className="border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-xl"
+          className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl"
           onClick={fetchData}
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -258,57 +258,57 @@ export default function HajjAdminPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card className="bg-white border-slate-100 shadow-sm rounded-2xl">
+        <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 text-sm">Total pèlerins</p>
-                <p className="text-3xl font-bold text-slate-800">{stats.total}</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Total pèlerins</p>
+                <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.total}</p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-slate-100 shadow-sm rounded-2xl">
+        <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 text-sm">Bagages actifs</p>
-                <p className="text-3xl font-bold text-slate-800">{stats.activeBaggages}</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages actifs</p>
+                <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.activeBaggages}</p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <Luggage className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                <Luggage className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-slate-100 shadow-sm rounded-2xl">
+        <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 text-sm">En attente</p>
-                <p className="text-3xl font-bold text-slate-800">{stats.pending}</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">En attente</p>
+                <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.pending}</p>
               </div>
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                <Clock className="w-6 h-6 text-amber-600" />
+              <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+                <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-slate-100 shadow-sm rounded-2xl">
+        <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 text-sm">Perdus</p>
-                <p className="text-3xl font-bold text-slate-800">{stats.lost}</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Perdus</p>
+                <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.lost}</p>
               </div>
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </CardContent>
@@ -316,7 +316,7 @@ export default function HajjAdminPage() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-white border-slate-100 shadow-sm rounded-2xl mb-6">
+      <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl mb-6">
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
@@ -325,14 +325,14 @@ export default function HajjAdminPage() {
                 placeholder="Rechercher un pèlerin..."
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                className="bg-white border-slate-200 text-slate-800 pl-9"
+                className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white pl-9"
               />
             </div>
             <Select value={agencyFilter} onValueChange={setAgencyFilter}>
-              <SelectTrigger className="bg-white border-slate-200 text-slate-800">
+              <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white">
                 <SelectValue placeholder="Agence" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-slate-200">
+              <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                 <SelectItem value="all">Toutes les agences</SelectItem>
                 {agencies.map((agency) => (
                   <SelectItem key={agency.id} value={agency.id}>
@@ -342,10 +342,10 @@ export default function HajjAdminPage() {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="bg-white border-slate-200 text-slate-800">
+              <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white">
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-slate-200">
+              <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                 <SelectItem value="all">Tous les statuts</SelectItem>
                 <SelectItem value="active">✅ Actif</SelectItem>
                 <SelectItem value="pending">⚪ En attente</SelectItem>
@@ -356,24 +356,24 @@ export default function HajjAdminPage() {
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="bg-white border-slate-200 text-slate-800"
+              className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white"
             />
           </div>
         </CardContent>
       </Card>
 
       {/* Table */}
-      <Card className="bg-white border-slate-100 shadow-sm rounded-2xl">
+      <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="border-slate-100 hover:bg-transparent">
-                <TableHead className="text-slate-500">Nom complet</TableHead>
-                <TableHead className="text-slate-500">Agence</TableHead>
-                <TableHead className="text-slate-500">Bagages</TableHead>
-                <TableHead className="text-slate-500">Statut global</TableHead>
-                <TableHead className="text-slate-500">Dernier scan</TableHead>
-                <TableHead className="text-slate-500">Actions</TableHead>
+              <TableRow className="border-slate-100 dark:border-slate-700 hover:bg-transparent">
+                <TableHead className="text-slate-500 dark:text-slate-400">Nom complet</TableHead>
+                <TableHead className="text-slate-500 dark:text-slate-400">Agence</TableHead>
+                <TableHead className="text-slate-500 dark:text-slate-400">Bagages</TableHead>
+                <TableHead className="text-slate-500 dark:text-slate-400">Statut global</TableHead>
+                <TableHead className="text-slate-500 dark:text-slate-400">Dernier scan</TableHead>
+                <TableHead className="text-slate-500 dark:text-slate-400">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

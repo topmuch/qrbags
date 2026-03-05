@@ -259,7 +259,7 @@ export default function EtiquettesPage() {
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => fetchSets()}
-          className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
         >
           <RefreshCw className="w-4 h-4" />
           Actualiser
@@ -278,13 +278,13 @@ export default function EtiquettesPage() {
         {kpiCards.map((card, index) => (
           <div
             key={index}
-            className="bg-white border border-slate-100 shadow-sm rounded-2xl p-5"
+            className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl p-5"
           >
             <div className="flex items-center justify-between mb-2">
               <card.icon className={`w-5 h-5 ${card.color}`} />
             </div>
-            <p className="text-2xl font-bold text-slate-800">{card.value}</p>
-            <p className="text-slate-500 text-sm">{card.title}</p>
+            <p className="text-2xl font-bold text-slate-800 dark:text-white">{card.value}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">{card.title}</p>
           </div>
         ))}
       </div>
@@ -297,7 +297,7 @@ export default function EtiquettesPage() {
             placeholder="Rechercher par référence ou set..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#ff7f00]"
+            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#ff7f00]"
           />
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         </div>
@@ -323,14 +323,14 @@ export default function EtiquettesPage() {
         {loading ? (
           <div className="text-center py-12">
             <div className="w-12 h-12 border-2 border-[#ff7f00]/30 border-t-[#ff7f00] rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-slate-500">Chargement...</p>
+            <p className="text-slate-500 dark:text-slate-400">Chargement...</p>
           </div>
         ) : sets.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-slate-100">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <QrCode className="w-8 h-8 text-slate-400" />
             </div>
-            <p className="text-slate-500">Aucune étiquette générée</p>
+            <p className="text-slate-500 dark:text-slate-400">Aucune étiquette générée</p>
             <p className="text-sm text-slate-400 mt-2">
               Générez vos premiers QR codes pour commencer.
             </p>
@@ -341,7 +341,7 @@ export default function EtiquettesPage() {
             return (
               <div
                 key={set.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-white rounded-2xl border border-slate-100 shadow-sm gap-4"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm gap-4"
               >
                 {/* Left: Info */}
                 <div className="flex items-start gap-4">
@@ -357,12 +357,12 @@ export default function EtiquettesPage() {
 
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-slate-800">{set.setId}</h3>
+                      <h3 className="font-bold text-slate-800 dark:text-white">{set.setId}</h3>
                       <span className={`px-2 py-0.5 ${statusBadge.bgClass} ${statusBadge.textClass} text-xs rounded-full`}>
                         {statusBadge.label}
                       </span>
                     </div>
-                    <div className="text-slate-500 text-sm flex flex-wrap gap-3">
+                    <div className="text-slate-500 dark:text-slate-400 text-sm flex flex-wrap gap-3">
                       <span>👤 {set.travelerName || '1 voyageur'}</span>
                       <span>🔢 {set.qrCount} QR</span>
                       <span>📅 {formatDate(set.createdAt)}</span>
@@ -427,13 +427,13 @@ export default function EtiquettesPage() {
       </div>
 
       {/* Footer */}
-      <div className="mt-6 px-6 py-4 bg-white border border-slate-100 rounded-2xl flex justify-between items-center">
-        <span className="text-slate-500 text-sm">
+      <div className="mt-6 px-6 py-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl flex justify-between items-center">
+        <span className="text-slate-500 dark:text-slate-400 text-sm">
           {sets.length} set(s) affiché(s)
         </span>
         <Link
           href="/admin/dashboard"
-          className="text-indigo-600 text-sm hover:underline"
+          className="text-indigo-600 dark:text-indigo-400 text-sm hover:underline"
         >
           ← Retour au dashboard
         </Link>
@@ -442,11 +442,11 @@ export default function EtiquettesPage() {
       {/* Detail Modal */}
       {showDetailModal && selectedSet && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-slate-100">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-700">
               <div>
-                <h2 className="text-lg font-bold text-slate-800">{selectedSet.setId}</h2>
-                <p className="text-slate-500 text-sm">
+                <h2 className="text-lg font-bold text-slate-800 dark:text-white">{selectedSet.setId}</h2>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
                   {selectedSet.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'} • {selectedSet.qrCount} QR codes
                 </p>
               </div>
@@ -455,7 +455,7 @@ export default function EtiquettesPage() {
                   setShowDetailModal(false);
                   setSelectedSet(null);
                 }}
-                className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
                 <X className="w-5 h-5 text-slate-400" />
               </button>
@@ -469,7 +469,7 @@ export default function EtiquettesPage() {
                 {selectedSet.references.map((ref, index) => (
                   <div
                     key={ref}
-                    className="bg-slate-50 rounded-xl p-4 text-center"
+                    className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 text-center"
                   >
                     <QRCodeSVG
                       value={`${typeof window !== 'undefined' ? window.location.origin : ''}/scan/${ref}`}
@@ -479,10 +479,10 @@ export default function EtiquettesPage() {
                       bgColor="#f8fafc"
                       fgColor={selectedSet.type === 'hajj' ? '#059669' : '#f59e0b'}
                     />
-                    <p className="text-slate-800 font-mono font-bold mt-2 text-sm">
+                    <p className="text-slate-800 dark:text-white font-mono font-bold mt-2 text-sm">
                       {ref}
                     </p>
-                    <p className="text-slate-500 text-xs">
+                    <p className="text-slate-500 dark:text-slate-400 text-xs">
                       {index === 0 ? 'Cabine' : 'Soute'} #{index + 1}
                     </p>
                   </div>
@@ -491,13 +491,13 @@ export default function EtiquettesPage() {
 
               {/* Info */}
               <div className="mt-6 grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 rounded-xl p-4">
-                  <p className="text-slate-500 text-sm">Créé le</p>
-                  <p className="text-slate-800 font-medium">{formatDate(selectedSet.createdAt)}</p>
+                <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">Créé le</p>
+                  <p className="text-slate-800 dark:text-white font-medium">{formatDate(selectedSet.createdAt)}</p>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-4">
-                  <p className="text-slate-500 text-sm">Agence</p>
-                  <p className="text-slate-800 font-medium">{selectedSet.agencyName || 'N/A'}</p>
+                <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">Agence</p>
+                  <p className="text-slate-800 dark:text-white font-medium">{selectedSet.agencyName || 'N/A'}</p>
                 </div>
               </div>
 
@@ -526,18 +526,18 @@ export default function EtiquettesPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedSet && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-sm w-full">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-slate-800 font-bold">Supprimer ce set ?</h3>
-                  <p className="text-slate-500 text-sm">{selectedSet.setId}</p>
+                  <h3 className="text-slate-800 dark:text-white font-bold">Supprimer ce set ?</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">{selectedSet.setId}</p>
                 </div>
               </div>
-              <p className="text-slate-500 text-sm mb-6">
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
                 Cette action supprimera définitivement les {selectedSet.qrCount} QR codes de ce set.
               </p>
               <div className="flex gap-3">
@@ -546,7 +546,7 @@ export default function EtiquettesPage() {
                     setShowDeleteModal(false);
                     setSelectedSet(null);
                   }}
-                  className="flex-1 py-2 px-4 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors"
+                  className="flex-1 py-2 px-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                 >
                   Annuler
                 </button>
