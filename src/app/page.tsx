@@ -47,9 +47,9 @@ function Navigation() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#solutions" className="text-[#e0e6f0] hover:text-[#ff2a6d] transition-colors">Solutions</a>
-            <a href="#comment" className="text-[#e0e6f0] hover:text-[#ff2a6d] transition-colors">Comment ça marche</a>
-            <a href="#tarifs" className="text-[#e0e6f0] hover:text-[#ff2a6d] transition-colors">Tarifs</a>
+            <a href="/#solutions" className="text-[#e0e6f0] hover:text-[#ff2a6d] transition-colors">Solutions</a>
+            <a href="/#comment" className="text-[#e0e6f0] hover:text-[#ff2a6d] transition-colors">Comment ça marche</a>
+            <a href="/#tarifs" className="text-[#e0e6f0] hover:text-[#ff2a6d] transition-colors">Tarifs</a>
             <Link href="/contact" className="text-[#e0e6f0] hover:text-[#ff2a6d] transition-colors">Contact</Link>
           </div>
 
@@ -91,9 +91,9 @@ function Navigation() {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-[#1a2238]">
             <div className="flex flex-col gap-4">
-              <a href="#solutions" className="text-[#e0e6f0] hover:text-[#ff2a6d]" onClick={() => setIsOpen(false)}>Solutions</a>
-              <a href="#comment" className="text-[#e0e6f0] hover:text-[#ff2a6d]" onClick={() => setIsOpen(false)}>Comment ça marche</a>
-              <a href="#tarifs" className="text-[#e0e6f0] hover:text-[#ff2a6d]" onClick={() => setIsOpen(false)}>Tarifs</a>
+              <a href="/#solutions" className="text-[#e0e6f0] hover:text-[#ff2a6d]" onClick={() => setIsOpen(false)}>Solutions</a>
+              <a href="/#comment" className="text-[#e0e6f0] hover:text-[#ff2a6d]" onClick={() => setIsOpen(false)}>Comment ça marche</a>
+              <a href="/#tarifs" className="text-[#e0e6f0] hover:text-[#ff2a6d]" onClick={() => setIsOpen(false)}>Tarifs</a>
               <Link href="/contact" className="text-[#e0e6f0] hover:text-[#ff2a6d]" onClick={() => setIsOpen(false)}>Contact</Link>
               <Link href="/demo" onClick={() => setIsOpen(false)}>
                 <Button variant="ghost" className="w-full text-[#ff2a6d]">Voir la Démo</Button>
@@ -631,9 +631,9 @@ function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-white">Produit</h4>
             <ul className="space-y-2 text-[#a0a8b8] text-sm">
-              <li><a href="#solutions" className="hover:text-[#ff2a6d] transition-colors">Solutions</a></li>
-              <li><a href="#comment" className="hover:text-[#ff2a6d] transition-colors">Comment ça marche</a></li>
-              <li><a href="#tarifs" className="hover:text-[#ff2a6d] transition-colors">Tarifs</a></li>
+              <li><a href="/#solutions" className="hover:text-[#ff2a6d] transition-colors">Solutions</a></li>
+              <li><a href="/#comment" className="hover:text-[#ff2a6d] transition-colors">Comment ça marche</a></li>
+              <li><a href="/#tarifs" className="hover:text-[#ff2a6d] transition-colors">Tarifs</a></li>
               <li><Link href="/demo" className="hover:text-[#ff2a6d] transition-colors">Démo</Link></li>
             </ul>
           </div>
@@ -667,14 +667,14 @@ function Footer() {
 
           {/* Social Icons */}
           <div className="flex items-center gap-4">
-            <a href="#" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors">
-              <Facebook className="w-5 h-5" />
+            <a href="https://facebook.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Facebook">
+              <Facebook className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="#" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors">
-              <Instagram className="w-5 h-5" />
+            <a href="https://instagram.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Instagram">
+              <Instagram className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="#" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors">
-              <Twitter className="w-5 h-5" />
+            <a href="https://twitter.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Twitter">
+              <Twitter className="w-5 h-5" aria-hidden="true" />
             </a>
           </div>
 

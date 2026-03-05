@@ -448,14 +448,14 @@ function Footer() {
 
           {/* Social Icons */}
           <div className="flex items-center gap-4">
-            <a href="#" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors">
-              <Facebook className="w-5 h-5" />
+            <a href="https://facebook.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Facebook">
+              <Facebook className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="#" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors">
-              <Instagram className="w-5 h-5" />
+            <a href="https://instagram.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Instagram">
+              <Instagram className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="#" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors">
-              <Twitter className="w-5 h-5" />
+            <a href="https://twitter.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Twitter">
+              <Twitter className="w-5 h-5" aria-hidden="true" />
             </a>
           </div>
 

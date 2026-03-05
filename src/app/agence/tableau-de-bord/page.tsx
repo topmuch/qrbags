@@ -90,7 +90,7 @@ function StatCard({
         )}
       </div>
       <div className="mt-4">
-        <p className="text-2xl font-bold text-slate-900 dark:text-white">{value}</p>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white">{value === 0 ? '—' : value}</p>
         <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mt-1">{title}</p>
         <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{subtitle}</p>
       </div>
@@ -124,7 +124,7 @@ function KPICard({
         </div>
       </div>
       <div className="mt-4 relative z-10">
-        <p className="text-3xl font-bold text-white">{value}</p>
+        <p className="text-3xl font-bold text-white">{value === 0 ? '—' : value}</p>
         <p className="text-sm font-medium text-white/90 mt-1">{title}</p>
         <p className="text-xs text-white/70 mt-1">{subtitle}</p>
       </div>
