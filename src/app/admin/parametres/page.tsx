@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Settings,
   Building2,
@@ -21,6 +22,11 @@ import {
   Database,
   HardDrive,
   X,
+  Server,
+  Send,
+  AlertCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 interface SettingsData {
@@ -40,6 +46,28 @@ interface SettingsData {
   default_language: string;
   currency: string;
 }
+
+interface EmailSettingsData {
+  provider: string;
+  fromEmail: string;
+  fromName: string;
+  smtpHost: string | null;
+  smtpPort: number | null;
+  smtpUser: string | null;
+  smtpPassword: string | null;
+  smtpEncryption: string;
+}
+
+const EMAIL_PROVIDERS = [
+  { id: 'console', name: 'Console (Développement)', description: 'Affiche les emails dans la console du serveur', icon: '💻' },
+  { id: 'smtp', name: 'Serveur SMTP Personnalisé', description: 'Configurez votre propre serveur email', icon: '🖥️' },
+];
+
+const ENCRYPTION_OPTIONS = [
+  { id: 'tls', name: 'TLS (Recommandé)' },
+  { id: 'ssl', name: 'SSL' },
+  { id: 'none', name: 'Aucun' },
+];
 
 const CURRENCIES = [
   { code: 'EUR', name: 'Euro (€)', symbol: '€' },
@@ -204,6 +232,9 @@ function BackupSection() {
 }
 
 export default function ParametresPage() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  
   const [settings, setSettings] = useState<SettingsData>({
     company_name: '',
     company_address: '',
@@ -218,13 +249,41 @@ export default function ParametresPage() {
     default_language: 'fr',
     currency: 'EUR',
   });
+  
+  const [emailSettings, setEmailSettings] = useState<EmailSettingsData>({
+    provider: 'console',
+    fromEmail: 'noreply@qrbag.com',
+    fromName: 'QRBag',
+    smtpHost: null,
+    smtpPort: null,
+    smtpUser: null,
+    smtpPassword: null,
+    smtpEncryption: 'tls',
+  });
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState('company');
+  const [activeTab, setActiveTab] = useState(tabParam || 'company');
+  
+  // Email-specific states
+  const [showPassword, setShowPassword] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailSaved, setEmailSaved] = useState(false);
+
+  // Update active tab when URL param changes
+  useEffect(() => {
+    if (tabParam && ['company', 'seo', 'localization', 'email', 'backup'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   useEffect(() => {
     fetchSettings();
+    fetchEmailSettings();
   }, []);
 
   const fetchSettings = async () => {
@@ -237,6 +296,18 @@ export default function ParametresPage() {
       console.error('Error fetching settings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchEmailSettings = async () => {
+    try {
+      const response = await fetch('/api/admin/email-settings');
+      const data = await response.json();
+      if (data.settings) {
+        setEmailSettings(data.settings);
+      }
+    } catch (error) {
+      console.error('Error fetching email settings:', error);
     }
   };
 
@@ -257,6 +328,61 @@ export default function ParametresPage() {
       console.error('Error saving settings:', error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleEmailSave = async () => {
+    setEmailSaving(true);
+    try {
+      const response = await fetch('/api/admin/email-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailSettings),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setEmailSaved(true);
+        setTimeout(() => setEmailSaved(false), 3000);
+        if (data.settings) {
+          setEmailSettings(data.settings);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving email settings:', error);
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
+  const handleTestEmail = async () => {
+    if (!testEmail || !testEmail.includes('@')) {
+      setTestResult({ success: false, message: 'Veuillez entrer une adresse email valide' });
+      return;
+    }
+
+    setSendingTest(true);
+    setTestResult(null);
+    
+    try {
+      const response = await fetch('/api/admin/email-settings/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: testEmail }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setTestResult({ success: true, message: 'Email de test envoyé avec succès !' });
+      } else {
+        setTestResult({ success: false, message: data.error || 'Erreur lors de l\'envoi de l\'email' });
+      }
+    } catch {
+      setTestResult({ success: false, message: 'Erreur lors de l\'envoi de l\'email de test' });
+    } finally {
+      setSendingTest(false);
     }
   };
 
@@ -302,6 +428,7 @@ export default function ParametresPage() {
     { id: 'company', label: 'Entreprise', icon: Building2 },
     { id: 'seo', label: 'SEO', icon: Search },
     { id: 'localization', label: 'Localisation', icon: Globe },
+    { id: 'email', label: 'Email', icon: Mail },
     { id: 'backup', label: 'Sauvegarde', icon: Database },
   ];
 
@@ -641,6 +768,258 @@ export default function ParametresPage() {
           </div>
         )}
 
+        {/* Email Tab */}
+        {!loading && activeTab === 'email' && (
+          <div className="space-y-6">
+            {/* Provider Selection */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <Server className="w-5 h-5 text-[#ff7f00]" />
+                Fournisseur Email
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {EMAIL_PROVIDERS.map((provider) => (
+                  <button
+                    key={provider.id}
+                    onClick={() => setEmailSettings({ ...emailSettings, provider: provider.id })}
+                    className={`
+                      flex items-start gap-4 p-4 rounded-2xl border transition-all text-left
+                      ${emailSettings.provider === provider.id
+                        ? 'border-[#ff7f00] bg-[#ff7f00]/10'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                      }
+                    `}
+                  >
+                    <span className="text-2xl">{provider.icon}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-slate-800 dark:text-white font-semibold">{provider.name}</h4>
+                        {emailSettings.provider === provider.id && (
+                          <CheckCircle className="w-5 h-5 text-[#ff7f00]" />
+                        )}
+                      </div>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{provider.description}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sender Settings */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <Mail className="w-5 h-5 text-[#ff7f00]" />
+                Expéditeur
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    Email expéditeur
+                  </label>
+                  <input
+                    type="email"
+                    value={emailSettings.fromEmail}
+                    onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
+                    placeholder="noreply@votredomaine.com"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    Nom affiché
+                  </label>
+                  <input
+                    type="text"
+                    value={emailSettings.fromName}
+                    onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
+                    placeholder="QRBag"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SMTP Settings - Only show when SMTP is selected */}
+            {emailSettings.provider === 'smtp' && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                  <Server className="w-5 h-5 text-[#ff7f00]" />
+                  Configuration SMTP
+                </h3>
+                <div className="grid gap-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                        Serveur SMTP (Hôte)
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.smtpHost || ''}
+                        onChange={(e) => setEmailSettings({ ...emailSettings, smtpHost: e.target.value || null })}
+                        placeholder="smtp.example.com"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                        Port
+                      </label>
+                      <input
+                        type="number"
+                        value={emailSettings.smtpPort || ''}
+                        onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: e.target.value ? parseInt(e.target.value) : null })}
+                        placeholder="587"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                        Nom d&apos;utilisateur
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.smtpUser || ''}
+                        onChange={(e) => setEmailSettings({ ...emailSettings, smtpUser: e.target.value || null })}
+                        placeholder="user@example.com"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                        Mot de passe
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={emailSettings.smtpPassword || ''}
+                          onChange={(e) => setEmailSettings({ ...emailSettings, smtpPassword: e.target.value || null })}
+                          placeholder="••••••••"
+                          className="w-full px-4 py-3 pr-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                        >
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                      Chiffrement
+                    </label>
+                    <div className="flex gap-3">
+                      {ENCRYPTION_OPTIONS.map((option) => (
+                        <button
+                          key={option.id}
+                          onClick={() => setEmailSettings({ ...emailSettings, smtpEncryption: option.id })}
+                          className={`
+                            px-4 py-2 rounded-xl border transition-all text-sm
+                            ${emailSettings.smtpEncryption === option.id
+                              ? 'border-[#ff7f00] bg-[#ff7f00]/10 text-slate-800 dark:text-white'
+                              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 text-slate-600 dark:text-slate-400'
+                            }
+                          `}
+                        >
+                          {option.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Test Email Section */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <Send className="w-5 h-5 text-[#ff7f00]" />
+                Tester la configuration
+              </h3>
+              <div className="flex gap-4">
+                <input
+                  type="email"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                />
+                <button
+                  onClick={handleTestEmail}
+                  disabled={sendingTest}
+                  className="flex items-center gap-2 px-6 py-3 bg-[#ff7f00] text-white rounded-xl font-medium hover:bg-[#ff6600] transition-colors disabled:opacity-50"
+                >
+                  {sendingTest ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      Envoi...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Envoyer
+                    </>
+                  )}
+                </button>
+              </div>
+              
+              {/* Test Result */}
+              {testResult && (
+                <div className={`mt-4 p-4 rounded-xl flex items-center gap-3 ${
+                  testResult.success 
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-800' 
+                    : 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-800'
+                }`}>
+                  {testResult.success ? (
+                    <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  )}
+                  <span className={testResult.success ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}>
+                    {testResult.message}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Save Email Settings Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={handleEmailSave}
+                disabled={emailSaving}
+                className={`
+                  flex items-center gap-2 px-6 py-3 rounded-2xl font-bold shadow-lg transition-all
+                  ${emailSaved
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-black text-white hover:bg-slate-800 hover:scale-105'
+                  }
+                `}
+              >
+                {emailSaving ? (
+                  <>
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : emailSaved ? (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    Enregistré !
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5" />
+                    Enregistrer la configuration email
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Backup Tab */}
         {!loading && activeTab === 'backup' && (
           <div className="space-y-6">
@@ -649,7 +1028,7 @@ export default function ParametresPage() {
         )}
 
         {/* Save Button */}
-        {!loading && activeTab !== 'backup' && (
+        {!loading && activeTab !== 'backup' && activeTab !== 'email' && (
           <div className="fixed bottom-6 right-6 z-50">
             <button
               onClick={handleSave}

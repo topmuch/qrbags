@@ -200,6 +200,12 @@ export default function AgencyLoginPage() {
                 />
                 <span className="text-sm text-slate-600 dark:text-slate-400">Se souvenir de moi</span>
               </label>
+              <Link 
+                href="/forgot-password" 
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-[#ff7f00] dark:hover:text-[#ff7f00]"
+              >
+                Mot de passe oublié ?
+              </Link>
             </div>
 
             <button

@@ -64,6 +64,7 @@ model Agency {
   createdAt DateTime  @default(now())
   baggages  Baggage[]
   users     User[]
+  invoices  Invoice[]
 }
 
 // Baggage model - main entity for luggage tracking
@@ -192,4 +193,71 @@ model Notification {
   read        Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// EmailSettings model - SMTP configuration
+model EmailSettings {
+  id              String   @id @default(cuid())
+  provider        String   @default("console") // "console" or "smtp"
+  fromEmail       String   @default("noreply@qrbag.com")
+  fromName        String   @default("QRBag")
+  // SMTP settings
+  smtpHost        String?
+  smtpPort        Int?
+  smtpUser        String?
+  smtpPassword    String?
+  smtpEncryption  String   @default("tls") // "tls", "ssl", "none"
+  // Status
+  isActive        Boolean  @default(true)
+  lastTestAt      DateTime?
+  lastTestStatus  String?  // "success", "failed"
+  lastTestError   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// EmailLog model - tracks all sent emails
+model EmailLog {
+  id          String   @id @default(cuid())
+  to          String
+  subject     String
+  type        String   // "verification", "password_reset", "notification", "invoice", "test", "welcome"
+  status      String   @default("pending") // "pending", "sent", "failed"
+  error       String?
+  userId      String?
+  agencyId    String?
+  data        String?  // JSON for additional data
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+}
+
+// EmailToken model - for email verification and password reset
+model EmailToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  type      String   // "email_verification", "password_reset"
+  code      String?  // 6-digit code for verification
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
+// Invoice model - for agency billing
+model Invoice {
+  id            String   @id @default(cuid())
+  number        String   @unique
+  agencyId      String
+  agency        Agency   @relation(fields: [agencyId], references: [id])
+  amount        Float
+  currency      String   @default("EUR")
+  status        String   @default("pending") // "pending", "paid", "cancelled"
+  description   String?
+  items         String   // JSON array of invoice items
+  dueDate       DateTime?
+  paidAt        DateTime?
+  paymentMethod String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

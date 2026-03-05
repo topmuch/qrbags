@@ -26,7 +26,8 @@ import {
   HelpCircle,
   FileText,
   BarChart3,
-  Shield
+  Shield,
+  Mail
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -65,6 +66,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
     { label: "Sécurité & Audit", icon: <Shield className="w-5 h-5" />, href: "/admin/securite" },
     { label: "PARAMÈTRES", icon: null, isCategory: true },
     { label: "Paramètres", icon: <Settings className="w-5 h-5" />, href: "/admin/parametres" },
+    { label: "Configuration Email", icon: <Mail className="w-5 h-5" />, href: "/admin/parametres?tab=email" },
     { label: "Fonctionnalités", icon: <Globe className="w-5 h-5" />, href: "/admin/parametres/fonctionnalites" },
   ];
 
