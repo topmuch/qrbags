@@ -23,13 +23,9 @@ import {
   Sparkles,
   Lightbulb,
   RefreshCw,
-  Plus,
-  Share2,
-  Globe,
-  Copy,
-  ExternalLink
+  Plus
 } from "lucide-react";
-import { useAgency, DEMO_AGENCY } from '../layout';
+import { useAgency } from '../layout';
 
 interface Baggage {
   id: string;
@@ -84,7 +80,7 @@ function StatCard({
         </div>
         {trend && (
           <div className={`flex items-center gap-1 text-sm font-medium ${trend.isUp ? 'text-emerald-500' : 'text-rose-500'}`}>
-            {trend.isUp ? <TrendingUp className="w-4 h-4" /> : <TrendingUp className="w-4 h-4 rotate-180" />}
+            {trend.isUp ? <TrendingUp className="w-4 h-4" aria-hidden="true" /> : <TrendingUp className="w-4 h-4 rotate-180" aria-hidden="true" />}
             {Math.abs(trend.value)}%
           </div>
         )}
@@ -142,43 +138,12 @@ function KPICard({
   );
 }
 
-// Quick Action Card
-function QuickActionCard({ 
-  title, 
-  description, 
-  icon, 
-  color, 
-  href,
-  onClick 
-}: {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  color: string;
-  href?: string;
-  onClick?: () => void;
-}) {
-  const content = (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 group cursor-pointer">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform`} style={{ backgroundColor: color }}>
-        {icon}
-      </div>
-      <p className="font-medium text-slate-800 dark:text-white">{title}</p>
-      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{description}</p>
-    </div>
-  );
-
-  if (href) {
-    return <Link href={href}>{content}</Link>;
-  }
-  return <div onClick={onClick}>{content}</div>;
-}
-
 // AI Suggestions Component
 function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) {
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<number>>(new Set());
 
   const fetchSuggestion = async () => {
     setLoading(true);
@@ -208,6 +173,10 @@ function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) 
   useEffect(() => {
     fetchSuggestion();
   }, [agencyId]);
+
+  const handleDismiss = (index: number) => {
+    setDismissedSuggestions(prev => new Set([...prev, index]));
+  };
 
   // Generate contextual suggestions based on stats
   const getContextualSuggestions = (): { icon: string; title: string; text: string; color: string }[] => {
@@ -279,18 +248,27 @@ function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) 
       {/* Contextual Suggestions */}
       <div className="space-y-3 mb-4">
         {contextualSuggestions.map((sugg, index) => (
-          <div
-            key={index}
-            className={`p-4 rounded-xl border ${sugg.color}`}
-          >
-            <div className="flex items-start gap-3">
-              <span className="text-xl">{sugg.icon}</span>
-              <div>
-                <p className="font-medium">{sugg.title}</p>
-                <p className="text-sm opacity-80">{sugg.text}</p>
+          !dismissedSuggestions.has(index) && (
+            <div
+              key={index}
+              className={`p-4 rounded-xl border ${sugg.color} relative group`}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-xl">{sugg.icon}</span>
+                <div className="flex-1">
+                  <p className="font-medium">{sugg.title}</p>
+                  <p className="text-sm opacity-80">{sugg.text}</p>
+                </div>
+                <button
+                  onClick={() => handleDismiss(index)}
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-all"
+                  title="Masquer cette notification"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
-          </div>
+          )
         ))}
       </div>
 
@@ -325,86 +303,8 @@ function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) 
   );
 }
 
-// Public Page Share Component
-function PublicPageShare() {
-  const { agencyData } = useAgency();
-  const [copied, setCopied] = useState(false);
-
-  const publicUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/agency/${agencyData?.slug || 'agency'}`
-    : '';
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(publicUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  return (
-    <div className="bg-gradient-to-r from-[#ff7f00]/5 to-[#ff9f00]/5 dark:from-[#ff7f00]/10 dark:to-[#ff9f00]/10 border border-[#ff7f00]/20 rounded-2xl p-6 mb-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-[#ff7f00]/10 dark:bg-[#ff7f00]/20 rounded-xl flex items-center justify-center shrink-0">
-            <Globe className="w-6 h-6 text-[#ff7f00]" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-              Partager ma page publique
-              <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs rounded-full font-medium">
-                Nouveau
-              </span>
-            </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Partagez ce lien avec vos clients pour leur montrer les bagages que vous protégez
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 flex items-center gap-2 max-w-xs overflow-hidden">
-            <code className="text-sm text-[#ff7f00] truncate">
-              {publicUrl}
-            </code>
-          </div>
-          <button
-            onClick={handleCopy}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
-              copied 
-                ? 'bg-emerald-500 text-white' 
-                : 'bg-[#ff7f00] hover:bg-[#ff9f00] text-white'
-            }`}
-          >
-            {copied ? (
-              <>
-                <CheckCircle className="w-4 h-4" />
-                Copié !
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                Copier
-              </>
-            )}
-          </button>
-          <Link
-            href={`/agency/${agencyData?.slug || 'agency'}`}
-            target="_blank"
-            className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium text-sm transition-colors border border-slate-200 dark:border-slate-700"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Aperçu
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function AgencyDashboardPage() {
+  const { agencyId, agencyName } = useAgency();
   const [baggages, setBaggages] = useState<Baggage[]>([]);
   const [filteredBaggages, setFilteredBaggages] = useState<Baggage[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -437,6 +337,15 @@ export default function AgencyDashboardPage() {
     fetchBaggages();
   }, []);
 
+  // Listen for openCommandModal event from header
+  useEffect(() => {
+    const handleOpenCommandModal = () => {
+      setShowCommandModal(true);
+    };
+    window.addEventListener('openCommandModal', handleOpenCommandModal);
+    return () => window.removeEventListener('openCommandModal', handleOpenCommandModal);
+  }, []);
+
   useEffect(() => {
     filterBaggages();
   }, [baggages, search, statusFilter]);
@@ -444,7 +353,7 @@ export default function AgencyDashboardPage() {
   const fetchBaggages = async () => {
     try {
       const params = new URLSearchParams({
-        agencyId: DEMO_AGENCY.id,
+        agencyId: agencyId,
       });
 
       const response = await fetch(`/api/agency/baggages?${params}`);
@@ -502,8 +411,8 @@ export default function AgencyDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'commande_agence',
-          agencyId: DEMO_AGENCY.id,
-          senderName: DEMO_AGENCY.name,
+          agencyId: agencyId,
+          senderName: agencyName,
           content: {
             type: commandForm.type,
             count: commandForm.count,
@@ -611,7 +520,7 @@ export default function AgencyDashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-          Bienvenue, <span className="text-amber-500">{DEMO_AGENCY.name}</span>
+          Bienvenue, <span className="text-amber-500">{agencyName}</span>
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Suivi en temps réel de vos bagages Hajj 2026</p>
       </div>
@@ -625,37 +534,9 @@ export default function AgencyDashboardPage() {
         ))}
       </div>
 
-      {/* Public Page Sharing Section */}
-      <PublicPageShare />
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <QuickActionCard
-          title="Commander des QR"
-          description="Passez une nouvelle commande"
-          icon={<ShoppingCart className="w-6 h-6" />}
-          color="#0f172a"
-          onClick={() => setShowCommandModal(true)}
-        />
-        <QuickActionCard
-          title="Voir les perdus"
-          description={`${stats.lost} bagage(s) signalé(s)`}
-          icon={<AlertTriangle className="w-6 h-6" />}
-          color="#ef4444"
-          href="/agence/perdus"
-        />
-        <QuickActionCard
-          title="Trouvailles"
-          description={`${stats.found} bagage(s) retrouvé(s)`}
-          icon={<CheckCircle className="w-6 h-6" />}
-          color="#10b981"
-          href="/agence/trouvailles"
-        />
-      </div>
-
       {/* AI Suggestions */}
       <div className="mb-8">
-        <AISuggestions agencyId={DEMO_AGENCY.id} stats={stats} />
+        <AISuggestions agencyId={agencyId} stats={stats} />
       </div>
 
       {/* Search Bar */}
@@ -783,7 +664,7 @@ export default function AgencyDashboardPage() {
                           <span className="text-slate-600 dark:text-slate-300">{formatDateTime(baggage.lastScanDate)}</span>
                           {baggage.lastLocation && (
                             <p className="text-slate-400 dark:text-slate-500 text-xs flex items-center gap-1 mt-1">
-                              <MapPin className="w-3 h-3" />
+                              <MapPin className="w-3 h-3" aria-hidden="true" />
                               {baggage.lastLocation}
                             </p>
                           )}
@@ -1118,7 +999,7 @@ export default function AgencyDashboardPage() {
                 <p className="text-slate-800 dark:text-white">{formatDateTime(selectedBaggage.lastScanDate)}</p>
                 {selectedBaggage.lastLocation && (
                   <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1 mt-1">
-                    <MapPin className="w-3 h-3" />
+                    <MapPin className="w-3 h-3" aria-hidden="true" />
                     {selectedBaggage.lastLocation}
                   </p>
                 )}
@@ -1193,7 +1074,7 @@ export default function AgencyDashboardPage() {
                 </div>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-                Cette action est irréversible. Le bagage de <strong className="text-slate-700 dark:text-slate-300">{baggageToDelete.travelerFirstName} {baggageToDelete.travelerLastName}</strong> sera définitivement supprimé.
+                Cette action est irréversible. Le bagage de <strong className="text-slate-700 dark:text-slate-300">{baggageToDelete.travelerFirstName || 'Non renseigné'} {baggageToDelete.travelerLastName || ''}</strong> sera définitivement supprimé.
               </p>
               <div className="flex gap-3">
                 <button

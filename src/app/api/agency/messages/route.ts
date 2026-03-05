@@ -7,12 +7,26 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const agencyId = searchParams.get('agencyId');
     const type = searchParams.get('type');
+    const unreadOnly = searchParams.get('unread') === 'true';
 
     if (!agencyId) {
       return NextResponse.json(
         { error: 'Agency ID is required' },
         { status: 400 }
       );
+    }
+
+    // If just requesting unread count
+    if (searchParams.get('count') === 'true') {
+      const unreadCount = await db.message.count({
+        where: {
+          OR: [
+            { type: 'reponse_assistance', recipientAgencyId: agencyId, status: 'non_lu' },
+            { type: 'message_superadmin', recipientAgencyId: agencyId, status: 'non_lu' },
+          ],
+        },
+      });
+      return NextResponse.json({ unreadCount });
     }
 
     const where: Record<string, unknown> = {};
@@ -32,13 +46,28 @@ export async function GET(request: NextRequest) {
       where.recipientAgencyId = agencyId;
     }
 
+    // Filter unread only
+    if (unreadOnly) {
+      where.status = 'non_lu';
+    }
+
     const messages = await db.message.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
 
-    return NextResponse.json({ messages });
+    // Get unread count for incoming messages
+    const unreadCount = await db.message.count({
+      where: {
+        OR: [
+          { type: 'reponse_assistance', recipientAgencyId: agencyId, status: 'non_lu' },
+          { type: 'message_superadmin', recipientAgencyId: agencyId, status: 'non_lu' },
+        ],
+      },
+    });
+
+    return NextResponse.json({ messages, unreadCount });
 
   } catch (error) {
     console.error('Error fetching agency messages:', error);

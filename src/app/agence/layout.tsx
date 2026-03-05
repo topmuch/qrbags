@@ -20,7 +20,11 @@ import {
   Sun,
   HelpCircle,
   Settings,
-  BarChart3
+  BarChart3,
+  Globe,
+  ExternalLink,
+  Copy,
+  ShoppingCart
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -62,7 +66,7 @@ interface MenuItem {
 }
 
 // Modern Sidebar Component - Orange Theme with Black Buttons
-function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { isOpen: boolean; setIsOpen: (open: boolean) => void; unreadMessages?: number; onLogout: () => void; userName: string }) {
+function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agencySlug }: { isOpen: boolean; setIsOpen: (open: boolean) => void; unreadMessages?: number; onLogout: () => void; userName: string; agencySlug: string }) {
   const pathname = usePathname();
   
   const menuItems: MenuItem[] = [
@@ -115,11 +119,11 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-black/20">
             <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">FM</span>
+              <span className="text-white font-semibold text-sm">{userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'AG'}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{userName || DEMO_AGENCY.name}</p>
-              <p className="text-xs text-white/60">@{DEMO_AGENCY.slug}</p>
+              <p className="text-sm font-medium text-white truncate">{userName || 'Agence'}</p>
+              <p className="text-xs text-white/60">@{agencySlug || 'agence'}</p>
             </div>
           </div>
         </div>
@@ -158,45 +162,58 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
                 </li>
               );
             })}
+            
+            {/* Separator */}
+            <li className="my-3 border-t border-white/20" />
+            
+            {/* Contacter */}
+            <li>
+              <Link
+                href="/agence/assistance"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/30 text-white hover:bg-black/40 transition-all duration-200"
+                onClick={() => setIsOpen(false)}
+              >
+                <HelpCircle className="w-5 h-5" />
+                <span className="font-medium text-sm">Contacter</span>
+              </Link>
+            </li>
+            
+            {/* Déconnexion */}
+            <li>
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-rose-500/20 text-white hover:bg-rose-500/30 transition-all duration-200 w-full"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="font-medium text-sm">Déconnexion</span>
+              </button>
+            </li>
           </ul>
         </nav>
-
-        {/* Support Section */}
-        <div className="p-4 border-t border-white/10">
-          <div className="bg-black/30 rounded-2xl p-4 text-white">
-            <div className="flex items-center gap-2 mb-2">
-              <HelpCircle className="w-5 h-5" />
-              <span className="font-semibold text-sm">Besoin d'aide ?</span>
-            </div>
-            <p className="text-xs text-white/80 mb-3">Notre équipe est disponible 24/7</p>
-            <Link 
-              href="/agence/assistance"
-              className="block w-full text-center py-2 bg-black rounded-xl text-sm font-medium hover:bg-black/80 transition-colors"
-            >
-              Contacter
-            </Link>
-          </div>
-        </div>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-white/10">
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-black text-white hover:bg-black/80 transition-all duration-200 w-full"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium text-sm">Déconnexion</span>
-          </button>
-        </div>
       </aside>
     </>
   );
 }
 
 // Modern Header Component
-function Header({ unreadMessages, onMenuClick, userName }: { unreadMessages?: number; onMenuClick: () => void; userName: string }) {
+function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadMessages?: number; onMenuClick: () => void; userName: string; agencySlug: string }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [copied, setCopied] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  
+  const publicUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/agency/${agencySlug}`
+    : '';
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
   
   return (
     <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-30">
@@ -225,6 +242,57 @@ function Header({ unreadMessages, onMenuClick, userName }: { unreadMessages?: nu
 
         {/* Right */}
         <div className="flex items-center gap-3">
+          {/* Quick Actions */}
+          <div className="hidden lg:flex items-center gap-2">
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                // Trigger command modal - will be handled by parent
+                window.dispatchEvent(new CustomEvent('openCommandModal'));
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span className="hidden xl:inline">Commander des QR</span>
+            </Link>
+            <Link
+              href="/agence/perdus"
+              className="flex items-center gap-2 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-sm font-medium transition-colors border border-rose-200 dark:border-rose-800"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span className="hidden xl:inline">Perdus</span>
+            </Link>
+            <Link
+              href="/agence/trouvailles"
+              className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm font-medium transition-colors border border-emerald-200 dark:border-emerald-800"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span className="hidden xl:inline">Trouvailles</span>
+            </Link>
+          </div>
+          
+          {/* Public Page Button */}
+          <div className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-[#ff7f00]/10 to-[#ff9f00]/10 dark:from-[#ff7f00]/20 dark:to-[#ff9f00]/20 border border-[#ff7f00]/30 rounded-xl px-3 py-1.5">
+            <Globe className="w-4 h-4 text-[#ff7f00]" />
+            <span className="text-sm text-slate-600 dark:text-slate-300">Page publique</span>
+            <button
+              onClick={handleCopy}
+              className={`p-1 rounded-lg transition-colors ${copied ? 'text-emerald-500' : 'hover:bg-[#ff7f00]/20 text-[#ff7f00]'}`}
+              title="Copier le lien"
+            >
+              {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+            <Link
+              href={`/agency/${agencySlug}`}
+              target="_blank"
+              className="p-1 rounded-lg hover:bg-[#ff7f00]/20 text-[#ff7f00] transition-colors"
+              title="Voir la page"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Link>
+          </div>
+          
           {/* Theme Toggle */}
           <button 
             onClick={toggleTheme}
@@ -239,20 +307,25 @@ function Header({ unreadMessages, onMenuClick, userName }: { unreadMessages?: nu
           </button>
           
           {/* Notifications */}
-          <button className="relative p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+          <Link 
+            href="/agence/assistance"
+            className="relative p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          >
             <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-            {unreadMessages && unreadMessages > 0 && (
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full"></span>
+            {unreadMessages > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                {unreadMessages > 9 ? '9+' : unreadMessages}
+              </span>
             )}
-          </button>
+          </Link>
           
           {/* User */}
           <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
             <div className="w-9 h-9 rounded-full bg-[#ff7f00] flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">FM</span>
+              <span className="text-white font-semibold text-sm">{userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'AG'}</span>
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userName || DEMO_AGENCY.name}</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userName || 'Agence'}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">Agence partenaire</p>
             </div>
           </div>
@@ -291,6 +364,29 @@ export default function AgencyRootLayout({
     }
   }, [user, loading, isAgency, router, pathname]);
 
+  // Fetch unread messages count
+  useEffect(() => {
+    if (!user || !isAgency || pathname === '/agence/connexion') return;
+    
+    const fetchUnreadCount = async () => {
+      try {
+        const currentAgencyId = user?.agencyId || user?.agency?.id || DEMO_AGENCY.id;
+        const res = await fetch(`/api/agency/messages?agencyId=${currentAgencyId}&count=true`);
+        const data = await res.json();
+        if (data.unreadCount !== undefined) {
+          setUnreadMessages(data.unreadCount);
+        }
+      } catch (error) {
+        console.error('Error fetching unread messages:', error);
+      }
+    };
+
+    fetchUnreadCount();
+    // Poll every 30 seconds for new messages
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [user, isAgency, pathname]);
+
   // Handle logout
   const handleLogout = async () => {
     await logout();
@@ -300,6 +396,7 @@ export default function AgencyRootLayout({
   // Get the actual agency ID from user data or use demo agency
   const agencyId = user?.agencyId || user?.agency?.id || DEMO_AGENCY.id;
   const agencyName = user?.agency?.name || user?.name || DEMO_AGENCY.name;
+  const agencySlug = user?.agency?.slug || DEMO_AGENCY.slug;
   const agencyData = user?.agency ? {
     id: user.agency.id,
     name: user.agency.name,
@@ -338,10 +435,10 @@ export default function AgencyRootLayout({
       userEmail: user.email
     }}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300">
-        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} unreadMessages={unreadMessages} onLogout={handleLogout} userName={user.name} />
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} unreadMessages={unreadMessages} onLogout={handleLogout} userName={user.name} agencySlug={agencySlug} />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <Header unreadMessages={unreadMessages} onMenuClick={() => setSidebarOpen(true)} userName={user.name} />
+          <Header unreadMessages={unreadMessages} onMenuClick={() => setSidebarOpen(true)} userName={user.name} agencySlug={agencySlug} />
 
           <main className="flex-1 p-6 lg:p-8">
             {children}

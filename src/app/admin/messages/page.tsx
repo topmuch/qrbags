@@ -60,24 +60,45 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   traite: { label: 'Traité', className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' },
 };
 
+// Format message content for display
+function formatMessageContent(content: string, messageType: string): string {
+  try {
+    const parsed = JSON.parse(content);
+    
+    // Handle commande_agence type
+    if (messageType === 'commande_agence') {
+      const typeLabel = parsed.type === 'hajj' ? 'Hajj (3 QR/pèlerin)' : 'Voyageur (1 ou 3 QR)';
+      const countLabel = parsed.type === 'hajj' ? 'pèlerins' : 'voyageurs';
+      const notes = parsed.notes ? `\nNotes: ${parsed.notes}` : '';
+      return `Commande: ${parsed.count} ${countLabel}\nType: ${typeLabel}${notes}`;
+    }
+    
+    // Handle contact/partenaire types
+    if (parsed.message) return parsed.message;
+    if (parsed.nom) return `Nom: ${parsed.nom}${parsed.email ? `\nEmail: ${parsed.email}` : ''}${parsed.message ? `\nMessage: ${parsed.message}` : ''}`;
+    
+    // Default: try to extract meaningful text
+    if (typeof parsed === 'string') return parsed;
+    
+    return content;
+  } catch {
+    return content;
+  }
+}
+
 // AI Summary Component for messages
-function MessageSummaryCell({ content }: { content: string }) {
+function MessageSummaryCell({ content, messageType }: { content: string; messageType: string }) {
   const [summary, setSummary] = useState<string>('');
   const [wasSummarized, setWasSummarized] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     checkAIAndSummarize();
-  }, [content]);
+  }, [content, messageType]);
 
   const checkAIAndSummarize = async () => {
-    let text = content;
-    try {
-      const parsed = JSON.parse(content);
-      text = parsed.message || parsed.nom || content;
-    } catch {
-      // Keep original content
-    }
+    // First, format the content properly
+    const text = formatMessageContent(content, messageType);
 
     if (text.length <= 50) {
       setSummary(text);
@@ -428,7 +449,7 @@ export default function MessagesPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <MessageSummaryCell content={message.content} />
+                        <MessageSummaryCell content={message.content} messageType={message.type} />
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusConfig.className}`}>
@@ -539,9 +560,9 @@ export default function MessagesPage() {
               <div>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">Contenu</p>
                 <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-200 dark:border-slate-600">
-                  <pre className="text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap font-mono">
-                    {JSON.stringify(parseContent(selectedMessage.content), null, 2)}
-                  </pre>
+                  <p className="text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap">
+                    {formatMessageContent(selectedMessage.content, selectedMessage.type)}
+                  </p>
                 </div>
               </div>
 
@@ -623,9 +644,9 @@ export default function MessagesPage() {
             <div className="p-6 border-b border-slate-100 dark:border-slate-700">
               <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">Message original :</p>
               <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3 border border-slate-200 dark:border-slate-600">
-                <p className="text-slate-700 dark:text-slate-300 text-sm">
+                <p className="text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap">
                   {selectedMessage.subject && <strong className="block mb-1">{selectedMessage.subject}</strong>}
-                  {selectedMessage.content}
+                  {formatMessageContent(selectedMessage.content, selectedMessage.type)}
                 </p>
               </div>
             </div>
