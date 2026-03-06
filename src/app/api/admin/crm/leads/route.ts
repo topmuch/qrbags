@@ -5,15 +5,19 @@ import { z } from 'zod';
 // Initialize Prisma Client directly in this file
 const prisma = new PrismaClient();
 
+// Extended status type
+type LeadStatus = 'new' | 'contacted' | 'in_discussion' | 'qualified' | 'converted' | 'lost';
+
 // Validation schema
 const leadSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   phone: z.string().optional(),
   company: z.string().optional(),
-  status: z.enum(['new', 'contacted', 'qualified', 'converted', 'lost']).optional(),
+  status: z.enum(['new', 'contacted', 'in_discussion', 'qualified', 'converted', 'lost']).optional(),
   source: z.string().optional(),
   notes: z.string().optional(),
+  agencyId: z.string().optional(),
 });
 
 // GET - List all leads
