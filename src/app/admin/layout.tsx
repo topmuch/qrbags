@@ -22,7 +22,9 @@ import {
   Globe,
   Mail,
   UserPlus,
-  HelpCircle
+  HelpCircle,
+  Megaphone,
+  Newspaper
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -108,6 +110,12 @@ function Sidebar({
 
     // Reports
     { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/admin/rapports", permission: PERMISSIONS.VIEW_REPORTS },
+
+    // Advertisements - superadmin only
+    { label: "Publicités", icon: <Megaphone className="w-5 h-5" />, href: "/admin/publicites", permission: PERMISSIONS.MANAGE_SETTINGS, roles: ['superadmin'] },
+
+    // Blog - superadmin and admin only
+    { label: "Blog", icon: <Newspaper className="w-5 h-5" />, href: "/admin/blog", permission: PERMISSIONS.VIEW_MESSAGES, roles: ['superadmin', 'admin'] },
 
     // Security Category - superadmin and admin only
     { label: "SÉCURITÉ", icon: null, isCategory: true, roles: ['superadmin', 'admin'] },

@@ -26,6 +26,7 @@ import {
   Plus
 } from "lucide-react";
 import { useAgency } from '../layout';
+import LatestNewsWidget from '@/components/LatestNewsWidget';
 
 interface Baggage {
   id: string;
@@ -537,6 +538,11 @@ export default function AgencyDashboardPage() {
       {/* AI Suggestions */}
       <div className="mb-8">
         <AISuggestions agencyId={agencyId} stats={stats} />
+      </div>
+
+      {/* Latest News Widget */}
+      <div className="mb-8">
+        <LatestNewsWidget />
       </div>
 
       {/* Search Bar */}

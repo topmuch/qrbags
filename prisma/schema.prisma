@@ -24,6 +24,7 @@ model User {
   assignedLeads   Lead[]        @relation("AssignedLeads")
   observations    Observation[]
   dailyReports    DailyReport[]
+  blogPosts       BlogPost[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
@@ -307,4 +308,109 @@ model DailyReport {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, date])
+}
+
+// Advertisement model - promotional banners for agencies
+model Advertisement {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String   // URL to banner image
+  linkUrl     String?  // Click destination URL
+  linkTarget  String   @default("_blank") // "_blank" or "_self"
+  
+  // Position - only footer
+  position    String   @default("footer") // "footer", "header", "sidebar"
+  
+  // Targeting
+  targetScope String   @default("all") // "all", "agency", "agents"
+  agencyId    String?  // Specific agency if targetScope = "agency"
+  
+  // Scheduling
+  startDate   DateTime
+  endDate     DateTime?
+  
+  // Status
+  status      String   @default("draft") // "draft", "active", "paused", "expired"
+  priority    Int      @default(0) // Higher = more prominent
+  
+  // Statistics
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  adImpressions AdImpression[]
+}
+
+// AdImpression model - tracks each impression and click
+model AdImpression {
+  id              String   @id @default(cuid())
+  advertisementId String
+  advertisement   Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+  
+  // Viewer info
+  userId          String?  // Logged-in user who viewed
+  agencyId        String?  // Agency of the viewer
+  userRole        String?  // Role of the viewer
+  
+  // Action
+  action          String   // "impression" or "click"
+  
+  // Context
+  ipAddress       String?
+  userAgent       String?
+  
+  createdAt       DateTime @default(now())
+}
+
+// BlogPost model - internal blog for agencies
+model BlogPost {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  content       String   // HTML content from rich editor
+  excerpt       String?  // Short summary
+  coverImage    String?  // URL to cover image
+  
+  // Categorization
+  category      String   @default("actualites") // "actualites", "conseils", "hajj", "mises_a_jour"
+  
+  // Publishing
+  status        String   @default("draft") // "draft", "published"
+  publishedAt   DateTime?
+  
+  // Author
+  authorId      String?
+  author        User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  
+  // Metrics
+  views         Int      @default(0)
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  blogViews     BlogView[]
+}
+
+// BlogView model - track article views
+model BlogView {
+  id          String   @id @default(cuid())
+  postId      String
+  post        BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  // Viewer info
+  userId      String?
+  agencyId    String?
+  
+  // Context
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
 }

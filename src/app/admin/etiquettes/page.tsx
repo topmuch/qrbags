@@ -12,11 +12,13 @@ import {
   Plane,
   Luggage,
   QrCode,
-  Plus,
   X,
   AlertTriangle,
   RefreshCw,
-  FileText
+  FileText,
+  Building2,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 
 interface QRSet {
@@ -31,6 +33,15 @@ interface QRSet {
   status: string;
   travelerName: string | null;
   activationStatus: 'new' | 'partial' | 'activated';
+  baggageIds: string[];
+}
+
+interface AgencyGroup {
+  agencyId: string | null;
+  agencyName: string;
+  sets: QRSet[];
+  totalQr: number;
+  isExpanded: boolean;
 }
 
 interface Stats {
@@ -44,6 +55,7 @@ export default function EtiquettesPage() {
   const qrRef = useRef<HTMLDivElement>(null);
 
   const [sets, setSets] = useState<QRSet[]>([]);
+  const [agencyGroups, setAgencyGroups] = useState<AgencyGroup[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalSets: 0,
     totalQr: 0,
@@ -52,7 +64,7 @@ export default function EtiquettesPage() {
   });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState<'voyageur' | 'hajj'>('voyageur');
 
   // Modals
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -62,12 +74,13 @@ export default function EtiquettesPage() {
 
   useEffect(() => {
     fetchSets();
-  }, [typeFilter, search]);
+  }, [activeTab, search]);
 
   const fetchSets = async () => {
+    setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (typeFilter !== 'all') params.set('type', typeFilter);
+      params.set('type', activeTab);
       if (search) params.set('search', search);
 
       const response = await fetch(`/api/qrcodes?${params}`);
@@ -79,8 +92,15 @@ export default function EtiquettesPage() {
         activationStatus: getActivationStatus(set.status)
       }));
 
-      setSets(setsWithStatus);
+      // Filter to only show sets matching the active tab type
+      const filteredSets = setsWithStatus.filter((set: QRSet) => set.type === activeTab);
+      
+      setSets(filteredSets);
       setStats(data.stats);
+
+      // Group by agency
+      const groupedByAgency = groupByAgency(filteredSets);
+      setAgencyGroups(groupedByAgency);
     } catch (error) {
       console.error('Error fetching QR sets:', error);
     } finally {
@@ -88,10 +108,50 @@ export default function EtiquettesPage() {
     }
   };
 
+  const groupByAgency = (sets: QRSet[]): AgencyGroup[] => {
+    const groups = new Map<string | null, AgencyGroup>();
+
+    sets.forEach(set => {
+      const key = set.agencyId || 'no-agency';
+      const agencyName = set.agencyName || 'Sans agence';
+
+      if (!groups.has(key)) {
+        groups.set(key, {
+          agencyId: set.agencyId,
+          agencyName,
+          sets: [],
+          totalQr: 0,
+          isExpanded: true, // Expanded by default
+        });
+      }
+
+      const group = groups.get(key)!;
+      group.sets.push(set);
+      group.totalQr += set.qrCount;
+    });
+
+    // Sort: agencies with name first, then "Sans agence"
+    return Array.from(groups.values()).sort((a, b) => {
+      if (a.agencyId === null) return 1;
+      if (b.agencyId === null) return -1;
+      return a.agencyName.localeCompare(b.agencyName);
+    });
+  };
+
   const getActivationStatus = (status: string): 'new' | 'partial' | 'activated' => {
     if (status === 'active' || status === 'scanned') return 'activated';
     if (status === 'partial') return 'partial';
     return 'new';
+  };
+
+  const toggleAgencyGroup = (agencyId: string | null) => {
+    setAgencyGroups(prev => 
+      prev.map(group => 
+        group.agencyId === agencyId 
+          ? { ...group, isExpanded: !group.isExpanded }
+          : group
+      )
+    );
   };
 
   const handleDeleteSet = async () => {
@@ -103,7 +163,6 @@ export default function EtiquettesPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Refresh data from server instead of local state update
         fetchSets();
         setShowDeleteModal(false);
         setSelectedSet(null);
@@ -140,14 +199,20 @@ export default function EtiquettesPage() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Header
-      ctx.fillStyle = '#1e293b';
+      ctx.fillStyle = set.type === 'hajj' ? '#059669' : '#f59e0b';
+      ctx.fillRect(0, 0, canvas.width, headerHeight);
+
+      ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('QRBag - Étiquettes', canvas.width / 2, 40);
+      ctx.fillText('QRBag - Étiquettes', canvas.width / 2, 35);
 
       ctx.font = '16px Arial';
-      ctx.fillStyle = '#64748b';
-      ctx.fillText(`${set.setId} | ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'} | ${set.qrCount} QR`, canvas.width / 2, 70);
+      ctx.fillText(`${set.setId} | ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'} | ${set.qrCount} QR`, canvas.width / 2, 65);
+      if (set.agencyName) {
+        ctx.font = '14px Arial';
+        ctx.fillText(`Agence: ${set.agencyName}`, canvas.width / 2, 85);
+      }
 
       // Generate QR codes
       for (let i = 0; i < set.references.length; i++) {
@@ -160,29 +225,44 @@ export default function EtiquettesPage() {
         ctx.fillRect(x, y, qrSize, qrSize);
 
         const qrUrl = `${window.location.origin}/scan/${set.references[i]}`;
-
-        // Use QRCodeSVG to generate
         const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         const qrSvg = <QRCodeSVG value={qrUrl} size={qrSize - 40} level="H" fgColor={set.type === 'hajj' ? '#059669' : '#f59e0b'} />;
 
-        // Simple text fallback
-        ctx.fillStyle = set.type === 'hajj' ? '#059669' : '#f59e0b';
-        ctx.font = 'bold 14px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(set.references[i], x + qrSize / 2, y + qrSize / 2);
+        // Use a promise-based approach to render SVG to canvas
+        const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${qrSize - 40}" height="${qrSize - 40}">
+          <rect width="100%" height="100%" fill="white"/>
+          ${generateQRPath(qrUrl, qrSize - 40, set.type === 'hajj' ? '#059669' : '#f59e0b')}
+        </svg>`;
 
-        // Reference text
-        ctx.fillStyle = set.type === 'hajj' ? '#059669' : '#f59e0b';
-        ctx.font = 'bold 14px Arial';
+        const img = new Image();
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+
+        await new Promise<void>((resolve) => {
+          img.onload = () => {
+            ctx.drawImage(img, x + 20, y + 20, qrSize - 40, qrSize - 40);
+            URL.revokeObjectURL(url);
+            resolve();
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve();
+          };
+          img.src = url;
+        });
+
+        // Reference label
+        ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(set.references[i], x + qrSize / 2, y + qrSize - 15);
       }
 
       // Footer
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = '#64748b';
       ctx.font = '12px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('QRBag - Protégez vos bagages, en toute sérénité.', canvas.width / 2, canvas.height - 20);
+      ctx.fillText(`Généré le ${new Date().toLocaleDateString('fr-FR')} | QRBag.com`, canvas.width / 2, canvas.height - 20);
 
       // Download
       const link = document.createElement('a');
@@ -190,254 +270,287 @@ export default function EtiquettesPage() {
       link.href = canvas.toDataURL('image/png');
       link.click();
 
-    } catch (error) {
-      console.error('Error downloading:', error);
-      alert('Erreur lors du téléchargement');
-    } finally {
       setIsDownloading(false);
-      setSelectedSet(null);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      setIsDownloading(false);
+      alert('Erreur lors de la génération');
     }
   };
 
-  const handleShareSet = async (set: QRSet) => {
-    const shareText = `QRBag - ${set.setId}\n${set.qrCount} QR codes générés\nType: ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'}`;
+  // Simple QR path generator fallback
+  const generateQRPath = (url: string, size: number, color: string): string => {
+    return `<text x="50%" y="50%" text-anchor="middle" fill="${color}" font-size="10">${url}</text>`;
+  };
 
+  const handleShareSet = async (set: QRSet) => {
+    const shareUrl = `${window.location.origin}/scan/${set.references[0]}`;
     if (navigator.share) {
       try {
         await navigator.share({
           title: `QRBag - ${set.setId}`,
-          text: shareText,
-          url: window.location.href,
+          text: `${set.qrCount} QR codes pour ${set.agencyName || 'agence'}`,
+          url: shareUrl,
         });
       } catch (err) {
         console.log('Share cancelled');
       }
     } else {
-      navigator.clipboard.writeText(shareText);
-      alert('Copié dans le presse-papiers !');
+      navigator.clipboard.writeText(shareUrl);
+      alert('Lien copié !');
     }
   };
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString('fr-FR', {
       day: '2-digit',
-      month: '2-digit',
+      month: 'short',
       year: 'numeric',
     });
   };
 
-  const getStatusBadge = (status: 'new' | 'partial' | 'activated') => {
-    const config = {
-      new: { label: 'Nouveau', bgClass: 'bg-emerald-100', textClass: 'text-emerald-700' },
-      partial: { label: 'Partiel', bgClass: 'bg-amber-100', textClass: 'text-amber-700' },
-      activated: { label: 'Activé', bgClass: 'bg-indigo-100', textClass: 'text-indigo-700' },
-    };
-    return config[status];
-  };
-
-  const filterButtons = [
-    { id: 'all', label: 'Tous' },
-    { id: 'hajj', label: 'Hajj' },
-    { id: 'voyageur', label: 'Voyageur' },
-  ];
-
-  const kpiCards = [
-    { title: 'Total Sets', value: stats.totalSets, icon: QrCode, color: 'text-[#ff7f00]' },
-    { title: 'Total QR', value: stats.totalQr, icon: Luggage, color: 'text-slate-800' },
-    { title: 'Hajj', value: stats.hajjSets, icon: Plane, color: 'text-emerald-600' },
-    { title: 'Voyageur', value: stats.voyageurSets, icon: Luggage, color: 'text-amber-600' },
-  ];
-
   return (
-    <>
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Les Étiquettes</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Gérez vos lots de QR codes anti-fraude</p>
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Étiquettes QR</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
+            {stats.totalSets} sets • {stats.totalQr} QR codes
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-4 py-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          <button
+            onClick={() => fetchSets()}
+            className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 text-slate-500 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+
+          <Link
+            href="/admin/generer"
+            className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
+          >
+            <QrCode className="w-4 h-4" />
+            Générer QR
+          </Link>
+        </div>
       </div>
-      {/* Action Buttons */}
+
+      {/* Tabs */}
       <div className="flex gap-2 mb-6">
         <button
-          onClick={() => fetchSets()}
-          className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2"
+          onClick={() => setActiveTab('voyageur')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+            activeTab === 'voyageur'
+              ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+          }`}
         >
-          <RefreshCw className="w-4 h-4" />
-          Actualiser
+          <Plane className="w-5 h-5" />
+          Voyageurs
+          <span className={`px-2 py-0.5 rounded-full text-xs ${
+            activeTab === 'voyageur' 
+              ? 'bg-white/20 text-white' 
+              : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+          }`}>
+            {stats.voyageurSets}
+          </span>
         </button>
-        <Link
-          href="/admin/generer"
-          className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors flex items-center gap-2"
+
+        <button
+          onClick={() => setActiveTab('hajj')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+            activeTab === 'hajj'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
+              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+          }`}
         >
-          <Plus className="w-4 h-4" />
-          Générer nouveaux
-        </Link>
+          <Luggage className="w-5 h-5" />
+          Hajj
+          <span className={`px-2 py-0.5 rounded-full text-xs ${
+            activeTab === 'hajj' 
+              ? 'bg-white/20 text-white' 
+              : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+          }`}>
+            {stats.hajjSets}
+          </span>
+        </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {kpiCards.map((card, index) => (
-          <div
-            key={index}
-            className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl p-5"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <card.icon className={`w-5 h-5 ${card.color}`} />
-            </div>
-            <p className="text-2xl font-bold text-slate-800 dark:text-white">{card.value}</p>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">{card.title}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <input
-            type="text"
-            placeholder="Rechercher par référence ou set..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#ff7f00]"
-          />
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      {/* Content */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-green-500 rounded-full" />
         </div>
-        <div className="flex gap-2">
-          {filterButtons.map((btn) => (
-            <button
-              key={btn.id}
-              onClick={() => setTypeFilter(btn.id)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                typeFilter === btn.id
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
-              }`}
+      ) : agencyGroups.length === 0 ? (
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center">
+          <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+            activeTab === 'hajj' ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-amber-100 dark:bg-amber-500/20'
+          }`}>
+            {activeTab === 'hajj' ? (
+              <Luggage className="w-8 h-8 text-emerald-600" />
+            ) : (
+              <Plane className="w-8 h-8 text-amber-600" />
+            )}
+          </div>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
+            Aucun QR code {activeTab === 'hajj' ? 'Hajj' : 'Voyageur'}
+          </h3>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">
+            {search ? 'Aucun résultat pour votre recherche' : 'Commencez par générer des QR codes'}
+          </p>
+          {!search && (
+            <Link
+              href="/admin/generer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
             >
-              {btn.label}
-            </button>
+              <QrCode className="w-4 h-4" />
+              Générer des QR codes
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {agencyGroups.map((group) => (
+            <div
+              key={group.agencyId || 'no-agency'}
+              className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden"
+            >
+              {/* Agency Header */}
+              <button
+                onClick={() => toggleAgencyGroup(group.agencyId)}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    activeTab === 'hajj' 
+                      ? 'bg-emerald-100 dark:bg-emerald-500/20' 
+                      : 'bg-amber-100 dark:bg-amber-500/20'
+                  }`}>
+                    <Building2 className={`w-5 h-5 ${
+                      activeTab === 'hajj' ? 'text-emerald-600' : 'text-amber-600'
+                    }`} />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-slate-800 dark:text-white">
+                      {group.agencyName}
+                    </h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      {group.sets.length} set{group.sets.length > 1 ? 's' : ''} • {group.totalQr} QR codes
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${
+                  group.isExpanded ? 'rotate-180' : ''
+                }`} />
+              </button>
+
+              {/* Sets in this agency */}
+              {group.isExpanded && (
+                <div className="border-t border-slate-200 dark:border-slate-700">
+                  <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                    {group.sets.map((set) => (
+                      <div
+                        key={set.id}
+                        className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* QR Icon */}
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                            activeTab === 'hajj'
+                              ? 'bg-emerald-100 dark:bg-emerald-500/20'
+                              : 'bg-amber-100 dark:bg-amber-500/20'
+                          }`}>
+                            <QrCode className={`w-6 h-6 ${
+                              activeTab === 'hajj' ? 'text-emerald-600' : 'text-amber-600'
+                            }`} />
+                          </div>
+
+                          {/* Info */}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium text-slate-800 dark:text-white">
+                                {set.setId}
+                              </h4>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                set.activationStatus === 'activated'
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
+                                  : set.activationStatus === 'partial'
+                                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400'
+                                  : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                              }`}>
+                                {set.activationStatus === 'activated' ? 'Activé' : set.activationStatus === 'partial' ? 'Partiel' : 'Nouveau'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 mt-1 text-sm text-slate-500 dark:text-slate-400">
+                              <span>{set.qrCount} QR</span>
+                              {set.travelerName && (
+                                <span>• {set.travelerName}</span>
+                              )}
+                              <span>• {formatDate(set.createdAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setSelectedSet(set);
+                              setShowDetailModal(true);
+                            }}
+                            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+                            title="Voir les QR codes"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDownloadPDF(set)}
+                            className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors"
+                            title="Télécharger"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleShareSet(set)}
+                            className="p-2 text-slate-400 hover:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
+                            title="Partager"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedSet(set);
+                              setShowDeleteModal(true);
+                            }}
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
-      </div>
-
-      {/* QR Sets List */}
-      <div className="space-y-4">
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="w-12 h-12 border-2 border-[#ff7f00]/30 border-t-[#ff7f00] rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-slate-500 dark:text-slate-400">Chargement...</p>
-          </div>
-        ) : sets.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <QrCode className="w-8 h-8 text-slate-400" />
-            </div>
-            <p className="text-slate-500 dark:text-slate-400">Aucune étiquette générée</p>
-            <p className="text-sm text-slate-400 mt-2">
-              Générez vos premiers QR codes pour commencer.
-            </p>
-          </div>
-        ) : (
-          sets.map((set) => {
-            const statusBadge = getStatusBadge(set.activationStatus);
-            return (
-              <div
-                key={set.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm gap-4"
-              >
-                {/* Left: Info */}
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    set.type === 'hajj' ? 'bg-emerald-100' : 'bg-amber-100'
-                  }`}>
-                    {set.type === 'hajj' ? (
-                      <Plane className="h-5 w-5 text-emerald-600" />
-                    ) : (
-                      <Luggage className="h-5 w-5 text-amber-600" />
-                    )}
-                  </div>
-
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-slate-800 dark:text-white">{set.setId}</h3>
-                      <span className={`px-2 py-0.5 ${statusBadge.bgClass} ${statusBadge.textClass} text-xs rounded-full`}>
-                        {statusBadge.label}
-                      </span>
-                    </div>
-                    <div className="text-slate-500 dark:text-slate-400 text-sm flex flex-wrap gap-3">
-                      <span>👤 {set.travelerName || '1 voyageur'}</span>
-                      <span>🔢 {set.qrCount} QR</span>
-                      <span>📅 {formatDate(set.createdAt)}</span>
-                      {set.agencyName && <span>{set.agencyName}</span>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Actions */}
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {/* View Button */}
-                  <button
-                    onClick={() => {
-                      setSelectedSet(set);
-                      setShowDetailModal(true);
-                    }}
-                    className="w-11 h-11 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 hover:bg-emerald-200 transition-all duration-200 hover:scale-105"
-                    title="Voir détails"
-                  >
-                    <Eye className="h-5 w-5" />
-                  </button>
-
-                  {/* Download PDF Button */}
-                  <button
-                    onClick={() => handleDownloadPDF(set)}
-                    disabled={isDownloading && selectedSet?.id === set.id}
-                    className="w-11 h-11 rounded-xl bg-black/10 flex items-center justify-center text-black hover:bg-black/20 transition-all duration-200 hover:scale-105 disabled:opacity-50"
-                    title="Télécharger PDF"
-                  >
-                    {isDownloading && selectedSet?.id === set.id ? (
-                      <div className="w-5 h-5 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
-                    ) : (
-                      <FileText className="h-5 w-5" />
-                    )}
-                  </button>
-
-                  {/* Share Button */}
-                  <button
-                    onClick={() => handleShareSet(set)}
-                    className="w-11 h-11 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 hover:bg-violet-200 transition-all duration-200 hover:scale-105"
-                    title="Partager"
-                  >
-                    <Share2 className="h-5 w-5" />
-                  </button>
-
-                  {/* Delete Button */}
-                  <button
-                    onClick={() => {
-                      setSelectedSet(set);
-                      setShowDeleteModal(true);
-                    }}
-                    className="w-11 h-11 rounded-xl bg-red-100 flex items-center justify-center text-red-600 hover:bg-red-200 transition-all duration-200 hover:scale-105"
-                    title="Supprimer"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-6 px-6 py-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl flex justify-between items-center">
-        <span className="text-slate-500 dark:text-slate-400 text-sm">
-          {sets.length} set(s) affiché(s)
-        </span>
-        <Link
-          href="/admin/dashboard"
-          className="text-indigo-600 dark:text-indigo-400 text-sm hover:underline"
-        >
-          ← Retour au dashboard
-        </Link>
-      </div>
+      )}
 
       {/* Detail Modal */}
       {showDetailModal && selectedSet && (
@@ -448,6 +561,7 @@ export default function EtiquettesPage() {
                 <h2 className="text-lg font-bold text-slate-800 dark:text-white">{selectedSet.setId}</h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
                   {selectedSet.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'} • {selectedSet.qrCount} QR codes
+                  {selectedSet.agencyName && ` • ${selectedSet.agencyName}`}
                 </p>
               </div>
               <button
@@ -473,7 +587,7 @@ export default function EtiquettesPage() {
                   >
                     <QRCodeSVG
                       value={`${typeof window !== 'undefined' ? window.location.origin : ''}/scan/${ref}`}
-                      size={140}
+                      size={120}
                       level="H"
                       includeMargin={true}
                       bgColor="#f8fafc"
@@ -483,7 +597,10 @@ export default function EtiquettesPage() {
                       {ref}
                     </p>
                     <p className="text-slate-500 dark:text-slate-400 text-xs">
-                      {index === 0 ? 'Cabine' : 'Soute'} #{index + 1}
+                      {selectedSet.type === 'hajj' 
+                        ? (index === 0 ? 'Cabine' : `Soute #${index}`)
+                        : `Bagage #${index + 1}`
+                      }
                     </p>
                   </div>
                 ))}
@@ -496,8 +613,11 @@ export default function EtiquettesPage() {
                   <p className="text-slate-800 dark:text-white font-medium">{formatDate(selectedSet.createdAt)}</p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Agence</p>
-                  <p className="text-slate-800 dark:text-white font-medium">{selectedSet.agencyName || 'N/A'}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">Statut</p>
+                  <p className="text-slate-800 dark:text-white font-medium capitalize">
+                    {selectedSet.activationStatus === 'activated' ? 'Activé' : 
+                     selectedSet.activationStatus === 'partial' ? 'Partiel' : 'Nouveau'}
+                  </p>
                 </div>
               </div>
 
@@ -561,6 +681,6 @@ export default function EtiquettesPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

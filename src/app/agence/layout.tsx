@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
+import AdvertisementBanner from '@/components/AdvertisementBanner';
 
 // Demo agency data - used as fallback
 export const DEMO_AGENCY = {
@@ -176,6 +177,25 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
                 <HelpCircle className="w-5 h-5" />
                 <span className="font-medium text-sm">Contacter</span>
               </Link>
+            </li>
+            
+            {/* Blog */}
+            <li>
+              <Link
+                href="/agence/blog"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/30 text-white hover:bg-black/40 transition-all duration-200"
+                onClick={() => setIsOpen(false)}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+                <span className="font-medium text-sm">📰 Blog QRBag</span>
+              </Link>
+            </li>
+            
+            {/* Advertisement in Sidebar */}
+            <li className="mt-4">
+              <AdvertisementBanner position="sidebar" />
             </li>
             
             {/* Déconnexion */}
@@ -431,16 +451,19 @@ export default function AgencyRootLayout({
       agencyId,
       agencyName,
       agencyData: agencyData || DEMO_AGENCY,
-      userName: user.name,
+      userName: user.name || 'Agence',
       userEmail: user.email
     }}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300">
-        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} unreadMessages={unreadMessages} onLogout={handleLogout} userName={user.name} agencySlug={agencySlug} />
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} unreadMessages={unreadMessages} onLogout={handleLogout} userName={user.name || 'Agence'} agencySlug={agencySlug} />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <Header unreadMessages={unreadMessages} onMenuClick={() => setSidebarOpen(true)} userName={user.name} agencySlug={agencySlug} />
+          <Header unreadMessages={unreadMessages} onMenuClick={() => setSidebarOpen(true)} userName={user.name || 'Agence'} agencySlug={agencySlug} />
 
           <main className="flex-1 p-6 lg:p-8">
+            {/* Advertisement Banner */}
+            <AdvertisementBanner className="mb-6" />
+            
             {children}
           </main>
         </div>
