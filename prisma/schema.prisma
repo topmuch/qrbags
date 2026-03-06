@@ -261,3 +261,17 @@ model Invoice {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+// Lead model - CRM leads/prospects
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  status    String   @default("new") // "new", "contacted", "qualified", "converted", "lost"
+  source    String?  // "website", "referral", "social", "event", "other"
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
