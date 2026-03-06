@@ -9,7 +9,8 @@
     "auto_redirect": "Redirection automatique dans",
     "start_activation": "Commencer l'activation",
     "back_home": "Retour à l'accueil",
-    "powered_by": "QRBag © 2026 by MMASOLUTION"
+    "powered_by": "QRBag © 2026 by MMASOLUTION",
+    "cancel": "Annuler"
   },
   "errors": {
     "qr_not_valid": "Code QR non valide",
@@ -35,16 +36,27 @@
     "locating": "Localisation...",
     "position_confirmed": "Position :",
     "location_optional": "Lieu précis (optionnel)",
-    "location_placeholder": "Ex: Hôtel Terminus, Dakar *",
+    "location_label": "Lieu où se trouve le bagage *",
+    "location_placeholder": "Ex: Aéroport de Dakar, Hôtel Terminus...",
+    "location_optional_placeholder": "Ajouter un détail (optionnel)",
     "location_placeholder_hajj": "Ex: Hôtel à La Mecque *",
     "location_warning": "Veuillez d'abord partager votre position ou entrer un lieu.",
+    "gps_unavailable": "Géolocalisation non disponible",
+    "please_enter_location": "Veuillez entrer le lieu où vous avez trouvé le bagage.",
+    "retry_gps": "Réessayer la géolocalisation",
     "your_info": "Vos informations",
     "first_name": "Votre prénom *",
     "whatsapp": "Votre WhatsApp *",
     "whatsapp_placeholder": "+221 77 123 45 67",
     "sending": "Envoi en cours...",
     "send_to_owner": "📤 Envoyer au propriétaire",
-    "privacy_notice": "Vos informations personnelles ne sont pas stockées."
+    "privacy_notice": "Vos informations personnelles ne sont pas stockées.",
+    "contact_owner": "Contacter le propriétaire",
+    "choose_method": "Choisissez votre méthode :",
+    "by_whatsapp": "Par WhatsApp",
+    "by_phone": "Par téléphone",
+    "message_sent": "Message envoyé au propriétaire",
+    "fill_info": "Veuillez remplir tous les champs obligatoires."
   },
   "whatsapp": {
     "baggage_found": "📦 *QRBag – Bagage trouvé !*",
