@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -8,30 +8,26 @@ import {
   LogOut,
   Menu,
   X,
-  Bell,
-  Clock,
-  Users,
-  Building,
-  Package,
-  MessageSquare,
-  Settings,
-  Search,
   Moon,
   Sun,
+  Search,
   LayoutDashboard,
   Layers,
-  ShoppingCart,
-  Globe,
-  ChevronDown,
-  HelpCircle,
-  FileText,
+  Users,
+  Building2,
+  MessageSquare,
+  Settings,
   BarChart3,
   Shield,
-  Mail
+  Globe,
+  Mail,
+  UserPlus,
+  HelpCircle
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import NotificationBell from '@/components/admin/NotificationBell';
+import { PERMISSIONS, ROLES, ROLE_COLORS, Permission } from '@/lib/permissions';
 
 // Types
 interface MenuItem {
@@ -40,35 +36,123 @@ interface MenuItem {
   href?: string;
   badge?: number;
   isCategory?: boolean;
+  permission?: Permission;
+  roles?: string[]; // Fallback for simple role check
 }
 
 // Modern Sidebar Component - Orange Theme with Black Buttons
-function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { isOpen: boolean; setIsOpen: (open: boolean) => void; unreadMessages?: number; onLogout: () => void; userName: string }) {
+function Sidebar({
+  isOpen,
+  setIsOpen,
+  unreadMessages,
+  onLogout,
+  userName,
+  userRole
+}: {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  unreadMessages?: number;
+  onLogout: () => void;
+  userName: string;
+  userRole: string;
+}) {
   const pathname = usePathname();
-  
-  const menuItems: MenuItem[] = [
-    { label: "Tableau de bord", icon: <LayoutDashboard className="w-5 h-5" />, href: "/admin/tableau-de-bord" },
-    { label: "MENU", icon: null, isCategory: true },
-    { label: "Utilisateurs", icon: <Users className="w-5 h-5" />, href: "/admin/utilisateurs" },
-    { label: "Agences", icon: <Building className="w-5 h-5" />, href: "/admin/agences", badge: 3 },
+  const { can } = useAuth();
+
+  // Menu items with permissions
+  const allMenuItems: MenuItem[] = useMemo(() => [
+    // Dashboard
+    { label: "Tableau de bord", icon: <LayoutDashboard className="w-5 h-5" />, href: "/admin/tableau-de-bord", permission: PERMISSIONS.VIEW_DASHBOARD },
+
+    // Menu Category
+    { label: "GESTION", icon: null, isCategory: true },
+
+    // Users - superadmin and admin only
+    { label: "Utilisateurs", icon: <Users className="w-5 h-5" />, href: "/admin/utilisateurs", permission: PERMISSIONS.VIEW_USERS, roles: ['superadmin', 'admin'] },
+
+    // Agencies - superadmin and admin only
+    { label: "Agences", icon: <Building2 className="w-5 h-5" />, href: "/admin/agences", permission: PERMISSIONS.VIEW_AGENCIES, roles: ['superadmin', 'admin'] },
+
+    // Products Category
     { label: "PRODUITS", icon: null, isCategory: true },
-    { label: "Générer QR", icon: <QrCode className="w-5 h-5" />, href: "/admin/generer" },
-    { label: "Étiquettes", icon: <Layers className="w-5 h-5" />, href: "/admin/etiquettes" },
+
+    // Generate QR
+    { label: "Générer QR", icon: <QrCode className="w-5 h-5" />, href: "/admin/generer", permission: PERMISSIONS.GENERATE_QR },
+
+    // Baggages
+    { label: "Étiquettes", icon: <Layers className="w-5 h-5" />, href: "/admin/etiquettes", permission: PERMISSIONS.VIEW_BAGGAGES },
+
+    // Travelers Category
     { label: "VOYAGEURS", icon: null, isCategory: true },
-    { label: "Pèlerins Hajj", icon: <Users className="w-5 h-5" />, href: "/admin/hajj" },
-    { label: "Voyageurs", icon: <Package className="w-5 h-5" />, href: "/admin/voyageurs" },
+
+    // Hajj pilgrims
+    { label: "Pèlerins Hajj", icon: <Users className="w-5 h-5" />, href: "/admin/hajj", permission: PERMISSIONS.VIEW_BAGGAGES },
+
+    // Voyageurs
+    { label: "Voyageurs", icon: <Users className="w-5 h-5" />, href: "/admin/voyageurs", permission: PERMISSIONS.VIEW_BAGGAGES },
+
+    // Messages Category
     { label: "MESSAGES", icon: null, isCategory: true },
-    { label: "Messages", icon: <MessageSquare className="w-5 h-5" />, href: "/admin/messages", badge: unreadMessages },
-    { label: "Trouvailles", icon: <Search className="w-5 h-5" />, href: "/admin/trouvailles" },
+
+    // Messages
+    { label: "Messages", icon: <MessageSquare className="w-5 h-5" />, href: "/admin/messages", badge: unreadMessages, permission: PERMISSIONS.VIEW_MESSAGES },
+
+    // Trouvailles (Found baggages)
+    { label: "Trouvailles", icon: <Search className="w-5 h-5" />, href: "/admin/trouvailles", permission: PERMISSIONS.VIEW_TROUVAILLES },
+
+    // CRM - superadmin, admin, agent only
+    { label: "CRM", icon: <UserPlus className="w-5 h-5" />, href: "/admin/crm", permission: PERMISSIONS.VIEW_CRM, roles: ['superadmin', 'admin', 'agent'] },
+
+    // Analysis Category
     { label: "ANALYSE", icon: null, isCategory: true },
-    { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/admin/rapports" },
-    { label: "SÉCURITÉ", icon: null, isCategory: true },
-    { label: "Sécurité & Audit", icon: <Shield className="w-5 h-5" />, href: "/admin/securite" },
-    { label: "PARAMÈTRES", icon: null, isCategory: true },
-    { label: "Paramètres", icon: <Settings className="w-5 h-5" />, href: "/admin/parametres" },
-    { label: "Configuration Email", icon: <Mail className="w-5 h-5" />, href: "/admin/parametres?tab=email" },
-    { label: "Fonctionnalités", icon: <Globe className="w-5 h-5" />, href: "/admin/parametres/fonctionnalites" },
-  ];
+
+    // Reports
+    { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/admin/rapports", permission: PERMISSIONS.VIEW_REPORTS },
+
+    // Security Category - superadmin and admin only
+    { label: "SÉCURITÉ", icon: null, isCategory: true, roles: ['superadmin', 'admin'] },
+
+    // Security & Audit - superadmin and admin only
+    { label: "Sécurité & Audit", icon: <Shield className="w-5 h-5" />, href: "/admin/securite", permission: PERMISSIONS.VIEW_SETTINGS, roles: ['superadmin', 'admin'] },
+
+    // Settings Category
+    { label: "PARAMÈTRES", icon: null, isCategory: true, permission: PERMISSIONS.VIEW_SETTINGS },
+
+    // Settings
+    { label: "Paramètres", icon: <Settings className="w-5 h-5" />, href: "/admin/parametres", permission: PERMISSIONS.VIEW_SETTINGS },
+
+    // Email Config - superadmin and admin only
+    { label: "Configuration Email", icon: <Mail className="w-5 h-5" />, href: "/admin/parametres?tab=email", permission: PERMISSIONS.MANAGE_SETTINGS, roles: ['superadmin', 'admin'] },
+
+    // Features - superadmin and admin only
+    { label: "Fonctionnalités", icon: <Globe className="w-5 h-5" />, href: "/admin/parametres/fonctionnalites", permission: PERMISSIONS.MANAGE_FEATURES, roles: ['superadmin', 'admin'] },
+  ], [unreadMessages]);
+
+  // Filter menu items based on permissions
+  const menuItems = useMemo(() => {
+    return allMenuItems.filter(item => {
+      // Always show categories if they have visible children
+      if (item.isCategory) {
+        return true; // Will be filtered later based on children
+      }
+
+      // Check permission
+      if (item.permission && !can(item.permission)) {
+        return false;
+      }
+
+      // Check role restriction
+      if (item.roles && item.roles.length > 0) {
+        return item.roles.includes(userRole);
+      }
+
+      return true;
+    });
+  }, [allMenuItems, can, userRole]);
+
+  // Get role display info
+  const roleLabel = ROLES[userRole as keyof typeof ROLES] || userRole;
+  const roleColor = ROLE_COLORS[userRole as keyof typeof ROLE_COLORS] || 'bg-gray-500';
 
   return (
     <>
@@ -120,9 +204,9 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
                   </li>
                 );
               }
-              
+
               const isActive = pathname === item.href;
-              
+
               return (
                 <li key={index}>
                   <Link
@@ -130,14 +214,14 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
                     className={`
                       relative flex items-center gap-3 px-4 py-2.5 rounded-xl
                       transition-all duration-200 group
-                      ${isActive 
-                        ? 'bg-black text-white shadow-lg' 
+                      ${isActive
+                        ? 'bg-black text-white shadow-lg'
                         : 'bg-black text-white hover:bg-black/80'
                       }
                     `}
                     onClick={() => setIsOpen(false)}
                   >
-                    <span className={`shrink-0 text-white`}>
+                    <span className="shrink-0 text-white">
                       {item.icon}
                     </span>
                     <span className="font-medium text-sm flex-1">{item.label}</span>
@@ -156,12 +240,14 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
         {/* User Section */}
         <div className="p-4 border-t border-white/10">
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-black/20">
-            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">SA</span>
+            <div className={`w-10 h-10 rounded-full ${roleColor} flex items-center justify-center`}>
+              <span className="text-white font-semibold text-sm">
+                {userName?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{userName || 'Super Admin'}</p>
-              <p className="text-xs text-white/60">Administrateur</p>
+              <p className="text-sm font-medium text-white truncate">{userName || 'Utilisateur'}</p>
+              <p className="text-xs text-white/60">{roleLabel}</p>
             </div>
           </div>
           <button
@@ -178,10 +264,23 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName }: { is
 }
 
 // Modern Header Component
-function Header({ unreadMessages, onMenuClick, userName }: { unreadMessages?: number; onMenuClick: () => void; userName: string }) {
+function Header({
+  unreadMessages,
+  onMenuClick,
+  userName,
+  userRole
+}: {
+  unreadMessages?: number;
+  onMenuClick: () => void;
+  userName: string;
+  userRole: string;
+}) {
   const [searchQuery, setSearchQuery] = useState('');
   const { theme, toggleTheme } = useTheme();
-  
+
+  const roleLabel = ROLES[userRole as keyof typeof ROLES] || userRole;
+  const roleColor = ROLE_COLORS[userRole as keyof typeof ROLE_COLORS] || 'bg-gray-500';
+
   return (
     <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-30">
       <div className="flex items-center justify-between">
@@ -193,7 +292,7 @@ function Header({ unreadMessages, onMenuClick, userName }: { unreadMessages?: nu
           >
             <Menu className="w-5 h-5 text-slate-600 dark:text-slate-300" />
           </button>
-          
+
           {/* Search */}
           <div className="hidden md:flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-2.5 w-80">
             <Search className="w-4 h-4 text-slate-400" />
@@ -210,7 +309,7 @@ function Header({ unreadMessages, onMenuClick, userName }: { unreadMessages?: nu
         {/* Right */}
         <div className="flex items-center gap-3">
           {/* Theme Toggle */}
-          <button 
+          <button
             onClick={toggleTheme}
             className="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
             title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
@@ -221,18 +320,20 @@ function Header({ unreadMessages, onMenuClick, userName }: { unreadMessages?: nu
               <Moon className="w-5 h-5 text-slate-600" />
             )}
           </button>
-          
+
           {/* Notifications Bell with Dropdown */}
           <NotificationBell />
-          
+
           {/* User */}
           <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
-            <div className="w-9 h-9 rounded-full bg-[#ff7f00] flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">SA</span>
+            <div className={`w-9 h-9 rounded-full ${roleColor} flex items-center justify-center`}>
+              <span className="text-white font-semibold text-sm">
+                {userName?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userName || 'Super Admin'}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Administrateur</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userName || 'Utilisateur'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{roleLabel}</p>
             </div>
           </div>
         </div>
@@ -248,27 +349,30 @@ export default function AdminRootLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
-  const { user, loading, logout, isSuperAdmin } = useAuth();
+  const { user, loading, logout, isSuperAdmin, isAdmin, isAgent } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  // Redirect if not authenticated or not superadmin
+  // Check if user has admin access (superadmin, admin, or agent)
+  const hasAdminAccess = isSuperAdmin || isAdmin || isAgent;
+
+  // Redirect if not authenticated or not admin role
   useEffect(() => {
     if (loading) return;
-    
+
     // Skip redirect for login page
     if (pathname === '/admin/connexion') return;
-    
+
     if (!user) {
       router.replace('/admin/connexion');
       return;
     }
-    
-    if (!isSuperAdmin) {
-      // User is authenticated but not superadmin - redirect to their area
+
+    if (!hasAdminAccess) {
+      // User is authenticated but not admin role - redirect to agency area
       router.replace('/agence/tableau-de-bord');
     }
-  }, [user, loading, isSuperAdmin, router, pathname]);
+  }, [user, loading, hasAdminAccess, router, pathname]);
 
   // Handle logout
   const handleLogout = async () => {
@@ -292,16 +396,28 @@ export default function AdminRootLayout({
     );
   }
 
-  if (!user || !isSuperAdmin) {
+  if (!user || !hasAdminAccess) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300">
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} unreadMessages={unreadMessages} onLogout={handleLogout} userName={user.name} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        setIsOpen={setSidebarOpen}
+        unreadMessages={unreadMessages}
+        onLogout={handleLogout}
+        userName={user.name || 'Utilisateur'}
+        userRole={user.role}
+      />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <Header unreadMessages={unreadMessages} onMenuClick={() => setSidebarOpen(true)} userName={user.name} />
+        <Header
+          unreadMessages={unreadMessages}
+          onMenuClick={() => setSidebarOpen(true)}
+          userName={user.name || 'Utilisateur'}
+          userRole={user.role}
+        />
 
         <main className="flex-1 p-6 lg:p-8">
           {children}

@@ -2,13 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { Role, hasPermission, hasAnyPermission, Permission, PERMISSIONS } from '@/lib/permissions';
 
 // User type
 export interface User {
   id: string;
   email: string;
   name: string | null;
-  role: 'superadmin' | 'agency';
+  role: Role;
   agencyId?: string | null;
   agency?: {
     id: string;
@@ -28,7 +29,11 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isAuthenticated: boolean;
   isSuperAdmin: boolean;
+  isAdmin: boolean;
+  isAgent: boolean;
   isAgency: boolean;
+  can: (permission: Permission) => boolean;
+  canAny: (permissions: Permission[]) => boolean;
   refreshSession: () => Promise<void>;
 }
 
@@ -40,7 +45,11 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   isAuthenticated: false,
   isSuperAdmin: false,
+  isAdmin: false,
+  isAgent: false,
   isAgency: false,
+  can: () => false,
+  canAny: () => false,
   refreshSession: async () => {},
 });
 
@@ -99,7 +108,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Computed values
   const isAuthenticated = !!user;
   const isSuperAdmin = user?.role === 'superadmin';
+  const isAdmin = user?.role === 'admin';
+  const isAgent = user?.role === 'agent';
   const isAgency = user?.role === 'agency';
+
+  // Permission helpers
+  const can = useCallback((permission: Permission): boolean => {
+    if (!user) return false;
+    return hasPermission(user.role, permission);
+  }, [user]);
+
+  const canAny = useCallback((permissions: Permission[]): boolean => {
+    if (!user) return false;
+    return hasAnyPermission(user.role, permissions);
+  }, [user]);
 
   return (
     <AuthContext.Provider
@@ -110,7 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         isAuthenticated,
         isSuperAdmin,
+        isAdmin,
+        isAgent,
         isAgency,
+        can,
+        canAny,
         refreshSession,
       }}
     >
@@ -129,8 +155,8 @@ export function useAuth() {
 }
 
 // Hook for protected routes
-export function useRequireAuth(allowedRole?: 'superadmin' | 'agency') {
-  const { user, loading, logout, refreshSession } = useAuth();
+export function useRequireAuth(allowedRoles?: Role[]) {
+  const { user, loading, logout, refreshSession, can, canAny } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -139,23 +165,59 @@ export function useRequireAuth(allowedRole?: 'superadmin' | 'agency') {
 
     // Not authenticated
     if (!user) {
-      const loginPath = allowedRole === 'superadmin' ? '/admin/connexion' : '/agence/connexion';
+      // Check if this is admin area or agency area
+      const isAdminArea = pathname?.startsWith('/admin');
+      const loginPath = isAdminArea ? '/admin/connexion' : '/agence/connexion';
       router.replace(loginPath);
       return;
     }
 
-    // Wrong role
-    if (allowedRole && user.role !== allowedRole) {
-      // Redirect to correct area
-      if (user.role === 'superadmin') {
+    // Check role-based access
+    if (allowedRoles && allowedRoles.length > 0) {
+      const hasRole = allowedRoles.includes(user.role);
+      if (!hasRole) {
+        // Redirect to correct area based on role
+        if (['superadmin', 'admin', 'agent'].includes(user.role)) {
+          router.replace('/admin/tableau-de-bord');
+        } else {
+          router.replace('/agence/tableau-de-bord');
+        }
+      }
+    }
+  }, [user, loading, allowedRoles, router, pathname]);
+
+  return { user, loading, logout, refreshSession, can, canAny };
+}
+
+// Hook for permission-based access
+export function useRequirePermission(permission: Permission | Permission[]) {
+  const { user, loading, can, canAny, logout, refreshSession } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (loading) return;
+
+    // Not authenticated
+    if (!user) {
+      const isAdminArea = pathname?.startsWith('/admin');
+      router.replace(isAdminArea ? '/admin/connexion' : '/agence/connexion');
+      return;
+    }
+
+    // Check permission
+    const permissions = Array.isArray(permission) ? permission : [permission];
+    if (!canAny(permissions)) {
+      // Redirect to dashboard if no permission
+      if (['superadmin', 'admin', 'agent'].includes(user.role)) {
         router.replace('/admin/tableau-de-bord');
       } else {
         router.replace('/agence/tableau-de-bord');
       }
     }
-  }, [user, loading, allowedRole, router, pathname]);
+  }, [user, loading, permission, canAny, router, pathname]);
 
-  return { user, loading, logout, refreshSession };
+  return { user, loading, can, canAny, logout, refreshSession };
 }
 
 export default AuthContext;

@@ -61,7 +61,7 @@ export default function UtilisateursPage() {
     email: '',
     name: '',
     password: '',
-    role: 'agency',
+    role: 'agent',
     agencyId: '',
   });
 
@@ -104,7 +104,7 @@ export default function UtilisateursPage() {
       if (response.ok) {
         fetchUsers();
         setDialogOpen(false);
-        setUserForm({ email: '', name: '', password: '', role: 'agency', agencyId: '' });
+        setUserForm({ email: '', name: '', password: '', role: 'agent', agencyId: '' });
       }
     } catch (error) {
       console.error('Error creating user:', error);
@@ -129,9 +129,10 @@ export default function UtilisateursPage() {
 
   const getRoleBadge = (role: string) => {
     const config: Record<string, { label: string; className: string }> = {
-      superadmin: { label: 'SuperAdmin', className: 'bg-amber-100 text-amber-700' },
-      admin: { label: 'Admin', className: 'bg-violet-100 text-violet-700' },
-      agency: { label: 'Agence', className: 'bg-indigo-100 text-indigo-700' },
+      superadmin: { label: 'SuperAdmin', className: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' },
+      admin: { label: 'Admin', className: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' },
+      agent: { label: 'Agent', className: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' },
+      agency: { label: 'Agence', className: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300' },
     };
     const { label, className } = config[role] || { label: role, className: 'bg-slate-100 text-slate-600' };
     return <Badge className={className}>{label}</Badge>;
@@ -197,6 +198,7 @@ export default function UtilisateursPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                    <SelectItem value="agent">Agent</SelectItem>
                     <SelectItem value="agency">Agence</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="superadmin">SuperAdmin</SelectItem>

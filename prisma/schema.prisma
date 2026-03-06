@@ -10,13 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model - supports both superadmin and agency users
+// User model - supports superadmin, admin, agent, and agency users
 model User {
   id         String      @id @default(cuid())
   email      String      @unique
   name       String?
   password   String?
-  role       String      @default("agency") // "superadmin" or "agency"
+  role       String      @default("agency") // "superadmin" | "admin" | "agent" | "agency"
   agencyId   String?
   agency     Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   sessions   Session[]
