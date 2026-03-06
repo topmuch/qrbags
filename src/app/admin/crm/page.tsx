@@ -107,13 +107,19 @@ export default function CRMPage() {
         body: JSON.stringify(leadForm),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         fetchLeads();
         setDialogOpen(false);
         setLeadForm({ name: '', email: '', phone: '', company: '', status: 'new', source: '', notes: '' });
+      } else {
+        alert(`Erreur: ${data.error || 'Impossible de créer le lead'}`);
+        console.error('Create lead error:', data);
       }
     } catch (error) {
       console.error('Error creating lead:', error);
+      alert('Erreur de connexion au serveur');
     }
   };
 

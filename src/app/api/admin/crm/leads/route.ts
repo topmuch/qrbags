@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+
+// Initialize Prisma Client directly in this file
+const prisma = new PrismaClient();
 
 // Validation schema
 const leadSchema = z.object({
@@ -16,7 +19,7 @@ const leadSchema = z.object({
 // GET - List all leads
 export async function GET() {
   try {
-    const leads = await db.lead.findMany({
+    const leads = await prisma.lead.findMany({
       orderBy: { createdAt: 'desc' }
     });
 
@@ -25,7 +28,7 @@ export async function GET() {
   } catch (error) {
     console.error('Get leads error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -35,9 +38,12 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Received lead data:', body);
+    
     const validatedData = leadSchema.parse(body);
+    console.log('Validated data:', validatedData);
 
-    const lead = await db.lead.create({
+    const lead = await prisma.lead.create({
       data: {
         name: validatedData.name,
         email: validatedData.email,
@@ -49,6 +55,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    console.log('Created lead:', lead);
     return NextResponse.json({ lead });
 
   } catch (error) {
@@ -62,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -81,7 +88,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const lead = await db.lead.update({
+    const lead = await prisma.lead.update({
       where: { id },
       data
     });
@@ -91,7 +98,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Update lead error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -110,7 +117,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await db.lead.delete({
+    await prisma.lead.delete({
       where: { id }
     });
 
@@ -119,7 +126,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Delete lead error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
