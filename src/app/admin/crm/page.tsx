@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -82,6 +83,7 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 export default function CRMPage() {
+  const router = useRouter();
   const { can } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -469,7 +471,7 @@ export default function CRMPage() {
                           size="sm"
                           variant="ghost"
                           className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg h-8 w-8 p-0"
-                          onClick={() => openViewDialog(lead)}
+                          onClick={() => router.push(`/admin/crm/leads/${lead.id}`)}
                           title="Voir les détails"
                         >
                           <Eye className="w-4 h-4" />

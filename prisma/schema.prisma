@@ -12,17 +12,20 @@ datasource db {
 
 // User model - supports superadmin, admin, agent, and agency users
 model User {
-  id         String      @id @default(cuid())
-  email      String      @unique
-  name       String?
-  password   String?
-  role       String      @default("agency") // "superadmin" | "admin" | "agent" | "agency"
-  agencyId   String?
-  agency     Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  sessions   Session[]
-  loginLogs  LoginLog[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id              String        @id @default(cuid())
+  email           String        @unique
+  name            String?
+  password        String?
+  role            String        @default("agency") // "superadmin" | "admin" | "agent" | "agency"
+  agencyId        String?
+  agency          Agency?       @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  sessions        Session[]
+  loginLogs       LoginLog[]
+  assignedLeads   Lead[]        @relation("AssignedLeads")
+  observations    Observation[]
+  dailyReports    DailyReport[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 // Session model - secure HTTP-only cookie based sessions
@@ -264,15 +267,44 @@ model Invoice {
 
 // Lead model - CRM leads/prospects
 model Lead {
+  id            String        @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  status        String        @default("new") // "new", "contacted", "in_discussion", "qualified", "converted", "lost"
+  source        String?       // "website", "referral", "social", "event", "other"
+  notes         String?
+  agencyId      String?       // Link to agency if converted
+  assignedToId  String?       // Agent assigned to this lead
+  assignedTo    User?         @relation("AssignedLeads", fields: [assignedToId], references: [id], onDelete: SetNull)
+  observations  Observation[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// Observation model - tracks interactions with leads
+model Observation {
   id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  company   String?
-  status    String   @default("new") // "new", "contacted", "in_discussion", "qualified", "converted", "lost"
-  source    String?  // "website", "referral", "social", "event", "other"
-  notes     String?
-  agencyId  String?  // Link to agency if converted
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type      String   // "note", "rdv", "appel", "email", "whatsapp"
+  content   String   // Observation content
+  date      DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// DailyReport model - agent daily activity reports
+model DailyReport {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  content   String   // Free text report
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
 }

@@ -18,12 +18,21 @@ const leadSchema = z.object({
   source: z.string().optional(),
   notes: z.string().optional(),
   agencyId: z.string().optional(),
+  assignedToId: z.string().optional(),
 });
 
 // GET - List all leads
 export async function GET() {
   try {
     const leads = await prisma.lead.findMany({
+      include: {
+        assignedTo: {
+          select: { id: true, name: true }
+        },
+        _count: {
+          select: { observations: true }
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
 
