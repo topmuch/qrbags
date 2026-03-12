@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import fs from 'fs';
-import path from 'path';
 
 // GET - Export database as JSON file
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all data from database
+    // Fetch all data from database using raw SQL to avoid missing column errors
     const [
       users,
       agencies,
@@ -18,15 +16,15 @@ export async function GET(request: NextRequest) {
       featureFlags,
       messages,
     ] = await Promise.all([
-      db.user.findMany(),
-      db.agency.findMany(),
-      db.baggage.findMany(),
-      db.scanLog.findMany(),
-      db.setting.findMany(),
-      db.page.findMany(),
-      db.banner.findMany(),
-      db.featureFlag.findMany(),
-      db.message.findMany(),
+      db.$queryRaw`SELECT * FROM User`,
+      db.$queryRaw`SELECT * FROM Agency`,
+      db.$queryRaw`SELECT * FROM Baggage`,
+      db.$queryRaw`SELECT * FROM ScanLog`,
+      db.$queryRaw`SELECT * FROM Setting`,
+      db.$queryRaw`SELECT * FROM Page`,
+      db.$queryRaw`SELECT * FROM Banner`,
+      db.$queryRaw`SELECT * FROM FeatureFlag`,
+      db.$queryRaw`SELECT * FROM Message`,
     ]);
 
     // Create backup object
@@ -45,15 +43,15 @@ export async function GET(request: NextRequest) {
         messages,
       },
       stats: {
-        users: users.length,
-        agencies: agencies.length,
-        baggages: baggages.length,
-        scanLogs: scanLogs.length,
-        settings: settings.length,
-        pages: pages.length,
-        banners: banners.length,
-        featureFlags: featureFlags.length,
-        messages: messages.length,
+        users: Array.isArray(users) ? users.length : 0,
+        agencies: Array.isArray(agencies) ? agencies.length : 0,
+        baggages: Array.isArray(baggages) ? baggages.length : 0,
+        scanLogs: Array.isArray(scanLogs) ? scanLogs.length : 0,
+        settings: Array.isArray(settings) ? settings.length : 0,
+        pages: Array.isArray(pages) ? pages.length : 0,
+        banners: Array.isArray(banners) ? banners.length : 0,
+        featureFlags: Array.isArray(featureFlags) ? featureFlags.length : 0,
+        messages: Array.isArray(messages) ? messages.length : 0,
       }
     };
 

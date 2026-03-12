@@ -311,13 +311,12 @@ export async function getQRSuggestion(agencyId: string): Promise<QRSuggestion | 
   }
 
   try {
-    // Get agency's historical QR generation data
-    const baggages = await db.baggage.findMany({
-      where: { agencyId },
-      select: { createdAt: true }
-    });
+    // Get agency's historical QR generation data using raw SQL
+    const baggages = await db.$queryRaw<{ createdAt: Date }[]>`
+      SELECT createdAt FROM Baggage WHERE agencyId = ${agencyId}
+    `;
 
-    if (baggages.length === 0) {
+    if (!baggages || baggages.length === 0) {
       // Return default suggestion for new agencies
       return {
         recommended: 50,
@@ -335,7 +334,7 @@ export async function getQRSuggestion(agencyId: string): Promise<QRSuggestion | 
     });
 
     const years = Object.keys(yearlyCounts).map(Number).sort();
-    
+
     if (years.length === 0) {
       return null;
     }
@@ -346,7 +345,7 @@ export async function getQRSuggestion(agencyId: string): Promise<QRSuggestion | 
 
     // Simple linear growth calculation
     let growth = 0.1; // Default 10% growth
-    
+
     if (years.length >= 2) {
       const previousYear = years[years.length - 2];
       const previousCount = yearlyCounts[previousYear] || 1;
@@ -357,7 +356,7 @@ export async function getQRSuggestion(agencyId: string): Promise<QRSuggestion | 
     // Calculate recommendation with margin
     const margin = 0.1; // 10% margin
     const recommended = Math.ceil(lastYearCount * (1 + growth) * (1 + margin));
-    
+
     return {
       recommended,
       basedOn: lastYear === currentYear ? 'Activité cette année' : `Commandes ${lastYear}`,
@@ -384,12 +383,12 @@ export async function getGlobalQRSuggestion(): Promise<QRSuggestion | null> {
   }
 
   try {
-    // Get all baggage data
-    const baggages = await db.baggage.findMany({
-      select: { createdAt: true }
-    });
+    // Get all baggage data using raw SQL
+    const baggages = await db.$queryRaw<{ createdAt: Date }[]>`
+      SELECT createdAt FROM Baggage
+    `;
 
-    if (baggages.length === 0) {
+    if (!baggages || baggages.length === 0) {
       return {
         recommended: 100,
         basedOn: 'Valeur par défaut',

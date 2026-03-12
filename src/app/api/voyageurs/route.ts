@@ -1,6 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// Baggage row type
+interface BaggageRow {
+  id: string;
+  reference: string;
+  type: string;
+  setId: string | null;
+  agencyId: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+  whatsappOwner: string | null;
+  baggageIndex: number;
+  baggageType: string;
+  status: string;
+  createdAt: string;
+  lastScanDate: string | null;
+  lastLocation: string | null;
+}
+
+// Agency row type
+interface AgencyRow {
+  id: string;
+  name: string;
+}
+
 // GET - List all travelers with their baggages
 export async function GET(request: NextRequest) {
   try {
@@ -10,37 +34,54 @@ export async function GET(request: NextRequest) {
     const agencyId = searchParams.get('agencyId');
     const search = searchParams.get('search');
 
-    // Build where clause for baggages
-    const where: Record<string, unknown> = {
-      travelerFirstName: { not: null }, // Only activated baggages
-    };
+    // Build where conditions for raw SQL
+    const conditions: string[] = ['travelerFirstName IS NOT NULL'];
+    const params: (string | number)[] = [];
 
     if (type && type !== 'all') {
-      where.type = type;
+      conditions.push('type = ?');
+      params.push(type);
     }
 
     if (agencyId && agencyId !== 'all') {
-      where.agencyId = agencyId;
+      conditions.push('agencyId = ?');
+      params.push(agencyId);
     }
 
     if (status && status !== 'all') {
-      where.status = status;
+      conditions.push('status = ?');
+      params.push(status);
     }
 
+    // Search conditions
     if (search) {
-      where.OR = [
-        { travelerFirstName: { contains: search } },
-        { travelerLastName: { contains: search } },
-        { reference: { contains: search.toUpperCase() } },
-      ];
+      conditions.push('(travelerFirstName LIKE ? OR travelerLastName LIKE ? OR reference LIKE ?)');
+      const searchTerm = `%${search}%`;
+      params.push(searchTerm, searchTerm, searchTerm.toUpperCase());
     }
 
-    // Get all activated baggages
-    const baggages = await db.baggage.findMany({
-      where,
-      include: { agency: true },
-      orderBy: { createdAt: 'desc' },
-    });
+    const whereClause = conditions.join(' AND ');
+
+    // Get all activated baggages using raw SQL
+    const baggages = await db.$queryRawUnsafe<BaggageRow[]>(
+      `SELECT
+        id, reference, type, setId, agencyId,
+        travelerFirstName, travelerLastName, whatsappOwner,
+        baggageIndex, baggageType, status, createdAt,
+        lastScanDate, lastLocation
+       FROM Baggage
+       WHERE ${whereClause}
+       ORDER BY createdAt DESC`,
+      ...params
+    );
+
+    // Get agencies for lookup
+    const agencies = await db.$queryRaw<AgencyRow[]>`
+      SELECT id, name FROM Agency
+    `;
+
+    const agencyMap = new Map<string, string>();
+    (agencies || []).forEach(a => agencyMap.set(a.id, a.name));
 
     // Group by traveler (first name + last name + whatsapp)
     const travelersMap = new Map<string, {
@@ -50,11 +91,11 @@ export async function GET(request: NextRequest) {
       whatsapp: string;
       type: string;
       agencyName: string | null;
-      baggages: typeof baggages;
+      baggages: BaggageRow[];
       lastScan: Date | null;
     }>();
 
-    baggages.forEach((baggage) => {
+    (baggages || []).forEach((baggage) => {
       const key = `${baggage.travelerFirstName}_${baggage.travelerLastName}_${baggage.whatsappOwner}`;
 
       if (!travelersMap.has(key)) {
@@ -64,7 +105,7 @@ export async function GET(request: NextRequest) {
           lastName: baggage.travelerLastName || '',
           whatsapp: baggage.whatsappOwner || '',
           type: baggage.type,
-          agencyName: baggage.agency?.name || null,
+          agencyName: baggage.agencyId ? (agencyMap.get(baggage.agencyId) || null) : null,
           baggages: [],
           lastScan: null,
         });
@@ -75,8 +116,9 @@ export async function GET(request: NextRequest) {
 
       // Update last scan
       if (baggage.lastScanDate) {
-        if (!traveler.lastScan || new Date(baggage.lastScanDate) > traveler.lastScan) {
-          traveler.lastScan = new Date(baggage.lastScanDate);
+        const scanDate = new Date(baggage.lastScanDate);
+        if (!traveler.lastScan || scanDate > traveler.lastScan) {
+          traveler.lastScan = scanDate;
         }
       }
     });
