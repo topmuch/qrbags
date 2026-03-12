@@ -1,0 +1,51 @@
+# QRBag - Docker Compose for Coolify Deployment
+# IMPORTANT: This file ensures data persistence across deployments
+# 
+# 🔴 CRITICAL: In Coolify, make sure to configure:
+#    - Persistent Volume: /app/data (for database)
+#    - Environment Variable: DATABASE_URL=file:/app/data/qrbag.db
+#
+# This prevents data loss when the container is recreated during deployments.
+
+version: '3.8'
+
+services:
+  qrbag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/qrbag.db
+      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET:-}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-secret-key-here}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+    volumes:
+      # 🔴 CRITICAL: This volume MUST be persistent in Coolify
+      # Database and backups are stored here
+      - qrbag_data:/app/data
+      # Optional: for file uploads
+      - qrbag_uploads:/app/public/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "coolify.managed=true"
+      - "coolify.persistentVolume=/app/data"
+
+volumes:
+  # These volumes persist data between container restarts
+  qrbag_data:
+    driver: local
+  qrbag_uploads:
+    driver: local

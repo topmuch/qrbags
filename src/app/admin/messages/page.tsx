@@ -23,7 +23,9 @@ import {
   MessageSquare,
   AlertCircle,
   CheckCheck,
-  Inbox
+  Inbox,
+  PenSquare,
+  Users
 } from "lucide-react";
 import { AIBadge } from '@/components/ai/AIIndicators';
 
@@ -41,6 +43,12 @@ interface Message {
   content: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface Agency {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 // Type labels
@@ -153,6 +161,7 @@ function MessageSummaryCell({ content, messageType }: { content: string; message
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
@@ -162,10 +171,31 @@ export default function MessagesPage() {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const [replySubmitting, setReplySubmitting] = useState(false);
+  
+  // Compose message modal state
+  const [showComposeModal, setShowComposeModal] = useState(false);
+  const [composeForm, setComposeForm] = useState({
+    selectedAgencies: [] as string[],
+    subject: '',
+    content: '',
+    sendToAll: false
+  });
+  const [composeSubmitting, setComposeSubmitting] = useState(false);
 
   useEffect(() => {
     fetchMessages();
+    fetchAgencies();
   }, [typeFilter, statusFilter]);
+  
+  const fetchAgencies = async () => {
+    try {
+      const res = await fetch('/api/admin/agencies');
+      const data = await res.json();
+      setAgencies(data.agencies || []);
+    } catch (error) {
+      console.error('Error fetching agencies:', error);
+    }
+  };
 
   const fetchMessages = async () => {
     setLoading(true);
@@ -280,6 +310,13 @@ export default function MessagesPage() {
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Actualiser
+          </Button>
+          <Button
+            onClick={() => setShowComposeModal(true)}
+            className="bg-[#ff7f00] text-white hover:bg-[#ff9f00] rounded-xl"
+          >
+            <PenSquare className="w-4 h-4 mr-2" />
+            Écrire un message
           </Button>
         </div>
       </div>
@@ -720,6 +757,182 @@ export default function MessagesPage() {
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Compose Message Modal */}
+      {showComposeModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-700">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#ff7f00]/10 flex items-center justify-center">
+                  <PenSquare className="w-5 h-5 text-[#ff7f00]" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">Écrire un message</h2>
+              </div>
+              <button
+                onClick={() => {
+                  setShowComposeModal(false);
+                  setComposeForm({ selectedAgencies: [], subject: '', content: '', sendToAll: false });
+                }}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              >
+                <XCircle className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-4">
+              {/* Recipients Selection */}
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 text-sm font-medium mb-2">
+                  <Users className="w-4 h-4 inline mr-2" />
+                  Destinataires
+                </label>
+                
+                {/* Send to all toggle */}
+                <label className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl cursor-pointer mb-3">
+                  <input
+                    type="checkbox"
+                    checked={composeForm.sendToAll}
+                    onChange={(e) => setComposeForm({
+                      ...composeForm,
+                      sendToAll: e.target.checked,
+                      selectedAgencies: e.target.checked ? agencies.map(a => a.id) : []
+                    })}
+                    className="w-5 h-5 rounded border-slate-300 text-[#ff7f00] focus:ring-[#ff7f00]"
+                  />
+                  <div>
+                    <p className="text-slate-800 dark:text-white font-medium">Envoyer à toutes les agences</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs">{agencies.length} agences</p>
+                  </div>
+                </label>
+                
+                {/* Individual agency selection */}
+                {!composeForm.sendToAll && (
+                  <div className="max-h-40 overflow-y-auto border border-slate-200 dark:border-slate-600 rounded-xl">
+                    {agencies.map((agency) => (
+                      <label
+                        key={agency.id}
+                        className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-b-0"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={composeForm.selectedAgencies.includes(agency.id)}
+                          onChange={(e) => {
+                            const selected = e.target.checked
+                              ? [...composeForm.selectedAgencies, agency.id]
+                              : composeForm.selectedAgencies.filter(id => id !== agency.id);
+                            setComposeForm({ ...composeForm, selectedAgencies: selected });
+                          }}
+                          className="w-4 h-4 rounded border-slate-300 text-[#ff7f00] focus:ring-[#ff7f00]"
+                        />
+                        <span className="text-slate-800 dark:text-white text-sm">{agency.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-2">
+                  {composeForm.sendToAll ? agencies.length : composeForm.selectedAgencies.length} agence(s) sélectionnée(s)
+                </p>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 text-sm font-medium mb-2">
+                  Objet
+                </label>
+                <input
+                  type="text"
+                  value={composeForm.subject}
+                  onChange={(e) => setComposeForm({ ...composeForm, subject: e.target.value })}
+                  placeholder="Objet du message..."
+                  className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#ff7f00]"
+                />
+              </div>
+
+              {/* Content */}
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 text-sm font-medium mb-2">
+                  Message
+                </label>
+                <textarea
+                  value={composeForm.content}
+                  onChange={(e) => setComposeForm({ ...composeForm, content: e.target.value })}
+                  rows={6}
+                  placeholder="Écrivez votre message ici..."
+                  className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#ff7f00] resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="p-6 border-t border-slate-100 dark:border-slate-700 flex gap-3">
+              <button
+                onClick={() => {
+                  setShowComposeModal(false);
+                  setComposeForm({ selectedAgencies: [], subject: '', content: '', sendToAll: false });
+                }}
+                className="flex-1 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={async () => {
+                  const recipients = composeForm.sendToAll ? agencies.map(a => a.id) : composeForm.selectedAgencies;
+                  if (recipients.length === 0 || !composeForm.subject.trim() || !composeForm.content.trim()) {
+                    alert('Veuillez remplir tous les champs et sélectionner au moins une agence');
+                    return;
+                  }
+                  
+                  setComposeSubmitting(true);
+                  try {
+                    // Send message to each selected agency
+                    for (const agencyId of recipients) {
+                      await fetch('/api/messages', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          type: 'message_superadmin',
+                          recipientAgencyId: agencyId,
+                          subject: composeForm.subject,
+                          content: composeForm.content,
+                          senderName: 'SuperAdmin',
+                        }),
+                      });
+                    }
+                    
+                    setShowComposeModal(false);
+                    setComposeForm({ selectedAgencies: [], subject: '', content: '', sendToAll: false });
+                    fetchMessages();
+                    alert(`Message envoyé à ${recipients.length} agence(s)`);
+                  } catch (error) {
+                    console.error('Error sending message:', error);
+                    alert('Erreur lors de l\'envoi du message');
+                  } finally {
+                    setComposeSubmitting(false);
+                  }
+                }}
+                disabled={composeSubmitting || !composeForm.subject.trim() || !composeForm.content.trim() || (composeForm.selectedAgencies.length === 0 && !composeForm.sendToAll)}
+                className="flex-1 py-3 bg-[#ff7f00] text-white rounded-xl font-bold hover:bg-[#ff9f00] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {composeSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Envoi...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" aria-hidden="true" />
+                    Envoyer le message
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
