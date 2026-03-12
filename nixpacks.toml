@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ['nodejs_20', 'bun', 'sqlite']
+
+[phases.install]
+cmds = ['bun install']
+
+[phases.build]
+cmds = ['bun run db:generate', 'bun run build']
+
+[start]
+cmd = 'mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && node .next/standalone/server.js'
+
+[variables]
+NODE_ENV = 'production'
+DATABASE_URL = 'file:/app/data/qrbag.db'
