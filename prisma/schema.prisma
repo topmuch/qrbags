@@ -97,9 +97,6 @@ model Baggage {
   founderName       String?   // Name of the finder
   founderPhone      String?   // WhatsApp number of the finder
   founderAt         DateTime? // Timestamp when founder info was submitted
-  // Marketing fields
-  marketingOptin    Boolean   @default(false) // User accepted marketing WhatsApp messages
-  lastContactedAt   DateTime? // Last marketing contact date
   agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   scanLogs          ScanLog[]
 }

@@ -14,8 +14,6 @@ interface BaggageRow {
   status: string;
   createdAt: string;
   expiresAt: string | null;
-  marketingOptin: number | null;
-  lastContactedAt: string | null;
 }
 
 // Agency row type
@@ -40,10 +38,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Filters
-    const type = searchParams.get('type'); // 'hajj', 'voyageur', or null for all
-    const status = searchParams.get('status'); // 'active', 'expiring_soon', 'expired', or null for all
+    const type = searchParams.get('type');
+    const status = searchParams.get('status');
     const agencyId = searchParams.get('agencyId');
-    const dateRange = searchParams.get('dateRange'); // '30', '90', or null for all
+    const dateRange = searchParams.get('dateRange');
     const search = searchParams.get('search');
 
     // Build query conditions
@@ -83,7 +81,7 @@ export async function GET(request: NextRequest) {
       `SELECT
         id, reference, type, agencyId,
         travelerFirstName, travelerLastName, whatsappOwner,
-        status, createdAt, expiresAt, marketingOptin, lastContactedAt
+        status, createdAt, expiresAt
        FROM Baggage
        WHERE ${whereClause}
        ORDER BY createdAt DESC`,
@@ -158,8 +156,9 @@ export async function GET(request: NextRequest) {
         expirationDate: b.expiresAt,
         status: computedStatus,
         agency: agency ? { id: agency.id, name: agency.name } : null,
-        marketingOptin: b.marketingOptin === 1,
-        lastContactedAt: b.lastContactedAt
+        // Removed marketing fields that don't exist in production DB
+        marketingOptin: false,
+        lastContactedAt: null
       };
     });
 
@@ -177,7 +176,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT - Update last contacted date
+// PUT - Update last contacted date (disabled - column doesn't exist)
 export async function PUT(request: NextRequest) {
   try {
     const user = await getSession();
@@ -189,25 +188,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { baggageId } = body;
-
-    if (!baggageId) {
-      return NextResponse.json(
-        { error: 'ID bagage requis' },
-        { status: 400 }
-      );
-    }
-
-    const now = new Date().toISOString();
-
-    await db.$executeRaw`
-      UPDATE Baggage SET lastContactedAt = ${now} WHERE id = ${baggageId}
-    `;
-
+    // Feature disabled - column doesn't exist in production
     return NextResponse.json({
       success: true,
-      lastContactedAt: now
+      message: 'Contact tracking disabled'
     });
   } catch (error) {
     console.error('Error updating contact date:', error);

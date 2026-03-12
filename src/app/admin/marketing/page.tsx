@@ -30,8 +30,9 @@ interface Client {
   expirationDate: string | null;
   status: 'active' | 'expiring_soon' | 'expired';
   agency: { id: string; name: string } | null;
-  marketingOptin: boolean;
-  lastContactedAt: string | null;
+  // Marketing fields removed - not available in production DB
+  marketingOptin?: boolean;
+  lastContactedAt?: string | null;
 }
 
 interface Stats {
