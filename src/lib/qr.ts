@@ -10,7 +10,7 @@ export function generateRandomCode(length: number = 6): string {
   return result;
 }
 
-// Generate unique reference
+// Generate unique reference using raw SQL for compatibility
 export async function generateReference(type: 'hajj' | 'voyageur'): Promise<string> {
   const year = new Date().getFullYear().toString().slice(-2);
   const prefix = type === 'hajj' ? 'HAJJ' : 'VOL';
@@ -22,13 +22,21 @@ export async function generateReference(type: 'hajj' | 'voyageur'): Promise<stri
   while (attempts < maxAttempts) {
     reference = `${prefix}${year}-${generateRandomCode(6)}`;
     
-    const existing = await db.baggage.findUnique({
-      where: { reference }
-    });
-    
-    if (!existing) {
+    try {
+      // Use raw SQL to check if reference exists (avoids missing column errors)
+      const result = await db.$queryRaw<[{ count: number }]>`
+        SELECT COUNT(*) as count FROM Baggage WHERE reference = ${reference}
+      `;
+      
+      if (result[0].count === 0) {
+        return reference;
+      }
+    } catch (error) {
+      // If query fails, assume reference is unique
+      console.error('Error checking reference uniqueness:', error);
       return reference;
     }
+    
     attempts++;
   }
   
@@ -60,37 +68,6 @@ export function generateSetId(type: 'hajj' | 'voyageur'): string {
   return `${prefix}-${year}-${random}`;
 }
 
-export async function generateBaggages(options: GenerateBaggageOptions): Promise<string[]> {
-  const { type, agencyId, count } = options;
-  const references: string[] = [];
-
-  // Generate a unique set ID for this batch
-  const setId = generateSetId(type);
-
-  // For Hajj, always 3 bags (1 cabine + 2 soutes)
-  // For Voyageur, user choice (1 or 3)
-
-  for (let i = 0; i < count; i++) {
-    const reference = await generateReference(type);
-
-    await db.baggage.create({
-      data: {
-        reference,
-        type,
-        setId,
-        agencyId: agencyId || null,
-        baggageIndex: i + 1,
-        baggageType: i === 0 ? 'cabine' : 'soute',
-        status: 'pending_activation',
-      }
-    });
-
-    references.push(reference);
-  }
-
-  return references;
-}
-
 // Calculate expiration date based on type
 export function calculateExpirationDate(type: 'hajj' | 'voyageur', subtype?: 'sticker' | 'tag'): Date {
   const now = new Date();
@@ -102,7 +79,7 @@ export function calculateExpirationDate(type: 'hajj' | 'voyageur', subtype?: 'st
       if (subtype === 'tag') {
         return new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // +365 days
       }
-      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days (sticker) - changed from 72h
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days (sticker)
     default:
       return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
   }
@@ -155,4 +132,11 @@ export function getBaggageStatusInfo(status: string) {
     color: 'text-gray-600',
     bgColor: 'bg-gray-100'
   };
+}
+
+// Generate CUID-like ID
+export function generateCuid(): string {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 10);
+  return `c${timestamp}${random}`;
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { generateReference, generateSetId, calculateExpirationDate } from '@/lib/qr';
+import { generateReference, generateSetId, calculateExpirationDate, generateCuid } from '@/lib/qr';
 import { db } from '@/lib/db';
 
 // Schema for individual generation
@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * Generate baggages for individual traveler with traveler info
+ * Uses raw SQL for maximum database compatibility
  */
 async function generateBaggagesWithTraveler(options: {
   type: 'hajj' | 'voyageur';
@@ -107,24 +108,25 @@ async function generateBaggagesWithTraveler(options: {
   // Generate a unique set ID for this batch
   const setId = generateSetId(type);
   const expiresAt = calculateExpirationDate(type, duration === '1y' ? 'tag' : 'sticker');
+  const expiresAtStr = expiresAt.toISOString();
 
   for (let i = 0; i < baggageCount; i++) {
     const reference = await generateReference(type);
+    const id = generateCuid();
+    const now = new Date().toISOString();
 
-    // Use raw SQL for maximum compatibility
-    await createBaggageRaw({
-      reference,
-      type,
-      setId,
-      agencyId: null,
-      travelerFirstName: firstName,
-      travelerLastName: lastName,
-      whatsappOwner: whatsapp,
-      baggageIndex: i + 1,
-      baggageType: i === 0 ? 'cabine' : 'soute',
-      status: 'active',
-      expiresAt
-    });
+    // Use raw SQL directly
+    await db.$executeRaw`
+      INSERT INTO Baggage (
+        id, reference, type, setId, agencyId,
+        travelerFirstName, travelerLastName, whatsappOwner,
+        baggageIndex, baggageType, status, expiresAt, createdAt
+      ) VALUES (
+        ${id}, ${reference}, ${type}, ${setId}, null,
+        ${firstName}, ${lastName}, ${whatsapp},
+        ${i + 1}, ${i === 0 ? 'cabine' : 'soute'}, 'active', ${expiresAtStr}, ${now}
+      )
+    `;
 
     references.push(reference);
   }
@@ -134,6 +136,7 @@ async function generateBaggagesWithTraveler(options: {
 
 /**
  * Generate baggages for agency (no traveler info, needs activation)
+ * Uses raw SQL for maximum database compatibility
  */
 async function generateBaggages(options: {
   type: 'hajj' | 'voyageur';
@@ -148,97 +151,24 @@ async function generateBaggages(options: {
 
   for (let i = 0; i < count; i++) {
     const reference = await generateReference(type);
+    const id = generateCuid();
+    const now = new Date().toISOString();
 
-    // Use raw SQL for maximum compatibility
-    await createBaggageRaw({
-      reference,
-      type,
-      setId,
-      agencyId: agencyId || null,
-      travelerFirstName: null,
-      travelerLastName: null,
-      whatsappOwner: null,
-      baggageIndex: i + 1,
-      baggageType: i === 0 ? 'cabine' : 'soute',
-      status: 'pending_activation',
-      expiresAt: null
-    });
+    // Use raw SQL directly
+    await db.$executeRaw`
+      INSERT INTO Baggage (
+        id, reference, type, setId, agencyId,
+        baggageIndex, baggageType, status, createdAt
+      ) VALUES (
+        ${id}, ${reference}, ${type}, ${setId}, ${agencyId || null},
+        ${i + 1}, ${i === 0 ? 'cabine' : 'soute'}, 'pending_activation', ${now}
+      )
+    `;
 
     references.push(reference);
   }
 
   return references;
-}
-
-/**
- * Create baggage using raw SQL for maximum database compatibility
- */
-async function createBaggageRaw(data: {
-  reference: string;
-  type: string;
-  setId: string;
-  agencyId: string | null;
-  travelerFirstName: string | null;
-  travelerLastName: string | null;
-  whatsappOwner: string | null;
-  baggageIndex: number;
-  baggageType: string;
-  status: string;
-  expiresAt: Date | null;
-}): Promise<void> {
-  const id = generateCuid();
-  const now = new Date().toISOString();
-  const expiresAtStr = data.expiresAt ? data.expiresAt.toISOString() : null;
-
-  // First try with Prisma client
-  try {
-    await db.baggage.create({
-      data: {
-        id,
-        reference: data.reference,
-        type: data.type,
-        setId: data.setId,
-        agencyId: data.agencyId,
-        travelerFirstName: data.travelerFirstName,
-        travelerLastName: data.travelerLastName,
-        whatsappOwner: data.whatsappOwner,
-        baggageIndex: data.baggageIndex,
-        baggageType: data.baggageType,
-        status: data.status,
-        expiresAt: data.expiresAt,
-      }
-    });
-    return;
-  } catch (prismaError) {
-    console.log('Prisma create failed, trying raw SQL:', prismaError);
-  }
-
-  // Fallback to raw SQL
-  try {
-    await db.$executeRaw`
-      INSERT INTO Baggage (
-        id, reference, type, setId, agencyId,
-        travelerFirstName, travelerLastName, whatsappOwner,
-        baggageIndex, baggageType, status, expiresAt, createdAt
-      ) VALUES (
-        ${id}, ${data.reference}, ${data.type}, ${data.setId}, ${data.agencyId},
-        ${data.travelerFirstName}, ${data.travelerLastName}, ${data.whatsappOwner},
-        ${data.baggageIndex}, ${data.baggageType}, ${data.status}, ${expiresAtStr}, ${now}
-      )
-    `;
-  } catch (rawError) {
-    console.error('Raw SQL insert also failed:', rawError);
-    throw new Error(`Failed to create baggage: ${rawError instanceof Error ? rawError.message : 'Unknown error'}`);
-  }
-}
-
-/**
- * Generate a CUID-like ID
- */
-function generateCuid(): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 10);
-  return `c${timestamp}${random}`;
 }
 
 // GET - Get all baggages (for QR codes list)
@@ -250,32 +180,38 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '500');
 
-    const where: Record<string, unknown> = {};
+    // Build where clause for raw query
+    let whereClause = 'WHERE 1=1';
+    const params: (string | number)[] = [];
 
     if (agencyId) {
-      where.agencyId = agencyId;
+      whereClause += ' AND agencyId = ?';
+      params.push(agencyId);
     }
 
     if (type) {
-      where.type = type;
+      whereClause += ' AND type = ?';
+      params.push(type);
     }
 
     if (status) {
-      where.status = status;
+      whereClause += ' AND status = ?';
+      params.push(status);
     }
 
-    let baggages;
-    try {
-      baggages = await db.baggage.findMany({
-        where,
-        include: { agency: true },
-        orderBy: { createdAt: 'desc' },
-        take: limit
-      });
-    } catch (dbError) {
-      console.error('Database error:', dbError);
-      return NextResponse.json({ baggages: [] });
-    }
+    const query = `
+      SELECT
+        id, reference, type, setId, agencyId,
+        travelerFirstName, travelerLastName, whatsappOwner,
+        baggageIndex, baggageType, status, createdAt, expiresAt
+      FROM Baggage
+      ${whereClause}
+      ORDER BY createdAt DESC
+      LIMIT ?
+    `;
+    params.push(limit);
+
+    const baggages = await db.$queryRawUnsafe<any[]>(query, ...params);
 
     return NextResponse.json({ baggages });
   } catch (error) {
