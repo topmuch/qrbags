@@ -1,21 +1,35 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// Baggage row type for raw queries
+interface BaggageRow {
+  id: string;
+  type: string;
+  status: string;
+  createdAt: string;
+  expiresAt: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+}
+
+// ScanLog row type
+interface ScanLogRow {
+  id: string;
+  baggageId: string;
+  location: string | null;
+  createdAt: string;
+}
+
 // GET - Fetch dashboard statistics
 export async function GET() {
   try {
-    // Get all baggages
-    const baggages = await db.baggage.findMany({
-      select: {
-        id: true,
-        type: true,
-        status: true,
-        createdAt: true,
-        expiresAt: true,
-        travelerFirstName: true,
-        travelerLastName: true,
-      }
-    });
+    // Get all baggages using raw SQL (only columns that exist)
+    const baggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT
+        id, type, status, createdAt, expiresAt,
+        travelerFirstName, travelerLastName
+      FROM Baggage
+    `;
 
     // Get agencies count
     const agenciesCount = await db.agency.count();
@@ -40,9 +54,9 @@ export async function GET() {
     // Count expiring soon (within 7 days)
     const now = new Date();
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const expiringSoon = baggages.filter(b => 
-      b.expiresAt && 
-      new Date(b.expiresAt) <= sevenDaysFromNow && 
+    const expiringSoon = baggages.filter(b =>
+      b.expiresAt &&
+      new Date(b.expiresAt) <= sevenDaysFromNow &&
       new Date(b.expiresAt) > now
     ).length;
 
@@ -65,21 +79,29 @@ export async function GET() {
       });
     }
 
-    // Get recent activities from scan logs
-    const recentScans = await db.scanLog.findMany({
-      take: 10,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        baggage: {
-          select: {
-            reference: true,
-            type: true,
-            travelerFirstName: true,
-            travelerLastName: true,
-          }
-        }
-      }
-    });
+    // Get recent activities from scan logs using raw SQL
+    const recentScansRaw = await db.$queryRaw<ScanLogRow[]>`
+      SELECT id, baggageId, location, createdAt
+      FROM ScanLog
+      ORDER BY createdAt DESC
+      LIMIT 10
+    `;
+
+    // Get baggage info for scan logs
+    const baggageIds = recentScansRaw.map(s => s.baggageId);
+    let scanBaggages: BaggageRow[] = [];
+    if (baggageIds.length > 0) {
+      // Build a query with IN clause
+      scanBaggages = await db.$queryRawUnsafe<BaggageRow[]>(
+        `SELECT id, reference, type, travelerFirstName, travelerLastName
+         FROM Baggage
+         WHERE id IN (${baggageIds.map(() => '?').join(',')})`,
+        ...baggageIds
+      );
+    }
+
+    // Create a map for quick lookup
+    const baggageMap = new Map(scanBaggages.map(b => [b.id, b]));
 
     // Format recent activities
     type ActivityType = {
@@ -92,17 +114,18 @@ export async function GET() {
       status: 'success';
     };
 
-    const recentActivities: ActivityType[] = recentScans.map((scan) => {
+    const recentActivities: ActivityType[] = recentScansRaw.map((scan) => {
+      const baggage = baggageMap.get(scan.baggageId);
       const timeAgo = getTimeAgo(new Date(scan.createdAt));
-      const name = scan.baggage.travelerFirstName 
-        ? `${scan.baggage.travelerFirstName} ${scan.baggage.travelerLastName || ''} - ${scan.baggage.type === 'hajj' ? 'Hajj' : 'Voyageur'}`
-        : `Scan ${scan.baggage.reference}`;
+      const name = baggage?.travelerFirstName
+        ? `${baggage.travelerFirstName} ${baggage.travelerLastName || ''} - ${baggage.type === 'hajj' ? 'Hajj' : 'Voyageur'}`
+        : `Scan ${baggage?.reference || 'Inconnu'}`;
 
       return {
         id: scan.id,
         type: 'scan' as const,
         name,
-        reference: scan.baggage.reference,
+        reference: baggage?.reference || '',
         time: timeAgo,
         details: scan.location || 'Position non partagée',
         status: 'success' as const,
@@ -134,7 +157,7 @@ export async function GET() {
       totalPelerins: uniquePelerins,
       totalVoyageurs: uniqueVoyageurs,
       expiringSoon,
-      pendingOrders: 0, // Placeholder for B2B orders feature
+      pendingOrders: 0,
       totalAgencies: agenciesCount,
     };
 
