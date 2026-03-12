@@ -1,0 +1,372 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Shield,
+  Users,
+  Monitor,
+  Globe,
+  Clock,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  AlertTriangle,
+  Activity,
+} from 'lucide-react';
+
+interface LoginLog {
+  id: string;
+  userId: string | null;
+  email: string;
+  success: boolean;
+  failureReason: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  country: string | null;
+  city: string | null;
+  createdAt: string;
+}
+
+interface ActiveSession {
+  id: string;
+  userId: string;
+  userAgent: string | null;
+  ipAddress: string | null;
+  lastActivity: string;
+  createdAt: string;
+  user: {
+    email: string;
+    name: string | null;
+    role: string;
+  };
+}
+
+export default function SecurityAuditPage() {
+  const [loginLogs, setLoginLogs] = useState<LoginLog[]>([]);
+  const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch login logs
+      const logsRes = await fetch('/api/admin/security/logs');
+      const logsData = await logsRes.json();
+
+      // Fetch active sessions
+      const sessionsRes = await fetch('/api/admin/security/sessions');
+      const sessionsData = await sessionsRes.json();
+
+      if (logsData.logs) setLoginLogs(logsData.logs);
+      if (sessionsData.sessions) setActiveSessions(sessionsData.sessions);
+    } catch (err) {
+      setError('Erreur lors du chargement des données');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const diff = Date.now() - new Date(dateString).getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return "À l'instant";
+    if (minutes < 60) return `Il y a ${minutes} min`;
+    if (hours < 24) return `Il y a ${hours}h`;
+    if (days < 7) return `Il y a ${days}j`;
+    return formatDate(dateString);
+  };
+
+  const parseUserAgent = (ua: string | null) => {
+    if (!ua) return { browser: 'Inconnu', os: 'Inconnu' };
+
+    let browser = 'Inconnu';
+    let os = 'Inconnu';
+
+    if (ua.includes('Chrome')) browser = 'Chrome';
+    else if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('Safari')) browser = 'Safari';
+    else if (ua.includes('Edge')) browser = 'Edge';
+
+    if (ua.includes('Windows')) os = 'Windows';
+    else if (ua.includes('Mac')) os = 'macOS';
+    else if (ua.includes('Linux')) os = 'Linux';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+    return { browser, os };
+  };
+
+  // Statistics
+  const successfulLogins = loginLogs.filter(l => l.success).length;
+  const failedLogins = loginLogs.filter(l => !l.success).length;
+  const uniqueIPs = new Set(loginLogs.map(l => l.ipAddress).filter(Boolean)).size;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
+            <Shield className="w-7 h-7 text-[#ff7f00]" />
+            Sécurité & Audit
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Surveillez les connexions et sessions actives
+          </p>
+        </div>
+        <button
+          onClick={fetchData}
+          disabled={loading}
+          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+        >
+          <RefreshCw className={`w-5 h-5 text-slate-600 dark:text-slate-400 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800 dark:text-white">{successfulLogins}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Connexions réussies</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-500/20 flex items-center justify-center">
+                <XCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800 dark:text-white">{failedLogins}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Tentatives échouées</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800 dark:text-white">{activeSessions.length}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Sessions actives</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center">
+                <Globe className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800 dark:text-white">{uniqueIPs}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Adresses IP uniques</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-800 rounded-xl">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Active Sessions */}
+      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-[#ff7f00]" />
+            Sessions actives
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="w-6 h-6 animate-spin text-slate-400" />
+            </div>
+          ) : activeSessions.length === 0 ? (
+            <p className="text-center text-slate-500 dark:text-slate-400 py-8">
+              Aucune session active
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Utilisateur</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Rôle</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">IP</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Navigateur</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Dernière activité</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeSessions.map((session) => {
+                    const { browser, os } = parseUserAgent(session.userAgent);
+                    return (
+                      <tr key={session.id} className="border-b border-slate-100 dark:border-slate-800/50">
+                        <td className="py-3 px-4">
+                          <div>
+                            <p className="font-medium text-slate-800 dark:text-white">{session.user.name || 'N/A'}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">{session.user.email}</p>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant={session.user.role === 'superadmin' ? 'default' : 'secondary'}>
+                            {session.user.role === 'superadmin' ? 'SuperAdmin' : 'Agence'}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4">
+                          <code className="text-sm bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                            {session.ipAddress || 'N/A'}
+                          </code>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <Monitor className="w-4 h-4 text-slate-400" />
+                            <span className="text-sm text-slate-600 dark:text-slate-400">
+                              {browser} / {os}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-slate-500 dark:text-slate-400">
+                          {getTimeAgo(session.lastActivity)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Login Logs */}
+      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-[#ff7f00]" />
+            Historique des connexions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="w-6 h-6 animate-spin text-slate-400" />
+            </div>
+          ) : loginLogs.length === 0 ? (
+            <p className="text-center text-slate-500 dark:text-slate-400 py-8">
+              Aucune connexion enregistrée
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Statut</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Email</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">IP</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Navigateur</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Date</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400">Détails</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loginLogs.map((log) => {
+                    const { browser, os } = parseUserAgent(log.userAgent);
+                    return (
+                      <tr key={log.id} className="border-b border-slate-100 dark:border-slate-800/50">
+                        <td className="py-3 px-4">
+                          {log.success ? (
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="w-5 h-5 text-emerald-500" />
+                              <span className="text-emerald-600 dark:text-emerald-400 font-medium">Réussie</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <XCircle className="w-5 h-5 text-red-500" />
+                              <span className="text-red-600 dark:text-red-400 font-medium">Échouée</span>
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-slate-800 dark:text-white">{log.email}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <code className="text-sm bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                            {log.ipAddress || 'N/A'}
+                          </code>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <Monitor className="w-4 h-4 text-slate-400" />
+                            <span className="text-sm text-slate-600 dark:text-slate-400">
+                              {browser} / {os}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-slate-500 dark:text-slate-400">
+                          {formatDate(log.createdAt)}
+                        </td>
+                        <td className="py-3 px-4">
+                          {log.failureReason ? (
+                            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                              <AlertTriangle className="w-4 h-4" />
+                              <span className="text-sm">{log.failureReason}</span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

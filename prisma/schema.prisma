@@ -1,0 +1,420 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model - supports superadmin, admin, agent, and agency users
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  name            String?
+  password        String?
+  role            String        @default("agency") // "superadmin" | "admin" | "agent" | "agency"
+  agencyId        String?
+  agency          Agency?       @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  sessions        Session[]
+  loginLogs       LoginLog[]
+  assignedLeads   Lead[]        @relation("AssignedLeads")
+  observations    Observation[]
+  dailyReports    DailyReport[]
+  blogPosts       BlogPost[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// Session model - secure HTTP-only cookie based sessions
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent    String?  // Browser identification
+  ipAddress    String?  // IP address at login
+  lastActivity DateTime @default(now()) // Last activity timestamp
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
+
+// LoginLog model - audit trail for all login attempts
+model LoginLog {
+  id           String    @id @default(cuid())
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email        String    // Email used for login attempt
+  success      Boolean   @default(false) // Whether login succeeded
+  failureReason String?  // Reason for failure if applicable
+  ipAddress    String?   // IP address
+  userAgent    String?   // Browser/client info
+  country      String?   // Country from IP
+  city         String?   // City from IP
+  createdAt    DateTime  @default(now())
+}
+
+// Agency model - pilgrimage agencies
+model Agency {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  email     String?
+  phone     String?
+  address   String?
+  logo      String?   // Logo URL or base64
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  baggages  Baggage[]
+  users     User[]
+  invoices  Invoice[]
+}
+
+// Baggage model - main entity for luggage tracking
+model Baggage {
+  id                String    @id @default(cuid())
+  reference         String    @unique // HAJJ26-MLQGY7, VOL26-K9X2P4
+  type              String    // "hajj" or "voyageur"
+  setId             String?   // Groups QR codes together (e.g., SET-2026-0966)
+  agencyId          String?
+  travelerFirstName String?
+  travelerLastName  String?
+  whatsappOwner     String?
+  baggageIndex      Int       @default(1) // 1, 2, 3 (order: 1 = cabine)
+  baggageType       String    @default("cabine") // "cabine" or "soute"
+  status            String    @default("pending_activation") // pending_activation, active, scanned, lost, found, blocked
+  flightNumber      String?
+  destination       String?
+  createdAt         DateTime  @default(now())
+  expiresAt         DateTime?
+  lastScanDate      DateTime?
+  lastLocation      String?
+  declaredLostAt    DateTime? // Timestamp when baggage was declared lost
+  foundAt           DateTime? // Timestamp when baggage was found
+  // Founder information (person who found the baggage)
+  founderName       String?   // Name of the finder
+  founderPhone      String?   // WhatsApp number of the finder
+  founderAt         DateTime? // Timestamp when founder info was submitted
+  // Marketing fields
+  marketingOptin    Boolean   @default(false) // User accepted marketing WhatsApp messages
+  lastContactedAt   DateTime? // Last marketing contact date
+  agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  scanLogs          ScanLog[]
+}
+
+// ScanLog model - tracks all scans for audit
+model ScanLog {
+  id          String   @id @default(cuid())
+  baggageId   String
+  ipAddress   String?
+  country     String?
+  city        String?
+  latitude    Float?
+  longitude   Float?
+  location    String?  // Selected location (Jeddah, Médine, etc.)
+  message     String?  // Optional message from finder
+  createdAt   DateTime @default(now())
+  baggage     Baggage  @relation(fields: [baggageId], references: [id], onDelete: Cascade)
+}
+
+// Settings model - system configuration
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// Page model - CMS pages
+model Page {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  content   String   // HTML or Markdown content
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Banner model - dashboard announcements
+model Banner {
+  id        String   @id @default(cuid())
+  type      String   // "header" or "footer"
+  content   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// FeatureFlag model - modular feature toggles
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique // ex: "whatsapp_automated"
+  label       String   // "Envoi WhatsApp automatisé"
+  description String   // Clear description for admins
+  category    String   @default("general") // "communication", "geolocation", "export", "notifications"
+  enabled     Boolean  @default(false)
+  icon        String?  // Icon name for UI
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Message model - contact, partner requests, agency orders, assistance
+// Message types:
+// - "contact": Contact form from public website
+// - "partenaire": Partner registration requests
+// - "commande_agence": QR code orders from agencies
+// - "assistance_agence": Support messages from agencies to superadmin
+// - "reponse_assistance": Replies from superadmin to agencies
+// - "message_superadmin": Messages initiated by superadmin for specific agencies
+model Message {
+  id          String   @id @default(cuid())
+  type        String   // "contact", "partenaire", "commande_agence", "assistance_agence", "reponse_assistance", "message_superadmin"
+  status      String   @default("non_lu") // "non_lu", "lu", "traite"
+  senderName  String?
+  senderEmail String?
+  senderPhone String?
+  agencyId    String?  // lien vers Agence (si commande agence ou assistance)
+  recipientAgencyId String? // Pour les messages du superadmin vers une agence spécifique
+  subject     String?  // Subject line for assistance messages
+  content     String   // JSON ou texte brut
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Notification model - real-time alerts for SuperAdmin
+// Notification types:
+// - "baggage_declared_lost": Agency declared a baggage as lost
+// - "baggage_found": Lost baggage was found
+// - "new_assistance_message": New assistance message from agency
+// - "urgent_scan": Urgent scan on lost baggage
+model Notification {
+  id          String   @id @default(cuid())
+  type        String   // "baggage_declared_lost", "baggage_found", "new_assistance_message", "urgent_scan"
+  userId      String?  // null = broadcast to all superadmins
+  agencyId    String?  // Reference to agency if applicable
+  baggageId   String?  // Reference to baggage if applicable
+  message     String   // Notification message
+  data        String?  // JSON additional data
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// EmailSettings model - SMTP configuration
+model EmailSettings {
+  id              String   @id @default(cuid())
+  provider        String   @default("console") // "console" or "smtp"
+  fromEmail       String   @default("noreply@qrbag.com")
+  fromName        String   @default("QRBag")
+  // SMTP settings
+  smtpHost        String?
+  smtpPort        Int?
+  smtpUser        String?
+  smtpPassword    String?
+  smtpEncryption  String   @default("tls") // "tls", "ssl", "none"
+  // Status
+  isActive        Boolean  @default(true)
+  lastTestAt      DateTime?
+  lastTestStatus  String?  // "success", "failed"
+  lastTestError   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// EmailLog model - tracks all sent emails
+model EmailLog {
+  id          String   @id @default(cuid())
+  to          String
+  subject     String
+  type        String   // "verification", "password_reset", "notification", "invoice", "test", "welcome"
+  status      String   @default("pending") // "pending", "sent", "failed"
+  error       String?
+  userId      String?
+  agencyId    String?
+  data        String?  // JSON for additional data
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+}
+
+// EmailToken model - for email verification and password reset
+model EmailToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  type      String   // "email_verification", "password_reset"
+  code      String?  // 6-digit code for verification
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
+// Invoice model - for agency billing
+model Invoice {
+  id            String   @id @default(cuid())
+  number        String   @unique
+  agencyId      String
+  agency        Agency   @relation(fields: [agencyId], references: [id])
+  amount        Float
+  currency      String   @default("EUR")
+  status        String   @default("pending") // "pending", "paid", "cancelled"
+  description   String?
+  items         String   // JSON array of invoice items
+  dueDate       DateTime?
+  paidAt        DateTime?
+  paymentMethod String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Lead model - CRM leads/prospects
+model Lead {
+  id            String        @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  status        String        @default("new") // "new", "contacted", "in_discussion", "qualified", "converted", "lost"
+  source        String?       // "website", "referral", "social", "event", "other"
+  notes         String?
+  agencyId      String?       // Link to agency if converted
+  assignedToId  String?       // Agent assigned to this lead
+  assignedTo    User?         @relation("AssignedLeads", fields: [assignedToId], references: [id], onDelete: SetNull)
+  observations  Observation[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// Observation model - tracks interactions with leads
+model Observation {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type      String   // "note", "rdv", "appel", "email", "whatsapp"
+  content   String   // Observation content
+  date      DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// DailyReport model - agent daily activity reports
+model DailyReport {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  content   String   // Free text report
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+}
+
+// Advertisement model - promotional banners for agencies
+model Advertisement {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String   // URL to banner image
+  linkUrl     String?  // Click destination URL
+  linkTarget  String   @default("_blank") // "_blank" or "_self"
+  
+  // Position - only footer
+  position    String   @default("footer") // "footer", "header", "sidebar"
+  
+  // Targeting
+  targetScope String   @default("all") // "all", "agency", "agents"
+  agencyId    String?  // Specific agency if targetScope = "agency"
+  
+  // Scheduling
+  startDate   DateTime
+  endDate     DateTime?
+  
+  // Status
+  status      String   @default("draft") // "draft", "active", "paused", "expired"
+  priority    Int      @default(0) // Higher = more prominent
+  
+  // Statistics
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  adImpressions AdImpression[]
+}
+
+// AdImpression model - tracks each impression and click
+model AdImpression {
+  id              String   @id @default(cuid())
+  advertisementId String
+  advertisement   Advertisement @relation(fields: [advertisementId], references: [id], onDelete: Cascade)
+  
+  // Viewer info
+  userId          String?  // Logged-in user who viewed
+  agencyId        String?  // Agency of the viewer
+  userRole        String?  // Role of the viewer
+  
+  // Action
+  action          String   // "impression" or "click"
+  
+  // Context
+  ipAddress       String?
+  userAgent       String?
+  
+  createdAt       DateTime @default(now())
+}
+
+// BlogPost model - internal blog for agencies
+model BlogPost {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  content       String   // HTML content from rich editor
+  excerpt       String?  // Short summary
+  coverImage    String?  // URL to cover image
+  
+  // Categorization
+  category      String   @default("actualites") // "actualites", "conseils", "hajj", "mises_a_jour"
+  
+  // Publishing
+  status        String   @default("draft") // "draft", "published"
+  publishedAt   DateTime?
+  
+  // Author
+  authorId      String?
+  author        User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  
+  // Metrics
+  views         Int      @default(0)
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  blogViews     BlogView[]
+}
+
+// BlogView model - track article views
+model BlogView {
+  id          String   @id @default(cuid())
+  postId      String
+  post        BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  // Viewer info
+  userId      String?
+  agencyId    String?
+  
+  // Context
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
+}

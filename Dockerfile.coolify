@@ -1,0 +1,41 @@
+# QRBag - Dockerfile for Coolify Deployment
+# IMPORTANT: Uses the correct repository: https://github.com/topmuch/qrbags
+
+FROM node:20-alpine
+
+# Install required packages
+RUN apk add --no-cache git libc6-compat sqlite
+RUN npm install -g bun
+
+WORKDIR /app
+
+# Clone from CORRECT repository
+RUN git clone https://github.com/topmuch/qrbags.git .
+
+# Install dependencies
+RUN bun install
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Create data directory for SQLite
+RUN mkdir -p /app/data
+
+# Environment variables
+ENV DATABASE_URL=file:/app/data/custom.db
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+# Initialize database schema
+RUN npx prisma db push --skip-generate
+
+# Build the application
+RUN bun run build
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Start command - ensures database is ready before starting server
+CMD sh -c "mkdir -p /app/data && npx prisma db push --skip-generate 2>/dev/null || true && node .next/standalone/server.js"

@@ -1,0 +1,417 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import {
+  BarChart3,
+  Download,
+  Luggage,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  TrendingUp,
+  Users,
+  QrCode,
+  Plane,
+  Calendar,
+  UserCheck,
+  Phone
+} from 'lucide-react';
+
+interface Stats {
+  total: number;
+  pending_activation: number;
+  active: number;
+  scanned: number;
+  lost: number;
+  found: number;
+  blocked: number;
+  hajj: number;
+  voyageur: number;
+  withFounder: number;
+}
+
+interface DailyStat {
+  date: string;
+  count: number;
+  label: string;
+}
+
+interface WeeklyStat {
+  week: number;
+  count: number;
+  label: string;
+}
+
+interface FounderBaggage {
+  id: string;
+  reference: string;
+  status: string;
+  founderName: string | null;
+  founderPhone: string | null;
+  founderAt: string | null;
+  travelerName: string;
+  agencyName: string;
+  lastScanDate: string | null;
+}
+
+interface ReportData {
+  stats: Stats;
+  recoveryRate: number;
+  dailyStats: DailyStat[];
+  weeklyStats: WeeklyStat[];
+  scanLogsCount: number;
+  period: string;
+  founderBaggages: FounderBaggage[];
+}
+
+export default function AdminReportsPage() {
+  const [data, setData] = useState<ReportData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState('week');
+
+  useEffect(() => {
+    fetchReports();
+  }, [period]);
+
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/reports?period=${period}&founders=true`);
+      const json = await res.json();
+      setData(json);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = async (format: 'csv') => {
+    window.open(`/api/reports/export?period=${period}`, '_blank');
+  };
+
+  // Calculate max for chart
+  const maxDaily = data?.dailyStats ? Math.max(...data.dailyStats.map(d => d.count), 1) : 1;
+  const maxWeekly = data?.weeklyStats ? Math.max(...data.weeklyStats.map(d => d.count), 1) : 1;
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Rapports</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Statistiques et analyses de l&apos;activité</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Period Selector */}
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff7f00]"
+          >
+            <option value="week">7 derniers jours</option>
+            <option value="month">Ce mois</option>
+            <option value="year">Cette année</option>
+          </select>
+          
+          {/* Export Button */}
+          <button
+            onClick={() => handleExport('csv')}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Exporter CSV
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-[#ff7f00]/30 border-t-[#ff7f00] rounded-full animate-spin" />
+        </div>
+      ) : data ? (
+        <div className="space-y-6">
+          {/* Main Stats Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
+                  <Luggage className="w-5 h-5 text-blue-500" />
+                </div>
+                <span className="text-slate-500 dark:text-slate-400 text-sm">Total bagages</span>
+              </div>
+              <p className="text-3xl font-bold text-slate-800 dark:text-white">{data.stats.total}</p>
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-emerald-500" />
+                </div>
+                <span className="text-slate-500 dark:text-slate-400 text-sm">Actifs</span>
+              </div>
+              <p className="text-3xl font-bold text-slate-800 dark:text-white">{data.stats.active}</p>
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-xl flex items-center justify-center">
+                  <QrCode className="w-5 h-5 text-amber-500" />
+                </div>
+                <span className="text-slate-500 dark:text-slate-400 text-sm">Scannés</span>
+              </div>
+              <p className="text-3xl font-bold text-slate-800 dark:text-white">{data.stats.scanned}</p>
+            </div>
+            
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-rose-100 dark:bg-rose-500/20 rounded-xl flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-rose-500" />
+                </div>
+                <span className="text-slate-500 dark:text-slate-400 text-sm">Perdus</span>
+              </div>
+              <p className="text-3xl font-bold text-slate-800 dark:text-white">{data.stats.lost}</p>
+            </div>
+          </div>
+
+          {/* Charts Row */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Daily Evolution Chart */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-[#ff7f00]" />
+                Évolution quotidienne
+              </h3>
+              <div className="space-y-3">
+                {data.dailyStats.map((day, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <span className="text-sm text-slate-500 dark:text-slate-400 w-20">{day.label}</span>
+                    <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-[#ff7f00] to-[#ff9f00] rounded-full transition-all duration-500"
+                        style={{ width: `${(day.count / maxDaily) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-slate-800 dark:text-white w-8 text-right">{day.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Weekly Evolution Chart */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#ff7f00]" />
+                Évolution hebdomadaire
+              </h3>
+              <div className="space-y-3">
+                {data.weeklyStats.map((week, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <span className="text-sm text-slate-500 dark:text-slate-400 w-24">{week.label}</span>
+                    <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
+                        style={{ width: `${(week.count / maxWeekly) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-slate-800 dark:text-white w-8 text-right">{week.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Row */}
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Status Distribution */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Répartition par statut</h3>
+              <div className="space-y-3">
+                <StatusRow label="En attente" count={data.stats.pending_activation} total={data.stats.total} color="amber" />
+                <StatusRow label="Actifs" count={data.stats.active} total={data.stats.total} color="emerald" />
+                <StatusRow label="Scannés" count={data.stats.scanned} total={data.stats.total} color="blue" />
+                <StatusRow label="Perdus" count={data.stats.lost} total={data.stats.total} color="rose" />
+                <StatusRow label="Retrouvés" count={data.stats.found} total={data.stats.total} color="green" />
+                <StatusRow label="Bloqués" count={data.stats.blocked} total={data.stats.total} color="slate" />
+              </div>
+            </div>
+
+            {/* Type Distribution */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Par type</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl">
+                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                    <Plane className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Hajj</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.stats.hajj}</p>
+                  </div>
+                  <span className="text-sm text-emerald-500 font-medium">
+                    {data.stats.total > 0 ? Math.round((data.stats.hajj / data.stats.total) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 rounded-xl">
+                  <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                    <Luggage className="w-6 h-6 text-amber-500" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Voyageur</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.stats.voyageur}</p>
+                  </div>
+                  <span className="text-sm text-amber-500 font-medium">
+                    {data.stats.total > 0 ? Math.round((data.stats.voyageur / data.stats.total) * 100) : 0}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Key Metrics */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Indicateurs clés</h3>
+              <div className="space-y-4">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">Taux de récupération</span>
+                    <TrendingUp className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <p className="text-3xl font-bold text-emerald-500">{data.recoveryRate}%</p>
+                  <p className="text-xs text-slate-400 mt-1">Bagages retrouvés / perdus</p>
+                </div>
+                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">Scans enregistrés</span>
+                    <QrCode className="w-4 h-4 text-[#ff7f00]" />
+                  </div>
+                  <p className="text-3xl font-bold text-[#ff7f00]">{data.scanLogsCount}</p>
+                  <p className="text-xs text-slate-400 mt-1">Total sur la période</p>
+                </div>
+                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">Avec trouveur</span>
+                    <UserCheck className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <p className="text-3xl font-bold text-emerald-500">{data.stats.withFounder || 0}</p>
+                  <p className="text-xs text-slate-400 mt-1">Infos trouveur enregistrées</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Founders Waiting Section */}
+          {data.founderBaggages && data.founderBaggages.length > 0 && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-xl flex items-center justify-center">
+                    <UserCheck className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Trouveurs en attente</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Bagages trouvés par un trouveur, en attente de confirmation</p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-full text-sm font-medium">
+                  {data.founderBaggages.length} en attente
+                </span>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800">
+                      <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-400 font-medium text-sm">Référence</th>
+                      <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-400 font-medium text-sm">Voyageur</th>
+                      <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-400 font-medium text-sm">Trouveur</th>
+                      <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-400 font-medium text-sm">Contact</th>
+                      <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-400 font-medium text-sm">Agence</th>
+                      <th className="text-left px-4 py-3 text-slate-500 dark:text-slate-400 font-medium text-sm">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.founderBaggages.map((baggage) => (
+                      <tr key={baggage.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td className="px-4 py-3">
+                          <span className="font-mono font-medium text-slate-800 dark:text-white">{baggage.reference}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-slate-600 dark:text-slate-300">{baggage.travelerName || 'N/A'}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div>
+                            <span className="text-slate-800 dark:text-white font-medium">{baggage.founderName}</span>
+                            {baggage.founderAt && (
+                              <p className="text-xs text-slate-400">{new Date(baggage.founderAt).toLocaleDateString('fr-FR')}</p>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {baggage.founderPhone && (
+                            <a 
+                              href={`https://wa.me/${baggage.founderPhone.replace(/\D/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                              </svg>
+                              WhatsApp
+                            </a>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-slate-600 dark:text-slate-300">{baggage.agencyName}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Link 
+                            href={`/admin/baggage/${baggage.id}`}
+                            className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            Détails
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="text-center py-20 text-slate-500">
+          Aucune donnée disponible
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Status Row Component
+function StatusRow({ label, count, total, color }: { label: string; count: number; total: number; color: string }) {
+  const percentage = total > 0 ? (count / total) * 100 : 0;
+  const colorClasses: Record<string, string> = {
+    amber: 'bg-amber-500',
+    emerald: 'bg-emerald-500',
+    blue: 'bg-blue-500',
+    rose: 'bg-rose-500',
+    green: 'bg-green-500',
+    slate: 'bg-slate-400',
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-slate-500 dark:text-slate-400 w-24">{label}</span>
+      <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div 
+          className={`h-full ${colorClasses[color]} rounded-full transition-all duration-500`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+      <span className="text-sm font-medium text-slate-800 dark:text-white w-8 text-right">{count}</span>
+    </div>
+  );
+}
