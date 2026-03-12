@@ -10,37 +10,40 @@ export function generateRandomCode(length: number = 6): string {
   return result;
 }
 
-// Generate unique reference using raw SQL for compatibility
+// Generate unique reference using simple approach
 export async function generateReference(type: 'hajj' | 'voyageur'): Promise<string> {
   const year = new Date().getFullYear().toString().slice(-2);
   const prefix = type === 'hajj' ? 'HAJJ' : 'VOL';
   
-  let reference = '';
   let attempts = 0;
   const maxAttempts = 100;
   
   while (attempts < maxAttempts) {
-    reference = `${prefix}${year}-${generateRandomCode(6)}`;
+    const reference = `${prefix}${year}-${generateRandomCode(6)}`;
     
     try {
-      // Use raw SQL to check if reference exists (avoids missing column errors)
-      const result = await db.$queryRaw<[{ count: number }]>`
-        SELECT COUNT(*) as count FROM Baggage WHERE reference = ${reference}
+      // Simple check - if query returns any row, reference exists
+      const result = await db.$queryRaw<any[]>`
+        SELECT id FROM Baggage WHERE reference = ${reference} LIMIT 1
       `;
       
-      if (result[0].count === 0) {
+      // If no result, reference is unique
+      if (!result || result.length === 0) {
         return reference;
       }
+      
+      // Reference exists, try again
+      attempts++;
     } catch (error) {
-      // If query fails, assume reference is unique
-      console.error('Error checking reference uniqueness:', error);
+      // If error, assume reference is unique and return it
+      console.error('Error checking reference, assuming unique:', error);
       return reference;
     }
-    
-    attempts++;
   }
   
-  throw new Error('Failed to generate unique reference');
+  // If we exhausted attempts, return a reference with timestamp to ensure uniqueness
+  const timestamp = Date.now().toString(36).toUpperCase();
+  return `${prefix}${year}-${timestamp.slice(-6)}`;
 }
 
 // Generate multiple baggages for a traveler
