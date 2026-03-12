@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Generate QR error:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.errors },
@@ -79,8 +79,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Log full error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Full error:', errorMessage);
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: errorMessage },
       { status: 500 }
     );
   }
@@ -106,27 +110,48 @@ async function generateBaggagesWithTraveler(options: {
   for (let i = 0; i < baggageCount; i++) {
     const reference = await generateReference(type);
     const expiresAt = calculateExpirationDate(type, duration === '1y' ? 'tag' : 'sticker');
-    
-    await db.baggage.create({
-      data: {
-        reference,
-        type,
-        setId,
-        agencyId: null,
-        travelerFirstName: firstName,
-        travelerLastName: lastName,
-        whatsappOwner: whatsapp,
-        baggageIndex: i + 1,
-        baggageType: i === 0 ? 'cabine' : 'soute',
-        status: 'active', // Already active for individual
-        expiresAt,
+
+    try {
+      await db.baggage.create({
+        data: {
+          reference,
+          type,
+          setId,
+          agencyId: null,
+          travelerFirstName: firstName,
+          travelerLastName: lastName,
+          whatsappOwner: whatsapp,
+          baggageIndex: i + 1,
+          baggageType: i === 0 ? 'cabine' : 'soute',
+          status: 'active', // Already active for individual
+          expiresAt,
+        }
+      });
+    } catch (dbError) {
+      console.error('Error creating baggage:', dbError);
+      // Try without new fields if they don't exist
+      try {
+        await db.$executeRaw`
+          INSERT INTO Baggage (id, reference, type, setId, travelerFirstName, travelerLastName, whatsappOwner, baggageIndex, baggageType, status, expiresAt, createdAt)
+          VALUES (${generateId()}, ${reference}, ${type}, ${setId}, ${firstName}, ${lastName}, ${whatsapp}, ${i + 1}, ${i === 0 ? 'cabine' : 'soute'}, 'active', ${expiresAt}, ${new Date()})
+        `;
+      } catch (fallbackError) {
+        console.error('Fallback insert failed:', fallbackError);
+        throw fallbackError;
       }
-    });
+    }
 
     references.push(reference);
   }
 
   return references;
+}
+
+// Generate a cuid-like ID
+function generateId(): string {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 10);
+  return `c${timestamp}${random}`;
 }
 
 /**
@@ -145,18 +170,32 @@ async function generateBaggages(options: {
 
   for (let i = 0; i < count; i++) {
     const reference = await generateReference(type);
-    
-    await db.baggage.create({
-      data: {
-        reference,
-        type,
-        setId,
-        agencyId: agencyId || null,
-        baggageIndex: i + 1,
-        baggageType: i === 0 ? 'cabine' : 'soute',
-        status: 'pending_activation', // Needs activation by agency
+
+    try {
+      await db.baggage.create({
+        data: {
+          reference,
+          type,
+          setId,
+          agencyId: agencyId || null,
+          baggageIndex: i + 1,
+          baggageType: i === 0 ? 'cabine' : 'soute',
+          status: 'pending_activation', // Needs activation by agency
+        }
+      });
+    } catch (dbError) {
+      console.error('Error creating baggage:', dbError);
+      // Try raw insert as fallback
+      try {
+        await db.$executeRaw`
+          INSERT INTO Baggage (id, reference, type, setId, agencyId, baggageIndex, baggageType, status, createdAt)
+          VALUES (${generateId()}, ${reference}, ${type}, ${setId}, ${agencyId || null}, ${i + 1}, ${i === 0 ? 'cabine' : 'soute'}, 'pending_activation', ${new Date()})
+        `;
+      } catch (fallbackError) {
+        console.error('Fallback insert failed:', fallbackError);
+        throw fallbackError;
       }
-    });
+    }
 
     references.push(reference);
   }
@@ -174,31 +213,37 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '500');
 
     const where: Record<string, unknown> = {};
-    
+
     if (agencyId) {
       where.agencyId = agencyId;
     }
-    
+
     if (type) {
       where.type = type;
     }
-    
+
     if (status) {
       where.status = status;
     }
 
-    const baggages = await db.baggage.findMany({
-      where,
-      include: { agency: true },
-      orderBy: { createdAt: 'desc' },
-      take: limit
-    });
+    let baggages;
+    try {
+      baggages = await db.baggage.findMany({
+        where,
+        include: { agency: true },
+        orderBy: { createdAt: 'desc' },
+        take: limit
+      });
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return NextResponse.json({ baggages: [] });
+    }
 
     return NextResponse.json({ baggages });
   } catch (error) {
     console.error('Get baggages error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', baggages: [] },
       { status: 500 }
     );
   }

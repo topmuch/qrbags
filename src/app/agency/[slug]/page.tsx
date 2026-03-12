@@ -28,21 +28,22 @@ export async function generateStaticParams() {
 
 // Public Agency Page - Shows active/scanned/found baggages for an agency
 export default async function PublicAgencyPage({ params }: PageProps) {
-  const { slug } = await params;
+  // Get slug from params
+  const resolvedParams = await params;
+  const agencySlug = resolvedParams.slug;
 
-  let agency;
+  let agency = null;
   try {
-    // Fetch agency with protected baggages (active, scanned, found - but NOT lost, pending_activation, blocked)
-    // 'found' means the baggage was lost and then found, so it's still protected
+    // Fetch agency with protected baggages
     agency = await db.agency.findUnique({
-      where: { slug },
+      where: { slug: agencySlug },
       include: {
         baggages: {
           where: {
             status: { in: ['active', 'scanned', 'found'] },
           },
           orderBy: { createdAt: 'desc' },
-          take: 100, // Limit to 100 baggages
+          take: 100,
         },
         users: {
           where: { role: 'agency' },
@@ -52,22 +53,45 @@ export default async function PublicAgencyPage({ params }: PageProps) {
     });
   } catch (error) {
     console.error('Error fetching agency:', error);
-    // Return a fallback page or notFound
-    notFound();
+    // Try simple query without relations that might fail
+    try {
+      agency = await db.agency.findUnique({
+        where: { slug: agencySlug },
+      });
+
+      if (agency) {
+        // Fetch baggages separately
+        const baggages = await db.baggage.findMany({
+          where: {
+            agencyId: agency.id,
+            status: { in: ['active', 'scanned', 'found'] },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 100,
+        });
+
+        agency = { ...agency, baggages, users: [] };
+      }
+    } catch (fallbackError) {
+      console.error('Fallback query also failed:', fallbackError);
+      notFound();
+    }
   }
 
   if (!agency) {
     notFound();
   }
 
-  // Stats - include all protected baggages
-  const totalBaggages = agency.baggages.length;
-  const activeBaggages = agency.baggages.filter(b => b.status === 'active' || b.status === 'scanned').length;
-  const foundBaggages = agency.baggages.filter(b => b.status === 'found').length;
-  const scannedBaggages = agency.baggages.filter(b => b.status === 'scanned').length;
+  // Stats
+  const baggages = (agency as any).baggages || [];
+  const totalBaggages = baggages.length;
+  const activeBaggages = baggages.filter((b: any) => b.status === 'active' || b.status === 'scanned').length;
+  const foundBaggages = baggages.filter((b: any) => b.status === 'found').length;
+  const scannedBaggages = baggages.filter((b: any) => b.status === 'scanned').length;
 
-  // Get contact info from agency profile or first user
-  const contactUser = agency.users[0];
+  // Get contact info from agency profile
+  const users = (agency as any).users || [];
+  const contactUser = users[0];
   const displayPhone = agency.phone || null;
   const displayEmail = agency.email || contactUser?.email || null;
   const displayAddress = agency.address || null;
@@ -117,7 +141,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
 
       {/* Stats Cards */}
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-xl flex items-center justify-center mb-3">
               <Luggage className="w-5 h-5 text-blue-500" />
@@ -159,7 +183,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
             </span>
           </div>
 
-          {agency.baggages.length === 0 ? (
+          {baggages.length === 0 ? (
             <div className="p-12 text-center">
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Luggage className="w-8 h-8 text-slate-400" />
@@ -171,7 +195,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {agency.baggages.map((baggage) => (
+              {baggages.map((baggage: any) => (
                 <div
                   key={baggage.id}
                   className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
