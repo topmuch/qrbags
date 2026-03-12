@@ -6,18 +6,20 @@ echo "🚀 Starting QRBag..."
 # Create data directory if it doesn't exist
 mkdir -p /app/data
 
+# Set database URL
+export DATABASE_URL=file:/app/data/qrbag.db
+
 # Check if database exists, if not initialize it
-if [ ! -f /app/data/custom.db ]; then
+if [ ! -f /app/data/qrbag.db ]; then
     echo "📦 Initializing database..."
     cd /app
-    bun run db:push 2>/dev/null || npx prisma db push --skip-generate
-    bun run prisma/seed.ts 2>/dev/null || npx tsx prisma/seed.ts 2>/dev/null || echo "Seed skipped"
+    npx prisma db push --skip-generate
+    npx tsx prisma/seed.ts 2>/dev/null || echo "Seed skipped"
+else
+    echo "📊 Database exists, syncing schema..."
+    cd /app
+    npx prisma db push --skip-generate --accept-data-loss 2>/dev/null || true
 fi
-
-# Run Prisma migrations on startup
-echo "🔄 Syncing database schema..."
-cd /app
-npx prisma db push --skip-generate 2>/dev/null || true
 
 echo "✅ Starting server..."
 exec node server.js
