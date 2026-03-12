@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { Luggage, MapPin, Clock, CheckCircle, QrCode, Phone, Mail, Globe, Search } from 'lucide-react';
 
 // Page params type
@@ -12,37 +12,49 @@ export const revalidate = 60;
 
 // Generate static params for known agencies
 export async function generateStaticParams() {
-  const agencies = await prisma.agency.findMany({
-    select: { slug: true },
-  });
-  
-  return agencies.map((agency) => ({
-    slug: agency.slug,
-  }));
+  try {
+    const agencies = await db.agency.findMany({
+      select: { slug: true },
+    });
+
+    return agencies.map((agency) => ({
+      slug: agency.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
 
 // Public Agency Page - Shows active/scanned/found baggages for an agency
 export default async function PublicAgencyPage({ params }: PageProps) {
   const { slug } = await params;
 
-  // Fetch agency with protected baggages (active, scanned, found - but NOT lost, pending_activation, blocked)
-  // 'found' means the baggage was lost and then found, so it's still protected
-  const agency = await prisma.agency.findUnique({
-    where: { slug },
-    include: {
-      baggages: {
-        where: {
-          status: { in: ['active', 'scanned', 'found'] },
+  let agency;
+  try {
+    // Fetch agency with protected baggages (active, scanned, found - but NOT lost, pending_activation, blocked)
+    // 'found' means the baggage was lost and then found, so it's still protected
+    agency = await db.agency.findUnique({
+      where: { slug },
+      include: {
+        baggages: {
+          where: {
+            status: { in: ['active', 'scanned', 'found'] },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 100, // Limit to 100 baggages
         },
-        orderBy: { createdAt: 'desc' },
-        take: 100, // Limit to 100 baggages
+        users: {
+          where: { role: 'agency' },
+          take: 1,
+        },
       },
-      users: {
-        where: { role: 'agency' },
-        take: 1,
-      },
-    },
-  });
+    });
+  } catch (error) {
+    console.error('Error fetching agency:', error);
+    // Return a fallback page or notFound
+    notFound();
+  }
 
   if (!agency) {
     notFound();
@@ -71,8 +83,8 @@ export default async function PublicAgencyPage({ params }: PageProps) {
               {/* Logo de l'agence ou fallback */}
               {displayLogo ? (
                 <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white shadow-lg border border-slate-200 flex items-center justify-center">
-                  <img 
-                    src={displayLogo} 
+                  <img
+                    src={displayLogo}
                     alt={agency.name}
                     className="w-full h-full object-contain"
                   />
@@ -160,8 +172,8 @@ export default async function PublicAgencyPage({ params }: PageProps) {
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {agency.baggages.map((baggage) => (
-                <div 
-                  key={baggage.id} 
+                <div
+                  key={baggage.id}
                   className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -185,8 +197,8 @@ export default async function PublicAgencyPage({ params }: PageProps) {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        baggage.status === 'active' 
-                          ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' 
+                        baggage.status === 'active'
+                          ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                           : baggage.status === 'found'
                           ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400'
                           : 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400'
@@ -211,7 +223,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
           </h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {displayPhone && (
-              <a 
+              <a
                 href={`tel:${displayPhone}`}
                 className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
@@ -225,7 +237,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
               </a>
             )}
             {displayEmail && (
-              <a 
+              <a
                 href={`mailto:${displayEmail}`}
                 className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >

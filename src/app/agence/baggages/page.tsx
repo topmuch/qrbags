@@ -78,10 +78,15 @@ export default function BaggagesPage() {
 
       const response = await fetch(`/api/agency/baggages?${params}`);
       const data = await response.json();
+      
+      // Safely set data with fallbacks
       setGroupedBaggages(data.groupedBaggages || []);
       setAllBaggages(data.baggages || []);
     } catch (error) {
       console.error('Error fetching baggages:', error);
+      // Set empty data on error
+      setGroupedBaggages([]);
+      setAllBaggages([]);
     } finally {
       setLoading(false);
     }

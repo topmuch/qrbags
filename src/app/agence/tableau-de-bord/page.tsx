@@ -360,10 +360,14 @@ export default function AgencyDashboardPage() {
       const response = await fetch(`/api/agency/baggages?${params}`);
       const data = await response.json();
 
-      setBaggages(data.baggages);
-      setStats(data.stats);
+      // Safely set data with fallbacks
+      setBaggages(data.baggages || []);
+      setStats(data.stats || { total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 });
     } catch (error) {
       console.error('Error fetching baggages:', error);
+      // Set empty data on error
+      setBaggages([]);
+      setStats({ total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 });
     } finally {
       setLoading(false);
     }

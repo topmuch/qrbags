@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
     if (!agencyId) {
       return NextResponse.json(
-        { error: 'Agency ID is required' },
+        { error: 'Agency ID is required', baggages: [], stats: { total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 } },
         { status: 400 }
       );
     }
@@ -32,10 +32,21 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const baggages = await db.baggage.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+    let baggages;
+    try {
+      baggages = await db.baggage.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (dbError) {
+      console.error('Database error fetching baggages:', dbError);
+      // Return empty response instead of crashing
+      return NextResponse.json({
+        baggages: [],
+        stats: { total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 },
+        error: 'Database temporarily unavailable'
+      });
+    }
 
     // Calculate stats
     const stats = {
@@ -61,7 +72,7 @@ export async function GET(request: NextRequest) {
 
       baggages.forEach(baggage => {
         const groupKey = baggage.setId || `single-${baggage.id}`;
-        
+
         if (!groups[groupKey]) {
           groups[groupKey] = {
             setId: baggage.setId,
@@ -77,7 +88,7 @@ export async function GET(request: NextRequest) {
       });
 
       // Convert to array and sort
-      const groupedBaggages = Object.values(groups).sort((a, b) => 
+      const groupedBaggages = Object.values(groups).sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
@@ -95,9 +106,11 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Get baggages error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    // Return a valid response structure even on error
+    return NextResponse.json({
+      error: 'Internal server error',
+      baggages: [],
+      stats: { total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 }
+    }, { status: 500 });
   }
 }
