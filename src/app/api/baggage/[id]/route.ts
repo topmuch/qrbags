@@ -1,5 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { generateCuid } from '@/lib/qr';
+
+// Baggage row type
+interface BaggageRow {
+  id: string;
+  reference: string;
+  type: string;
+  setId: string | null;
+  agencyId: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+  whatsappOwner: string | null;
+  baggageIndex: number;
+  baggageType: string;
+  status: string;
+  flightNumber: string | null;
+  destination: string | null;
+  createdAt: string;
+  expiresAt: string | null;
+  lastScanDate: string | null;
+  lastLocation: string | null;
+  declaredLostAt: string | null;
+  foundAt: string | null;
+}
+
+// Agency row type
+interface AgencyRow {
+  id: string;
+  name: string;
+  slug: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  logo: string | null;
+}
 
 // PUT - Update a baggage by ID
 export async function PUT(
@@ -10,39 +45,55 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    // Check if baggage exists
-    const existingBaggage = await db.baggage.findUnique({
-      where: { id },
-    });
+    // Check if baggage exists using raw SQL
+    const existingBaggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT id, reference, type, status, travelerFirstName, travelerLastName, whatsappOwner
+      FROM Baggage WHERE id = ${id} LIMIT 1
+    `;
 
-    if (!existingBaggage) {
+    if (!existingBaggages || existingBaggages.length === 0) {
       return NextResponse.json(
         { error: 'Baggage not found' },
         { status: 404 }
       );
     }
 
-    // Prepare update data
-    const updateData: Record<string, unknown> = {};
-    
+    // Build UPDATE query dynamically
+    const updates: string[] = [];
+    const values: (string | null)[] = [];
+
     if (body.travelerFirstName !== undefined) {
-      updateData.travelerFirstName = body.travelerFirstName || null;
+      updates.push('travelerFirstName = ?');
+      values.push(body.travelerFirstName || null);
     }
     if (body.travelerLastName !== undefined) {
-      updateData.travelerLastName = body.travelerLastName || null;
+      updates.push('travelerLastName = ?');
+      values.push(body.travelerLastName || null);
     }
     if (body.whatsappOwner !== undefined) {
-      updateData.whatsappOwner = body.whatsappOwner || null;
+      updates.push('whatsappOwner = ?');
+      values.push(body.whatsappOwner || null);
     }
     if (body.status !== undefined) {
-      updateData.status = body.status;
+      updates.push('status = ?');
+      values.push(body.status);
     }
 
-    // Update the baggage
-    const updatedBaggage = await db.baggage.update({
-      where: { id },
-      data: updateData,
-    });
+    if (updates.length > 0) {
+      values.push(id);
+      await db.$executeRawUnsafe(
+        `UPDATE Baggage SET ${updates.join(', ')} WHERE id = ?`,
+        ...values
+      );
+    }
+
+    // Fetch updated baggage
+    const updatedBaggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT id, reference, travelerFirstName, travelerLastName, whatsappOwner, status
+      FROM Baggage WHERE id = ${id} LIMIT 1
+    `;
+
+    const updatedBaggage = updatedBaggages[0];
 
     return NextResponse.json({
       success: true,
@@ -73,12 +124,12 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Check if baggage exists
-    const baggage = await db.baggage.findUnique({
-      where: { id },
-    });
+    // Check if baggage exists using raw SQL
+    const existingBaggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT id FROM Baggage WHERE id = ${id} LIMIT 1
+    `;
 
-    if (!baggage) {
+    if (!existingBaggages || existingBaggages.length === 0) {
       return NextResponse.json(
         { error: 'Baggage not found' },
         { status: 404 }
@@ -86,14 +137,10 @@ export async function DELETE(
     }
 
     // Delete related scan logs first
-    await db.scanLog.deleteMany({
-      where: { baggageId: id },
-    });
+    await db.$executeRaw`DELETE FROM ScanLog WHERE baggageId = ${id}`;
 
     // Delete the baggage
-    await db.baggage.delete({
-      where: { id },
-    });
+    await db.$executeRaw`DELETE FROM Baggage WHERE id = ${id}`;
 
     return NextResponse.json({
       success: true,
@@ -117,16 +164,33 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const baggage = await db.baggage.findUnique({
-      where: { id },
-      include: { agency: true },
-    });
+    const baggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT
+        id, reference, type, setId, agencyId,
+        travelerFirstName, travelerLastName, whatsappOwner,
+        baggageIndex, baggageType, status,
+        flightNumber, destination, createdAt, expiresAt,
+        lastScanDate, lastLocation, declaredLostAt, foundAt
+      FROM Baggage WHERE id = ${id} LIMIT 1
+    `;
 
-    if (!baggage) {
+    if (!baggages || baggages.length === 0) {
       return NextResponse.json(
         { error: 'Baggage not found' },
         { status: 404 }
       );
+    }
+
+    const baggage = baggages[0];
+
+    // Get agency info if exists
+    let agency: AgencyRow | null = null;
+    if (baggage.agencyId) {
+      const agencies = await db.$queryRaw<AgencyRow[]>`
+        SELECT id, name, slug, email, phone, address, logo
+        FROM Agency WHERE id = ${baggage.agencyId} LIMIT 1
+      `;
+      agency = agencies && agencies.length > 0 ? agencies[0] : null;
     }
 
     return NextResponse.json({
@@ -140,11 +204,11 @@ export async function GET(
       baggageType: baggage.baggageType,
       status: baggage.status,
       agencyId: baggage.agencyId,
-      agency: baggage.agency ? {
-        id: baggage.agency.id,
-        name: baggage.agency.name,
-        email: baggage.agency.email,
-        phone: baggage.agency.phone,
+      agency: agency ? {
+        id: agency.id,
+        name: agency.name,
+        email: agency.email,
+        phone: agency.phone,
       } : null,
       createdAt: baggage.createdAt,
       expiresAt: baggage.expiresAt,

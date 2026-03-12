@@ -1,28 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// Baggage row type
+interface BaggageRow {
+  id: string;
+  reference: string;
+  type: string;
+  setId: string | null;
+  agencyId: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+  whatsappOwner: string | null;
+  baggageIndex: number;
+  baggageType: string;
+  status: string;
+  createdAt: string;
+}
+
+// Agency row type
+interface AgencyRow {
+  id: string;
+  name: string;
+}
+
 // GET - Fetch Voyageurs (type: voyageur)
 export async function GET() {
   try {
-    // Get all Voyageur baggages
-    const baggages = await db.baggage.findMany({
-      where: {
-        type: 'voyageur'
-      },
-      include: {
-        agency: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    // Get all Voyageur baggages using raw SQL
+    const baggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT
+        id, reference, type, setId, agencyId,
+        travelerFirstName, travelerLastName, whatsappOwner,
+        baggageIndex, baggageType, status, createdAt
+      FROM Baggage
+      WHERE type = 'voyageur'
+      ORDER BY createdAt DESC
+    `;
 
-    // Group baggages by traveler (firstName + lastName + whatsapp combination)
+    // Get agencies with voyageur baggages
+    const agenciesRaw = await db.$queryRaw<AgencyRow[]>`
+      SELECT DISTINCT a.id, a.name
+      FROM Agency a
+      INNER JOIN Baggage b ON a.id = b.agencyId
+      WHERE b.type = 'voyageur'
+      ORDER BY a.name ASC
+    `;
+
+    // Build agency map
+    const agencyMap = new Map<string, AgencyRow>();
+    (agenciesRaw || []).forEach(a => agencyMap.set(a.id, a));
+
+    // Group baggages by traveler
     const travelersMap = new Map<string, {
       id: string;
       firstName: string | null;
@@ -31,13 +59,13 @@ export async function GET() {
       agencyId: string | null;
       agency: { id: string; name: string } | null;
       baggageCount: number;
-      baggages: typeof baggages;
+      baggages: BaggageRow[];
       createdAt: Date;
       baggageIds: string[];
     }>();
 
-    baggages.forEach(baggage => {
-      // Create a unique key using JSON stringify to handle special characters
+    (baggages || []).forEach(baggage => {
+      // Create a unique key using JSON stringify
       const keyData = {
         firstName: baggage.travelerFirstName || '',
         lastName: baggage.travelerLastName || '',
@@ -47,19 +75,17 @@ export async function GET() {
       const key = JSON.stringify(keyData);
 
       if (!travelersMap.has(key)) {
+        const agency = baggage.agencyId ? agencyMap.get(baggage.agencyId) : null;
         travelersMap.set(key, {
           id: key,
           firstName: baggage.travelerFirstName,
           lastName: baggage.travelerLastName,
           whatsapp: baggage.whatsappOwner,
           agencyId: baggage.agencyId,
-          agency: baggage.agency ? {
-            id: baggage.agency.id,
-            name: baggage.agency.name
-          } : null,
+          agency: agency ? { id: agency.id, name: agency.name } : null,
           baggageCount: 0,
           baggages: [],
-          createdAt: baggage.createdAt,
+          createdAt: new Date(baggage.createdAt),
           baggageIds: []
         });
       }
@@ -75,27 +101,9 @@ export async function GET() {
       b.createdAt.getTime() - a.createdAt.getTime()
     );
 
-    // Get unique agencies for filter
-    const agencies = await db.agency.findMany({
-      where: {
-        baggages: {
-          some: {
-            type: 'voyageur'
-          }
-        }
-      },
-      select: {
-        id: true,
-        name: true
-      },
-      orderBy: {
-        name: 'asc'
-      }
-    });
-
     return NextResponse.json({
       travelers,
-      agencies
+      agencies: agenciesRaw || []
     });
   } catch (error) {
     console.error('Error fetching voyageurs:', error);
@@ -128,28 +136,24 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { firstName, lastName, whatsapp, agencyId } = keyData;
-    
+
     console.log('[DELETE VOYAGEUR] Parsed:', { firstName, lastName, whatsapp, agencyId });
 
-    // Build where clause
-    const whereClause: Record<string, unknown> = {
-      type: 'voyageur',
-      travelerFirstName: firstName || null,
-      travelerLastName: lastName || null,
-      whatsappOwner: whatsapp || null,
-      agencyId: agencyId || null
-    };
+    // Find baggages using raw SQL
+    const baggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT id, reference
+      FROM Baggage
+      WHERE type = 'voyageur'
+        AND (travelerFirstName = ${firstName || null} OR (${firstName || ''} = '' AND travelerFirstName IS NULL))
+        AND (travelerLastName = ${lastName || null} OR (${lastName || ''} = '' AND travelerLastName IS NULL))
+        AND (whatsappOwner = ${whatsapp || null} OR (${whatsapp || ''} = '' AND whatsappOwner IS NULL))
+        AND (agencyId = ${agencyId || null} OR (${agencyId || ''} = '' AND agencyId IS NULL))
+    `;
 
-    // Find baggages
-    const baggages = await db.baggage.findMany({
-      where: whereClause,
-      select: { id: true, reference: true }
-    });
+    console.log(`[DELETE VOYAGEUR] Found ${baggages?.length || 0} baggages`);
 
-    console.log(`[DELETE VOYAGEUR] Found ${baggages.length} baggages:`, baggages.map(b => b.reference));
-
-    if (baggages.length === 0) {
-      return NextResponse.json({ 
+    if (!baggages || baggages.length === 0) {
+      return NextResponse.json({
         error: 'Voyageur non trouvé',
         key: keyData
       }, { status: 404 });
@@ -157,16 +161,26 @@ export async function DELETE(request: NextRequest) {
 
     const baggageIds = baggages.map(b => b.id);
 
-    // Delete baggages (ScanLogs cascade automatically)
-    const deleteResult = await db.baggage.deleteMany({
-      where: { id: { in: baggageIds } }
-    });
+    // Delete scan logs first
+    if (baggageIds.length > 0) {
+      const placeholders = baggageIds.map(() => '?').join(',');
+      await db.$executeRawUnsafe(
+        `DELETE FROM ScanLog WHERE baggageId IN (${placeholders})`,
+        ...baggageIds
+      );
 
-    console.log(`[DELETE VOYAGEUR] Deleted ${deleteResult.count} baggages`);
+      // Delete baggages
+      await db.$executeRawUnsafe(
+        `DELETE FROM Baggage WHERE id IN (${placeholders})`,
+        ...baggageIds
+      );
+    }
+
+    console.log(`[DELETE VOYAGEUR] Deleted ${baggages.length} baggages`);
 
     return NextResponse.json({
       success: true,
-      deletedCount: deleteResult.count,
+      deletedCount: baggages.length,
       deletedReferences: baggages.map(b => b.reference)
     });
   } catch (error) {

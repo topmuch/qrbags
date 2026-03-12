@@ -2,6 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
+// Baggage row type
+interface BaggageRow {
+  id: string;
+  reference: string;
+  type: string;
+  agencyId: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+  whatsappOwner: string | null;
+  status: string;
+  createdAt: string;
+  expiresAt: string | null;
+  marketingOptin: number | null;
+  lastContactedAt: string | null;
+}
+
+// Agency row type
+interface AgencyRow {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 // GET - Get all activated clients for marketing
 export async function GET(request: NextRequest) {
   try {
@@ -23,23 +46,18 @@ export async function GET(request: NextRequest) {
     const dateRange = searchParams.get('dateRange'); // '30', '90', or null for all
     const search = searchParams.get('search');
 
-    // Build where clause
-    const where: {
-      status: string;
-      type?: string;
-      agencyId?: string;
-      createdAt?: { gte?: Date };
-      OR?: Array<{ travelerFirstName?: { contains: string }; travelerLastName?: { contains: string }; whatsappOwner?: { contains: string }; reference?: { contains: string } }>;
-    } = {
-      status: 'active' // Only activated baggages
-    };
+    // Build query conditions
+    let whereConditions = ['status = \'active\''];
+    const params: (string | number)[] = [];
 
     if (type && type !== 'all') {
-      where.type = type;
+      whereConditions.push('type = ?');
+      params.push(type);
     }
 
     if (agencyId && agencyId !== 'all') {
-      where.agencyId = agencyId;
+      whereConditions.push('agencyId = ?');
+      params.push(agencyId);
     }
 
     // Date range filter
@@ -47,29 +65,39 @@ export async function GET(request: NextRequest) {
       const days = parseInt(dateRange);
       const date = new Date();
       date.setDate(date.getDate() - days);
-      where.createdAt = { gte: date };
+      whereConditions.push('createdAt >= ?');
+      params.push(date.toISOString());
     }
 
     // Search filter
     if (search) {
-      where.OR = [
-        { travelerFirstName: { contains: search } },
-        { travelerLastName: { contains: search } },
-        { whatsappOwner: { contains: search } },
-        { reference: { contains: search } }
-      ];
+      whereConditions.push('(travelerFirstName LIKE ? OR travelerLastName LIKE ? OR whatsappOwner LIKE ? OR reference LIKE ?)');
+      const searchTerm = `%${search}%`;
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
-    // Get all matching baggages
-    let baggages = await db.baggage.findMany({
-      where,
-      include: {
-        agency: {
-          select: { id: true, name: true, slug: true }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    const whereClause = whereConditions.join(' AND ');
+
+    // Get all matching baggages using raw SQL
+    const baggages = await db.$queryRawUnsafe<BaggageRow[]>(
+      `SELECT
+        id, reference, type, agencyId,
+        travelerFirstName, travelerLastName, whatsappOwner,
+        status, createdAt, expiresAt, marketingOptin, lastContactedAt
+       FROM Baggage
+       WHERE ${whereClause}
+       ORDER BY createdAt DESC`,
+      ...params
+    );
+
+    // Get agencies
+    const agenciesRaw = await db.$queryRaw<AgencyRow[]>`
+      SELECT id, name, slug FROM Agency ORDER BY name ASC
+    `;
+
+    // Build agency map
+    const agencyMap = new Map<string, AgencyRow>();
+    (agenciesRaw || []).forEach(a => agencyMap.set(a.id, a));
 
     // Calculate status based on expiration
     const now = new Date();
@@ -77,16 +105,18 @@ export async function GET(request: NextRequest) {
     sevenDaysFromNow.setDate(now.getDate() + 7);
 
     // Filter by expiration status if provided
+    let filteredBaggages = baggages || [];
     if (status && status !== 'all') {
-      baggages = baggages.filter(b => {
+      filteredBaggages = filteredBaggages.filter(b => {
         if (!b.expiresAt) return false;
 
+        const expiresAtDate = new Date(b.expiresAt);
         if (status === 'active') {
-          return b.expiresAt > sevenDaysFromNow;
+          return expiresAtDate > sevenDaysFromNow;
         } else if (status === 'expiring_soon') {
-          return b.expiresAt <= sevenDaysFromNow && b.expiresAt > now;
+          return expiresAtDate <= sevenDaysFromNow && expiresAtDate > now;
         } else if (status === 'expired') {
-          return b.expiresAt <= now;
+          return expiresAtDate <= now;
         }
         return true;
       });
@@ -94,24 +124,27 @@ export async function GET(request: NextRequest) {
 
     // Calculate stats
     const stats = {
-      total: baggages.length,
-      hajj: baggages.filter(b => b.type === 'hajj').length,
-      voyageur: baggages.filter(b => b.type === 'voyageur').length,
-      active: baggages.filter(b => b.expiresAt && b.expiresAt > sevenDaysFromNow).length,
-      expiringSoon: baggages.filter(b => b.expiresAt && b.expiresAt <= sevenDaysFromNow && b.expiresAt > now).length,
-      expired: baggages.filter(b => b.expiresAt && b.expiresAt <= now).length
+      total: filteredBaggages.length,
+      hajj: filteredBaggages.filter(b => b.type === 'hajj').length,
+      voyageur: filteredBaggages.filter(b => b.type === 'voyageur').length,
+      active: filteredBaggages.filter(b => b.expiresAt && new Date(b.expiresAt) > sevenDaysFromNow).length,
+      expiringSoon: filteredBaggages.filter(b => b.expiresAt && new Date(b.expiresAt) <= sevenDaysFromNow && new Date(b.expiresAt) > now).length,
+      expired: filteredBaggages.filter(b => b.expiresAt && new Date(b.expiresAt) <= now).length
     };
 
     // Transform data for frontend
-    const clients = baggages.map(b => {
+    const clients = filteredBaggages.map(b => {
       let computedStatus = 'active';
       if (b.expiresAt) {
-        if (b.expiresAt <= now) {
+        const expiresAtDate = new Date(b.expiresAt);
+        if (expiresAtDate <= now) {
           computedStatus = 'expired';
-        } else if (b.expiresAt <= sevenDaysFromNow) {
+        } else if (expiresAtDate <= sevenDaysFromNow) {
           computedStatus = 'expiring_soon';
         }
       }
+
+      const agency = b.agencyId ? agencyMap.get(b.agencyId) : null;
 
       return {
         id: b.id,
@@ -124,22 +157,16 @@ export async function GET(request: NextRequest) {
         activationDate: b.createdAt,
         expirationDate: b.expiresAt,
         status: computedStatus,
-        agency: b.agency ? { id: b.agency.id, name: b.agency.name } : null,
-        marketingOptin: b.marketingOptin,
+        agency: agency ? { id: agency.id, name: agency.name } : null,
+        marketingOptin: b.marketingOptin === 1,
         lastContactedAt: b.lastContactedAt
       };
-    });
-
-    // Get all agencies for filter dropdown
-    const agencies = await db.agency.findMany({
-      select: { id: true, name: true, slug: true },
-      orderBy: { name: 'asc' }
     });
 
     return NextResponse.json({
       clients,
       stats,
-      agencies
+      agencies: agenciesRaw || []
     });
   } catch (error) {
     console.error('Error fetching marketing data:', error);
@@ -172,14 +199,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const updated = await db.baggage.update({
-      where: { id: baggageId },
-      data: { lastContactedAt: new Date() }
-    });
+    const now = new Date().toISOString();
+
+    await db.$executeRaw`
+      UPDATE Baggage SET lastContactedAt = ${now} WHERE id = ${baggageId}
+    `;
 
     return NextResponse.json({
       success: true,
-      lastContactedAt: updated.lastContactedAt
+      lastContactedAt: now
     });
   } catch (error) {
     console.error('Error updating contact date:', error);

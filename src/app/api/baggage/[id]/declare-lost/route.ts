@@ -1,5 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { generateCuid } from '@/lib/qr';
+
+// Baggage row type
+interface BaggageRow {
+  id: string;
+  reference: string;
+  type: string;
+  setId: string | null;
+  agencyId: string | null;
+  status: string;
+}
+
+// Agency row type
+interface AgencyRow {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 // PUT - Declare baggage as lost
 export async function PUT(
@@ -9,17 +27,20 @@ export async function PUT(
   try {
     const { id } = await params;
 
-    const baggage = await db.baggage.findUnique({
-      where: { id },
-      include: { agency: true }
-    });
+    // Get baggage using raw SQL
+    const baggages = await db.$queryRaw<BaggageRow[]>`
+      SELECT id, reference, type, setId, agencyId, status
+      FROM Baggage WHERE id = ${id} LIMIT 1
+    `;
 
-    if (!baggage) {
+    if (!baggages || baggages.length === 0) {
       return NextResponse.json(
         { error: 'Baggage not found' },
         { status: 404 }
       );
     }
+
+    const baggage = baggages[0];
 
     // Only allow declaring active or scanned baggages as lost
     if (baggage.status !== 'active' && baggage.status !== 'scanned') {
@@ -29,40 +50,51 @@ export async function PUT(
       );
     }
 
-    // Update baggage status and set declaredLostAt timestamp
-    const updatedBaggage = await db.baggage.update({
-      where: { id },
-      data: {
-        status: 'lost',
-        declaredLostAt: new Date(),
-      }
-    });
+    // Get agency if exists
+    let agency: AgencyRow | null = null;
+    if (baggage.agencyId) {
+      const agencies = await db.$queryRaw<AgencyRow[]>`
+        SELECT id, name, slug FROM Agency WHERE id = ${baggage.agencyId} LIMIT 1
+      `;
+      agency = agencies && agencies.length > 0 ? agencies[0] : null;
+    }
 
-    // 🔔 Create notification for SuperAdmin
-    await db.notification.create({
-      data: {
-        type: 'baggage_declared_lost',
-        userId: null, // broadcast to all superadmins
-        agencyId: baggage.agencyId,
-        baggageId: baggage.id,
-        message: `🚨 L'agence ${baggage.agency?.name || 'Inconnue'} a déclaré le bagage ${baggage.reference} comme perdu`,
-        data: JSON.stringify({
+    // Update baggage status and set declaredLostAt timestamp
+    const now = new Date().toISOString();
+    await db.$executeRaw`
+      UPDATE Baggage SET status = 'lost', declaredLostAt = ${now} WHERE id = ${id}
+    `;
+
+    // Create notification for SuperAdmin using raw SQL
+    const notificationId = generateCuid();
+    await db.$executeRaw`
+      INSERT INTO Notification (id, type, userId, agencyId, baggageId, message, data, read, createdAt, updatedAt)
+      VALUES (
+        ${notificationId},
+        'baggage_declared_lost',
+        null,
+        ${baggage.agencyId},
+        ${baggage.id},
+        ${`🚨 L'agence ${agency?.name || 'Inconnue'} a déclaré le bagage ${baggage.reference} comme perdu`},
+        ${JSON.stringify({
           reference: baggage.reference,
-          agencyName: baggage.agency?.name,
+          agencyName: agency?.name,
           type: baggage.type,
-        }),
-        read: false,
-      }
-    });
+        })},
+        0,
+        ${now},
+        ${now}
+      )
+    `;
 
     return NextResponse.json({
       success: true,
       message: 'Baggage declared as lost',
       baggage: {
-        id: updatedBaggage.id,
-        reference: updatedBaggage.reference,
-        status: updatedBaggage.status,
-        declaredLostAt: updatedBaggage.declaredLostAt,
+        id: baggage.id,
+        reference: baggage.reference,
+        status: 'lost',
+        declaredLostAt: now,
       }
     });
 

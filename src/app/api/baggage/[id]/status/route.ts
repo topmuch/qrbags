@@ -27,12 +27,12 @@ export async function PATCH(
       );
     }
 
-    const baggage = await db.baggage.update({
-      where: { id },
-      data: { status },
-    });
+    // Update using raw SQL
+    await db.$executeRaw`
+      UPDATE Baggage SET status = ${status} WHERE id = ${id}
+    `;
 
-    return NextResponse.json({ success: true, baggage });
+    return NextResponse.json({ success: true });
 
   } catch (error) {
     console.error('Error updating baggage status:', error);
