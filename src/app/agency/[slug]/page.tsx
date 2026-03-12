@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { Luggage, MapPin, Clock, CheckCircle, QrCode, Phone, Mail, Globe, Search } from 'lucide-react';
+import { Luggage, MapPin, Clock, CheckCircle, QrCode, Phone, Mail, Globe, Search, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
 
 // Page params type
 interface PageProps {
@@ -26,6 +27,31 @@ export async function generateStaticParams() {
   }
 }
 
+// Error display component
+function ErrorDisplay({ message }: { message: string }) {
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 flex items-center justify-center px-4">
+      <div className="text-center max-w-md">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">
+          Erreur de chargement
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">
+          {message}
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 bg-[#ff7f00] hover:bg-[#ff6600] text-white px-6 py-3 rounded-xl font-medium transition-colors"
+        >
+          Retour à l&apos;accueil
+        </Link>
+      </div>
+    </main>
+  );
+}
+
 // Public Agency Page - Shows active/scanned/found baggages for an agency
 export default async function PublicAgencyPage({ params }: PageProps) {
   // Get slug from params
@@ -33,34 +59,17 @@ export default async function PublicAgencyPage({ params }: PageProps) {
   const agencySlug = resolvedParams.slug;
 
   let agency = null;
+  let dbError: string | null = null;
+
   try {
-    // Fetch agency with protected baggages
+    // Try to fetch agency with basic info first
     agency = await db.agency.findUnique({
       where: { slug: agencySlug },
-      include: {
-        baggages: {
-          where: {
-            status: { in: ['active', 'scanned', 'found'] },
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 100,
-        },
-        users: {
-          where: { role: 'agency' },
-          take: 1,
-        },
-      },
     });
-  } catch (error) {
-    console.error('Error fetching agency:', error);
-    // Try simple query without relations that might fail
-    try {
-      agency = await db.agency.findUnique({
-        where: { slug: agencySlug },
-      });
 
-      if (agency) {
-        // Fetch baggages separately
+    if (agency) {
+      // Fetch baggages separately to avoid relation issues
+      try {
         const baggages = await db.baggage.findMany({
           where: {
             agencyId: agency.id,
@@ -70,14 +79,39 @@ export default async function PublicAgencyPage({ params }: PageProps) {
           take: 100,
         });
 
-        agency = { ...agency, baggages, users: [] };
+        // Attach baggages to agency object
+        (agency as any).baggages = baggages;
+      } catch (baggageError) {
+        console.error('Error fetching baggages:', baggageError);
+        (agency as any).baggages = [];
       }
-    } catch (fallbackError) {
-      console.error('Fallback query also failed:', fallbackError);
-      notFound();
+
+      // Try to fetch agency user for contact info
+      try {
+        const users = await db.user.findMany({
+          where: {
+            agencyId: agency.id,
+            role: 'agency'
+          },
+          take: 1,
+        });
+        (agency as any).users = users;
+      } catch (userError) {
+        console.error('Error fetching users:', userError);
+        (agency as any).users = [];
+      }
     }
+  } catch (error) {
+    console.error('Error fetching agency:', error);
+    dbError = 'Impossible de charger les données de l\'agence. Veuillez réessayer plus tard.';
   }
 
+  // If there was a database error, show error page
+  if (dbError) {
+    return <ErrorDisplay message={dbError} />;
+  }
+
+  // If agency doesn't exist, show 404
   if (!agency) {
     notFound();
   }

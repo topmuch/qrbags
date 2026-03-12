@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Erreur de validation', details: error.errors },
         { status: 400 }
       );
     }
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     console.error('Full error:', errorMessage);
 
     return NextResponse.json(
-      { error: 'Internal server error', details: errorMessage },
+      { error: 'Erreur serveur', details: errorMessage },
       { status: 500 }
     );
   }
@@ -106,52 +106,30 @@ async function generateBaggagesWithTraveler(options: {
 
   // Generate a unique set ID for this batch
   const setId = generateSetId(type);
+  const expiresAt = calculateExpirationDate(type, duration === '1y' ? 'tag' : 'sticker');
 
   for (let i = 0; i < baggageCount; i++) {
     const reference = await generateReference(type);
-    const expiresAt = calculateExpirationDate(type, duration === '1y' ? 'tag' : 'sticker');
 
-    try {
-      await db.baggage.create({
-        data: {
-          reference,
-          type,
-          setId,
-          agencyId: null,
-          travelerFirstName: firstName,
-          travelerLastName: lastName,
-          whatsappOwner: whatsapp,
-          baggageIndex: i + 1,
-          baggageType: i === 0 ? 'cabine' : 'soute',
-          status: 'active', // Already active for individual
-          expiresAt,
-        }
-      });
-    } catch (dbError) {
-      console.error('Error creating baggage:', dbError);
-      // Try without new fields if they don't exist
-      try {
-        await db.$executeRaw`
-          INSERT INTO Baggage (id, reference, type, setId, travelerFirstName, travelerLastName, whatsappOwner, baggageIndex, baggageType, status, expiresAt, createdAt)
-          VALUES (${generateId()}, ${reference}, ${type}, ${setId}, ${firstName}, ${lastName}, ${whatsapp}, ${i + 1}, ${i === 0 ? 'cabine' : 'soute'}, 'active', ${expiresAt}, ${new Date()})
-        `;
-      } catch (fallbackError) {
-        console.error('Fallback insert failed:', fallbackError);
-        throw fallbackError;
-      }
-    }
+    // Use raw SQL for maximum compatibility
+    await createBaggageRaw({
+      reference,
+      type,
+      setId,
+      agencyId: null,
+      travelerFirstName: firstName,
+      travelerLastName: lastName,
+      whatsappOwner: whatsapp,
+      baggageIndex: i + 1,
+      baggageType: i === 0 ? 'cabine' : 'soute',
+      status: 'active',
+      expiresAt
+    });
 
     references.push(reference);
   }
 
   return references;
-}
-
-// Generate a cuid-like ID
-function generateId(): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 10);
-  return `c${timestamp}${random}`;
 }
 
 /**
@@ -171,36 +149,96 @@ async function generateBaggages(options: {
   for (let i = 0; i < count; i++) {
     const reference = await generateReference(type);
 
-    try {
-      await db.baggage.create({
-        data: {
-          reference,
-          type,
-          setId,
-          agencyId: agencyId || null,
-          baggageIndex: i + 1,
-          baggageType: i === 0 ? 'cabine' : 'soute',
-          status: 'pending_activation', // Needs activation by agency
-        }
-      });
-    } catch (dbError) {
-      console.error('Error creating baggage:', dbError);
-      // Try raw insert as fallback
-      try {
-        await db.$executeRaw`
-          INSERT INTO Baggage (id, reference, type, setId, agencyId, baggageIndex, baggageType, status, createdAt)
-          VALUES (${generateId()}, ${reference}, ${type}, ${setId}, ${agencyId || null}, ${i + 1}, ${i === 0 ? 'cabine' : 'soute'}, 'pending_activation', ${new Date()})
-        `;
-      } catch (fallbackError) {
-        console.error('Fallback insert failed:', fallbackError);
-        throw fallbackError;
-      }
-    }
+    // Use raw SQL for maximum compatibility
+    await createBaggageRaw({
+      reference,
+      type,
+      setId,
+      agencyId: agencyId || null,
+      travelerFirstName: null,
+      travelerLastName: null,
+      whatsappOwner: null,
+      baggageIndex: i + 1,
+      baggageType: i === 0 ? 'cabine' : 'soute',
+      status: 'pending_activation',
+      expiresAt: null
+    });
 
     references.push(reference);
   }
 
   return references;
+}
+
+/**
+ * Create baggage using raw SQL for maximum database compatibility
+ */
+async function createBaggageRaw(data: {
+  reference: string;
+  type: string;
+  setId: string;
+  agencyId: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+  whatsappOwner: string | null;
+  baggageIndex: number;
+  baggageType: string;
+  status: string;
+  expiresAt: Date | null;
+}): Promise<void> {
+  const id = generateCuid();
+  const now = new Date().toISOString();
+  const expiresAtStr = data.expiresAt ? data.expiresAt.toISOString() : null;
+
+  // First try with Prisma client
+  try {
+    await db.baggage.create({
+      data: {
+        id,
+        reference: data.reference,
+        type: data.type,
+        setId: data.setId,
+        agencyId: data.agencyId,
+        travelerFirstName: data.travelerFirstName,
+        travelerLastName: data.travelerLastName,
+        whatsappOwner: data.whatsappOwner,
+        baggageIndex: data.baggageIndex,
+        baggageType: data.baggageType,
+        status: data.status,
+        expiresAt: data.expiresAt,
+      }
+    });
+    return;
+  } catch (prismaError) {
+    console.log('Prisma create failed, trying raw SQL:', prismaError);
+  }
+
+  // Fallback to raw SQL
+  try {
+    await db.$executeRaw`
+      INSERT INTO Baggage (
+        id, reference, type, setId, agencyId,
+        travelerFirstName, travelerLastName, whatsappOwner,
+        baggageIndex, baggageType, status, expiresAt, createdAt
+      ) VALUES (
+        ${id}, ${data.reference}, ${data.type}, ${data.setId}, ${data.agencyId},
+        ${data.travelerFirstName}, ${data.travelerLastName}, ${data.whatsappOwner},
+        ${data.baggageIndex}, ${data.baggageType}, ${data.status}, ${expiresAtStr}, ${now}
+      )
+    `;
+  } catch (rawError) {
+    console.error('Raw SQL insert also failed:', rawError);
+    throw new Error(`Failed to create baggage: ${rawError instanceof Error ? rawError.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Generate a CUID-like ID
+ */
+function generateCuid(): string {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 10);
+  return `c${timestamp}${random}`;
 }
 
 // GET - Get all baggages (for QR codes list)
