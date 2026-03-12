@@ -11,6 +11,22 @@ interface PageProps {
 // Revalidate every 60 seconds for ISR
 export const revalidate = 60;
 
+// Baggage type for raw query (columns that exist in production DB)
+interface BaggageRow {
+  id: string;
+  reference: string;
+  type: string;
+  setId: string | null;
+  agencyId: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+  whatsappOwner: string | null;
+  baggageIndex: number;
+  baggageType: string;
+  status: string;
+  createdAt: string;
+}
+
 // Generate static params for known agencies
 export async function generateStaticParams() {
   try {
@@ -68,16 +84,19 @@ export default async function PublicAgencyPage({ params }: PageProps) {
     });
 
     if (agency) {
-      // Fetch baggages separately to avoid relation issues
+      // Fetch baggages using raw SQL to avoid missing column errors
       try {
-        const baggages = await db.baggage.findMany({
-          where: {
-            agencyId: agency.id,
-            status: { in: ['active', 'scanned', 'found'] },
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 100,
-        });
+        const baggages = await db.$queryRaw<BaggageRow[]>`
+          SELECT
+            id, reference, type, setId, agencyId,
+            travelerFirstName, travelerLastName, whatsappOwner,
+            baggageIndex, baggageType, status, createdAt
+          FROM Baggage
+          WHERE agencyId = ${agency.id}
+            AND status IN ('active', 'scanned', 'found')
+          ORDER BY createdAt DESC
+          LIMIT 100
+        `;
 
         // Attach baggages to agency object
         (agency as any).baggages = baggages;
@@ -119,9 +138,9 @@ export default async function PublicAgencyPage({ params }: PageProps) {
   // Stats
   const baggages = (agency as any).baggages || [];
   const totalBaggages = baggages.length;
-  const activeBaggages = baggages.filter((b: any) => b.status === 'active' || b.status === 'scanned').length;
-  const foundBaggages = baggages.filter((b: any) => b.status === 'found').length;
-  const scannedBaggages = baggages.filter((b: any) => b.status === 'scanned').length;
+  const activeBaggages = baggages.filter((b: BaggageRow) => b.status === 'active' || b.status === 'scanned').length;
+  const foundBaggages = baggages.filter((b: BaggageRow) => b.status === 'found').length;
+  const scannedBaggages = baggages.filter((b: BaggageRow) => b.status === 'scanned').length;
 
   // Get contact info from agency profile
   const users = (agency as any).users || [];
@@ -229,7 +248,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {baggages.map((baggage: any) => (
+              {baggages.map((baggage: BaggageRow) => (
                 <div
                   key={baggage.id}
                   className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"

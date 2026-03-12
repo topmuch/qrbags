@@ -1,6 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// Baggage type for raw query results (columns that exist in production DB)
+interface BaggageRow {
+  id: string;
+  reference: string;
+  type: string;
+  setId: string | null;
+  agencyId: string | null;
+  travelerFirstName: string | null;
+  travelerLastName: string | null;
+  whatsappOwner: string | null;
+  baggageIndex: number;
+  baggageType: string;
+  status: string;
+  flightNumber: string | null;
+  destination: string | null;
+  createdAt: string;
+  expiresAt: string | null;
+  lastScanDate: string | null;
+  lastLocation: string | null;
+  declaredLostAt: string | null;
+  foundAt: string | null;
+  founderName: string | null;
+  founderPhone: string | null;
+  founderAt: string | null;
+}
+
 // GET - List all baggages for an agency
 export async function GET(request: NextRequest) {
   try {
@@ -17,27 +43,41 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: Record<string, unknown> = { agencyId };
+    let baggages: BaggageRow[] = [];
 
-    if (status && status !== 'all') {
-      where.status = status;
-    }
-
-    if (search) {
-      where.OR = [
-        { reference: { contains: search } },
-        { travelerFirstName: { contains: search } },
-        { travelerLastName: { contains: search } },
-        { setId: { contains: search } },
-      ];
-    }
-
-    let baggages;
     try {
-      baggages = await db.baggage.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-      });
+      // Use raw SQL to avoid issues with missing columns (marketingOptin, lastContactedAt)
+      // Build the query dynamically based on filters
+      let whereClause = 'WHERE agencyId = ?';
+      const params: (string | number)[] = [agencyId];
+
+      if (status && status !== 'all') {
+        whereClause += ' AND status = ?';
+        params.push(status);
+      }
+
+      if (search) {
+        whereClause += ' AND (reference LIKE ? OR travelerFirstName LIKE ? OR travelerLastName LIKE ? OR setId LIKE ?)';
+        const searchTerm = `%${search}%`;
+        params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+      }
+
+      // Query only columns that exist in the database
+      const query = `
+        SELECT
+          id, reference, type, setId, agencyId,
+          travelerFirstName, travelerLastName, whatsappOwner,
+          baggageIndex, baggageType, status,
+          flightNumber, destination, createdAt, expiresAt,
+          lastScanDate, lastLocation, declaredLostAt, foundAt,
+          founderName, founderPhone, founderAt
+        FROM Baggage
+        ${whereClause}
+        ORDER BY createdAt DESC
+      `;
+
+      baggages = await db.$queryRawUnsafe<BaggageRow[]>(query, ...params);
+
     } catch (dbError) {
       console.error('Database error fetching baggages:', dbError);
       // Return empty response instead of crashing
@@ -66,8 +106,8 @@ export async function GET(request: NextRequest) {
         travelerLastName: string | null;
         whatsappOwner: string | null;
         type: string;
-        createdAt: Date;
-        baggages: typeof baggages;
+        createdAt: string;
+        baggages: BaggageRow[];
       }> = {};
 
       baggages.forEach(baggage => {
