@@ -1,22 +1,23 @@
-# QRBag - Dockerfile for Coolify Deployment
+# QRBag - Optimized Dockerfile for Coolify
 FROM node:20-alpine
 
-RUN apk add --no-cache git libc6-compat sqlite
-RUN npm install -g bun
+# Install required packages in one layer
+RUN apk add --no-cache git libc6-compat sqlite && \
+    npm install -g bun
 
 WORKDIR /app
 
-RUN git clone https://github.com/topmuch/qrbags.git .
+# Clone the repository
+RUN git clone --depth 1 https://github.com/topmuch/qrbags.git .
 
-RUN bun install
-
-RUN npx prisma generate
-
+# Install dependencies and build in one step
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=file:/app/data/qrbag.db
-RUN bun run build
 
-RUN mkdir -p /app/data
+RUN bun install && \
+    npx prisma generate && \
+    bun run build && \
+    mkdir -p /app/data
 
 EXPOSE 3000
 
