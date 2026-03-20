@@ -1,28 +1,24 @@
-# QRBag - Optimized Dockerfile for Coolify
-FROM node:20-alpine
-
-# Install required packages in one layer
-RUN apk add --no-cache git libc6-compat sqlite && \
-    npm install -g bun
+# Dockerfile
+FROM oven/bun:1.1.24 AS builder
 
 WORKDIR /app
+COPY package.json bun.lock .
+RUN bun install --frozen-lockfile
 
-# Clone the repository
-RUN git clone --depth 1 https://github.com/topmuch/qrbags.git .
+COPY . .
+RUN bun run build
 
-# Install dependencies and build in one step
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV DATABASE_URL=file:/app/data/qrbag.db
+FROM oven/bun:1.1.24
 
-RUN bun install && \
-    npx prisma generate && \
-    bun run build && \
-    mkdir -p /app/data
+WORKDIR /app
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/bun.lock ./
+
+RUN mkdir -p /app/data
+RUN bun install --production
 
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-ENV DATABASE_URL=file:/app/data/qrbag.db
-
-CMD sh -c "mkdir -p /app/data && npx prisma db push --skip-generate 2>/dev/null || true && node .next/standalone/server.js"
+CMD ["bun", "run", "start"]
