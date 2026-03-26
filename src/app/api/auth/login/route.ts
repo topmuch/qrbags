@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { createSession, logLoginAttempt } from '@/lib/session';
 
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rechercher l'utilisateur
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email: email.toLowerCase() },
       include: {
         agency: true,
