@@ -1,14 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { db } from './db';
 
-// Pour éviter les problèmes de hot-reload en dev
-declare global {
-  var prisma: PrismaClient | undefined;
-}
-
-const prisma = global.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma;
-}
-
-export default prisma;
+// Re-export db as prisma for backward compatibility
+// This file is deprecated - use '@/lib/db' instead
+export default db;
+export { db };

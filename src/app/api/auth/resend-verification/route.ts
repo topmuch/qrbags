@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { createEmailToken, sendEmail, getVerificationEmailTemplate } from '@/lib/email';
 
 // POST - Resend verification email
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email }
     });
 

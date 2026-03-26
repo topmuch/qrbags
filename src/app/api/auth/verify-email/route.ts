@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { verifyEmailToken, verifyEmailCode } from '@/lib/email';
 
 // POST - Verify email with token or code
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
       // Update user's email verification status
       // Note: You might want to add an emailVerified field to User model
-      const user = await prisma.user.findUnique({
+      const user = await db.user.findUnique({
         where: { email: result.email }
       });
 

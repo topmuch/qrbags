@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { verifyEmailToken, verifyEmailCode } from '@/lib/email';
+import { checkRateLimit, getClientIp, RATE_LIMITS, getRateLimitHeaders } from '@/lib/rate-limit';
 
 // POST - Reset password with token or code
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const ip = getClientIp(request.headers);
+    const rateLimitKey = `reset-password:${ip}`;
+    const rateLimitResult = checkRateLimit(rateLimitKey, RATE_LIMITS.resetPassword);
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: rateLimitResult.message },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult)
+        }
+      );
+    }
+
     const body = await request.json();
     const { token, code, email, password } = body;
 
@@ -46,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email: userEmail }
     });
 
@@ -61,7 +77,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Update user password
-    await prisma.user.update({
+    await db.user.update({
       where: { id: user.id },
       data: { password: hashedPassword }
     });

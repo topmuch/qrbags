@@ -1,10 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { createEmailToken, sendEmail, getPasswordResetEmailTemplate } from '@/lib/email';
+import { checkRateLimit, getClientIp, RATE_LIMITS, getRateLimitHeaders } from '@/lib/rate-limit';
 
 // POST - Request password reset
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const ip = getClientIp(request.headers);
+    const rateLimitKey = `forgot-password:${ip}`;
+    const rateLimitResult = checkRateLimit(rateLimitKey, RATE_LIMITS.forgotPassword);
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: rateLimitResult.message },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult)
+        }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 
@@ -16,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email }
     });
 

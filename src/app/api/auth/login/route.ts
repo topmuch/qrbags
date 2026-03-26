@@ -1,10 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { createSession } from '@/lib/session';
+import { createSession, logLoginAttempt } from '@/lib/session';
+import { checkRateLimit, getClientIp, RATE_LIMITS, getRateLimitHeaders } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const ip = getClientIp(request.headers);
+    const rateLimitKey = `login:${ip}`;
+    const rateLimitResult = checkRateLimit(rateLimitKey, RATE_LIMITS.login);
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: rateLimitResult.message },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult)
+        }
+      );
+    }
+
     const { email, password, role } = await request.json();
 
     if (!email || !password) {

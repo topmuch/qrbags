@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 
 // POST - Cleanup expired tokens and old logs
 export async function POST(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Delete expired email tokens
-    const expiredTokens = await prisma.emailToken.deleteMany({
+    const expiredTokens = await db.emailToken.deleteMany({
       where: {
         expiresAt: { lt: now }
       }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Delete old email logs (older than 90 days)
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-    const oldLogs = await prisma.emailLog.deleteMany({
+    const oldLogs = await db.emailLog.deleteMany({
       where: {
         createdAt: { lt: ninetyDaysAgo }
       }
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Delete used email tokens older than 7 days
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const oldTokens = await prisma.emailToken.deleteMany({
+    const oldTokens = await db.emailToken.deleteMany({
       where: {
         used: true,
         usedAt: { lt: sevenDaysAgo }
