@@ -2,32 +2,47 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
-export async function GET() {
+// GET - Initialize admin user (ONLY works in development or with setup token)
+export async function GET(request: Request) {
   try {
+    // Security: Only allow in development or with a valid setup token
+    const url = new URL(request.url);
+    const setupToken = url.searchParams.get('token');
+    const expectedToken = process.env.SETUP_TOKEN;
+
+    // Block in production unless a valid setup token is provided
+    if (process.env.NODE_ENV === 'production') {
+      if (!expectedToken || setupToken !== expectedToken) {
+        return NextResponse.json({
+          success: false,
+          error: 'Non autorisé. Cette endpoint est désactivé en production.'
+        }, { status: 403 });
+      }
+    }
+
     // Check if superadmin already exists
-    const existingAdmin = await db.user.findUnique({
-      where: { email: 'admin@qrbag.com' }
+    const existingAdmin = await db.user.findFirst({
+      where: { role: 'superadmin' }
     });
 
     if (existingAdmin) {
       return NextResponse.json({
         success: true,
-        message: 'Admin already exists',
-        credentials: {
-          email: 'admin@qrbag.com',
-          password: 'admin123',
-          role: 'superadmin'
-        }
+        message: 'Un administrateur existe déjà'
       });
     }
 
-    // Create superadmin user
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    // Create superadmin user with credentials from environment or default
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@qrbag.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const adminName = process.env.ADMIN_NAME || 'SuperAdmin';
+
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
     
     const admin = await db.user.create({
       data: {
-        email: 'admin@qrbag.com',
-        name: 'SuperAdmin',
+        email: adminEmail,
+        name: adminName,
         password: hashedPassword,
         role: 'superadmin',
       }
@@ -53,13 +68,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: 'Admin user created successfully!',
-      credentials: {
-        email: 'admin@qrbag.com',
-        password: 'admin123',
-        role: 'superadmin',
-        loginUrl: 'https://qrbags.com/admin/connexion'
-      }
+      message: 'Administrateur créé avec succès'
     });
 
   } catch (error) {

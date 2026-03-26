@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession } from '@/lib/session';
 
 // Baggage row type for raw queries
 interface BaggageRow {
@@ -20,9 +21,15 @@ interface ScanLogRow {
   createdAt: string;
 }
 
-// GET - Fetch dashboard statistics
+// GET - Fetch dashboard statistics (SuperAdmin only)
 export async function GET() {
   try {
+    // Authentication check
+    const user = await getSession();
+    if (!user || user.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     // Get all baggages using raw SQL (only columns that exist)
     const baggages = await db.$queryRaw<BaggageRow[]>`
       SELECT

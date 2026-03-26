@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { sendEmail, getWelcomeAgencyEmailTemplate, getEmailSettings } from '@/lib/email';
+import { getSession } from '@/lib/session';
 
 // Validation schema
 const userSchema = z.object({
@@ -20,9 +21,15 @@ async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10);
 }
 
-// GET - List all users
+// GET - List all users (SuperAdmin only)
 export async function GET() {
   try {
+    // Authentication check
+    const user = await getSession();
+    if (!user || user.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const users = await db.user.findMany({
       include: { agency: true },
       orderBy: { createdAt: 'desc' }
@@ -42,9 +49,15 @@ export async function GET() {
   }
 }
 
-// POST - Create new user
+// POST - Create new user (SuperAdmin only)
 export async function POST(request: NextRequest) {
   try {
+    // Authentication check
+    const authUser = await getSession();
+    if (!authUser || authUser.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const body = await request.json();
     const validatedData = userSchema.parse(body);
 
@@ -124,9 +137,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT - Update user
+// PUT - Update user (SuperAdmin only)
 export async function PUT(request: NextRequest) {
   try {
+    // Authentication check
+    const authUser = await getSession();
+    if (!authUser || authUser.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { id, password, ...data } = body;
 
@@ -154,9 +173,15 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE - Delete user
+// DELETE - Delete user (SuperAdmin only)
 export async function DELETE(request: NextRequest) {
   try {
+    // Authentication check
+    const authUser = await getSession();
+    if (!authUser || authUser.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

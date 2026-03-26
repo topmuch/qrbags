@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { getSession } from '@/lib/session';
 
 // Validation schema
 const agencySchema = z.object({
@@ -11,9 +12,15 @@ const agencySchema = z.object({
   address: z.string().optional(),
 });
 
-// GET - List all agencies
+// GET - List all agencies (SuperAdmin only)
 export async function GET() {
   try {
+    // Authentication check
+    const user = await getSession();
+    if (!user || user.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const agencies = await db.agency.findMany({
       include: {
         _count: {
@@ -34,9 +41,15 @@ export async function GET() {
   }
 }
 
-// POST - Create new agency
+// POST - Create new agency (SuperAdmin only)
 export async function POST(request: NextRequest) {
   try {
+    // Authentication check
+    const user = await getSession();
+    if (!user || user.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const body = await request.json();
     const validatedData = agencySchema.parse(body);
 
@@ -81,9 +94,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT - Update agency
+// PUT - Update agency (SuperAdmin only)
 export async function PUT(request: NextRequest) {
   try {
+    // Authentication check
+    const user = await getSession();
+    if (!user || user.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { id, ...data } = body;
     const validatedData = agencySchema.parse(data);
@@ -110,9 +129,15 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE - Delete agency
+// DELETE - Delete agency (SuperAdmin only)
 export async function DELETE(request: NextRequest) {
   try {
+    // Authentication check
+    const user = await getSession();
+    if (!user || user.role !== 'superadmin') {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

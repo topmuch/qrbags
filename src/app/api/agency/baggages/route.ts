@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession } from '@/lib/session';
 
 // Baggage type for raw query results (columns that exist in production DB)
 interface BaggageRow {
@@ -30,6 +31,15 @@ interface BaggageRow {
 // GET - List all baggages for an agency
 export async function GET(request: NextRequest) {
   try {
+    // Authentication check
+    const user = await getSession();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Non authentifié', baggages: [], stats: { total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 } },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const agencyId = searchParams.get('agencyId');
     const status = searchParams.get('status');
@@ -40,6 +50,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: 'Agency ID is required', baggages: [], stats: { total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 } },
         { status: 400 }
+      );
+    }
+
+    // Security: Verify user has access to this agency
+    // Superadmin can access any agency, agency users can only access their own
+    if (user.role !== 'superadmin' && user.agencyId !== agencyId) {
+      return NextResponse.json(
+        { error: 'Accès non autorisé', baggages: [], stats: { total: 0, pending: 0, active: 0, scanned: 0, lost: 0, found: 0 } },
+        { status: 403 }
       );
     }
 
