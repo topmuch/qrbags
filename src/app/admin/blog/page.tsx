@@ -218,7 +218,6 @@ export default function BlogAdminPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: post.id,
           ...post,
           status: newStatus
         })
