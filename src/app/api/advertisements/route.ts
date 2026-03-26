@@ -1,31 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 
 // GET - Get active advertisements for current user/agency
 export async function GET() {
   try {
-    // Check authentication
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('session')?.value;
+    // Check authentication using session
+    const user = await getSession();
 
-    if (!sessionToken) {
+    if (!user) {
       return NextResponse.json({ advertisements: [] });
     }
 
-    const session = await db.session.findUnique({
-      where: { id: sessionToken },
-      include: { user: true }
-    });
-
-    if (!session) {
-      return NextResponse.json({ advertisements: [] });
-    }
-
-    const user = session.user;
     const now = new Date();
 
-    // Get all active advertisements and filter in JS for simplicity
+    // Get all active advertisements
     const allAds = await db.advertisement.findMany({
       where: {
         status: 'active',
@@ -49,11 +38,11 @@ export async function GET() {
       if (ad.targetScope === 'all') {
         return true;
       }
-      
+
       if (ad.targetScope === 'agency' && ad.agencyId === user.agencyId) {
         return true;
       }
-      
+
       if (ad.targetScope === 'agents' && user.role === 'agent') {
         return true;
       }
@@ -64,7 +53,7 @@ export async function GET() {
     return NextResponse.json({ advertisements });
 
   } catch (error) {
-    console.error('Error fetching active advertisements:', error);
+    console.error('Error fetching advertisements:', error);
     return NextResponse.json({ advertisements: [] });
   }
 }
