@@ -30,5 +30,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL=file:/app/data/qrbag.db
 
-# Start command with admin creation
-CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && npx tsx prisma/seed.ts 2>/dev/null || true && exec node .next/standalone/server.js"
+# Start command - create admin and start server
+CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && node scripts/create-admin.cjs 2>/dev/null || true && exec node .next/standalone/server.js"
