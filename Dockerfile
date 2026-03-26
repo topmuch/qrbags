@@ -10,7 +10,7 @@ WORKDIR /app
 # Clone the repository
 RUN git clone https://github.com/topmuch/qrbags.git .
 
-# Install ALL dependencies (including devDependencies for prisma)
+# Install dependencies
 RUN bun install
 
 # Generate Prisma Client
@@ -30,5 +30,13 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL=file:/app/data/qrbag.db
 
-# Start command - runs seed then starts server
-CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && node scripts/seed.js 2>/dev/null || echo 'Seed done' && node .next/standalone/server.js"
+# Create startup script inline
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'mkdir -p /app/data' >> /app/start.sh && \
+    echo 'export DATABASE_URL=file:/app/data/qrbag.db' >> /app/start.sh && \
+    echo 'npx prisma db push --skip-generate 2>/dev/null || true' >> /app/start.sh && \
+    echo 'sqlite3 /app/data/qrbag.db "INSERT OR IGNORE INTO User (id, email, name, password, role, createdAt, updatedAt) VALUES ('\''admin-001'\'', '\''admin@qrbag.com'\'', '\''SuperAdmin'\'', '\''\$2a\$10\$EqKcp1WFKVQISheBxmXNGexPR.i7QYXOJC.OFfQDT8iSaHuuPdlrW'\'', '\''superadmin'\'', datetime('\''now'\''), datetime('\''now'\''));" 2>/dev/null || true' >> /app/start.sh && \
+    echo 'exec node .next/standalone/server.js' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
