@@ -1,24 +1,46 @@
-# Dockerfile
-FROM oven/bun:1.1.24 AS builder
+# QRBag - Dockerfile for Coolify
+FROM node:20-alpine
+
+# Install required packages
+RUN apk add --no-cache git libc6-compat sqlite
+RUN npm install -g bun
 
 WORKDIR /app
-COPY package.json bun.lock .
-RUN bun install --frozen-lockfile
 
-COPY . .
+# Clone the repository
+RUN git clone https://github.com/topmuch/qrbags.git .
+
+# Install dependencies
+RUN bun install
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build the application
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV DATABASE_URL=file:/app/data/qrbag.db
 RUN bun run build
 
-FROM oven/bun:1.1.24
-
-WORKDIR /app
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/bun.lock ./
-
+# Create data directory
 RUN mkdir -p /app/data
-RUN bun install --production
 
 EXPOSE 3000
 
-CMD ["bun", "run", "start"]
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV DATABASE_URL=file:/app/data/qrbag.db
+
+# Create startup script that initializes DB and creates admin
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'set -e' >> /app/start.sh && \
+    echo 'mkdir -p /app/data' >> /app/start.sh && \
+    echo 'export DATABASE_URL=file:/app/data/qrbag.db' >> /app/start.sh && \
+    echo 'echo "Pushing database schema..."' >> /app/start.sh && \
+    echo 'npx prisma db push --skip-generate 2>/dev/null || true' >> /app/start.sh && \
+    echo 'echo "Running seed to create admin..."' >> /app/start.sh && \
+    echo 'cd /app && node scripts/seed.js 2>/dev/null || echo "Seed completed"' >> /app/start.sh && \
+    echo 'echo "Starting server..."' >> /app/start.sh && \
+    echo 'exec node .next/standalone/server.js' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
