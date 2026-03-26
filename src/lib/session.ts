@@ -101,3 +101,40 @@ export async function deleteSession(): Promise<void> {
     // Ignore errors
   }
 }
+
+// Clean up expired sessions
+export async function cleanupExpiredSessions(): Promise<number> {
+  try {
+    const result = await db.session.deleteMany({
+      where: {
+        expiresAt: { lt: new Date() },
+      },
+    });
+    return result.count;
+  } catch {
+    return 0;
+  }
+}
+
+// Get all active sessions for admin view
+export async function getActiveSessions() {
+  try {
+    return db.session.findMany({
+      where: {
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+            name: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: { lastActivity: 'desc' },
+    });
+  } catch {
+    return [];
+  }
+}
