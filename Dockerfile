@@ -1,7 +1,4 @@
 # QRBag - Dockerfile for Coolify
-# Force rebuild with CACHE_BUST arg
-ARG CACHE_BUST=default
-
 FROM node:20-alpine
 
 # Install required packages
@@ -10,7 +7,7 @@ RUN npm install -g bun
 
 WORKDIR /app
 
-# Clone the repository (always fresh)
+# Clone the repository
 RUN git clone https://github.com/topmuch/qrbags.git .
 
 # Install dependencies
@@ -33,5 +30,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL=file:/app/data/qrbag.db
 
-# Start command
-CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && exec node .next/standalone/server.js"
+# Start command with admin creation
+CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && npx tsx prisma/seed.ts 2>/dev/null || true && exec node .next/standalone/server.js"
