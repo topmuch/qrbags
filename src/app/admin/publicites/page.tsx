@@ -265,7 +265,6 @@ export default function PublicitesPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: ad.id,
           ...ad,
           status: newStatus
         })
