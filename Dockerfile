@@ -19,6 +19,7 @@ RUN npx prisma generate
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=file:/app/data/qrbag.db
+ENV NODE_OPTIONS="--max-old-space-size=3072"
 RUN bun run build
 
 # Create data directory
@@ -31,4 +32,4 @@ ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL=file:/app/data/qrbag.db
 
 # Start command - create admin and start server
-CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && node scripts/create-admin.cjs 2>/dev/null || true && exec node .next/standalone/server.js"
+CMD ["sh", "-c", "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrbag.db && npx prisma db push --skip-generate 2>/dev/null || true && node scripts/create-admin.cjs 2>/dev/null || true && exec node .next/standalone/server.js"]
