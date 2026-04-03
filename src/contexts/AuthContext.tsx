@@ -18,6 +18,7 @@ export interface User {
     email?: string | null;
     phone?: string | null;
     address?: string | null;
+    logo?: string | null;
   } | null;
 }
 

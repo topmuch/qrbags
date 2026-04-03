@@ -74,7 +74,17 @@ export default async function PublicAgencyPage({ params }: PageProps) {
   const resolvedParams = await params;
   const agencySlug = resolvedParams.slug;
 
-  let agency = null;
+  let agency: {
+    id: string;
+    name: string;
+    slug: string;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    logo: string | null;
+    active: boolean;
+    createdAt: Date;
+  } | null = null;
   let dbError: string | null = null;
 
   try {

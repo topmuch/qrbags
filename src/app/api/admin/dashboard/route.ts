@@ -5,6 +5,7 @@ import { getSession } from '@/lib/session';
 // Baggage row type for raw queries
 interface BaggageRow {
   id: string;
+  reference: string;
   type: string;
   status: string;
   createdAt: string;

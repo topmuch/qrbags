@@ -136,17 +136,22 @@ export async function getAllFeatureFlags() {
     );
 
     if (missingFlags.length > 0) {
-      await db.featureFlag.createMany({
-        data: missingFlags.map(def => ({
-          key: def.key,
-          label: def.label,
-          description: def.description,
-          category: def.category,
-          icon: def.icon,
-          enabled: def.enabled,
-        })),
-        skipDuplicates: true,
-      });
+      for (const def of missingFlags) {
+        try {
+          await db.featureFlag.create({
+            data: {
+              key: def.key,
+              label: def.label,
+              description: def.description,
+              category: def.category,
+              icon: def.icon,
+              enabled: def.enabled,
+            },
+          });
+        } catch {
+          // Ignore duplicate key errors
+        }
+      }
     }
 
     // Return all flags

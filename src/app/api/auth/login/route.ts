@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { createSession, logLoginAttempt } from '@/lib/session';
+import { createSession } from '@/lib/session';
 import { checkRateLimit, getClientIp, RATE_LIMITS, getRateLimitHeaders } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {

@@ -140,6 +140,7 @@ function SuccessContent() {
       }
 
       function drawTextContent() {
+        if (!ctx || !activationData) return;
         // Reference
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 28px Arial';

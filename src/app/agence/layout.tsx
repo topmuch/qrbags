@@ -38,7 +38,7 @@ export const DEMO_AGENCY = {
   email: 'contact@francine-makela.com',
   phone: '+221 77 123 45 67',
   address: 'Dakar, Sénégal',
-  logo: null
+  logo: null as string | null
 };
 
 // Agency Context for sharing agency data across pages
@@ -333,9 +333,9 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
             className="relative p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
           >
             <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-            {unreadMessages > 0 && (
+            {(unreadMessages ?? 0) > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                {unreadMessages > 9 ? '9+' : unreadMessages}
+                {(unreadMessages ?? 0) > 9 ? '9+' : unreadMessages}
               </span>
             )}
           </Link>

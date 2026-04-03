@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmailSettings, saveEmailSettings } from '@/lib/email';
+import { getEmailSettings, saveEmailSettings, type EmailConfig } from '@/lib/email';
 
 // GET - Retrieve email settings
 export async function GET() {
@@ -37,18 +37,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // Prepare settings data
-    const settingsData: {
-      provider?: string;
-      fromEmail?: string;
-      fromName?: string;
-      smtpHost?: string | null;
-      smtpPort?: number | null;
-      smtpUser?: string | null;
-      smtpPassword?: string | null;
-      smtpEncryption?: string;
-    } = {};
+    const settingsData: Partial<EmailConfig> = {};
 
-    if (body.provider) settingsData.provider = body.provider;
+    if (body.provider) settingsData.provider = body.provider as EmailConfig['provider'];
     if (body.fromEmail) settingsData.fromEmail = body.fromEmail;
     if (body.fromName) settingsData.fromName = body.fromName;
     

@@ -182,7 +182,7 @@ function VerifyEmailContent() {
                   {verifying ? 'Vérification...' : 'Vérifier'}
                 </button>
 
-                {message && status !== 'success' && (
+                {message && (
                   <p className="text-center text-red-500 text-sm">{message}</p>
                 )}
 

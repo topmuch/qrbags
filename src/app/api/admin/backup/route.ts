@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     const backupDir = '/app/data/backups';
 
     // Get database stats
-    let dbStats = null;
+    let dbStats: { size: number; sizeMB: string; modified: Date } | null = null;
     if (fs.existsSync(dbPath)) {
       const stats = fs.statSync(dbPath);
       dbStats = {
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // List existing backups
-    let backups: { name: string; size: string; date: string }[] = [];
+    let backups: { name: string; size: string; date: Date }[] = [];
     if (fs.existsSync(backupDir)) {
       const files = fs.readdirSync(backupDir).filter(f => f.endsWith('.db'));
       backups = files.map(f => {

@@ -69,16 +69,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const agencies = await db.agency.findMany({
       select: {
         slug: true,
-        updatedAt: true,
-      },
-      where: {
-        slug: { not: null },
+        createdAt: true,
       },
     });
 
-    agencyPages = agencies.map((agency) => ({
+    agencyPages = agencies
+      .filter((agency): agency is typeof agency & { slug: string } => agency.slug !== null)
+      .map((agency) => ({
       url: `${BASE_URL}/agency/${agency.slug}`,
-      lastModified: agency.updatedAt || new Date(),
+      lastModified: agency.createdAt,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     }));
