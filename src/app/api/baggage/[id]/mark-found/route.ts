@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { generateCuid } from '@/lib/qr';
+import { getSession } from '@/lib/session';
 
 // Baggage row type
 interface BaggageRow {
@@ -25,6 +26,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = await getSession();
+    if (!user || (user.role !== 'superadmin' && user.role !== 'admin' && user.role !== 'agency')) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     const { id } = await params;
 
     // Get baggage using raw SQL

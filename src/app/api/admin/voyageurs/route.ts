@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession } from '@/lib/session';
 
 // Baggage row type
 interface BaggageRow {
@@ -26,6 +27,11 @@ interface AgencyRow {
 // GET - Fetch Voyageurs (type: voyageur)
 export async function GET() {
   try {
+    const user = await getSession();
+    if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     // Get all Voyageur baggages using raw SQL
     const baggages = await db.$queryRaw<BaggageRow[]>`
       SELECT

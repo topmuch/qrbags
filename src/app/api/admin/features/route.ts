@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getSession } from '@/lib/session';
 
 // Feature definitions inline
 const FEATURE_DEFINITIONS = [
@@ -105,6 +106,11 @@ const FEATURE_DEFINITIONS = [
 // GET - Fetch all feature flags
 export async function GET() {
   try {
+    const user = await getSession();
+    if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
     type FeatureFlagType = {
       id: string;
       key: string;

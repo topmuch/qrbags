@@ -137,6 +137,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
+const updateUserSchema = z.object({
+  id: z.string().min(1, 'ID utilisateur requis'),
+  email: z.string().email('Email invalide').optional(),
+  name: z.string().optional(),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères').optional(),
+  role: z.enum(['superadmin', 'admin', 'agent', 'agency'], { errorMap: () => ({ message: 'Rôle invalide' }) }).optional(),
+  agencyId: z.string().nullable().optional(),
+  active: z.boolean().optional(),
+});
+
 // PUT - Update user (SuperAdmin only)
 export async function PUT(request: NextRequest) {
   try {
@@ -147,16 +157,21 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, password, ...data } = body;
+    const validatedData = updateUserSchema.parse(body);
 
-    const updateData: Record<string, unknown> = { ...data };
+    const updateData: Record<string, unknown> = {};
+    if (validatedData.email !== undefined) updateData.email = validatedData.email;
+    if (validatedData.name !== undefined) updateData.name = validatedData.name;
+    if (validatedData.role !== undefined) updateData.role = validatedData.role;
+    if (validatedData.agencyId !== undefined) updateData.agencyId = validatedData.agencyId;
+    if (validatedData.active !== undefined) updateData.active = validatedData.active;
     
-    if (password) {
-      updateData.password = await hashPassword(password);
+    if (validatedData.password) {
+      updateData.password = await hashPassword(validatedData.password);
     }
 
     const user = await db.user.update({
-      where: { id },
+      where: { id: validatedData.id },
       data: updateData
     });
 
@@ -166,6 +181,14 @@ export async function PUT(request: NextRequest) {
 
   } catch (error) {
     console.error('Update user error:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation error', details: error.issues },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

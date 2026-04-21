@@ -58,33 +58,18 @@ export async function PUT(
       );
     }
 
-    // Build UPDATE query dynamically
-    const updates: string[] = [];
-    const values: (string | null)[] = [];
+    const updateData: Record<string, string | null> = {};
+    if (body.travelerFirstName !== undefined) updateData.travelerFirstName = body.travelerFirstName || null;
+    if (body.travelerLastName !== undefined) updateData.travelerLastName = body.travelerLastName || null;
+    if (body.whatsappOwner !== undefined) updateData.whatsappOwner = body.whatsappOwner || null;
+    if (body.status !== undefined) updateData.status = body.status;
 
-    if (body.travelerFirstName !== undefined) {
-      updates.push('travelerFirstName = ?');
-      values.push(body.travelerFirstName || null);
-    }
-    if (body.travelerLastName !== undefined) {
-      updates.push('travelerLastName = ?');
-      values.push(body.travelerLastName || null);
-    }
-    if (body.whatsappOwner !== undefined) {
-      updates.push('whatsappOwner = ?');
-      values.push(body.whatsappOwner || null);
-    }
-    if (body.status !== undefined) {
-      updates.push('status = ?');
-      values.push(body.status);
-    }
-
-    if (updates.length > 0) {
-      values.push(id);
-      await db.$executeRawUnsafe(
-        `UPDATE Baggage SET ${updates.join(', ')} WHERE id = ?`,
-        ...values
-      );
+    if (Object.keys(updateData).length > 0) {
+      try {
+        await db.baggage.update({ where: { id }, data: updateData });
+      } catch {
+        return NextResponse.json({ error: 'Baggage not found' }, { status: 404 });
+      }
     }
 
     // Fetch updated baggage

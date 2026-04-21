@@ -20,14 +20,16 @@ export async function POST(request: NextRequest) {
       }
 
       // Update user's email verification status
-      // Note: You might want to add an emailVerified field to User model
+      await db.user.update({
+        where: { email: result.email },
+        data: { emailVerified: new Date() }
+      });
+
       const user = await db.user.findUnique({
         where: { email: result.email }
       });
 
       if (user) {
-        // Mark user as verified (you can add a field for this)
-        // For now, we'll just return success
         return NextResponse.json({ 
           success: true, 
           message: 'Email vérifié avec succès',
@@ -50,6 +52,15 @@ export async function POST(request: NextRequest) {
           { error: result.error || 'Code invalide ou expiré' },
           { status: 400 }
         );
+      }
+
+      const normalizedEmail = email.toLowerCase().trim();
+      const user = await db.user.findUnique({ where: { email: normalizedEmail } });
+      if (user) {
+        await db.user.update({
+          where: { email: normalizedEmail },
+          data: { emailVerified: new Date() }
+        });
       }
 
       return NextResponse.json({ 

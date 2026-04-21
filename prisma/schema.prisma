@@ -17,6 +17,7 @@ model User {
   name            String?
   password        String?
   role            String        @default("agency") // "superadmin" | "admin" | "agent" | "agency"
+  emailVerified   DateTime?     // When the user verified their email
   agencyId        String?
   agency          Agency?       @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   sessions        Session[]
