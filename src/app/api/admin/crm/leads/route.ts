@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 // Initialize Prisma Client directly in this file
 const prisma = new PrismaClient();
 
@@ -92,7 +94,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, ...data } = body;
+    const { id, name, email, phone, company, status, source, notes, agencyId, assignedToId } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -101,9 +103,21 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Only include fields that are actually provided
+    const updateData: Record<string, unknown> = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
+    if (company !== undefined) updateData.company = company;
+    if (status !== undefined) updateData.status = status;
+    if (source !== undefined) updateData.source = source;
+    if (notes !== undefined) updateData.notes = notes;
+    if (agencyId !== undefined) updateData.agencyId = agencyId;
+    if (assignedToId !== undefined) updateData.assignedToId = assignedToId || null;
+
     const lead = await prisma.lead.update({
       where: { id },
-      data
+      data: updateData,
     });
 
     return NextResponse.json({ lead });

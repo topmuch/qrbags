@@ -108,14 +108,11 @@ function Sidebar({
     // Analysis Category
     { label: "ANALYSE", icon: null, isCategory: true },
 
-    // Marketing
-    { label: "Marketing", icon: <Megaphone className="w-5 h-5" />, href: "/admin/publicites", permission: PERMISSIONS.MANAGE_SETTINGS, roles: ['superadmin', 'admin'] },
+    // Marketing & Publicités
+    { label: "Marketing & Publicités", icon: <Megaphone className="w-5 h-5" />, href: "/admin/publicites", roles: ['superadmin', 'admin'] },
 
     // Reports
     { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/admin/rapports", permission: PERMISSIONS.VIEW_REPORTS },
-
-    // Advertisements - superadmin only
-    { label: "Publicités", icon: <Megaphone className="w-5 h-5" />, href: "/admin/publicites", permission: PERMISSIONS.MANAGE_SETTINGS, roles: ['superadmin'] },
 
     // Blog - superadmin and admin only
     { label: "Blog", icon: <Newspaper className="w-5 h-5" />, href: "/admin/blog", permission: PERMISSIONS.VIEW_MESSAGES, roles: ['superadmin', 'admin'] },

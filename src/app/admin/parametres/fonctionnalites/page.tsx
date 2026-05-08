@@ -643,7 +643,7 @@ export default function FonctionnalitesPage() {
                 {data.categoryLabels?.[category] || category}
                 <span className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
               </h2>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {features.map((feature) => (
                   <FeatureCard key={feature.id} feature={feature} />
                 ))}

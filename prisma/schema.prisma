@@ -207,6 +207,7 @@ model EmailSettings {
   provider        String   @default("console") // "console" or "smtp"
   fromEmail       String   @default("noreply@qrbag.com")
   fromName        String   @default("QRBag")
+  recipientEmail  String?  // Destination for admin notification emails
   // SMTP settings
   smtpHost        String?
   smtpPort        Int?

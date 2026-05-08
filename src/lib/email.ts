@@ -9,6 +9,7 @@ export interface EmailConfig {
   provider: EmailProvider;
   fromEmail: string;
   fromName: string;
+  recipientEmail?: string | null;
   smtpHost?: string | null;
   smtpPort?: number | null;
   smtpUser?: string | null;
@@ -55,6 +56,7 @@ export async function getEmailSettings(): Promise<EmailConfig | null> {
       provider: settings.provider as EmailProvider,
       fromEmail: settings.fromEmail,
       fromName: settings.fromName,
+      recipientEmail: settings.recipientEmail || null,
       smtpHost: settings.smtpHost,
       smtpPort: settings.smtpPort,
       smtpUser: settings.smtpUser,
@@ -79,6 +81,7 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
           provider: config.provider || existing.provider,
           fromEmail: config.fromEmail || existing.fromEmail,
           fromName: config.fromName || existing.fromName,
+          recipientEmail: config.recipientEmail !== undefined ? config.recipientEmail || null : existing.recipientEmail,
           smtpHost: config.smtpHost,
           smtpPort: config.smtpPort,
           smtpUser: config.smtpUser,
@@ -90,6 +93,7 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
         provider: updated.provider as EmailProvider,
         fromEmail: updated.fromEmail,
         fromName: updated.fromName,
+        recipientEmail: updated.recipientEmail || null,
         smtpHost: updated.smtpHost,
         smtpPort: updated.smtpPort,
         smtpUser: updated.smtpUser,
@@ -102,6 +106,7 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
           provider: config.provider || 'console',
           fromEmail: config.fromEmail || 'noreply@qrbag.com',
           fromName: config.fromName || 'QRBag',
+          recipientEmail: config.recipientEmail || null,
           smtpHost: config.smtpHost,
           smtpPort: config.smtpPort,
           smtpUser: config.smtpUser,
@@ -113,6 +118,7 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
         provider: created.provider as EmailProvider,
         fromEmail: created.fromEmail,
         fromName: created.fromName,
+        recipientEmail: created.recipientEmail || null,
         smtpHost: created.smtpHost,
         smtpPort: created.smtpPort,
         smtpUser: created.smtpUser,
