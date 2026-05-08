@@ -266,7 +266,6 @@ function SuccessToast({ show, message }: { show: boolean; message: string }) {
 // Main Scan Page
 export default function ScanPage() {
   const params = useParams();
-  const router = useRouter();
   const reference = params.reference as string;
 
   const { t, lang, setLang, dir } = useTranslation();
@@ -547,7 +546,7 @@ export default function ScanPage() {
         )}
 
         {/* Success Badge — Amber, Premium rounded-full */}
-        <div className={`bg-amber-500 text-slate-900 text-center py-3 px-6 rounded-full font-bold text-base md:text-lg shadow-lg hover:shadow-xl transition-shadow tracking-wide mx-4 -mt-2 relative z-10 ${isDeclaredLost ? '' : ''}`}>
+        <div className="bg-amber-500 text-slate-900 text-center py-3 px-6 rounded-full font-bold text-base md:text-lg shadow-lg hover:shadow-xl transition-shadow tracking-wide mx-4 -mt-2 relative z-10">
           {t('finder.success_badge')} ✈️
         </div>
 
