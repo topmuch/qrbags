@@ -7,19 +7,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Revalidate every 60 seconds for ISR
-export const revalidate = 60;
-
-// Generate static params for known agencies
-export async function generateStaticParams() {
-  const agencies = await prisma.agency.findMany({
-    select: { slug: true },
-  });
-  
-  return agencies.map((agency) => ({
-    slug: agency.slug,
-  }));
-}
+// Force dynamic rendering - no database available during Docker build
+export const dynamic = 'force-dynamic';
 
 // Public Agency Page - Shows active/scanned/found baggages for an agency
 export default async function PublicAgencyPage({ params }: PageProps) {
