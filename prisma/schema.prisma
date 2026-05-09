@@ -116,13 +116,12 @@ model ScanLog {
   createdAt   DateTime @default(now())
   baggage     Baggage  @relation(fields: [baggageId], references: [id], onDelete: Cascade)
 
-  // ─── Champs préparatoires Wakit & Groq ───
-  // Ces champs sont optionnels et n'affectent pas la logique existante.
-  // Migration manuelle requise: prisma db push (ou prisma migrate dev)
+  // ─── Champs IA (Groq) ───
   whatsappStatus  String?   // "sent" | "delivered" | "failed" | "fallback" | "queued" | "read"
   aiAnalysis      Json?     // ScanAIAnalysis: { type, color, size, confidence, isDuplicate, description?, analyzedAt }
   groqUsed        Boolean   @default(false) // true si Groq a été utilisé pour ce scan
   groqLatencyMs   Int?      // Temps de réponse Groq en ms
+  aiMessageUsed   Boolean   @default(false) // true si le message WhatsApp a été généré par IA
 }
 
 // Settings model - system configuration

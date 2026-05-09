@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { generateWhatsAppMessage } from '@/lib/groq';
+import { logMetric } from '@/lib/logger';
 
 // GET - Retrieve baggage info for scan page
 export async function GET(
@@ -122,7 +124,60 @@ export async function POST(
       );
     }
 
-    // Create scan log
+    // ─── IA: Générer le message WhatsApp via Groq (si activé) ───
+    let aiMessageContent: string | null = null;
+    let aiGenerated = false;
+    let aiLatencyMs: number | null = null;
+
+    try {
+      // Vérifier si le feature flag groq_api est activé en DB
+      const groqFlag = await db.featureFlag.findUnique({
+        where: { key: 'groq_api' },
+        select: { enabled: true },
+      });
+
+      if (groqFlag?.enabled) {
+        const scanTime = new Date().toLocaleTimeString('fr-FR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com';
+
+        const aiResult = await generateWhatsAppMessage({
+          reference: baggage.reference,
+          location: {
+            city: city || baggage.destination || 'Inconnue',
+            country: country || '',
+          },
+          time: scanTime,
+          link: `${appUrl}/suivi/${baggage.reference}`,
+          language: 'fr',
+        });
+
+        if (aiResult.generated && aiResult.message) {
+          aiMessageContent = aiResult.message;
+          aiGenerated = true;
+          aiLatencyMs = aiResult.latencyMs;
+          logMetric('groq', 'generate_message', aiResult.latencyMs, true, {
+            key: baggage.reference,
+          });
+        } else {
+          logMetric('groq', 'generate_message', aiResult.latencyMs, false, {
+            key: baggage.reference,
+            details: 'fallback',
+          });
+        }
+      }
+    } catch (error) {
+      // Ne bloque JAMAIS le flux de scan — fallback silencieux
+      logMetric('groq', 'generate_message', 0, false, {
+        key: baggage.reference,
+        details: error instanceof Error ? error.message : 'unknown',
+      });
+    }
+
+    // Create scan log with AI tracking
     await db.scanLog.create({
       data: {
         baggageId: baggage.id,
@@ -133,6 +188,8 @@ export async function POST(
         country,
         city,
         ipAddress,
+        aiMessageUsed: aiGenerated,
+        groqLatencyMs: aiLatencyMs,
       }
     });
 
@@ -164,38 +221,44 @@ export async function POST(
       data: updateData
     });
 
-    // Generate WhatsApp message
-    const locationText = latitude && longitude 
-      ? `📍 Position: https://www.google.com/maps?q=${latitude},${longitude}`
-      : location ? `📍 Lieu: ${location}` : '';
+    // Generate WhatsApp message — use AI message if available, else static
+    let whatsappText: string;
 
-    const finderText = finderName ? `👤 Trouvé par: ${finderName}` : '';
-    const finderPhoneText = finderPhone ? `📱 Contact: ${finderPhone}` : '';
-    const messageText = message ? `💬 Message: ${message}` : '';
+    if (aiMessageContent) {
+      // Message généré par IA — ajouter les infos du trouveur
+      const finderText = finderName ? `\n👤 Trouvé par: ${finderName}` : '';
+      const finderPhoneText = finderPhone ? `\n📱 Contact: ${finderPhone}` : '';
+      const locationText = latitude && longitude
+        ? `\n📍 Position: https://www.google.com/maps?q=${latitude},${longitude}`
+        : location ? `\n📍 Lieu: ${location}` : '';
+      const messageText = message ? `\n💬 ${message}` : '';
 
-    let urgencyPrefix = '🔍 QRBag - Bagage trouvé !';
-    if (isDeclaredLost) {
-      urgencyPrefix = '🚨 URGENT - Bagage perdu retrouvé !';
+      whatsappText = `${aiMessageContent}${finderText}${finderPhoneText}${locationText}${messageText}`;
+    } else {
+      // Message statique (fallback — logique existante préservée)
+      const locationText = latitude && longitude
+        ? `📍 Position: https://www.google.com/maps?q=${latitude},${longitude}`
+        : location ? `📍 Lieu: ${location}` : '';
+      const finderText = finderName ? `👤 Trouvé par: ${finderName}` : '';
+      const finderPhoneText = finderPhone ? `📱 Contact: ${finderPhone}` : '';
+      const messageText = message ? `💬 Message: ${message}` : '';
+
+      const urgencyPrefix = isDeclaredLost
+        ? '🚨 URGENT - Bagage perdu retrouvé !'
+        : '🔍 QRBag - Bagage trouvé !';
+
+      whatsappText = `${urgencyPrefix}\n\n📦 Référence: ${reference}\n${locationText}\n${finderText}\n${finderPhoneText}\n${messageText}\n\nMerci de contacter la personne qui a trouvé votre bagage.`;
     }
-
-    const whatsappMessage = encodeURIComponent(
-      `${urgencyPrefix}\n\n` +
-      `📦 Référence: ${reference}\n` +
-      `${locationText}\n` +
-      `${finderText}\n` +
-      `${finderPhoneText}\n` +
-      `${messageText}\n\n` +
-      `Merci de contacter la personne qui a trouvé votre bagage.`
-    );
 
     // Clean phone number
     const phone = baggage.whatsappOwner.replace(/[^0-9]/g, '');
-    const whatsappUrl = `https://wa.me/${phone}?text=${whatsappMessage}`;
+    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(whatsappText)}`;
 
     return NextResponse.json({
       success: true,
       whatsappUrl,
-      isDeclaredLost
+      isDeclaredLost,
+      aiMessageUsed: aiGenerated,
     });
 
   } catch (error) {
