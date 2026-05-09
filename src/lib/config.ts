@@ -199,10 +199,12 @@ export async function getServiceConfig(service: 'wakit' | 'groq'): Promise<Wakit
 
   return {
     apiKey,
-    baseUrl,
-    modelChat,
-    modelAnalysis,
-    timeoutMs: parseInt(timeoutStr, 10) || 30000,
+    baseUrl: baseUrl.includes('/chat/completions')
+      ? baseUrl
+      : `${baseUrl.replace(/\/+$/, '')}/chat/completions`,
+    modelChat: modelChat.includes('=') ? modelChat.split('=').pop()?.trim() || modelChat : modelChat,
+    modelAnalysis: modelAnalysis.includes('=') ? modelAnalysis.split('=').pop()?.trim() || modelAnalysis : modelAnalysis,
+    timeoutMs: Math.max(parseInt(timeoutStr, 10) || 30000, 5000),
     enabled: apiKey.length > 0,
   };
 }

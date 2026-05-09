@@ -238,7 +238,7 @@ const CONFIG_FIELDS: Record<string, {
         label: 'URL de base API',
         type: 'text',
         placeholder: 'https://api.groq.com/openai/v1/chat/completions',
-        help: 'URL de l\'endpoint Groq (ne changez pas sauf indication)'
+        help: 'URL complète de l\'endpoint Groq (ne changez pas sauf indication). Doit inclure /chat/completions'
       },
       {
         key: 'groq_model_chat',
