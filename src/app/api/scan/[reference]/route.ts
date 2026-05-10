@@ -5,6 +5,7 @@ import { GROQ_AI_ENABLED, GROQ_SCAN_GUARD_ENABLED, GROQ_AUTO_TRANSLATE_ENABLED }
 import { isFeatureEnabled } from '@/lib/features';
 import { logMetric } from '@/lib/logger';
 import { detectLocaleFromHeaders, LANGUAGE_COOKIE_NAME, LANGUAGE_COOKIE_MAX_AGE_DAYS } from '@/lib/i18n';
+import { detectScanContext } from '@/lib/scan-context';
 import type { Language } from '@/lib/i18n';
 
 // GET - Retrieve baggage info for scan page
@@ -143,7 +144,7 @@ export async function POST(
     const { reference } = await params;
     const body = await request.json();
 
-    const { location, finderName, finderPhone, message, latitude, longitude, country, city, ipAddress } = body;
+    const { location, finderName, finderPhone, message, latitude, longitude, country, city, ipAddress, context: manualContext } = body;
 
     const baggage = await db.baggage.findUnique({
       where: { reference }
@@ -301,6 +302,22 @@ export async function POST(
       });
     }
 
+    // ─── Détecter le contexte du scan (auto + manual override) ───
+    const detectedContext = manualContext
+      ? manualContext
+      : detectScanContext(
+          {
+            departureDate: baggage.departureDate,
+            destination: baggage.destination,
+          },
+          {
+            city: city || location,
+            address: location,
+            speed: null,
+            poiType: null,
+          }
+        ).context;
+
     // Create scan log with AI tracking
     await db.scanLog.create({
       data: {
@@ -317,6 +334,11 @@ export async function POST(
         groqLatencyMs: aiLatencyMs,
         // AI-FEATURE: Store scan guard analysis in aiAnalysis JSON
         aiAnalysis: scanGuardAnalysis ? JSON.parse(JSON.stringify(scanGuardAnalysis)) : undefined,
+        // Contexte du scan
+        context: detectedContext,
+        // Infos du trouveur (pour la page suivi)
+        finderName: finderName?.trim() || null,
+        finderPhone: finderPhone?.trim() || null,
       }
     });
 

@@ -125,6 +125,11 @@ model ScanLog {
   aiMessageUsed   Boolean   @default(false) // true si le message WhatsApp a été généré par IA
   groqModelUsed   String?   // Modèle Groq utilisé (ex: "llama-3.3-70b-versatile")
   wakitMessageId  String?   // ID de retour Wakit pour tracking croisé
+
+  // ─── Contexte du scan ───
+  context     String?   // "departure_airport_urgent" | "arrival_airport" | "in_transit" | "static_location"
+  finderName  String?   // Nom du trouveur (dupliqué ici pour l'API suivi)
+  finderPhone String?   // Téléphone du trouveur (dupliqué ici pour l'API suivi)
 }
 
 // Settings model - system configuration

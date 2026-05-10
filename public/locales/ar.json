@@ -9,7 +9,8 @@
     "start_activation": "بدء التفعيل",
     "loading": "جارٍ التحميل...",
     "back_home": "العودة للرئيسية",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "refresh": "تحديث"
   },
   "errors": {
     "qr_not_valid": "رمز QR غير صالح",
@@ -69,7 +70,13 @@
     "lost_description": "تم الإبلاغ عن فقدان هذه الأمتعة. يرجى المساعدة في العثور عليها.",
     "found_description": "شكراً لمساعدتك في تحديد موقع هذه الأمتعة.",
     "gps_security_note": "سيتم إرسال موقعك بشكل آمن.",
-    "success_title": "واوو!"
+    "success_title": "واوو!",
+    "context_label": "أين وجدت هذه الأمتعة؟",
+    "context_placeholder": "اختر السياق (اختياري)",
+    "context_airport_departure": "مطار المغادرة",
+    "context_airport_arrival": "مطار الوصول",
+    "context_taxi": "تاكسي / نقل",
+    "context_static": "مكان ثابت (فندق، منزل...)"
   },
   "whatsapp": {
     "baggage_found": "📦 *QRBag – تم العثور على الحقيبة!*",
@@ -98,5 +105,47 @@
     "aria_open": "فتح الدردشة",
     "aria_close": "إغلاق الدردشة",
     "aria_message": "رسالة الدردشة"
+  },
+  "tracking": {
+    "page_title": "تتبع الأمتعة",
+    "baggage_info": "معلومات الأمتعة",
+    "scan_history": "سجل المسح",
+    "last_location": "آخر موقع",
+    "finder_info": "معلومات من وجدها",
+    "contact_finder": "اتصل بمن وجدها",
+    "by_whatsapp": "واتساب",
+    "by_phone": "اتصال",
+    "no_scans": "لم يتم تسجيل أي مسح بعد.",
+    "no_finder": "لم يقم أحد بالإبلاغ عن العثور على هذه الأمتعة بعد.",
+    "last_scan": "آخر مسح",
+    "scan_at": "تم المسح في",
+    "map_unavailable": "الخريطة غير متاحة",
+    "no_location": "لا يوجد موقع متاح",
+    "status_active": "نشط",
+    "status_scanned": "تم المسح",
+    "status_lost": "مفقود",
+    "status_found": "تم العثور",
+    "status_blocked": "محظور",
+    "status_expired": "منتهي",
+    "badge_lost": "تم الإبلاغ عن فقدان الأمتعة",
+    "badge_active": "أمتعتك محمية",
+    "lost_description": "تم الإبلاغ عن فقدان هذه الأمتعة. سيتم إبلاغك إذا وجدها أحد.",
+    "active_description": "أمتعتك تحت حماية QRBag. سيتم إبلاغك إذا قام أحد بمسحها.",
+    "found_description": "تم العثور على أمتعتك! اتصل بمن وجدها لترتيب الاستلام.",
+    "scan_count": "{count} مسح",
+    "trust_note": "كيو آر باغ — تتبع آمن لأمتعتك",
+    "refreshing": "جارٍ التحديث...",
+    "refresh_success": "تم تحديث البيانات",
+    "baggage_not_found": "الأمتعة غير موجودة",
+    "baggage_not_found_desc": "رابط التتبع هذا غير صالح أو منتهي.",
+    "baggage_blocked_desc": "تم حظر هذه الأمتعة لأسباب أمنية.",
+    "baggage_expired_desc": "انتهت صلاحية حماية هذه الأمتعة.",
+    "baggage_pending_desc": "لم يتم تفعيل هذه الأمتعة بعد.",
+    "back_to_scan": "رجوع",
+    "context_departure": "مطار المغادرة — عاجل",
+    "context_arrival": "مطار الوصول",
+    "context_transit": "في الطريق",
+    "context_static": "مكان ثابت",
+    "whatsapp_message_sent": "تم إرسال الرسالة عبر واتساب!"
   }
 }

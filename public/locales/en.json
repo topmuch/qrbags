@@ -9,7 +9,8 @@
     "start_activation": "Start activation",
     "loading": "Loading...",
     "back_home": "Back to home",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "refresh": "Refresh"
   },
   "errors": {
     "qr_not_valid": "Invalid QR code",
@@ -69,7 +70,13 @@
     "lost_description": "This baggage has been reported as lost. Please help find it.",
     "found_description": "Thank you for helping locate this baggage.",
     "gps_security_note": "Your location will be sent securely.",
-    "success_title": "Wahoo!"
+    "success_title": "Wahoo!",
+    "context_label": "Where did you find this baggage?",
+    "context_placeholder": "Select context (optional)",
+    "context_airport_departure": "Departure airport",
+    "context_airport_arrival": "Arrival airport",
+    "context_taxi": "Taxi / transit",
+    "context_static": "Static location (hotel, home...)"
   },
   "whatsapp": {
     "baggage_found": "📦 *QRBag – Baggage found!*",
@@ -98,5 +105,47 @@
     "aria_open": "Open chat",
     "aria_close": "Close chat",
     "aria_message": "Chat message"
+  },
+  "tracking": {
+    "page_title": "Baggage Tracking",
+    "baggage_info": "BAGGAGE INFORMATION",
+    "scan_history": "SCAN HISTORY",
+    "last_location": "LAST LOCATION",
+    "finder_info": "FINDER INFORMATION",
+    "contact_finder": "Contact the finder",
+    "by_whatsapp": "WhatsApp",
+    "by_phone": "Call",
+    "no_scans": "No scans recorded yet.",
+    "no_finder": "No one has reported finding this baggage yet.",
+    "last_scan": "Last scan",
+    "scan_at": "Scanned at",
+    "map_unavailable": "Map unavailable",
+    "no_location": "No location available",
+    "status_active": "ACTIVE",
+    "status_scanned": "SCANNED",
+    "status_lost": "LOST",
+    "status_found": "FOUND",
+    "status_blocked": "BLOCKED",
+    "status_expired": "EXPIRED",
+    "badge_lost": "BAGGAGE REPORTED LOST",
+    "badge_active": "YOUR BAGGAGE IS PROTECTED",
+    "lost_description": "This baggage has been reported as lost. You will be alerted if someone finds it.",
+    "active_description": "Your baggage is under QRBag protection. You will be notified if someone scans it.",
+    "found_description": "Your baggage has been found! Contact the finder to arrange pickup.",
+    "scan_count": "{count} scan(s)",
+    "trust_note": "QRBag — Secure baggage tracking",
+    "refreshing": "Refreshing...",
+    "refresh_success": "Data updated",
+    "baggage_not_found": "Baggage not found",
+    "baggage_not_found_desc": "This tracking link is invalid or has expired.",
+    "baggage_blocked_desc": "This baggage has been blocked for security reasons.",
+    "baggage_expired_desc": "The protection for this baggage has expired.",
+    "baggage_pending_desc": "This baggage has not been activated yet.",
+    "back_to_scan": "Back",
+    "context_departure": "Departure Airport — Urgent",
+    "context_arrival": "Arrival Airport",
+    "context_transit": "In Transit",
+    "context_static": "Static Location",
+    "whatsapp_message_sent": "Message sent via WhatsApp!"
   }
 }

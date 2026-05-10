@@ -18,7 +18,7 @@ interface MetricOptions {
  * Format: [Service/Action] ✅/❌ Xms [key=...] [details=...]
  */
 export function logMetric(
-  service: 'groq' | 'wakit' | 'whatsapp',
+  service: 'groq' | 'wakit' | 'whatsapp' | 'suivi',
   action: string,
   latencyMs: number,
   success: boolean,
