@@ -24,6 +24,7 @@ import { GROQ_AI_ENABLED, GROQ_MODEL_CHAT } from '@/lib/config';
 import { logMetric } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
 import { detectLanguageFromCountry } from '@/lib/i18n';
+import { safeTransportMode, TRANSPORT_ICONS } from '@/lib/transport';
 import type { Language } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
@@ -183,6 +184,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // TRANSPORT-NOTIFY: Extraire le mode de transport après null check
+    const transportMode = safeTransportMode(baggage.transportMode);
+
     if (!baggage.whatsappOwner) {
       return NextResponse.json(
         { success: false, error: 'Aucun numéro WhatsApp configuré pour ce bagage.' },
@@ -249,6 +253,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             time: scanTime,
             link: `${appUrl}/suivi/${baggage.reference}`,
             language,
+            // TRANSPORT-NOTIFY: Passer le mode de transport pour différencier le message
+            transportMode,
           });
 
           if (aiResult.generated && aiResult.message) {
@@ -290,9 +296,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com';
 
+      // TRANSPORT-NOTIFY: Fallback statique adapté au mode de transport
+      const transportEmoji = TRANSPORT_ICONS[transportMode];
+      const transportLabels: Record<string, Record<Language, string>> = {
+        flight: { fr: 'vol', en: 'flight', ar: 'رحلة طيران' },
+        train:  { fr: 'train', en: 'train', ar: 'قطار' },
+        boat:   { fr: 'traversée maritime', en: 'boat crossing', ar: 'رحلة بحرية' },
+        bus:    { fr: 'voyage en bus', en: 'bus trip', ar: 'رحلة حافلة' },
+      };
+      const fallbackLang = detectLanguageFromHeaders(
+        request.headers.get('accept-language'),
+        location?.country
+      );
+      const transportLabel = transportLabels[transportMode]?.[fallbackLang] || 'vol';
+
       messageContent = [
-        '🚨 Alerte QRBag',
-        `Votre bagage ${baggage.reference} a été scanné à ${location?.city || 'une localisation inconnue'} à ${scanTime}.`,
+        `${transportEmoji} Alerte QRBag`,
+        `Votre bagage ${baggage.reference} (${transportLabel}) a été scanné à ${location?.city || 'une localisation inconnue'} à ${scanTime}.`,
         `Suivez son statut : ${appUrl}/suivi/${baggage.reference}`,
       ].join('\n');
 
@@ -324,6 +344,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         location?.country
       )];
 
+      // TRANSPORT-NOTIFY: Inclure le mode de transport dans les variables Wakit
+      const transportLabelsWakit: Record<string, Record<Language, string>> = {
+        flight: { fr: 'vol', en: 'flight', ar: 'رحلة طيران' },
+        train:  { fr: 'train', en: 'train', ar: 'قطار' },
+        boat:   { fr: 'traversée maritime', en: 'boat crossing', ar: 'رحلة بحرية' },
+        bus:    { fr: 'voyage en bus', en: 'bus trip', ar: 'رحلة حافلة' },
+      };
+      const wakitLang = detectLanguageFromHeaders(
+        request.headers.get('accept-language'),
+        location?.country
+      );
+
       const wakitResult = await sendWakitMessage({
         to: baggage.whatsappOwner,
         template: 'baggage_scan_alert',
@@ -332,6 +364,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           location: location?.city || baggage.destination || 'Inconnue',
           time: new Date().toLocaleTimeString(wakitLocale, { hour: '2-digit', minute: '2-digit' }),
           link: `${process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com'}/suivi/${baggage.reference}`,
+          transport_mode: `${TRANSPORT_ICONS[transportMode]} ${transportLabelsWakit[transportMode]?.[wakitLang] || 'vol'}`,
         },
       });
 

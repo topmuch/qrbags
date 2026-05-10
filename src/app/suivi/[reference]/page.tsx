@@ -344,11 +344,13 @@ export default function SuiviPage() {
 
     const lastScan = data.scans[0];
     const context = (lastScan?.context || 'static_location') as ScanContext;
+    // TRANSPORT-NOTIFY: Passer le mode de transport pour différencier le message
     const message = generatePreFilledMessage({
       reference,
       language: lang,
       context,
       ownerName: data.baggage?.travelerName || undefined,
+      transportMode: data.baggage?.transportMode || undefined,
     });
 
     const url = buildWhatsAppUrl(data.lastFinder.phone, message);

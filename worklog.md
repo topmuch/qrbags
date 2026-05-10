@@ -553,3 +553,55 @@ Stage Summary:
 - Multi-context transport (✈️🚆🚢🚌) fully operational end-to-end
 - Chatbot KB Enhancement fully operational with SAV contact
 - Agency Dashboard QR visibility fix confirmed working
+
+---
+Task ID: 15
+Agent: Main Agent
+Task: Fix WhatsApp notifications to differentiate by transport mode (boat/flight/train/bus)
+
+Work Log:
+- Analyzed the entire WhatsApp notification pipeline: groq.ts, scan/notify/route.ts, whatsapp-message.ts
+- Found 3 CRITICAL gaps: NO transport mode differentiation anywhere in the notification chain
+- Fixed `src/lib/groq.ts`:
+  1. Added `transportMode?` to `WhatsAppMessageParams` interface
+  2. Created `TRANSPORT_NOTIFY_INFO` mapping (emoji + label per mode × language)
+  3. Updated `FALLBACK_WHATSAPP_MESSAGES` to use transport-specific emoji + label: ✈️ vol, 🚆 train, 🚢 traversée maritime, 🚌 voyage en bus
+  4. Updated `SYSTEM_PROMPTS` (FR/EN/AR) with transport-specific instructions for the AI
+  5. Added `Mode de transport` field to Groq user message context
+- Fixed `src/app/api/scan/notify/route.ts`:
+  1. Added imports: `safeTransportMode`, `TRANSPORT_ICONS` from @/lib/transport
+  2. Extract `transportMode` from baggage DB record (after null check)
+  3. Pass `transportMode` to `generateWhatsAppMessage()` call
+  4. Replaced hardcoded `🚨 Alerte QRBag` fallback with transport-specific emoji + label
+  5. Added `transport_mode` variable to Wakit template call (emoji + localized label)
+- Fixed `src/lib/whatsapp-message.ts`:
+  1. Added `transportMode?` to `PreFilledMessageParams` interface
+  2. Created `TRANSPORT_CONTEXT_EMOJI` mapping per mode (departure/arrival emojis)
+  3. Created `TRANSPORT_PLACES` mapping per mode × language (aéroport/gare/port/gare routière)
+  4. Replaced airplane-only `MESSAGES` with transport-aware logic:
+     - `departure_airport_urgent`: 🛫 aéroport / 🚆 gare / 🚢 port / 🚌 gare routière
+     - `arrival_airport`: 🛬 aéroport / 🚆 gare / ⚓ port / 🚌 gare routière
+     - `in_transit` / `static_location`: generic (unchanged)
+  5. Added `resolveTransportMode()` helper for safe fallback
+- Fixed `src/app/suivi/[reference]/page.tsx`:
+  1. Added `transportMode` to `generatePreFilledMessage()` call (was missing)
+- Removed unused imports (TRANSPORT_ICONS, TRANSPORT_NAME)
+- Validation: `bun run lint` → 0 errors
+- Validation: Dev server clean compilation, no errors
+
+Self-Critique:
+- Root cause: The original implementation was flight-only (QRBag was originally for flights only). When multi-transport was added, notifications were never updated.
+- This was NOT a bug fix — it was a MISSING FEATURE that was never implemented despite the transport mode selection being available in the UI.
+- The fix covers all 3 notification paths: AI-generated (Groq), static fallback, and pre-filled owner-to-finder messages.
+
+Stage Summary:
+- 4 files modified: groq.ts, scan/notify/route.ts, whatsapp-message.ts, suivi/[reference]/page.tsx
+- Zero lint errors, zero compilation errors
+- WhatsApp notifications now FULLY DIFFERENTIATED by transport mode:
+  - ✈️ Flight: "aéroport" / "vol"
+  - 🚆 Train: "gare" / "train"
+  - 🚢 Boat: "port" / "traversée maritime"
+  - 🚌 Bus: "gare routière" / "voyage en bus"
+- All 3 notification paths updated: Groq AI, static fallback, Wakit, pre-filled messages
+- i18n complete: FR, EN, AR for all transport-specific texts
+- Backward compatible: legacy data without transportMode defaults to 'flight'

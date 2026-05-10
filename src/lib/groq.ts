@@ -181,6 +181,8 @@ export interface WhatsAppMessageParams {
   link: string;
   /** Langue du message */
   language: 'fr' | 'en' | 'ar';
+  /** Mode de transport (flight/train/boat/bus) — différencie le message */
+  transportMode?: 'flight' | 'train' | 'boat' | 'bus';
 }
 
 /** Résultat de la génération */
@@ -193,46 +195,64 @@ export interface WhatsAppMessageResult {
   latencyMs: number;
 }
 
-/** Messages fallback statiques par langue */
-const FALLBACK_WHATSAPP_MESSAGES: Record<string, (p: WhatsAppMessageParams) => string> = {
-  fr: (p) =>
-    `🚨 Alerte QRBag\nVotre bagage ${p.reference} a été scanné à ${p.location.city}, ${p.location.country} à ${p.time}.\nSuivez son statut : ${p.link}`,
-  en: (p) =>
-    `🚨 QRBag Alert\nYour bag ${p.reference} was scanned in ${p.location.city}, ${p.location.country} at ${p.time}.\nTrack it: ${p.link}`,
-  ar: (p) =>
-    `🚨 تنبيه QRBag\nتم مسح أمتعتك ${p.reference} في ${p.location.city}، ${p.location.country} الساعة ${p.time}.\nتابع حالتها: ${p.link}`,
+// TRANSPORT-NOTIFY: Transport-specific emoji + label mapping
+const TRANSPORT_NOTIFY_INFO: Record<string, { emoji: string; fr: string; en: string; ar: string }> = {
+  flight: { emoji: '✈️', fr: 'vol', en: 'flight', ar: 'رحلة طيران' },
+  train:  { emoji: '🚆', fr: 'train', en: 'train', ar: 'قطار' },
+  boat:   { emoji: '🚢', fr: 'traversée maritime', en: 'boat crossing', ar: 'رحلة بحرية' },
+  bus:    { emoji: '🚌', fr: 'voyage en bus', en: 'bus trip', ar: 'رحلة حافلة' },
 };
 
-/** Prompts système par langue */
+/** Messages fallback statiques par langue × mode de transport */
+const FALLBACK_WHATSAPP_MESSAGES: Record<string, (p: WhatsAppMessageParams) => string> = {
+  // ─── Avion ───
+  fr: (p) => {
+    const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];
+    return `${t.emoji} Alerte QRBag\nVotre bagage ${p.reference} (${t.fr}) a été scanné à ${p.location.city}, ${p.location.country} à ${p.time}.\nSuivez son statut : ${p.link}`;
+  },
+  en: (p) => {
+    const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];
+    return `${t.emoji} QRBag Alert\nYour bag ${p.reference} (${t.en}) was scanned in ${p.location.city}, ${p.location.country} at ${p.time}.\nTrack it: ${p.link}`;
+  },
+  ar: (p) => {
+    const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];
+    return `${t.emoji} تنبيه QRBag\nتم مسح أمتعتك ${p.reference} (${t.ar}) في ${p.location.city}، ${p.location.country} الساعة ${p.time}.\nتابع حالتها: ${p.link}`;
+  },
+};
+
+// TRANSPORT-NOTIFY: Prompts système par langue — adaptés pour modes de transport
 const SYSTEM_PROMPTS: Record<string, string> = {
   fr: `Tu es un assistant QRBag. Génère UN SEUL message WhatsApp d'alerte de scan de bagage.
 RÈGLES STRICTES:
 - Maximum 280 caractères STRICT
 - Ton urgent mais rassurant
-- Utilise des emojis pertinents
+- Utilise des emojis pertinents AU MODE DE TRANSPORT (✈️ avion, 🚆 train, 🚢 bateau, 🚌 bus)
+- Adapte le vocabulaire : "vol" / "train" / "traversée maritime" / "voyage en bus"
 - Formate comme un message WhatsApp (sauts de ligne avec \\n)
-- Commence par "🚨 Alerte QRBag"
-- Inclus: référence, lieu, heure, lien de suivi
+- Commence par l'emoji du mode de transport + "Alerte QRBag"
+- Inclus: référence, mode de transport, lieu, heure, lien de suivi
 - RETOURNE UNIQUEMENT LE MESSAGE, aucun commentaire ni explication`,
 
   en: `You are a QRBag assistant. Generate a SINGLE WhatsApp baggage scan alert message.
 STRICT RULES:
 - Maximum 280 characters STRICT
 - Urgent but reassuring tone
-- Use relevant emojis
+- Use transport-mode-specific emojis (✈️ flight, 🚆 train, 🚢 boat, 🚌 bus)
+- Adapt vocabulary: "flight" / "train" / "boat crossing" / "bus trip"
 - Format as a WhatsApp message (newlines with \\n)
-- Start with "🚨 QRBag Alert"
-- Include: reference, location, time, tracking link
+- Start with transport emoji + "QRBag Alert"
+- Include: reference, transport mode, location, time, tracking link
 - RETURN ONLY THE MESSAGE, no comments or explanation`,
 
   ar: `أنت مساعد QRBag. قم بتوليد رسالة تنبيه مسح أمتعة واحدة عبر واتساب.
 قواعد صارمة:
 - بحد أقصى 280 حرفًا كحد أقصى
 - نبرة عاجلة ولكن مطمئنة
-- استخدم رموز تعبيرية مناسبة
+- استخدم رموز تعبيرية مناسبة لوسيلة النقل (✈️ طائرة، 🚆 قطار، 🚢 سفينة، 🚌 حافلة)
+- تكيف المفردات: "رحلة طيران" / "قطار" / "رحلة بحرية" / "رحلة حافلة"
 - صيغة كرسالة واتساب (أسطر جديدة مع \\n)
-- ابدأ بـ "🚨 تنبيه QRBag"
-- ضمّن: المرجع، الموقع، الوقت، رابط التتبع
+- ابدأ برمز وسيلة النقل + "تنبيه QRBag"
+- ضمّن: المرجع، وسيلة النقل، الموقع، الوقت، رابط التتبع
 - أعد الرسالة فقط، بدون تعليقات أو شرح`,
 };
 
@@ -282,6 +302,7 @@ export async function generateWhatsAppMessage(
             role: 'user',
             content: [
               `Référence: ${params.reference}`,
+              `Mode de transport: ${TRANSPORT_NOTIFY_INFO[params.transportMode || 'flight']?.fr || 'vol'}`,
               `Ville: ${params.location.city}`,
               `Pays: ${params.location.country}`,
               `Heure: ${params.time}`,
