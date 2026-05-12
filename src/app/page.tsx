@@ -850,12 +850,12 @@ function TestimonialsSection() {
             <FadeIn key={t.name} delay={i * 0.15} direction={i === 0 ? 'right' : 'left'}>
               <div className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-200/60 transition-all duration-500">
                 {/* Photo */}
-                <div className="relative h-64 md:h-72 overflow-hidden">
+                <div className="relative h-64 md:h-80 overflow-hidden">
                   <Image
                     src={t.image}
                     alt={t.name}
                     fill
-                    className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                   {/* Stars overlay */}
