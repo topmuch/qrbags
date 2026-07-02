@@ -14,7 +14,9 @@ import {
   X,
   Plus,
   Filter,
-  AlertOctagon
+  AlertOctagon,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { useAgency } from '../layout';
 import { isActive, isPending } from '@/lib/status';
@@ -44,7 +46,12 @@ export default function BaggagesPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedBaggage, setSelectedBaggage] = useState<Baggage | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [actionLoading, setActionLoading] = useState<string | null>(null); // Track which baggage action is loading
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     fetchBaggages();
@@ -89,14 +96,112 @@ export default function BaggagesPage() {
   };
 
   // AGENCY-FIX: Split filtered baggages into activated and pending sections
-  // FIX: Include lost/found/blocked in activated so NO baggage vanishes from UI
   const activatedBaggages = filteredBaggages.filter(b =>
     isActive(b.status) || b.travelerFirstName !== null || b.status === 'lost' || b.status === 'found' || b.status === 'blocked'
   );
-  // FIX: Check BOTH travelerFirstName AND travelerLastName for null
   const pendingBaggages = filteredBaggages.filter(b =>
     isPending(b.status) && b.travelerFirstName === null && b.travelerLastName === null
   );
+
+  // Bulk selection handlers
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (baggageList: Baggage[]) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      const allSelected = baggageList.every(b => next.has(b.id));
+      if (allSelected) {
+        // Deselect all in this list
+        for (const b of baggageList) {
+          next.delete(b.id);
+        }
+      } else {
+        // Select all in this list
+        for (const b of baggageList) {
+          next.add(b.id);
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setDeleteLoading(true);
+    try {
+      const response = await fetch('/api/agency/baggages', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agencyId,
+          ids: Array.from(selectedIds),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Remove deleted items from local state
+        const deletedSet = new Set(selectedIds);
+        setBaggages(prev => prev.filter(b => !deletedSet.has(b.id)));
+        setSelectedIds(new Set());
+        setShowDeleteConfirm(false);
+        alert(`${data.deleted} QR code(s) supprimé(s) avec succès`);
+      } else {
+        alert(data.error || 'Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      alert('Erreur lors de la suppression');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteAllPending = async () => {
+    if (!confirm(`Supprimer TOUS les QR codes en attente d'activation de votre agence ?\n\nCette action est irréversible.`)) return;
+
+    setDeleteLoading(true);
+    try {
+      const response = await fetch('/api/agency/baggages', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agencyId,
+          status: 'pending_activation',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setBaggages(prev => prev.filter(b => !isPending(b.status)));
+        setSelectedIds(new Set());
+        alert(`${data.deleted} QR code(s) en attente supprimé(s)`);
+      } else {
+        alert(data.error || 'Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Delete all pending error:', error);
+      alert('Erreur lors de la suppression');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Jamais';
@@ -133,7 +238,6 @@ export default function BaggagesPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Update local state
         setBaggages(prev => prev.map(b => 
           b.id === baggageId ? { ...b, status: 'lost' } : b
         ));
@@ -162,7 +266,6 @@ export default function BaggagesPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Update local state
         setBaggages(prev => prev.map(b => 
           b.id === baggageId ? { ...b, status: 'found' } : b
         ));
@@ -209,10 +312,61 @@ export default function BaggagesPage() {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Gestion des bagages</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste complète des bagages de votre agence</p>
+      <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Gestion des bagages</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Liste complète des bagages de votre agence</p>
+        </div>
+        {/* Delete All Pending Button */}
+        {pendingBaggages.length > 0 && selectedIds.size === 0 && (
+          <button
+            onClick={handleDeleteAllPending}
+            disabled={deleteLoading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-rose-500/20 disabled:opacity-50"
+          >
+            {deleteLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+            Supprimer tous les QR en attente ({pendingBaggages.length})
+          </button>
+        )}
       </div>
+
+      {/* Bulk Action Bar - Shows when items are selected */}
+      {selectedIds.size > 0 && (
+        <div className="mb-6 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 rounded-xl px-5 py-3 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-rose-500 flex items-center justify-center">
+              <Trash2 className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-rose-700 dark:text-rose-400 font-medium text-sm">
+              {selectedIds.size} QR code(s) sélectionné(s)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-sm transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={deleteLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              {deleteLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+              Supprimer la sélection
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards - Multicolored */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -277,7 +431,7 @@ export default function BaggagesPage() {
         ))}
       </div>
 
-      {/* AGENCY-FIX: Loading state */}
+      {/* Loading state */}
       {loading ? (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
           <div className="text-center py-12">
@@ -300,7 +454,7 @@ export default function BaggagesPage() {
         </div>
       ) : (
         <>
-          {/* AGENCY-FIX: Section 1 — Bagages activés */}
+          {/* Section 1 — Bagages activés */}
           {activatedBaggages.length > 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden mb-6">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-emerald-50/50 dark:bg-blue-600/5">
@@ -315,6 +469,14 @@ export default function BaggagesPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                      <th className="text-left px-4 py-4 w-10">
+                        <input
+                          type="checkbox"
+                          checked={activatedBaggages.length > 0 && activatedBaggages.every(b => selectedIds.has(b.id))}
+                          onChange={() => toggleSelectAll(activatedBaggages)}
+                          className="w-4 h-4 rounded border-slate-300 text-rose-500 focus:ring-rose-500 cursor-pointer"
+                        />
+                      </th>
                       <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Référence</th>
                       <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Pèlerin</th>
                       <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hidden md:table-cell">Dernier scan</th>
@@ -328,8 +490,16 @@ export default function BaggagesPage() {
                         key={baggage.id}
                         className={`border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${
                           baggage.status === 'lost' ? 'bg-rose-50/50 dark:bg-rose-500/5' : ''
-                        }`}
+                        } ${selectedIds.has(baggage.id) ? 'bg-rose-50/30 dark:bg-rose-500/5' : ''}`}
                       >
+                        <td className="px-4 py-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(baggage.id)}
+                            onChange={() => toggleSelect(baggage.id)}
+                            className="w-4 h-4 rounded border-slate-300 text-rose-500 focus:ring-rose-500 cursor-pointer"
+                          />
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-blue-600/10 flex items-center justify-center">
@@ -341,7 +511,6 @@ export default function BaggagesPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          {/* AGENCY-FIX: Fallback "Non assigné" when both names are null */}
                           {baggage.travelerFirstName || baggage.travelerLastName ? (
                             <span className="text-slate-800 dark:text-white font-medium">
                               {baggage.travelerFirstName} {baggage.travelerLastName}
@@ -417,21 +586,43 @@ export default function BaggagesPage() {
             </div>
           )}
 
-          {/* AGENCY-FIX: Section 2 — QR en attente d'activation */}
+          {/* Section 2 — QR en attente d'activation */}
           {pendingBaggages.length > 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-amber-200 dark:border-amber-800 overflow-hidden">
               <div className="px-6 py-4 border-b border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-blue-600/5">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-600" />
-                  <h2 className="text-sm font-semibold text-slate-800 dark:text-white">
-                    QR en attente d'activation ({pendingBaggages.length})
-                  </h2>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-blue-600" />
+                    <h2 className="text-sm font-semibold text-slate-800 dark:text-white">
+                      QR en attente d'activation ({pendingBaggages.length})
+                    </h2>
+                  </div>
+                  <button
+                    onClick={handleDeleteAllPending}
+                    disabled={deleteLoading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 border border-rose-200 dark:border-rose-800"
+                  >
+                    {deleteLoading ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3 h-3" />
+                    )}
+                    Supprimer tout
+                  </button>
                 </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                      <th className="text-left px-4 py-4 w-10">
+                        <input
+                          type="checkbox"
+                          checked={pendingBaggages.length > 0 && pendingBaggages.every(b => selectedIds.has(b.id))}
+                          onChange={() => toggleSelectAll(pendingBaggages)}
+                          className="w-4 h-4 rounded border-slate-300 text-rose-500 focus:ring-rose-500 cursor-pointer"
+                        />
+                      </th>
                       <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Référence</th>
                       <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Pèlerin</th>
                       <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hidden md:table-cell">Type</th>
@@ -443,8 +634,18 @@ export default function BaggagesPage() {
                     {pendingBaggages.map((baggage) => (
                       <tr
                         key={baggage.id}
-                        className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                        className={`border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${
+                          selectedIds.has(baggage.id) ? 'bg-rose-50/30 dark:bg-rose-500/5' : ''
+                        }`}
                       >
+                        <td className="px-4 py-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(baggage.id)}
+                            onChange={() => toggleSelect(baggage.id)}
+                            className="w-4 h-4 rounded border-slate-300 text-rose-500 focus:ring-rose-500 cursor-pointer"
+                          />
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-blue-600/10 flex items-center justify-center">
@@ -506,6 +707,45 @@ export default function BaggagesPage() {
         </>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60] backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full shadow-xl border border-slate-200 dark:border-slate-800">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-rose-100 dark:bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-rose-500" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
+                Confirmer la suppression
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+                Vous allez supprimer <span className="font-bold text-rose-600">{selectedIds.size}</span> QR code(s). Cette action est irréversible.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-medium text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmBulkDelete}
+                  disabled={deleteLoading}
+                  className="flex-1 py-2.5 bg-rose-500 text-white rounded-xl font-medium text-sm hover:bg-rose-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleteLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Detail Modal */}
       {showDetailModal && selectedBaggage && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -536,7 +776,6 @@ export default function BaggagesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm">Pèlerin</p>
-                  {/* AGENCY-FIX: Fallback "Non assigné" when both names are null */}
                   {selectedBaggage.travelerFirstName || selectedBaggage.travelerLastName ? (
                     <p className="text-slate-800 dark:text-white font-medium">{selectedBaggage.travelerFirstName} {selectedBaggage.travelerLastName}</p>
                   ) : (
@@ -573,7 +812,7 @@ export default function BaggagesPage() {
                 )}
               </div>
 
-              {/* AGENCY-FIX: Attribuer edit form for unassigned baggages — parity with tableau-de-bord */}
+              {/* Attribuer edit form for unassigned baggages */}
               {(!selectedBaggage.travelerFirstName && !selectedBaggage.travelerLastName) && (
                 <div className="p-4 bg-amber-50 dark:bg-blue-600/10 border border-amber-200 dark:border-amber-800 rounded-xl">
                   <h4 className="text-amber-700 dark:text-blue-500 font-medium mb-3">Attribuer ce bagage</h4>
@@ -629,7 +868,6 @@ export default function BaggagesPage() {
 
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
                 {/* Action Buttons based on status */}
-                {/* AGENCY-FIX: Use isLost() for French DB compat */}
                 {isActive(selectedBaggage.status) && (
                   <button
                     onClick={() => handleDeclareLost(selectedBaggage.id)}
