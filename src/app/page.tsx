@@ -265,9 +265,9 @@ function HeroSection() {
   const slide = heroSlides[current];
 
   const slideVariants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0, scale: 0.98 }),
-    center: { x: 0, opacity: 1, scale: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -80 : 80, opacity: 0, scale: 0.98 }),
+    enter: () => ({ opacity: 0 }),
+    center: { opacity: 1 },
+    exit: () => ({ opacity: 0 }),
   };
 
   const textVariants = {
@@ -385,7 +385,7 @@ function HeroSection() {
                 {/* Glow behind image */}
                 <div className="absolute -inset-8 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 rounded-[3rem] blur-[60px]" />
                 
-                <AnimatePresence mode="wait" custom={direction}>
+                <AnimatePresence mode="popLayout" custom={direction}>
                   <motion.div
                     key={current}
                     custom={direction}
@@ -393,8 +393,8 @@ function HeroSection() {
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-300/40 border border-slate-200/60 bg-white"
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-300/40 border border-slate-200/60 bg-slate-900"
                   >
                     <Image
                       src={slide.image}
