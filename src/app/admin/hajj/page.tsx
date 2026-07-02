@@ -444,7 +444,7 @@ export default function HajjAdminPage() {
           {selectedPilgrim && (
             <div className="space-y-6 pt-4">
               {/* Pilgrim Info */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-slate-50 rounded-xl p-4">
                   <p className="text-slate-500 text-sm mb-1">Agence</p>
                   <p className="text-slate-800 font-medium flex items-center gap-2">

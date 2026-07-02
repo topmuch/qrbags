@@ -457,7 +457,7 @@ function InscrireContent() {
                   <span className="text-xl">📅</span>
                   <p className="text-sm text-white/80 font-medium">{t('transport.common_departure_date')}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input
                     type="date"
                     value={formData.departureDate}

@@ -607,7 +607,7 @@ export default function EtiquettesPage() {
               </div>
 
               {/* Info */}
-              <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
                   <p className="text-slate-500 dark:text-slate-400 text-sm">Créé le</p>
                   <p className="text-slate-800 dark:text-white font-medium">{formatDate(selectedSet.createdAt)}</p>

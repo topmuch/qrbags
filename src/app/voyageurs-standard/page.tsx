@@ -106,7 +106,7 @@ function HeroSection() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
           <div className="bg-white/10 rounded-xl p-4 border border-white/20">
             <div className="text-3xl font-bold text-white">1-3</div>
             <div className="text-white/70 text-sm">Bagages</div>

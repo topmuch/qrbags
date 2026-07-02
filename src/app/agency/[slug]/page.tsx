@@ -78,7 +78,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
 
       {/* Stats Cards */}
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-xl flex items-center justify-center mb-3">
               <Luggage className="w-5 h-5 text-blue-500" />

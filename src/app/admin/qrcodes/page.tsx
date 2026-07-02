@@ -613,7 +613,7 @@ export default function QRCodesPage() {
               {/* Export Mode Selection */}
               <div>
                 <label className="text-[#a0a8b8] text-sm mb-3 block">Mode d'export</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
                     onClick={() => setExportForm(prev => ({ ...prev, mode: 'selected' }))}
                     className={`p-3 rounded-xl border text-center transition-all ${
@@ -674,7 +674,7 @@ export default function QRCodesPage() {
               {exportForm.mode === 'type' && (
                 <div>
                   <label className="text-[#a0a8b8] text-sm mb-2 block">Type de voyage</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
                       onClick={() => setExportForm(prev => ({ ...prev, type: 'hajj' }))}
                       className={`p-3 rounded-xl border text-center transition-all ${
@@ -852,7 +852,7 @@ export default function QRCodesPage() {
               </div>
 
               {/* Info */}
-              <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-[#0a0f2c] rounded-lg p-4">
                   <p className="text-[#a0a8b8] text-sm">Créé le</p>
                   <p className="text-white font-medium">{formatDate(selectedSet.createdAt)}</p>

@@ -642,7 +642,7 @@ export default function BlogAdminPage() {
                 </div>
 
                 {/* Category and Status */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-slate-700 dark:text-slate-300">Catégorie</Label>
                     <Select 

@@ -812,7 +812,7 @@ export default function PublicitesPage() {
                 )}
 
                 {/* Dates */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-slate-700 dark:text-slate-300">Date de début *</Label>
                     <Input
@@ -834,7 +834,7 @@ export default function PublicitesPage() {
                 </div>
 
                 {/* Status and Priority */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-slate-700 dark:text-slate-300">Statut</Label>
                     <Select 

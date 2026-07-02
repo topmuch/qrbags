@@ -163,7 +163,7 @@ function HajjActivateContent() {
               </div>
 
               {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-white">
                     Prénom *
@@ -207,7 +207,7 @@ function HajjActivateContent() {
               </div>
 
               {/* Flight, Destination, Departure */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="flightNumber" className="text-white">
                     Numéro de vol
@@ -234,7 +234,7 @@ function HajjActivateContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="departureDate" className="text-white">
                     Date de départ

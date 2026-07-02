@@ -24,7 +24,8 @@ import {
   Globe,
   ExternalLink,
   Copy,
-  ShoppingCart
+  ShoppingCart,
+  MoreVertical
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -304,6 +305,66 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
             </Link>
           </div>
           
+          {/* Mobile Quick Actions Dropdown */}
+          <div className="lg:hidden relative">
+            <button
+              onClick={() => setMobileActionsOpen(!mobileActionsOpen)}
+              className="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+              title="Actions rapides"
+            >
+              <MoreVertical className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+            </button>
+            {mobileActionsOpen && (
+              <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 py-2">
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.dispatchEvent(new CustomEvent('openCommandModal'));
+                    setMobileActionsOpen(false);
+                  }}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  Commander des QR
+                </Link>
+                <Link
+                  href="/agence/perdus"
+                  onClick={() => setMobileActionsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  Bagages perdus
+                </Link>
+                <Link
+                  href="/agence/trouvailles"
+                  onClick={() => setMobileActionsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-blue-700 dark:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Trouvailles
+                </Link>
+                <div className="border-t border-slate-200 dark:border-slate-700 my-1" />
+                <Link
+                  href={`/agency/${agencySlug}`}
+                  target="_blank"
+                  onClick={() => setMobileActionsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  Page publique
+                </Link>
+                <button
+                  onClick={() => { handleCopy(); setMobileActionsOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copier le lien
+                </button>
+              </div>
+            )}
+          </div>
+          
           {/* Theme Toggle */}
           <button 
             onClick={toggleTheme}
@@ -352,6 +413,7 @@ export default function AgencyRootLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const { user, loading, logout, isAgency } = useAuth();
   const router = useRouter();

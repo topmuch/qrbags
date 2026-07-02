@@ -218,7 +218,7 @@ export default function AgencesPage() {
                     className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white" 
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300">Email *</Label>
                     <Input 
@@ -239,7 +239,7 @@ export default function AgencesPage() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300">Mot de passe *</Label>
                     <Input 

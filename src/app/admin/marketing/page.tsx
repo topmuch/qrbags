@@ -666,7 +666,7 @@ function DetailModalContent({ traveler }: { traveler: Traveler }) {
   return (
     <div className="space-y-5 mt-2">
       {/* Traveler Info */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nom</p>
           <p className="font-medium text-slate-800 dark:text-white">{traveler.name}</p>

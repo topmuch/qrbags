@@ -636,7 +636,7 @@ export default function AgencyDashboardPage() {
       </div>
 
       {/* Multicolored KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {kpiCards.map((card, index) => (
           <div key={index} className={`stagger-${index + 1}`}>
             <KPICard {...card} />
@@ -1145,7 +1145,7 @@ export default function AgencyDashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm">Pèlerin</p>
                   {selectedBaggage.travelerFirstName || selectedBaggage.travelerLastName ? (
@@ -1176,7 +1176,7 @@ export default function AgencyDashboardPage() {
                 <div className="p-4 bg-amber-50 dark:bg-blue-600/10 border border-amber-200 dark:border-amber-800 rounded-xl">
                   <h4 className="text-amber-700 dark:text-blue-500 font-medium mb-3">Attribuer ce bagage</h4>
                   <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <input
                         type="text"
                         placeholder="Prénom"
@@ -1225,7 +1225,7 @@ export default function AgencyDashboardPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm">Statut</p>
                   {getStatusBadge(selectedBaggage.status)}

@@ -305,7 +305,7 @@ export default function GenererQRPage() {
       {/* Context Selector */}
       <div className="mb-6">
         <Label className="text-slate-700 dark:text-slate-300 mb-3">Mode de génération</Label>
-        <div className="grid grid-cols-2 gap-3 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
           <button
             onClick={() => setContext('individual')}
             className={cn(
@@ -352,7 +352,7 @@ export default function GenererQRPage() {
             {/* Individual Form */}
             {context === 'individual' ? (
               <>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300">Prénom *</Label>
                     <Input 
@@ -383,7 +383,7 @@ export default function GenererQRPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300">Durée</Label>
                     <Select 
@@ -463,7 +463,7 @@ export default function GenererQRPage() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300">
                       {agencyForm.type === 'hajj' ? 'Nombre de pèlerins' : 'Nombre de voyageurs'}
@@ -548,7 +548,7 @@ export default function GenererQRPage() {
 
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
               <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Détails</h4>
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">Type</p>
                   <p className="text-slate-800 dark:text-white font-medium">
@@ -562,7 +562,7 @@ export default function GenererQRPage() {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mt-3">
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">Agence</p>
                   <p className="text-slate-800 dark:text-white font-medium">
