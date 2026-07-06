@@ -943,3 +943,49 @@ Stage Summary:
     * i18n loader (src/lib/i18n.ts): ajout { cache: 'no-store' } au fetch des JSON de traduction (évite le cache HTTP stale en dev).
 - Fichiers modifiés: src/app/scan/[reference]/page.tsx (generateWhatsAppMessage refait + URL api.whatsapp.com), public/locales/fr.json (+found_message, +gps_shared_label, -10 anciennes clés), public/locales/en.json (idem), public/locales/ar.json (idem), public/sw.js (CACHE_NAME v2 + network-first pour locales), src/lib/i18n.ts (cache: no-store).
 - Non commité/poussé — en attente validation utilisateur visuelle avant commit.
+
+---
+Task ID: refonte-7
+Agent: Main Agent
+Task: Modify the WhatsApp notification message sent to the luggage owner when their baggage is found — replace the old template with the new friendly format provided by the user.
+
+Work Log:
+- Investigated the codebase to locate where the owner WhatsApp notification is generated:
+  - Frontend: `src/app/scan/[reference]/page.tsx` — `generateWhatsAppMessage()` function (line ~370) builds the wa.me URL using i18n key `whatsapp.found_message`
+  - Backend: `src/app/api/scan/[reference]/route.ts` — POST handler generates `whatsappUrl` returned in the JSON response (for API consumers / audit)
+  - i18n: `public/locales/{fr,en,ar}.json` — `whatsapp.found_message` key contains the template with placeholders `{firstName}`, `{type}`, `{location}`, `{address}`, `{name}`, `{phone}`, `{url}`
+- Discovered that the frontend (refonte-6/refonte-7 partial) was ALREADY updated with the new template via i18n keys — the `generateWhatsAppMessage` function uses `t('whatsapp.found_message', {...})` with proper variable interpolation
+- Verified all 3 locale files (fr/en/ar) already contain the `found_message` template matching the user's requested format
+- Updated the BACKEND `src/app/api/scan/[reference]/route.ts`:
+  - Replaced the old dual-branch message construction (AI message + static fallback with "🚨 URGENT" / "🔍 QRBag" prefixes) with the new unified friendly template
+  - New template interpolates: owner first name (`baggage.travelerFirstName`), baggage type label ('Hajj & Omra'/'Voyageur'), location (`city || location`), address (Google Maps link if GPS, else location), finder name, finder phone, tracking URL (`${appUrl}/suivi/${reference}`)
+  - Set `aiMessageUsed: false` in both ScanLog and API response (the AI-generated message is no longer used — the fixed template is always used instead)
+  - Kept the Groq AI message generation block + ScanGuard feature intact (for metrics/audit; feature-flagged)
+- Ran `bun run lint` — passed with 0 errors, 0 warnings
+- Browser-verified with Agent Browser on `http://localhost:3000/scan/VOL26-TEST-SCAN`:
+  - Tested in ARABIC (default locale): message generated correctly with all variables interpolated (Aïssatou, مسافر, Moussa, +33784858226, tracking URL) — matches template structure
+  - Tested in FRENCH (primary): filled form with name="Moussa", phone="784858226", location="Aéroport de Dakar", clicked WhatsApp → decoded the `api.whatsapp.com` URL → message is a PERFECT MATCH with the user's template:
+    ```
+    🎉 Bonne nouvelle Aïssatou !
+
+    Quelqu'un a trouvé ton bagage Voyageur à Aéroport de Dakar !
+    📍 Il est actuellement à Aéroport de Dakar
+    👤 La personne qui l'a trouvé s'appelle Moussa
+    📞 Appelle-le vite au +33784858226
+    💬 Ou écris-lui sur WhatsApp
+    Tu peux aussi voir tous les détails ici :
+    👉 http://localhost:3000/suivi/VOL26-TEST-SCAN
+    Ne panique pas, tout va bien se passer ! 💪
+    L'équipe QRBag
+    ```
+  - Verified backend API directly via curl POST → `whatsappUrl` in response contains the same template with GPS coordinates as [Adresse] (Google Maps link) and `https://qrbags.com/suivi/...` as tracking URL
+  - `aiMessageUsed: false` confirmed in API response
+
+Stage Summary:
+- ✅ WhatsApp notification message to the owner now uses the new friendly template in ALL 3 languages (FR/EN/AR)
+- ✅ Both frontend (i18n-driven, used for the actual wa.me link) and backend (hardcoded FR template, returned as `whatsappUrl` for API consumers) generate the correct message
+- ✅ All variables interpolated correctly: [Prénom], [Type], [Lieu], [Adresse], [Nom], [Phone], [URL]
+- ✅ Lint clean, dev server running, browser-verified end-to-end (FR perfect match + AR structure verified)
+- ✅ `aiMessageUsed` set to `false` — AI message generation no longer affects the user-facing message (fixed template always used)
+- Files modified: `src/app/api/scan/[reference]/route.ts` (message construction replaced, aiMessageUsed flags set to false)
+- Files already up-to-date (from partial refonte-7): `src/app/scan/[reference]/page.tsx` (generateWhatsAppMessage), `public/locales/{fr,en,ar}.json` (found_message key)

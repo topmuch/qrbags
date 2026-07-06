@@ -337,7 +337,8 @@ export async function POST(
         country,
         city,
         ipAddress,
-        aiMessageUsed: aiGenerated,
+        // refonte-7: le message WhatsApp utilise désormais un template fixe (plus de message IA)
+        aiMessageUsed: false,
         groqUsed: aiGenerated || !!scanGuardAnalysis,
         groqLatencyMs: aiLatencyMs,
         // AI-FEATURE: Store scan guard analysis in aiAnalysis JSON
@@ -378,34 +379,41 @@ export async function POST(
       data: updateData
     });
 
-    // Generate WhatsApp message — use AI message if available, else static
-    let whatsappText: string;
+    // ─── refonte-7: Nouveau template de message WhatsApp envoyé au propriétaire ───
+    // Le frontend construit sa propre URL wa.me via la clé i18n `whatsapp.found_message`.
+    // Ce `whatsappUrl` backend est retourné pour les consommateurs API / audit.
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com';
+    const trackingUrl = `${appUrl}/suivi/${reference}`;
 
-    if (aiMessageContent) {
-      // Message généré par IA — ajouter les infos du trouveur
-      const finderText = finderName ? `\n👤 Trouvé par: ${finderName}` : '';
-      const finderPhoneText = finderPhone ? `\n📱 Contact: ${finderPhone}` : '';
-      const locationText = latitude && longitude
-        ? `\n📍 Position: https://www.google.com/maps?q=${latitude},${longitude}`
-        : location ? `\n📍 Lieu: ${location}` : '';
-      const messageText = message ? `\n💬 ${message}` : '';
+    // [Prénom] — prénom du propriétaire
+    const ownerFirstName = baggage.travelerFirstName?.trim() || 'à toi';
 
-      whatsappText = `${aiMessageContent}${finderText}${finderPhoneText}${locationText}${messageText}`;
-    } else {
-      // Message statique (fallback — logique existante préservée)
-      const locationText = latitude && longitude
-        ? `📍 Position: https://www.google.com/maps?q=${latitude},${longitude}`
-        : location ? `📍 Lieu: ${location}` : '';
-      const finderText = finderName ? `👤 Trouvé par: ${finderName}` : '';
-      const finderPhoneText = finderPhone ? `📱 Contact: ${finderPhone}` : '';
-      const messageText = message ? `💬 Message: ${message}` : '';
+    // [Type] — label du type de bagage (FR par défaut côté backend)
+    const typeLabel = baggage.type === 'hajj' ? 'Hajj & Omra' : 'Voyageur';
 
-      const urgencyPrefix = isDeclaredLost
-        ? '🚨 URGENT - Bagage perdu retrouvé !'
-        : '🔍 QRBag - Bagage trouvé !';
+    // [Lieu] — où le bagage a été trouvé
+    const lieu = city || location || 'lieu non précisé';
 
-      whatsappText = `${urgencyPrefix}\n\n📦 Référence: ${reference}\n${locationText}\n${finderText}\n${finderPhoneText}\n${messageText}\n\nMerci de contacter la personne qui a trouvé votre bagage.`;
-    }
+    // [Adresse] — position précise (lien Google Maps si GPS, sinon lieu, sinon fallback)
+    const address = latitude && longitude
+      ? `https://www.google.com/maps?q=${latitude},${longitude}`
+      : (location || 'non précisée');
+
+    // [Nom] + téléphone du trouveur (avec fallbacks sûrs)
+    const finderNameDisplay = finderName?.trim() || 'Une personne';
+    const finderPhoneDisplay = finderPhone?.trim() || 'numéro non précisé';
+
+    const whatsappText =
+      `🎉 Bonne nouvelle ${ownerFirstName} !\n\n` +
+      `Quelqu'un a trouvé ton bagage ${typeLabel} à ${lieu} !\n` +
+      `📍 Il est actuellement à ${address}\n` +
+      `👤 La personne qui l'a trouvé s'appelle ${finderNameDisplay}\n` +
+      `📞 Appelle-le vite au ${finderPhoneDisplay}\n` +
+      `💬 Ou écris-lui sur WhatsApp\n` +
+      `Tu peux aussi voir tous les détails ici :\n` +
+      `👉 ${trackingUrl}\n` +
+      `Ne panique pas, tout va bien se passer ! 💪\n` +
+      `L'équipe QRBag`;
 
     // Clean phone number
     const phone = baggage.whatsappOwner.replace(/[^0-9]/g, '');
@@ -415,7 +423,7 @@ export async function POST(
       success: true,
       whatsappUrl,
       isDeclaredLost,
-      aiMessageUsed: aiGenerated,
+      aiMessageUsed: false,
     });
 
   } catch (error) {
