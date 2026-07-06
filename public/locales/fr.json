@@ -28,7 +28,7 @@
     "error_occurred": "Une erreur s'est produite. Veuillez réessayer."
   },
   "finder": {
-    "success_badge": "BAGAGE IDENTIFIÉ AVEC SUCCÈS",
+    "success_badge": "BAGAGE TROUVÉ",
     "owner_info": "IDENTITÉ PROPRIÉTAIRE",
     "travel_details": "DÉTAILS DU VOYAGE",
     "share_gps": "PARTAGER MA POSITION GPS",
@@ -76,7 +76,20 @@
     "context_airport_departure": "Aéroport de départ",
     "context_airport_arrival": "Aéroport d'arrivée",
     "context_taxi": "En taxi / transport",
-    "context_static": "Lieu fixe (hôtel, maison...)"
+    "context_static": "Lieu fixe (hôtel, maison...)",
+    "finder.success_badge": "BAGAGE TROUVÉ",
+    "finder.bagage_trouve_desc": "Merci d'avoir trouvé ce bagage. Contactons ensemble son propriétaire.",
+    "finder.contact_owner_cta": "Contacter le propriétaire",
+    "finder.finder_form_help": "Remplissez vos coordonnées pour prévenir le propriétaire.",
+    "finder.contact_choice": "Choisissez comment contacter le propriétaire",
+    "finder.owner_section": "PROPRIÉTAIRE",
+    "finder.travel_section": "VOYAGE",
+    "bagage_trouve_desc": "Merci d'avoir trouvé ce bagage. Contactons ensemble son propriétaire.",
+    "contact_owner_cta": "Contacter le propriétaire",
+    "finder_form_help": "Remplissez vos coordonnées pour prévenir le propriétaire.",
+    "contact_choice": "Choisissez comment contacter le propriétaire",
+    "owner_section": "PROPRIÉTAIRE",
+    "travel_section": "VOYAGE"
   },
   "whatsapp": {
     "baggage_found": "📦 *QRBag – Bagage trouvé !*",

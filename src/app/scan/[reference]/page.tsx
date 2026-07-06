@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import {
   Luggage,
@@ -10,7 +11,6 @@ import {
   Shield,
   Navigation,
   CheckCircle,
-  Plane,
   ArrowRight,
   Sparkles,
   AlertTriangle,
@@ -23,9 +23,15 @@ import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
 import dynamic from 'next/dynamic';
 import SuccessOverlay from '@/components/ui/SuccessOverlay';
 import PhoneInput from '@/components/ui/PhoneInput';
+import { toast } from '@/hooks/use-toast';
 
-// TRANSPORT-FEATURE: Multi-transport support
-import { safeTransportMode, getTransportIcon, getTransportBlockHeader, TRANSPORT_ICONS } from '@/lib/transport';
+// TRANSPORT-FEATURE: Multi-transport support (real images, emojis as fallback)
+import {
+  safeTransportMode,
+  getTransportImage,
+  getTransportBlockHeader,
+  TRANSPORT_ICONS,
+} from '@/lib/transport';
 import type { TransportMode } from '@/lib/transport';
 import TransportModeSelector from '@/components/inscrire/TransportModeSelector';
 
@@ -34,6 +40,11 @@ const ChatbotWidget = dynamic(() => import('@/components/finder/ChatbotWidget'),
   ssr: false,
   loading: () => null,
 });
+
+// ─── Brand constants (unified with /inscrire & /success) ───
+const BRAND = '#c5a643'; // jaune moutarde
+const INK = '#1a1a1a';   // ink black
+const CREAM = '#FDFBF7'; // cream background
 
 const FALLBACK_PHONE = '33745349339';
 
@@ -72,7 +83,7 @@ interface BaggageData {
   };
 }
 
-// ─── Language Selector Component (White Background) ───
+// ─── Language Selector Component (light theme, brand-aware) ───
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -82,14 +93,14 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border border-blue-200 rounded-full text-blue-900 hover:bg-blue-50 transition-colors text-xs sm:text-sm md:text-base font-medium shadow-sm min-h-[36px] sm:min-h-[40px] md:min-h-[44px]"
+        className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border-2 border-[#1a1a1a] rounded-full text-[#1a1a1a] hover:bg-[#c5a643] transition-colors text-xs sm:text-sm md:text-base font-medium shadow-sm min-h-[36px] sm:min-h-[40px] md:min-h-[44px]"
       >
         <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
         <span>{LANGUAGE_NAMES[lang]}</span>
       </button>
 
       {isOpen && (
-        <div role="listbox" aria-label="Language" className="absolute top-full right-0 mt-1 sm:mt-2 bg-white border border-blue-200 rounded-xl shadow-lg overflow-hidden z-50 min-w-[140px] sm:min-w-[160px]">
+        <div role="listbox" aria-label="Language" className="absolute top-full right-0 mt-1 sm:mt-2 bg-white border-2 border-[#1a1a1a] rounded-xl shadow-lg overflow-hidden z-50 min-w-[140px] sm:min-w-[160px]">
           {(['fr', 'en', 'ar'] as Language[]).map((l) => (
             <button
               key={l}
@@ -101,8 +112,8 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
               }}
               className={`w-full px-4 py-2.5 sm:px-5 sm:py-3 text-left text-xs sm:text-sm md:text-base font-medium transition-colors ${
                 lang === l
-                  ? 'bg-blue-500 text-white'
-                  : 'text-blue-900 hover:bg-blue-50'
+                  ? 'bg-[#c5a643] text-[#1a1a1a]'
+                  : 'text-[#1a1a1a] hover:bg-[#c5a643]/30'
               }`}
             >
               {LANGUAGE_NAMES[l]}
@@ -114,9 +125,8 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
   );
 }
 
-// ─── Activation Redirect Component ───
-// ACTIVATION-FLOW: Supprimé le countdown 3s. L'utilisateur choisit le mode de transport
-// AVANT d'être redirigé vers /inscrire?qr=REF&mode=XXX.
+// ─── Activation Redirect Component (recolored with brand) ───
+// ACTIVATION-FLOW: User selects transport mode BEFORE being redirected to /inscrire?qr=REF&mode=XXX.
 function ActivationRedirect({ type, reference, t, lang, setLang }: {
   type: string;
   reference: string;
@@ -125,12 +135,10 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   setLang: (l: Language) => void;
 }) {
   const router = useRouter();
-  // ACTIVATION-FLOW: Plus de countdown — mode de transport sélectionné par l'utilisateur
   const [selectedMode, setSelectedMode] = useState<TransportMode | ''>('');
 
   const isHajj = type === 'hajj';
 
-  // ACTIVATION-FLOW: Redirige vers /inscrire avec le mode de transport choisi
   const handleContinue = () => {
     const url = isHajj
       ? `/hajj/activate?qr=${reference}`
@@ -139,44 +147,48 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   };
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center p-5 md:p-8">
-      <div className="relative max-w-md w-full bg-[#0A192F] rounded-2xl p-6 md:p-8 text-center shadow-xl shadow-blue-900/20">
+    <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-5 md:p-8">
+      <div className="relative max-w-md w-full bg-[#c5a643] border-2 border-dashed border-[#1a1a1a] rounded-2xl p-6 md:p-8 text-center shadow-xl">
         <div className="absolute top-4 right-4">
           <LanguageSelector lang={lang} setLang={setLang} />
         </div>
 
-        {/* ─── Welcome Section ─── */}
-        <div className="relative inline-block mb-5">
-          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
+        <div className="relative inline-block mb-5 mt-6">
+          <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] rounded-full flex items-center justify-center">
             {selectedMode ? (
-              <span className="text-3xl">{TRANSPORT_ICONS[selectedMode]}</span>
+              <Image
+                src={getTransportImage(selectedMode)}
+                alt={selectedMode}
+                width={36}
+                height={36}
+                className="mix-blend-multiply"
+              />
             ) : (
-              <Luggage className="w-8 h-8 text-white" />
+              <Luggage className="w-8 h-8 text-[#1a1a1a]" />
             )}
           </div>
-          <div className="absolute -top-1 -right-1 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-white" />
+          <div className="absolute -top-1 -right-1 w-7 h-7 bg-[#1a1a1a] rounded-full flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-[#c5a643]" />
           </div>
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+        <h1 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] mb-1">
           {t('common.welcome')}
         </h1>
-        <p className="text-white/70 text-sm md:text-base mb-5">
+        <p className="text-[#1a1a1a]/70 text-sm md:text-base mb-5">
           {t('inscrire.subtitle')}
         </p>
 
-        {/* ─── Hajj: Redirection directe (pas de sélection transport) ─── */}
         {isHajj && (
           <>
-            <div className="border-2 border-dashed border-white/80 rounded-xl p-4 mb-5">
-              <p className="text-white/80 text-sm mb-2">{t('common.baggage_type')}</p>
-              <Badge className="bg-blue-500 text-white text-base md:text-lg px-5 py-1.5">
+            <div className="border-2 border-dashed border-[#1a1a1a] rounded-xl p-4 mb-5 bg-white/40">
+              <p className="text-[#1a1a1a]/80 text-sm mb-2">{t('common.baggage_type')}</p>
+              <Badge className="bg-[#1a1a1a] text-white text-base md:text-lg px-5 py-1.5">
                 {t('common.hajj_label')}
               </Badge>
             </div>
             <button
-              className="w-full py-4 px-6 bg-blue-500 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px] shadow-lg shadow-blue-500/30"
+              className="w-full py-4 px-6 bg-[#1a1a1a] hover:bg-black text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
               onClick={handleContinue}
             >
               {t('common.start_activation')}
@@ -185,19 +197,17 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
           </>
         )}
 
-        {/* ─── Voyageur: Sélection mode de transport + bouton continuer ─── */}
         {!isHajj && (
           <>
-            <div className="border-2 border-dashed border-white/80 rounded-xl p-4 mb-5">
-              <p className="text-white/80 text-sm mb-2">{t('common.baggage_type')}</p>
-              <Badge className="bg-blue-500 text-white text-base md:text-lg px-5 py-1.5">
+            <div className="border-2 border-dashed border-[#1a1a1a] rounded-xl p-4 mb-5 bg-white/40">
+              <p className="text-[#1a1a1a]/80 text-sm mb-2">{t('common.baggage_type')}</p>
+              <Badge className="bg-[#1a1a1a] text-white text-base md:text-lg px-5 py-1.5">
                 {t('common.voyageur_label')}
               </Badge>
             </div>
 
-            {/* ACTIVATION-FLOW: Sélecteur de mode de transport */}
             <div className="text-left mb-5">
-              <p className="text-white font-semibold text-sm mb-3 text-center">
+              <p className="text-[#1a1a1a] font-semibold text-sm mb-3 text-center">
                 {t('transport.select_mode')}
               </p>
               <TransportModeSelector
@@ -208,9 +218,8 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
               />
             </div>
 
-            {/* ACTIVATION-FLOW: Bouton Continuer — disabled tant qu'aucun mode n'est choisi */}
             <button
-              className="w-full py-4 px-6 bg-blue-500 hover:bg-blue-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px] shadow-lg shadow-blue-500/30"
+              className="w-full py-4 px-6 bg-[#1a1a1a] hover:bg-black disabled:bg-[#1a1a1a]/30 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
               onClick={handleContinue}
               disabled={!selectedMode}
             >
@@ -224,19 +233,19 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   );
 }
 
-// ─── Loading Component ───
+// ─── Loading Component (recolored) ───
 function LoadingScreen({ t }: { t: (key: string) => string }) {
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center">
+    <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin w-12 h-12 border-4 border-blue-900/20 border-t-blue-500 rounded-full mx-auto mb-4"></div>
-        <p className="text-lg text-blue-900">{t('common.loading')}</p>
+        <div className="animate-spin w-12 h-12 border-4 border-[#1a1a1a]/20 border-t-[#c5a643] rounded-full mx-auto mb-4"></div>
+        <p className="text-lg text-[#1a1a1a]">{t('common.loading')}</p>
       </div>
     </main>
   );
 }
 
-// ─── Error Screen ───
+// ─── Error Screen (recolored) ───
 function ErrorScreen({
   type,
   t,
@@ -257,12 +266,12 @@ function ErrorScreen({
       message: t('errors.qr_not_valid_desc')
     },
     blocked: {
-      icon: <Shield className="w-12 h-12 text-gray-400" />,
+      icon: <Shield className="w-12 h-12 text-[#1a1a1a]/40" />,
       title: t('errors.baggage_blocked'),
       message: t('errors.baggage_blocked_desc')
     },
     expired: {
-      icon: <Clock className="w-12 h-12 text-gray-400" />,
+      icon: <Clock className="w-12 h-12 text-[#1a1a1a]/40" />,
       title: t('errors.protection_expired'),
       message: t('errors.protection_expired_desc')
     }
@@ -271,19 +280,19 @@ function ErrorScreen({
   const config = errorConfig[type as keyof typeof errorConfig] || errorConfig.not_found;
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center p-5 md:p-8 relative">
+    <main className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-5 md:p-8 relative">
       <div className="absolute top-4 right-4">
         <LanguageSelector lang={lang} setLang={setLang} />
       </div>
 
-      <div className="max-w-md w-full bg-[#0A192F] rounded-2xl p-6 md:p-8 text-center shadow-xl shadow-blue-900/20">
-        <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+      <div className="max-w-md w-full bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-6 md:p-8 text-center shadow-xl">
+        <div className="w-20 h-20 bg-[#c5a643]/30 border-2 border-dashed border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-6">
           {config.icon}
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-3">{config.title}</h1>
-        <p className="text-white text-base md:text-lg mb-6">{config.message}</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] mb-3">{config.title}</h1>
+        <p className="text-[#1a1a1a] text-base md:text-lg mb-6">{config.message}</p>
         <button
-          className="w-full py-4 px-6 bg-white/10 border border-white/20 text-white rounded-xl hover:bg-white/20 transition-colors text-base font-medium min-h-[56px]"
+          className="w-full py-4 px-6 bg-[#1a1a1a] hover:bg-black text-white rounded-xl hover:bg-[#c5a643] hover:text-[#1a1a1a] transition-colors text-base font-medium min-h-[56px]"
           onClick={() => router.push('/')}
         >
           {t('common.back_home')}
@@ -293,27 +302,10 @@ function ErrorScreen({
   );
 }
 
-// ─── Success Toast Component ───
-function SuccessToast({ show, message, successTitle }: { show: boolean; message: string; successTitle: string }) {
-  if (!show) return null;
-
-  return (
-    <div className="fixed top-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(4rem+env(safe-area-inset-top,0px))] right-3 sm:right-5 bg-blue-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-lg z-50 animate-in slide-in-from-right duration-300 max-w-[calc(100vw-2rem)] sm:max-w-sm">
-      <div className="flex items-center gap-3">
-        <CheckCircle className="w-6 h-6" />
-        <div>
-          <div className="font-bold text-lg">{successTitle} 🎉</div>
-          <div className="text-base opacity-90">{message}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Dashed Encart Helper ───
+// ─── Dashed Encart Helper (light variant: dashed black on white) ───
 function DashedEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`border-2 border-dashed border-white/80 rounded-xl p-4 mb-3 last:mb-0 ${className}`}>
+    <div className={`border-2 border-dashed border-[#1a1a1a]/60 rounded-xl p-3 mb-2.5 last:mb-0 ${className}`}>
       {children}
     </div>
   );
@@ -336,7 +328,6 @@ export default function ScanPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [locationText, setLocationText] = useState('');
   const [geoError, setGeoError] = useState<string | null>(null);
-  const [showManualLocation, setShowManualLocation] = useState(false);
 
   // Finder form state
   const [finderName, setFinderName] = useState('');
@@ -346,7 +337,6 @@ export default function ScanPage() {
   const [sharedPosition, setSharedPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedContext, setSelectedContext] = useState('');
 
   // SuccessOverlay state
   const [scanConfirmed, setScanConfirmed] = useState(false);
@@ -381,7 +371,6 @@ export default function ScanPage() {
   const handleShareLocation = useCallback(async () => {
     if (!navigator.geolocation) {
       setGeoError(t('errors.geolocation_not_supported'));
-      setShowManualLocation(true);
       return;
     }
 
@@ -410,7 +399,6 @@ export default function ScanPage() {
       });
       setLocationText(`${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`);
       setGeoError(null);
-      setShowManualLocation(false);
     } catch (error) {
       const geoErr = error as GeolocationPositionError;
       let errorMessage = '';
@@ -426,7 +414,6 @@ export default function ScanPage() {
       }
 
       setGeoError(errorMessage);
-      setShowManualLocation(true);
     } finally {
       setIsLoadingLocation(false);
     }
@@ -448,12 +435,9 @@ export default function ScanPage() {
     );
   }, [reference, t]);
 
-  // Handle WhatsApp contact
-  const handleWhatsApp = useCallback(async () => {
-    setIsSubmitting(true);
-
+  // Log scan to API (shared by WhatsApp + Phone flows)
+  const logScan = useCallback(async () => {
     try {
-      // Log the scan
       await fetch(`/api/scan/${reference}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -464,9 +448,20 @@ export default function ScanPage() {
           message: '',
           latitude: sharedPosition?.lat,
           longitude: sharedPosition?.lng,
-          context: selectedContext || undefined,
         }),
       });
+    } catch (e) {
+      // Continue with contact even if logging fails
+      console.error('Log scan failed:', e);
+    }
+  }, [reference, otherLocation, locationText, finderName, finderPhone, sharedPosition, t]);
+
+  // Handle WhatsApp contact — opens wa.me/${phone}?text=${message}
+  const handleWhatsApp = useCallback(async () => {
+    setIsSubmitting(true);
+
+    try {
+      await logScan();
 
       const finalLocationText = otherLocation.trim() || locationText || t('finder.not_specified');
       const mapLink = sharedPosition
@@ -488,42 +483,24 @@ export default function ScanPage() {
         }
       }
 
-      // Show success
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 4000);
-
+      toast({ title: t('finder.success_title'), description: t('finder.message_sent') });
     } catch (error) {
       console.error('Error:', error);
-      alert(t('errors.error_occurred'));
+      toast({ title: t('errors.error_occurred'), variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
-  }, [reference, otherLocation, locationText, finderName, finderPhone, sharedPosition, baggageData, t, generateWhatsAppMessage, selectedContext]);
+  }, [logScan, otherLocation, locationText, finderName, finderPhone, sharedPosition, baggageData, t, generateWhatsAppMessage]);
 
-  // Handle phone call
+  // Handle phone call — opens tel:${phone}
   const handlePhoneCall = useCallback(async () => {
-    // Log the scan before calling (same as WhatsApp)
-    try {
-      await fetch(`/api/scan/${reference}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: otherLocation.trim() || locationText || t('finder.not_specified'),
-          finderName: finderName.trim(),
-          finderPhone: finderPhone.trim(),
-          message: '',
-          latitude: sharedPosition?.lat,
-          longitude: sharedPosition?.lng,
-          context: selectedContext || undefined,
-        }),
-      });
-    } catch (e) {
-      // Continue with call even if logging fails
-    }
+    await logScan();
 
     const phoneNumber = baggageData?.baggage?.whatsappOwner || FALLBACK_PHONE;
     window.location.href = `tel:${phoneNumber}`;
-  }, [reference, otherLocation, locationText, finderName, finderPhone, sharedPosition, baggageData, t, selectedContext]);
+  }, [logScan, baggageData]);
 
   // Format date for display
   const formatDate = (dateStr?: string | null) => {
@@ -543,18 +520,18 @@ export default function ScanPage() {
       return false;
     }
     if (!finderName.trim() || !finderPhone.trim()) {
-      alert(t('finder.fill_info'));
+      toast({ title: t('finder.fill_info'), variant: 'destructive' });
       return false;
     }
     return true;
   };
 
-  // Loading state
+  // ─── Loading state ───
   if (loading) {
     return <LoadingScreen t={t} />;
   }
 
-  // Redirect to activation if pending
+  // ─── Redirect to activation if pending ───
   if (baggageData?.status === 'pending_activation' && baggageData?.type) {
     return (
       <ActivationRedirect
@@ -567,7 +544,7 @@ export default function ScanPage() {
     );
   }
 
-  // Error states
+  // ─── Error states ───
   if (baggageData?.status === 'not_found') {
     return <ErrorScreen type="not_found" t={t} lang={lang} setLang={setLang} />;
   }
@@ -591,418 +568,398 @@ export default function ScanPage() {
   }
 
   const baggage = baggageData?.baggage;
-
-  // Lost baggage alert
   const isDeclaredLost = baggage?.declaredLostAt && !baggage?.foundAt;
 
-  // ─── Main Render — White Background + Blue Blocks + Orange Buttons ───
+  // ═══════════════════════════════════════════════════════════════
+  // ─── MAIN RENDER — Cream bg + White dashed cards + Yellow finder encart ───
+  // ═══════════════════════════════════════════════════════════════
   return (
     <main
-      className="min-h-[100dvh] min-h-screen bg-white flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
+      className="min-h-screen bg-[#FDFBF7] flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
       dir={dir}
     >
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex items-center justify-end pt-[env(safe-area-inset-top,0px)] px-0 py-2 sm:py-3 md:py-4 bg-white">
+      <header className="sticky top-0 z-40 flex items-center justify-end pt-[env(safe-area-inset-top,0px)] px-0 py-2 sm:py-3 md:py-4 bg-[#FDFBF7]">
         <LanguageSelector lang={lang} setLang={setLang} />
       </header>
 
       {/* SuccessOverlay — Premium scan confirmation */}
       <SuccessOverlay show={scanConfirmed} messageKey="scan.success" t={t} />
 
-      {/* Success Toast */}
-      <SuccessToast show={showSuccess} message={t('finder.message_sent')} successTitle={t('finder.success_title')} />
+      {/* Success Toast — inline confirmation */}
+      {showSuccess && (
+        <div className="fixed top-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(4rem+env(safe-area-inset-top,0px))] right-3 sm:right-5 bg-[#1a1a1a] text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-lg z-50 animate-in slide-in-from-right duration-300 max-w-[calc(100vw-2rem)] sm:max-w-sm">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-6 h-6 text-[#c5a643]" />
+            <div>
+              <div className="font-bold text-lg">{t('finder.success_title')} 🎉</div>
+              <div className="text-base opacity-90">{t('finder.message_sent')}</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── Container ─── */}
-      <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center sm:justify-center py-4 sm:py-6 md:py-0">
+      <div className="w-full max-w-md mx-auto flex-1 flex flex-col py-4 sm:py-6 md:py-2">
 
-        {/* ═══ 🔺 BADGE DE STATUT ═══ */}
-        <div className="mt-2 sm:mt-4 md:mt-6 mb-4 sm:mb-6 text-center">
-          <span className={`inline-flex items-center justify-center px-6 py-3 rounded-full font-bold text-lg shadow-lg transform transition-transform duration-300 ${
-            isDeclaredLost
-              ? 'bg-red-600 text-white shadow-red-500/30 animate-pulse'
-              : 'bg-blue-500 text-white shadow-blue-500/30 hover:scale-105'
-          }`}>
-            {/* TRANSPORT-FEATURE: Dynamic transport icon in badge */}
-            {isDeclaredLost ? `🚨 ${t('finder.lost_badge')}` : `${t('finder.success_badge')} ${getTransportIcon(safeTransportMode(baggage?.transportMode))}`}
-          </span>
-          <p className="mt-3 text-blue-900 text-base md:text-lg leading-relaxed max-w-md mx-auto">
+        {/* ═══ 🏷️ TITRE : ✅ BAGAGE TROUVÉ ═══ */}
+        <div className="text-center mb-5 sm:mb-6">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#1a1a1a] leading-tight">
+            {isDeclaredLost
+              ? `🚨 ${t('finder.lost_badge')}`
+              : `✅ ${t('finder.success_badge')}`}
+          </h1>
+          <p className="mt-2 text-sm md:text-base text-[#1a1a1a]/70 leading-relaxed max-w-md mx-auto">
             {isDeclaredLost
               ? t('finder.lost_description')
-              : t('finder.found_description')}
+              : t('finder.bagage_trouve_desc')}
           </p>
         </div>
 
-        {/* ─── Status Indicator ─── */}
-        <div className="flex items-center justify-center gap-2 mb-5">
-          <span className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></span>
-          <span className="text-sm font-bold uppercase tracking-widest text-blue-900">
-            {t('finder.status_active')}
-          </span>
-        </div>
-
-        {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE ═══ */}
+        {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (white + dashed black) ═══ */}
         {baggage && (
-          <div className="w-full bg-[#0A192F] rounded-2xl p-5 md:p-6 mb-5 shadow-xl shadow-blue-900/20">
-            <h2 className="text-xs uppercase tracking-widest text-white font-bold mb-4 flex items-center gap-2">
-              <span>👤</span> {t('finder.owner_info')}
+          <div className="w-full bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 md:p-6 mb-4">
+            <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
+              <span>👤</span> {t('finder.owner_section')}
             </h2>
 
-            {/* Full Name */}
+            {/* Full Name — kept */}
             <DashedEncart>
               <div className="flex items-center gap-3">
                 <span className="text-xl">👤</span>
                 <div>
-                  <p className="text-sm text-white/80 font-medium">{t('finder.fullName')}</p>
-                  <p className="text-lg font-bold text-white">{baggage.travelerName || t('finder.notSet')}</p>
+                  <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('finder.fullName')}</p>
+                  <p className="text-base md:text-lg font-bold text-[#1a1a1a]">{baggage.travelerName || t('finder.notSet')}</p>
                 </div>
               </div>
             </DashedEncart>
 
-            {/* Agency */}
-            <DashedEncart>
-              <div className="flex items-center gap-3">
-                <span className="text-xl">🏢</span>
-                <div>
-                  <p className="text-sm text-white/80 font-medium">{t('finder.agency')}</p>
-                  <p className="text-lg font-bold text-white">{baggage.agency || t('finder.noAgency')}</p>
-                </div>
-              </div>
-            </DashedEncart>
-
-            {/* Baggage Type */}
-            {baggage.baggageType && (
-              <DashedEncart>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">🧳</span>
-                  <div>
-                    <p className="text-sm text-white/80 font-medium">{t('finder.bagType')}</p>
-                    <p className="text-lg font-bold text-white capitalize">{baggage.baggageType}</p>
-                  </div>
-                </div>
-              </DashedEncart>
-            )}
+            {/* NOTE: Agency + Baggage Type REMOVED per refonte-4 brief */}
 
             {/* Contact — Secured (NEVER show WhatsApp number) */}
             <DashedEncart className="mb-0">
               <div className="flex items-center gap-3">
-                <span className="text-xl">⛔</span>
+                <span className="text-xl">🔒</span>
                 <div>
-                  <p className="text-sm text-white/80 font-medium">{t('finder.contact_label')}</p>
-                  <p className="text-lg font-bold text-white">{t('finder.secure_contact')}</p>
-                  <p className="text-sm text-white/70 mt-1">{t('finder.contact_reveal_note')}</p>
+                  <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('finder.contact_label')}</p>
+                  <p className="text-base font-bold text-[#1a1a1a]">{t('finder.secure_contact')}</p>
+                  <p className="text-xs text-[#1a1a1a]/60 mt-0.5">{t('finder.contact_reveal_note')}</p>
                 </div>
               </div>
             </DashedEncart>
           </div>
         )}
 
-        {/* ═══ 🟦 BLOC 2 : DÉTAILS DU VOYAGE (TRANSPORT-FEATURE: conditional) ═══ */}
+        {/* ═══ 🟦 BLOC 2 : DÉTAILS DU VOYAGE (white + dashed black, transport images) ═══ */}
         {baggage && (() => {
           const mode = safeTransportMode(baggage.transportMode) as TransportMode;
-          const modeIcon = getTransportIcon(mode);
+          const transportImg = getTransportImage(mode);
           const blockHeader = getTransportBlockHeader(mode, lang);
 
           return (
-          <div className="w-full bg-[#0A192F] rounded-2xl p-5 md:p-6 mb-5 shadow-xl shadow-blue-900/20">
-            <h2 className="text-xs uppercase tracking-widest text-white font-bold mb-4 flex items-center gap-2">
-              <span>{modeIcon}</span> {blockHeader}
-            </h2>
+            <div className="w-full bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 md:p-6 mb-4">
+              <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
+                <Image
+                  src={transportImg}
+                  alt={mode}
+                  width={18}
+                  height={18}
+                  className="mix-blend-multiply"
+                />
+                <span>{blockHeader}</span>
+              </h2>
 
-            {/* TRANSPORT-FEATURE: Flight info */}
-            {mode === 'flight' && (baggage.airlineName || baggage.flightNumber) && (
-              <DashedEncart>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    {baggage.airlineName && (
-                      <div className="mb-2">
-                        <p className="text-sm text-white/80 font-medium">{t('transport.airline')}</p>
-                        <p className="text-lg font-bold text-white">{baggage.airlineName}</p>
-                      </div>
-                    )}
-                    {baggage.flightNumber && (
-                      <div>
-                        <p className="text-sm text-white/80 font-medium">{t('transport.flight_number')}</p>
-                        <p className="text-2xl font-bold text-white font-mono tracking-widest">{baggage.flightNumber}</p>
-                      </div>
-                    )}
+              {/* TRANSPORT-FEATURE: Flight info */}
+              {mode === 'flight' && (baggage.airlineName || baggage.flightNumber) && (
+                <DashedEncart>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      {baggage.airlineName && (
+                        <div className="mb-1.5">
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.airline')}</p>
+                          <p className="text-base font-bold text-[#1a1a1a]">{baggage.airlineName}</p>
+                        </div>
+                      )}
+                      {baggage.flightNumber && (
+                        <div>
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.flight_number')}</p>
+                          <p className="text-xl font-bold text-[#1a1a1a] font-mono tracking-widest">{baggage.flightNumber}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-[#c5a643]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                      <Image
+                        src={transportImg}
+                        alt="flight"
+                        width={28}
+                        height={28}
+                        className="mix-blend-multiply"
+                      />
+                    </div>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center ml-4 flex-shrink-0">
-                    <Plane className="w-7 h-7 text-blue-600" />
-                  </div>
-                </div>
-              </DashedEncart>
-            )}
+                </DashedEncart>
+              )}
 
-            {/* TRANSPORT-FEATURE: Train info */}
-            {mode === 'train' && (baggage.trainCompany || baggage.trainNumber) && (
-              <DashedEncart>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    {baggage.trainCompany && (
-                      <div className="mb-2">
-                        <p className="text-sm text-white/80 font-medium">{t('transport.train_company')}</p>
-                        <p className="text-lg font-bold text-white">{baggage.trainCompany}</p>
-                      </div>
-                    )}
-                    {baggage.trainNumber && (
-                      <div>
-                        <p className="text-sm text-white/80 font-medium">{t('transport.train_number')}</p>
-                        <p className="text-2xl font-bold text-white font-mono tracking-widest">{baggage.trainNumber}</p>
-                      </div>
-                    )}
+              {/* TRANSPORT-FEATURE: Train info */}
+              {mode === 'train' && (baggage.trainCompany || baggage.trainNumber) && (
+                <DashedEncart>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      {baggage.trainCompany && (
+                        <div className="mb-1.5">
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.train_company')}</p>
+                          <p className="text-base font-bold text-[#1a1a1a]">{baggage.trainCompany}</p>
+                        </div>
+                      )}
+                      {baggage.trainNumber && (
+                        <div>
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.train_number')}</p>
+                          <p className="text-xl font-bold text-[#1a1a1a] font-mono tracking-widest">{baggage.trainNumber}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-[#c5a643]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                      <Image
+                        src={transportImg}
+                        alt="train"
+                        width={28}
+                        height={28}
+                        className="mix-blend-multiply"
+                      />
+                    </div>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center ml-4 flex-shrink-0">
-                    <span className="text-3xl">🚆</span>
-                  </div>
-                </div>
-              </DashedEncart>
-            )}
+                </DashedEncart>
+              )}
 
-            {/* TRANSPORT-FEATURE: Boat info */}
-            {mode === 'boat' && (baggage.shipName || baggage.shipCabin) && (
-              <DashedEncart>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    {baggage.shipName && (
-                      <div className="mb-2">
-                        <p className="text-sm text-white/80 font-medium">{t('transport.ship_name')}</p>
-                        <p className="text-lg font-bold text-white">{baggage.shipName}</p>
-                      </div>
-                    )}
-                    {baggage.shipCabin && (
-                      <div>
-                        <p className="text-sm text-white/80 font-medium">{t('transport.ship_cabin')}</p>
-                        <p className="text-lg font-bold text-white">{baggage.shipCabin}</p>
-                      </div>
-                    )}
+              {/* TRANSPORT-FEATURE: Boat info */}
+              {mode === 'boat' && (baggage.shipName || baggage.shipCabin) && (
+                <DashedEncart>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      {baggage.shipName && (
+                        <div className="mb-1.5">
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.ship_name')}</p>
+                          <p className="text-base font-bold text-[#1a1a1a]">{baggage.shipName}</p>
+                        </div>
+                      )}
+                      {baggage.shipCabin && (
+                        <div>
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.ship_cabin')}</p>
+                          <p className="text-base font-bold text-[#1a1a1a]">{baggage.shipCabin}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-[#c5a643]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                      <Image
+                        src={transportImg}
+                        alt="boat"
+                        width={28}
+                        height={28}
+                        className="mix-blend-multiply"
+                      />
+                    </div>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center ml-4 flex-shrink-0">
-                    <span className="text-3xl">🚢</span>
-                  </div>
-                </div>
-              </DashedEncart>
-            )}
+                </DashedEncart>
+              )}
 
-            {/* TRANSPORT-FEATURE: Bus info */}
-            {mode === 'bus' && (baggage.busCompany || baggage.busLineNumber) && (
-              <DashedEncart>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    {baggage.busCompany && (
-                      <div className="mb-2">
-                        <p className="text-sm text-white/80 font-medium">{t('transport.bus_company')}</p>
-                        <p className="text-lg font-bold text-white">{baggage.busCompany}</p>
-                      </div>
-                    )}
-                    {baggage.busLineNumber && (
-                      <div>
-                        <p className="text-sm text-white/80 font-medium">{t('transport.bus_line')}</p>
-                        <p className="text-lg font-bold text-white">{baggage.busLineNumber}</p>
-                      </div>
-                    )}
+              {/* TRANSPORT-FEATURE: Bus info */}
+              {mode === 'bus' && (baggage.busCompany || baggage.busLineNumber) && (
+                <DashedEncart>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      {baggage.busCompany && (
+                        <div className="mb-1.5">
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.bus_company')}</p>
+                          <p className="text-base font-bold text-[#1a1a1a]">{baggage.busCompany}</p>
+                        </div>
+                      )}
+                      {baggage.busLineNumber && (
+                        <div>
+                          <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.bus_line')}</p>
+                          <p className="text-base font-bold text-[#1a1a1a]">{baggage.busLineNumber}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-[#c5a643]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                      <Image
+                        src={transportImg}
+                        alt="bus"
+                        width={28}
+                        height={28}
+                        className="mix-blend-multiply"
+                      />
+                    </div>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center ml-4 flex-shrink-0">
-                    <span className="text-3xl">🚌</span>
-                  </div>
-                </div>
-              </DashedEncart>
-            )}
+                </DashedEncart>
+              )}
 
-            {/* Destination */}
-            {baggage.destination && (
-              <DashedEncart>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">📍</span>
-                  <div>
-                    <p className="text-sm text-white/80 font-medium">{t('transport.common_destination')}</p>
-                    <p className="text-lg font-bold text-white">{baggage.destination}</p>
+              {/* Destination */}
+              {baggage.destination && (
+                <DashedEncart>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">📍</span>
+                    <div>
+                      <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.common_destination')}</p>
+                      <p className="text-base font-bold text-[#1a1a1a]">{baggage.destination}</p>
+                    </div>
                   </div>
-                </div>
-              </DashedEncart>
-            )}
+                </DashedEncart>
+              )}
 
-            {/* Activation Date */}
-            {(baggage.departureDate || baggage.createdAt) && (
-              <DashedEncart className="mb-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">📅</span>
-                  <div>
-                    <p className="text-sm text-white/80 font-medium">{t('transport.common_departure_date')}</p>
-                    <p className="text-lg font-bold text-white">
-                      {formatDate(baggage.departureDate || baggage.createdAt)}{baggage.departureTime ? ` — ${baggage.departureTime}` : ''}
-                    </p>
+              {/* Departure Date */}
+              {(baggage.departureDate || baggage.createdAt) && (
+                <DashedEncart className="mb-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">📅</span>
+                    <div>
+                      <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.common_departure_date')}</p>
+                      <p className="text-base font-bold text-[#1a1a1a]">
+                        {formatDate(baggage.departureDate || baggage.createdAt)}{baggage.departureTime ? ` — ${baggage.departureTime}` : ''}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </DashedEncart>
-            )}
-          </div>
+                </DashedEncart>
+              )}
+            </div>
           );
         })()}
 
-        {/* ═══ 🟠 BOUTON ACTION — GPS ═══ */}
-        {!showForm && (
-          <div className="mb-6">
+        {/* ═══ 🟡 BLOC 3 : ENCART FINDER (yellow #c5a643 + solid black border) ═══ */}
+        <div className="w-full bg-[#c5a643] border-2 border-solid border-[#1a1a1a] rounded-2xl p-5 md:p-6 mb-4 shadow-lg">
+
+          {/* ─── 1. BIG "📞 Contacter le propriétaire" CTA button (FIRST) ─── */}
+          {!showForm && (
             <button
-              onClick={() => {
-                setShowForm(true);
-                handleShareLocation();
-              }}
-              disabled={isLoadingLocation}
-              className="w-full py-4 px-6 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 transform hover:-translate-y-1 min-h-[56px] focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+              onClick={() => setShowForm(true)}
+              className="w-full py-4 px-6 bg-[#1a1a1a] hover:bg-black text-white rounded-xl font-bold text-lg md:text-xl transition-colors flex items-center justify-center gap-2 min-h-[56px] shadow-md"
             >
-              {isLoadingLocation ? (
-                <>
-                  <svg className="animate-spin h-6 w-6 text-white inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>{t('finder.locating')}</span>
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>{t('finder.share_gps')}</span>
-                </>
-              )}
+              <Phone className="w-5 h-5" />
+              <span>{t('finder.contact_owner_cta')}</span>
             </button>
-            <p className="text-center text-blue-900/50 text-xs mt-3">
-              {t('finder.gps_security_note')}
-            </p>
-          </div>
-        )}
+          )}
 
-        {/* ═══ FORMULAIRE DU TROUVEUR ═══ */}
-        {showForm && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            {/* GPS Success */}
-            {sharedPosition && !geoError && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-                <span className="text-green-800 text-base md:text-lg font-medium">
-                  ✓ {locationText}
-                </span>
-              </div>
-            )}
+          {/* ─── 2 + 3. Form (revealed when CTA clicked): GPS button + form fields ─── */}
+          {showForm && (
+            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
 
-            {/* GPS Error */}
-            {geoError && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-orange-900 text-base font-medium">{t('finder.gps_unavailable')}</p>
-                    <p className="text-orange-800 text-base mt-1">{geoError}</p>
+              {/* GPS Success indicator */}
+              {sharedPosition && !geoError && (
+                <div className="p-3 bg-white/60 border-2 border-[#1a1a1a] rounded-xl flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-[#1a1a1a] flex-shrink-0" />
+                  <span className="text-[#1a1a1a] text-sm font-medium truncate">
+                    ✓ {locationText}
+                  </span>
+                </div>
+              )}
+
+              {/* GPS Error */}
+              {geoError && (
+                <div className="p-3 bg-white/60 border-2 border-[#1a1a1a] rounded-xl">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-5 h-5 text-[#1a1a1a] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[#1a1a1a] text-sm font-medium">{t('finder.gps_unavailable')}</p>
+                      <p className="text-[#1a1a1a]/80 text-sm mt-0.5">{geoError}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Manual Location Input */}
-            <div className={sharedPosition ? 'opacity-75' : ''}>
-              <label className="text-sm font-semibold text-blue-700 mb-1.5 block">
-                {sharedPosition ? t('finder.location_optional') : t('finder.location_label')}
-              </label>
-              <input
-                type="text"
-                placeholder={sharedPosition ? t('finder.location_optional_placeholder') : t('finder.location_placeholder')}
-                value={otherLocation}
-                onChange={(e) => setOtherLocation(e.target.value)}
-                className="w-full px-4 py-3.5 bg-white border-2 border-blue-200 rounded-xl text-blue-900 text-base md:text-lg placeholder:text-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all min-h-[52px]"
-              />
-            </div>
-
-            {/* Name Input */}
-            <input
-              type="text"
-              placeholder={t('finder.first_name')}
-              value={finderName}
-              onChange={(e) => setFinderName(e.target.value)}
-              className="w-full px-4 py-3.5 bg-white border-2 border-blue-200 rounded-xl text-blue-900 text-base md:text-lg placeholder:text-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all min-h-[52px]"
-            />
-
-            {/* WhatsApp Input */}
-            <PhoneInput
-              countryCode={finderPhoneCountry}
-              onCountryChange={setFinderPhoneCountry}
-              value={finderPhone}
-              onChange={setFinderPhone}
-              placeholder="6 12 34 56 78"
-              required
-              className="min-h-[52px]"
-            />
-
-            {/* Context Dropdown — optional manual override */}
-            <div>
-              <label className="text-sm font-semibold text-blue-700 mb-1.5 block">
-                {t('finder.context_label')}
-              </label>
-              <select
-                value={selectedContext}
-                onChange={(e) => setSelectedContext(e.target.value)}
-                className="w-full px-4 py-3.5 bg-white border-2 border-blue-200 rounded-xl text-blue-900 text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all min-h-[52px] appearance-none cursor-pointer"
-              >
-                <option value="">{t('finder.context_placeholder')}</option>
-                <option value="departure_airport_urgent">{t('finder.context_airport_departure')}</option>
-                <option value="arrival_airport">{t('finder.context_airport_arrival')}</option>
-                <option value="in_transit">{t('finder.context_taxi')}</option>
-                <option value="static_location">{t('finder.context_static')}</option>
-              </select>
-            </div>
-
-            {/* ─── Contact Buttons ─── */}
-            <div className="pt-2">
-              <h3 className="text-blue-900 text-sm font-bold uppercase tracking-widest text-center mb-4">
-                {t('finder.contact_the_owner_title')}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* WhatsApp Button */}
-                <button
-                  onClick={() => {
-                    if (!validateFinderForm()) return;
-                    handleWhatsApp();
-                  }}
-                  disabled={isSubmitting}
-                  className="py-4 px-5 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-lg min-h-[56px] disabled:opacity-70 shadow-lg"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  {t('finder.by_whatsapp')}
-                </button>
-                {/* Phone Button */}
-                <button
-                  onClick={() => {
-                    if (!validateFinderForm()) return;
-                    handlePhoneCall();
-                  }}
-                  disabled={isSubmitting}
-                  className="py-4 px-5 bg-blue-500 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-lg min-h-[56px] disabled:opacity-70 shadow-lg"
-                >
-                  <Phone className="w-5 h-5" />
-                  {t('finder.by_phone')}
-                </button>
-              </div>
-            </div>
-
-            {/* Retry GPS */}
-            {geoError && !sharedPosition && (
+              {/* ─── 2. "📍 Partager ma position GPS" button (SECOND) ─── */}
               <button
                 onClick={handleShareLocation}
                 disabled={isLoadingLocation}
-                className="w-full py-3 text-base text-blue-900 hover:text-blue-500 flex items-center justify-center gap-2 transition-colors min-h-[48px]"
+                className="w-full py-3.5 px-5 bg-[#1a1a1a] hover:bg-black disabled:bg-[#1a1a1a]/60 text-white rounded-xl font-bold text-base md:text-lg transition-colors flex items-center justify-center gap-2 min-h-[52px]"
               >
-                <Navigation className="w-5 h-5" />
-                {isLoadingLocation ? t('finder.locating') : t('finder.retry_gps')}
+                {isLoadingLocation ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>{t('finder.locating')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="w-5 h-5" />
+                    <span>📍 {t('finder.share_gps')}</span>
+                  </>
+                )}
               </button>
-            )}
-          </div>
-        )}
+
+              {/* ─── 3. Form fields (THIRD): prénom, téléphone, lieu ─── */}
+
+              {/* First name */}
+              <input
+                type="text"
+                placeholder={t('finder.first_name')}
+                value={finderName}
+                onChange={(e) => setFinderName(e.target.value)}
+                className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] rounded-xl text-[#1a1a1a] text-base placeholder:text-[#1a1a1a]/40 focus:outline-none focus:ring-2 focus:ring-[#1a1a1a] focus:border-transparent transition-all min-h-[48px]"
+              />
+
+              {/* Phone (PhoneInput with dark=false but on yellow bg → white input) */}
+              <PhoneInput
+                countryCode={finderPhoneCountry}
+                onCountryChange={setFinderPhoneCountry}
+                value={finderPhone}
+                onChange={setFinderPhone}
+                placeholder="6 12 34 56 78"
+                required
+                className="min-h-[48px]"
+              />
+
+              {/* Location */}
+              <div>
+                <input
+                  type="text"
+                  placeholder={sharedPosition ? t('finder.location_optional_placeholder') : t('finder.location_placeholder')}
+                  value={otherLocation}
+                  onChange={(e) => setOtherLocation(e.target.value)}
+                  className={`w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] rounded-xl text-[#1a1a1a] text-base placeholder:text-[#1a1a1a]/40 focus:outline-none focus:ring-2 focus:ring-[#1a1a1a] focus:border-transparent transition-all min-h-[48px] ${sharedPosition ? 'opacity-80' : ''}`}
+                />
+              </div>
+
+              {/* ─── Contact choice: WhatsApp + Phone call ─── */}
+              <div className="pt-1">
+                <h3 className="text-[#1a1a1a] text-xs font-bold uppercase tracking-widest text-center mb-2.5">
+                  {t('finder.contact_choice')}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* WhatsApp Button — wa.me/${phone}?text=${message} */}
+                  <button
+                    onClick={() => {
+                      if (!validateFinderForm()) return;
+                      handleWhatsApp();
+                    }}
+                    disabled={isSubmitting}
+                    className="py-3.5 px-4 bg-[#1a1a1a] hover:bg-black text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[52px] disabled:opacity-60"
+                  >
+                    <MessageCircle className="w-5 h-5 text-[#25D366]" />
+                    {t('finder.by_whatsapp')}
+                  </button>
+                  {/* Phone Button — tel:${phone} */}
+                  <button
+                    onClick={() => {
+                      if (!validateFinderForm()) return;
+                      handlePhoneCall();
+                    }}
+                    disabled={isSubmitting}
+                    className="py-3.5 px-4 bg-white border-2 border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white text-[#1a1a1a] rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[52px] disabled:opacity-60"
+                  >
+                    <Phone className="w-5 h-5" />
+                    {t('finder.by_phone')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ─── Trust Note ─── */}
-        <div className="mt-6 mb-4 text-center text-sm text-blue-900/60 tracking-wide">
-          <Shield className="w-4 h-4 inline mr-1.5" />
-          {t('finder.trust_note')}
+        <div className="mt-1 mb-4 text-center text-xs text-[#1a1a1a]/60 tracking-wide flex items-center justify-center gap-1.5">
+          <Shield className="w-4 h-4 inline" />
+          <span>{t('finder.trust_note')}</span>
         </div>
       </div>
 
@@ -1015,7 +972,6 @@ export default function ScanPage() {
             city: locationText || undefined,
             agency: baggage.agency || undefined,
             status: baggage.status,
-            // CHATBOT-KB: Pass transportMode for KB context enrichment
             transportMode: baggage.transportMode || undefined,
           }}
           locale={lang}

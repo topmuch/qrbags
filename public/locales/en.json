@@ -28,7 +28,7 @@
     "error_occurred": "An error occurred. Please try again."
   },
   "finder": {
-    "success_badge": "BAGGAGE SUCCESSFULLY IDENTIFIED",
+    "success_badge": "BAGGAGE FOUND",
     "owner_info": "OWNER IDENTITY",
     "travel_details": "TRAVEL DETAILS",
     "share_gps": "SHARE MY GPS LOCATION",
@@ -76,7 +76,20 @@
     "context_airport_departure": "Departure airport",
     "context_airport_arrival": "Arrival airport",
     "context_taxi": "Taxi / transit",
-    "context_static": "Static location (hotel, home...)"
+    "context_static": "Static location (hotel, home...)",
+    "finder.success_badge": "BAGGAGE FOUND",
+    "finder.bagage_trouve_desc": "Thank you for finding this baggage. Let's contact its owner together.",
+    "finder.contact_owner_cta": "Contact the owner",
+    "finder.finder_form_help": "Fill in your details to notify the owner.",
+    "finder.contact_choice": "Choose how to contact the owner",
+    "finder.owner_section": "OWNER",
+    "finder.travel_section": "TRAVEL",
+    "bagage_trouve_desc": "Thank you for finding this baggage. Let's contact its owner together.",
+    "contact_owner_cta": "Contact the owner",
+    "finder_form_help": "Fill in your details to notify the owner.",
+    "contact_choice": "Choose how to contact the owner",
+    "owner_section": "OWNER",
+    "travel_section": "TRAVEL"
   },
   "whatsapp": {
     "baggage_found": "📦 *QRBag – Baggage found!*",

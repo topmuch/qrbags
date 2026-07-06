@@ -28,7 +28,7 @@
     "error_occurred": "حدث خطأ. يرجى المحاولة مرة أخرى."
   },
   "finder": {
-    "success_badge": "تم تحديد الأمتعة بنجاح",
+    "success_badge": "تم العثور على الأمتعة",
     "owner_info": "هوية المالك",
     "travel_details": "تفاصيل الرحلة",
     "share_gps": "مشاركة موقعي GPS",
@@ -76,7 +76,20 @@
     "context_airport_departure": "مطار المغادرة",
     "context_airport_arrival": "مطار الوصول",
     "context_taxi": "تاكسي / نقل",
-    "context_static": "مكان ثابت (فندق، منزل...)"
+    "context_static": "مكان ثابت (فندق، منزل...)",
+    "finder.success_badge": "تم العثور على الأمتعة",
+    "finder.bagage_trouve_desc": "شكراً لكم على العثور على هذه الأمتعة. لنتواصل مع مالكها معاً.",
+    "finder.contact_owner_cta": "اتصل بالمالك",
+    "finder.finder_form_help": "املأ بياناتك لإبلاغ المالك.",
+    "finder.contact_choice": "اختر كيفية الاتصال بالمالك",
+    "finder.owner_section": "المالك",
+    "finder.travel_section": "الرحلة",
+    "bagage_trouve_desc": "شكراً لكم على العثور على هذه الأمتعة. لنتواصل مع مالكها معاً.",
+    "contact_owner_cta": "اتصل بالمالك",
+    "finder_form_help": "املأ بياناتك لإبلاغ المالك.",
+    "contact_choice": "اختر كيفية الاتصال بالمالك",
+    "owner_section": "المالك",
+    "travel_section": "الرحلة"
   },
   "whatsapp": {
     "baggage_found": "📦 *QRBag – تم العثور على الحقيبة!*",
