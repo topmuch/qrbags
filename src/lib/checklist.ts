@@ -1,7 +1,7 @@
 /**
  * Checklist library (SERVER-ONLY) — public travel inventory feature
  *
- * ⚠️ This module imports `pdfkit` and `qrcode` (server-only).
+ * ⚠️ This module imports `pdf-lib` and `qrcode` (server-only).
  * Client components must NOT import this file — use `checklist-catalog.ts` instead
  * for the catalog constants and types.
  *
@@ -16,7 +16,6 @@
  *   CREAM = '#FDFBF7' (cream)
  */
 
-import QRCode from 'qrcode';
 import { generateRandomCode } from './qr';
 
 // Re-export client-safe constants/types (so server consumers can import from one place)
@@ -112,6 +111,15 @@ function formatTimestamp(date: Date): string {
 export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buffer> {
   const createdAt = data.createdAt || new Date();
 
+  // ─── Load external packages at runtime (bypass Turbopack bundling) ───
+  let QRCode: any;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    QRCode = require('qrcode');
+  } catch {
+    throw new Error('Failed to load qrcode package');
+  }
+
   // ─── Generate QR code as PNG buffer ───
   const qrBuffer = await QRCode.toBuffer(data.publicUrl, {
     type: 'png',
@@ -121,8 +129,15 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
     color: { dark: INK_COLOR, light: '#ffffff' },
   });
 
-  // ─── Build PDF with pdf-lib ───
-  const { PDFDocument, rgb, StandardFonts } = await import('pdf-lib');
+  // ─── Load pdf-lib at runtime (bypass Turbopack bundling) ───
+  let pdfLib: any;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    pdfLib = require('pdf-lib');
+  } catch {
+    throw new Error('Failed to load pdf-lib package');
+  }
+  const { PDFDocument, rgb, StandardFonts } = pdfLib;
   const pdfDoc = await PDFDocument.create();
   pdfDoc.setTitle(`Attestation d'inventaire QRBag - ${data.firstName} ${data.lastName}`);
   pdfDoc.setAuthor('QRBag');

@@ -22,6 +22,7 @@ import {
   Mail,
   Search,
   ExternalLink,
+  Camera,
 } from 'lucide-react';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
@@ -38,6 +39,7 @@ interface ChecklistView {
   itemsCount?: number;
   createdAt?: string;
   viewCount?: number;
+ hasPhoto?: boolean;
   error?: string;
 }
 
@@ -121,6 +123,13 @@ export default function ChecklistViewPage() {
     if (!keyInput.trim()) return;
     // Direct browser download via the PDF endpoint
     const url = `/api/checklist/${code}/pdf?key=${encodeURIComponent(keyInput.trim())}`;
+    window.open(url, '_blank');
+  }, [code, keyInput]);
+
+  // ─── Download photo ───
+  const handleDownloadPhoto = useCallback(() => {
+    if (!keyInput.trim()) return;
+    const url = `/api/checklist/${code}/photo?key=${encodeURIComponent(keyInput.trim())}`;
     window.open(url, '_blank');
   }, [code, keyInput]);
 
@@ -450,6 +459,31 @@ export default function ChecklistViewPage() {
                 </div>
               </div>
             </div>
+
+            {/* Photo section */}
+            {view.hasPhoto && (
+              <div className="bg-white border-2 border-solid border-[#0f172a] rounded-2xl overflow-hidden shadow-md mb-4">
+                <div className="bg-[#0f172a] px-4 py-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-[#2563eb]" />
+                    <span className="text-xs font-bold text-[#2563eb]">Photo de la valise</span>
+                  </div>
+                  <button
+                    onClick={handleDownloadPhoto}
+                    className="text-xs text-[#2563eb] hover:text-white flex items-center gap-1 transition-colors"
+                  >
+                    <Download className="w-3 h-3" /> Télécharger
+                  </button>
+                </div>
+                <div className="p-3">
+                  <img
+                    src={`/api/checklist/${code}/photo?key=${encodeURIComponent(keyInput.trim())}`}
+                    alt="Photo de la valise"
+                    className="w-full max-h-64 object-contain rounded-lg"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="grid grid-cols-2 gap-2.5">

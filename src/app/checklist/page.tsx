@@ -34,6 +34,7 @@ import {
   Minus,
   Trash2,
   ChevronDown,
+  X,
 } from 'lucide-react';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
@@ -90,6 +91,9 @@ function ChecklistPageContent() {
   const [airline, setAirline] = useState('');
   const [selectedItems, setSelectedItems] = useState<Record<string, SelectedItem>>({});
   const [activeCategory, setActiveCategory] = useState<string>(DEFAULT_CHECKLIST_CATEGORIES[0].id);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{
@@ -182,6 +186,38 @@ function ChecklistPageContent() {
     }
 
     setSubmitting(true);
+
+    // Upload photo first if selected
+    let photoPath: string | null = null;
+    let photoSizeBytes = 0;
+    if (photoFile) {
+      setPhotoUploading(true);
+      try {
+        const photoForm = new FormData();
+        photoForm.append('file', photoFile);
+        const photoRes = await fetch('/api/checklist/upload-photo', {
+          method: 'POST',
+          body: photoForm,
+        });
+        const photoData = await photoRes.json();
+        if (photoRes.ok && photoData.success) {
+          photoPath = photoData.photoPath;
+          photoSizeBytes = photoData.photoSizeBytes;
+        } else {
+          toast({ title: photoData.error || 'Erreur upload photo', variant: 'destructive' });
+          setPhotoUploading(false);
+          setSubmitting(false);
+          return;
+        }
+      } catch {
+        toast({ title: 'Erreur lors du téléchargement de la photo', variant: 'destructive' });
+        setPhotoUploading(false);
+        setSubmitting(false);
+        return;
+      }
+      setPhotoUploading(false);
+    }
+
     try {
       const res = await fetch('/api/checklist', {
         method: 'POST',
@@ -194,6 +230,8 @@ function ChecklistPageContent() {
           destinationCountry: destinationCountry.trim(),
           airline: airline.trim() || null,
           items: selectedList.map((it) => ({ ...it, checked: true } as ChecklistItem)),
+          photoPath,
+          photoSizeBytes,
         }),
       });
       const data = await res.json();
@@ -337,8 +375,8 @@ function ChecklistPageContent() {
               disabled={!canSubmit}
               className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[40px] shadow-md shadow-blue-600/25"
             >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              {t('checklist.header_generate_pdf')}
+              {submitting || photoUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              {photoUploading ? 'Envoi de la photo...' : t('checklist.header_generate_pdf')}
             </button>
           </div>
         </div>
@@ -447,14 +485,40 @@ function ChecklistPageContent() {
             <Camera className="w-4 h-4 text-blue-600" />
             {t('checklist.photo_upload_title')}
           </h2>
-          <label className="block cursor-pointer">
-            <div className="border-2 border-dashed border-slate-300 rounded-xl py-8 px-4 text-center hover:border-blue-500 hover:bg-blue-50/60 transition-colors">
-              <Camera className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm font-bold text-slate-900">{t('checklist.photo_upload_hint')}</p>
-              <p className="text-xs text-slate-500 mt-1">{t('checklist.photo_upload_optional')}</p>
+          {photoPreview ? (
+            <div className="relative inline-block">
+              <img src={photoPreview} alt="Aperçu photo" className="max-h-48 rounded-xl border border-slate-200 object-contain" />
+              <button
+                type="button"
+                onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                className="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors shadow-md"
+                aria-label="Supprimer la photo"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <input type="file" accept="image/*" className="sr-only" onChange={() => {}} />
-          </label>
+          ) : (
+            <label className="block cursor-pointer">
+              <div className="border-2 border-dashed border-slate-300 rounded-xl py-8 px-4 text-center hover:border-blue-500 hover:bg-blue-50/60 transition-colors">
+                <Camera className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm font-bold text-slate-900">{t('checklist.photo_upload_hint')}</p>
+                <p className="text-xs text-slate-500 mt-1">{t('checklist.photo_upload_optional')}</p>
+              </div>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="sr-only"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setPhotoFile(file);
+                  const reader = new FileReader();
+                  reader.onload = () => setPhotoPreview(reader.result as string);
+                  reader.readAsDataURL(file);
+                }}
+              />
+            </label>
+          )}
         </div>
 
         {/* ─── Section 3: Items grid ─── */}
@@ -689,10 +753,10 @@ function ChecklistPageContent() {
             disabled={!canSubmit}
             className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-base md:text-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
           >
-            {submitting ? (
+            {submitting || photoUploading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {t('checklist.submitting')}
+                {photoUploading ? 'Envoi de la photo...' : t('checklist.submitting')}
               </>
             ) : (
               <>

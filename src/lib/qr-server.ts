@@ -1,4 +1,3 @@
-import QRCode from 'qrcode';
 import { Buffer } from 'buffer';
 
 /**
@@ -40,6 +39,10 @@ export async function generateQRCodeImage(options: QRCodeImageOptions): Promise<
   const scanUrl = baseUrl ? `${baseUrl}/scan/${reference}` : `/scan/${reference}`;
   const qrColor = type === 'hajj' ? '#0d5e34' : '#1D4ED8';
   const labelColor = type === 'hajj' ? '#0d5e34' : '#1D4ED8';
+
+  // Load qrcode at runtime (bypass Turbopack bundling)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const QRCode = require('qrcode');
 
   // Generate QR code as PNG buffer with high quality
   const qrBuffer = await QRCode.toBuffer(scanUrl, {

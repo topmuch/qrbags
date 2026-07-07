@@ -485,6 +485,9 @@ model Checklist {
   // Selected items (JSON array of {category, name, qty, checked})
   items           String   // JSON string
   itemsCount      Int      @default(0)
+  // Photo upload
+  photoPath       String?  // Path to uploaded suitcase photo on disk
+  photoSizeBytes  Int?     @default(0)
   // PDF generation metadata
   pdfPath         String?  // Optional on-disk path; null = generate on-demand
   pdfSizeBytes    Int?     @default(0)

@@ -99,7 +99,28 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[checklist/[code]/pdf] GET error:', error);
-    return NextResponse.json({ error: 'Erreur serveur lors de la génération du PDF' }, { status: 500 });
+    const fullStack = error instanceof Error ? error.stack : '';
+    console.error('[checklist/[code]/pdf] GET error:', fullStack || error);
+    const msg = error instanceof Error ? error.message : 'Erreur inconnue';
+
+    const html = `<!DOCTYPE html>
+  <html><head><meta charset="utf-8"><title>Erreur PDF</title>
+  <style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f8fafc;color:#1e293b}
+  .box{text-align:center;padding:2rem;max-width:400px}
+  .icon{font-size:3rem;margin-bottom:1rem}
+  h2{margin:0 0 0.5rem;font-size:1.2rem;color:#dc2626}
+  p{margin:0 0 1rem;font-size:0.9rem;color:#64748b}
+  a{color:#2563eb;text-decoration:underline}</style></head>
+  <body><div class="box">
+  <div class="icon">⚠️</div>
+  <h2>Erreur de génération du PDF</h2>
+  <p>La génération du document a échoué. Veuillez réessayer.</p>
+  <p style="font-size:0.75rem;color:#94a3b8">${msg.replace(/</g, '&lt;')}</p>
+  </div></body></html>`;
+
+    return new NextResponse(html, {
+      status: 500,
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    });
   }
 }
