@@ -924,11 +924,11 @@ export default function ScanPage() {
                       </>
                     )}
                   </button>
-                  {/* Phone Button — YELLOW #FFD700 + ink black text */}
+                  {/* Phone Button — BLACK #1a1a1a + white text (consistent with primary CTA) */}
                   <button
                     onClick={handlePhoneCall}
                     disabled={isLocating || isSubmitting}
-                    className="py-3.5 px-4 bg-[#FFD700] hover:bg-[#e6c200] disabled:opacity-70 text-[#1a1a1a] rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[52px]"
+                    className="py-3.5 px-4 bg-[#1a1a1a] hover:bg-black disabled:opacity-70 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[52px]"
                   >
                     <Phone className="w-5 h-5" />
                     {t('finder.by_phone')}
