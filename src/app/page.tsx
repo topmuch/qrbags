@@ -133,7 +133,7 @@ function Navigation() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-slate-100' : 'bg-white/60 backdrop-blur-lg'}`}>
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+      <div className="max-w-[1536px] mx-auto px-5 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-[72px]">
           <Link href="/" className="flex items-center gap-2.5 group">
             <img src="/logo.png" alt="QRBag" className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
@@ -286,7 +286,7 @@ function HeroSection() {
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-400/8 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/4" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-400/6 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
 
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
+      <div className="max-w-[1536px] mx-auto px-5 sm:px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[70vh] lg:min-h-[80vh]">
           {/* Left - Text Content */}
           <div className="order-2 lg:order-1 pt-4 lg:pt-0 pb-8 lg:pb-0">
@@ -447,7 +447,7 @@ function HeroSection() {
 
       {/* Feature cards - Full image with text overlay, clickable */}
       <div className="bg-white border-t border-slate-100 py-10 mt-4">
-        <div className="max-w-7xl mx-auto px-5 sm:px-6">
+        <div className="max-w-[1536px] mx-auto px-5 sm:px-6">
           <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
             {[
               {
@@ -523,7 +523,7 @@ function ChecklistCTASection() {
       <div className="absolute -top-20 -right-20 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl" />
       <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl" />
 
-      <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 relative">
+      <div className="max-w-[1536px] mx-auto px-5 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           {/* Left: Text + CTA */}
           <FadeIn direction="left">
@@ -637,7 +637,7 @@ function QRBagEnActionSection() {
 
   return (
     <section className="py-24 lg:py-32 px-5 bg-white" id="comment">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1536px] mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <FadeIn direction="right">
             <div className="relative">
@@ -777,7 +777,7 @@ function TransportModesSection() {
 
   return (
     <section className="py-24 lg:py-32 px-5 bg-gradient-to-b from-slate-50/80 to-white">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1536px] mx-auto">
         <FadeIn className="text-center mb-16">
           <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-5">
             <Globe className="w-3.5 h-3.5" />
@@ -855,7 +855,7 @@ function WhyQRBagSection() {
 
   return (
     <section className="py-24 lg:py-32 px-5 bg-white">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1536px] mx-auto">
         <FadeIn className="text-center mb-16">
           <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-5"><BadgeCheck className="w-3.5 h-3.5" />Pourquoi QRBag</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-[-0.02em] leading-[1.1]">La confiance, au-delà<br className="hidden sm:block" /> des frontières</h2>
@@ -889,7 +889,7 @@ function SolutionsSection() {
 
   return (
     <section className="py-24 lg:py-32 px-5 bg-slate-50/60" id="solutions">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1536px] mx-auto">
         <FadeIn className="text-center mb-16">
           <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-5"><Luggage className="w-3.5 h-3.5" />Solutions</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-[-0.02em]">Deux solutions, une protection</h2>
@@ -929,7 +929,7 @@ function StatsSection() {
     <section className="py-20 lg:py-24 px-5 bg-gradient-to-b from-slate-50/80 to-white relative overflow-hidden">
       <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-blue-100/30 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-indigo-100/30 rounded-full blur-[80px] translate-x-1/2 translate-y-1/2" />
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-[1536px] mx-auto relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
           {stats.map((stat, i) => (
             <FadeIn key={stat.label} delay={i * 0.1}>
@@ -959,7 +959,7 @@ function HowItWorksSection() {
 
   return (
     <section className="py-24 lg:py-32 px-5 bg-white">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1536px] mx-auto">
         <FadeIn className="text-center mb-16">
           <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-5"><Zap className="w-3.5 h-3.5" />Comment ça marche</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-[-0.02em]">La protection en 4 étapes</h2>
@@ -998,7 +998,7 @@ function TestimonialsSection() {
 
   return (
     <section className="py-24 lg:py-32 px-5 bg-gradient-to-b from-white via-slate-50/50 to-white">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1536px] mx-auto">
         <FadeIn className="text-center mb-16">
           <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-5"><Star className="w-3.5 h-3.5" />Témoignages</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-[-0.02em]">Ils nous font confiance</h2>
@@ -1034,7 +1034,7 @@ function PricingSection() {
 
   return (
     <section className="py-24 lg:py-32 px-5 bg-white" id="tarifs">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1536px] mx-auto">
         <FadeIn className="text-center mb-16">
           <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-5"><Luggage className="w-3.5 h-3.5" />Tarifs</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-[-0.02em]">Protégez vos bagages à partir de 5€</h2>
@@ -1123,7 +1123,7 @@ function Footer() {
 
   return (
     <footer className="bg-white border-t border-slate-200 pt-16 pb-10">
-      <div className="max-w-6xl mx-auto px-5">
+      <div className="max-w-[1536px] mx-auto px-5">
         <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-12">
           <div className="lg:col-span-2">
             <div className="mb-5"><img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" /></div>
