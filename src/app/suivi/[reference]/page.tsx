@@ -1209,7 +1209,7 @@ export default function SuiviPage() {
           </a>
         </div>
 
-        {/* ═══ PWA INSTALL BUTTON (conditionnel) ═══ */}
+        {/* ═══ PWA INSTALL BUTTON (jaune QRBag) ═══ */}
         {showInstallButton && (
           <div className="text-center">
             <button
@@ -1220,7 +1220,7 @@ export default function SuiviPage() {
                   handleInstall();
                 }
               }}
-              className="inline-flex items-center gap-2 border-2 border-white text-white hover:bg-[#fcd616] hover:text-[#1a1a1a] py-2 px-4 rounded-lg text-sm font-medium transition-colors min-h-[40px]"
+              className="inline-flex items-center gap-2 bg-[#fcd616] hover:bg-[#1a1a1a] text-[#1a1a1a] hover:text-[#fcd616] border-2 border-[#1a1a1a] py-2 px-4 rounded-lg text-sm font-bold transition-colors min-h-[40px]"
             >
               <span>{isIOS ? '📱' : '⬇️'}</span>
               <span>{isIOS ? t('tracking.install_app_ios') : t('tracking.install_app')}</span>
@@ -1228,12 +1228,12 @@ export default function SuiviPage() {
           </div>
         )}
 
-        {/* ═══ BOUTON DÉCLARER PERDU (mode normal uniquement) ═══ */}
+        {/* ═══ BOUTON DÉCLARER PERDU (rouge fond + texte blanc) ═══ */}
         {!isDeclaredLost && (
           <button
             onClick={() => handleStatusToggle('mark-lost')}
             disabled={isTogglingStatus}
-            className="w-full flex items-center justify-center gap-2 border-2 border-[#EF4444] text-[#EF4444] hover:bg-[#FEF2F2] py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px] disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 bg-[#EF4444] hover:bg-[#DC2626] text-white py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px] disabled:opacity-50"
           >
             {isTogglingStatus ? (
               <RefreshCw className="w-5 h-5 animate-spin" />
