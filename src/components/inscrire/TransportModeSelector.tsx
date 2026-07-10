@@ -5,9 +5,9 @@
  * Chaque bouton affiche la VRAIE IMAGE du moyen de transport (PNG)
  * + label i18n + description.
  *
- * Style:
- *   - Non sélectionné: carte blanche + bordure noire dashed + image (mix-blend multiply).
- *   - Sélectionné: carte jaune moutarde #c5a643 + bordure noire solide + image (mix-blend multiply)
+ * Style (palette QRBag — bleu #0047d6 + jaune #fcd616):
+ *   - Non sélectionné: carte jaune #fcd616 + bordure noire dashed + image (mix-blend multiply).
+ *   - Sélectionné: carte jaune #fcd616 + bordure noire solide + image (mix-blend multiply)
  *     + checkmark noir en haut à droite.
  *
  * Usage:
@@ -70,14 +70,14 @@ export default function TransportModeSelector({
               focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2
               ${
                 isSelected
-                  ? 'border-black border-solid bg-[#c5a643] shadow-lg shadow-black/20 scale-[1.02]'
-                  : 'border-black border-dashed bg-white hover:bg-black/5'
+                  ? 'border-black border-solid bg-[#fcd616] shadow-lg shadow-black/20 scale-[1.02]'
+                  : 'border-black border-dashed bg-[#fcd616] hover:bg-[#fcd616]/80'
               }
             `}
           >
             {/* Vraie image du moyen de transport.
                 mix-blend-multiply fait fondre le fond blanc de l'image
-                avec la couleur de la carte (blanc ou #c5a643). */}
+                avec la couleur de la carte (jaune #fcd616). */}
             <div className="w-12 h-12 sm:w-14 sm:h-14 mb-1.5 flex items-center justify-center">
               <Image
                 src={imgSrc}
@@ -99,10 +99,10 @@ export default function TransportModeSelector({
               {description}
             </span>
 
-            {/* Selected indicator — pastille noire avec checkmark jaune moutarde */}
+            {/* Selected indicator — pastille noire avec checkmark jaune QRBag */}
             {isSelected && (
               <div className="absolute top-2 right-2 w-5 h-5 bg-black rounded-full flex items-center justify-center ring-2 ring-white">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#c5a643" strokeWidth={3}>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#fcd616" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>

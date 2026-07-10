@@ -29,9 +29,10 @@ import {
   getTransportImage,
 } from '@/lib/transport';
 
-// ─── Brand constants ───
-const BRAND = '#c5a643'; // jaune moutarde
-const INK = '#1a1a1a'; // noir
+// ─── Brand constants (QRBag palette: blue #0047d6 + yellow #fcd616) ───
+const BRAND = '#0047d6'; // bleu vif — fonds principaux, headers
+const ACCENT = '#fcd616'; // jaune vif — cards, badges, accents
+const INK = '#1a1a1a'; // noir — texte sur jaune, bordures dashed
 
 // ─── Language Selector Component ───
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
@@ -65,7 +66,7 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
                 setIsOpen(false);
               }}
               className={`w-full px-4 py-2.5 sm:px-5 sm:py-3 text-left text-xs sm:text-sm md:text-base font-medium transition-colors ${
-                lang === l ? 'bg-[#c5a643] text-black' : 'text-black hover:bg-black/5'
+                lang === l ? 'bg-[#fcd616] text-black' : 'text-black hover:bg-black/5'
               }`}
             >
               {LANGUAGE_NAMES[l]}
@@ -217,14 +218,14 @@ function InscrireContent() {
 
   return (
     <main
-      className="min-h-[100dvh] min-h-screen bg-[#f5f5f5] flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
+      className="min-h-[100dvh] min-h-screen bg-[#0047d6] flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
       dir={dir}
     >
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex items-center justify-between pt-[env(safe-area-inset-top,0px)] px-0 py-2 sm:py-3 md:py-4 bg-[#f5f5f5]">
+      <header className="sticky top-0 z-40 flex items-center justify-between pt-[env(safe-area-inset-top,0px)] px-0 py-2 sm:py-3 md:py-4 bg-[#0047d6]">
         <Link
           href="/"
-          className="flex items-center gap-2 text-black hover:text-[#c5a643] transition-colors min-h-[44px]"
+          className="flex items-center gap-2 text-white hover:text-[#fcd616] transition-colors min-h-[44px]"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="text-sm md:text-base font-medium">{t('inscrire.back')}</span>
@@ -241,27 +242,27 @@ function InscrireContent() {
         <div className="mt-2 sm:mt-4 md:mt-6 mb-4 sm:mb-6 text-center">
           <span
             className="inline-flex items-center justify-center px-6 py-3 rounded-full font-bold text-lg shadow-lg text-black"
-            style={{ backgroundColor: BRAND, boxShadow: `0 10px 25px ${BRAND}40` }}
+            style={{ backgroundColor: ACCENT, boxShadow: `0 10px 25px ${INK}40` }}
           >
             {qrFromUrl ? `✨ ${t('inscrire.voyageur_badge')}` : `🧳 ${t('inscrire.title')}`}
           </span>
-          <p className="mt-3 text-black text-base md:text-lg leading-relaxed max-w-md mx-auto">
+          <p className="mt-3 text-white text-base md:text-lg leading-relaxed max-w-md mx-auto">
             {qrFromUrl ? t('inscrire.welcome_desc') : t('inscrire.subtitle')}
           </p>
         </div>
 
         {/* ─── Status Indicator ─── */}
         <div className="flex items-center justify-center gap-2 mb-5">
-          <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: BRAND }} />
-          <span className="text-sm font-bold uppercase tracking-widest text-black">
+          <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: ACCENT }} />
+          <span className="text-sm font-bold uppercase tracking-widest text-white">
             {step === 1 ? t('transport.select_mode') : t('inscrire.step_2_subtitle')}
           </span>
         </div>
 
-        {/* ═══ BLOC PRINCIPAL — Formulaire Activation (jaune moutarde) ═══ */}
+        {/* ═══ BLOC PRINCIPAL — Formulaire Activation (jaune QRBag) ═══ */}
         <div
           className="w-full rounded-2xl p-5 md:p-6 mb-5 shadow-xl"
-          style={{ backgroundColor: BRAND, boxShadow: `0 20px 40px ${INK}15` }}
+          style={{ backgroundColor: ACCENT, boxShadow: `0 20px 40px ${INK}15` }}
         >
           {/* ─── Step 1: Transport Mode Selector ─── */}
           {step === 1 && (
@@ -271,13 +272,13 @@ function InscrireContent() {
                 {t('transport.select_mode')}
               </h2>
 
-              {/* Tab Toggle — Manual / Scan (selected = #c5a643) */}
+              {/* Tab Toggle — Manual / Scan (selected = #fcd616) */}
               <div className="flex gap-2 mb-5">
                 <button
                   onClick={() => setActiveTab('manual')}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all min-h-[44px] border-2 border-black ${
                     activeTab === 'manual'
-                      ? 'bg-[#c5a643] text-black shadow-lg'
+                      ? 'bg-white text-black shadow-lg'
                       : 'bg-white/40 text-black hover:bg-white/60'
                   }`}
                 >
@@ -288,7 +289,7 @@ function InscrireContent() {
                   onClick={() => setActiveTab('scan')}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all min-h-[44px] border-2 border-black ${
                     activeTab === 'scan'
-                      ? 'bg-[#c5a643] text-black shadow-lg'
+                      ? 'bg-white text-black shadow-lg'
                       : 'bg-white/40 text-black hover:bg-white/60'
                   }`}
                 >
@@ -540,9 +541,9 @@ function InscrireContent() {
 
         {/* ─── Help Section ─── */}
         <div className="text-center pb-6">
-          <p className="text-black/60 text-sm">
+          <p className="text-white/80 text-sm">
             {t('inscrire.no_qr')}{' '}
-            <Link href="/#pricing" className="font-bold underline" style={{ color: BRAND }}>
+            <Link href="/#pricing" className="font-bold underline" style={{ color: ACCENT }}>
               {t('inscrire.order_sticker')}
             </Link>
           </p>
@@ -558,10 +559,10 @@ export default function InscrirePage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
+        <main className="min-h-screen bg-[#0047d6] flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-black/20 border-t-[#c5a643] rounded-full mx-auto mb-4" />
-            <p className="text-lg text-black">{t('common.loading')}</p>
+            <div className="animate-spin w-12 h-12 border-4 border-white/20 border-t-[#fcd616] rounded-full mx-auto mb-4" />
+            <p className="text-lg text-white">{t('common.loading')}</p>
           </div>
         </main>
       }

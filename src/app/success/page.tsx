@@ -8,9 +8,10 @@ import SuccessOverlay from '@/components/ui/SuccessOverlay';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from '@/hooks/use-toast';
 
-// ─── Brand constants (unifié avec /inscrire) ───
-const BRAND = '#c5a643'; // jaune moutarde
-const INK = '#1a1a1a'; // noir
+// ─── Brand constants (QRBag palette: blue #0047d6 + yellow #fcd616) ───
+const BRAND = '#0047d6'; // bleu vif — fonds, boutons primaires
+const ACCENT = '#fcd616'; // jaune vif — cards, accents
+const INK = '#1a1a1a'; // noir — texte sur jaune, bordures dashed
 
 interface ActivationData {
   reference: string;
@@ -109,9 +110,9 @@ function SuccessContent() {
   // ─── Empty state : pas d'activation data ───
   if (!activationData) {
     return (
-      <main className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-4">
+      <main className="min-h-screen bg-[#0047d6] flex items-center justify-center p-4">
         <div className="max-w-md w-full">
-          <div className="bg-[#c5a643] border-2 border-dashed border-[#1a1a1a] rounded-2xl p-8 text-center">
+          <div className="bg-[#fcd616] border-2 border-dashed border-[#1a1a1a] rounded-2xl p-8 text-center">
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[#1a1a1a]">
               <CheckCircle className="w-8 h-8" style={{ color: INK }} />
             </div>
@@ -124,7 +125,7 @@ function SuccessContent() {
             <Link
               href="/inscrire"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-colors min-h-[48px]"
-              style={{ backgroundColor: INK, color: BRAND }}
+              style={{ backgroundColor: INK, color: ACCENT }}
             >
               ← Revenir à l&apos;inscription
             </Link>
@@ -135,7 +136,7 @@ function SuccessContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-4">
+    <main className="min-h-screen bg-[#0047d6] flex items-center justify-center p-4">
       {/* SuccessOverlay — feedback premium d'activation (indépendant du thème) */}
       <SuccessOverlay show={activationConfirmed} messageKey="activation.success" t={t} />
 
@@ -151,19 +152,19 @@ function SuccessContent() {
             </div>
             <div
               className="absolute inset-0 w-20 h-20 rounded-full animate-ping"
-              style={{ backgroundColor: BRAND, opacity: 0.3 }}
+              style={{ backgroundColor: ACCENT, opacity: 0.3 }}
             />
           </div>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: INK }}>
+          <h1 className="text-2xl font-bold mb-1 text-white">
             ✅ Activation réussie !
           </h1>
-          <p style={{ color: INK, opacity: 0.7 }}>Votre bagage est maintenant protégé</p>
+          <p className="text-white/80">Votre bagage est maintenant protégé</p>
         </div>
 
-        {/* ═══ 2. Carte QR Code (fond jaune moutarde + bordure dashed noire) ═══ */}
+        {/* ═══ 2. Carte QR Code (fond jaune QRBag + bordure dashed noire) ═══ */}
         <div
           className="border-2 border-dashed rounded-2xl p-5 mb-4 text-center"
-          style={{ backgroundColor: BRAND, borderColor: INK }}
+          style={{ backgroundColor: ACCENT, borderColor: INK }}
         >
           {/* QR Code sur fond blanc pour scan optimal */}
           <div className="bg-white rounded-xl p-3 inline-block mb-3">
@@ -216,14 +217,14 @@ function SuccessContent() {
             rel="noopener noreferrer"
             aria-label="Suivre mon bagage dans un nouvel onglet"
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2"
-            style={{ backgroundColor: INK, color: BRAND, borderColor: INK }}
+            style={{ backgroundColor: INK, color: ACCENT, borderColor: INK }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = BRAND;
+              e.currentTarget.style.backgroundColor = ACCENT;
               e.currentTarget.style.color = INK;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = INK;
-              e.currentTarget.style.color = BRAND;
+              e.currentTarget.style.color = ACCENT;
             }}
           >
             📍 Suivre mon bagage
@@ -234,24 +235,24 @@ function SuccessContent() {
             onClick={handleShare}
             aria-label="Partager le lien de suivi"
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2 cursor-pointer"
-            style={{ backgroundColor: INK, color: BRAND, borderColor: INK }}
+            style={{ backgroundColor: INK, color: ACCENT, borderColor: INK }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = BRAND;
+              e.currentTarget.style.backgroundColor = ACCENT;
               e.currentTarget.style.color = INK;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = INK;
-              e.currentTarget.style.color = BRAND;
+              e.currentTarget.style.color = ACCENT;
             }}
           >
             📤 Partager
           </button>
         </div>
 
-        {/* ═══ 5. Encart Checklist (fond jaune moutarde + bordure dashed noire) ═══ */}
+        {/* ═══ 5. Encart Checklist (fond jaune QRBag + bordure dashed noire) ═══ */}
         <div
           className="border-2 border-dashed rounded-2xl p-5 text-center"
-          style={{ backgroundColor: BRAND, borderColor: INK }}
+          style={{ backgroundColor: ACCENT, borderColor: INK }}
         >
           <div className="flex items-center justify-center gap-2 mb-3">
             <Backpack className="w-5 h-5" style={{ color: INK }} />
@@ -262,7 +263,7 @@ function SuccessContent() {
           <Link
             href="/checklist"
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold transition-colors min-h-[48px]"
-            style={{ backgroundColor: INK, color: BRAND }}
+            style={{ backgroundColor: INK, color: ACCENT }}
           >
             Créer ma checklist gratuite →
           </Link>
