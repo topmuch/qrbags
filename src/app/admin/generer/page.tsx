@@ -137,6 +137,14 @@ export default function GenererQRPage() {
 
   // Validate agency form
   const validateAgencyForm = (): boolean => {
+    if (agencies.length === 0) {
+      setErrorMessage('Aucune agence disponible. Veuillez d\'abord créer une agence dans Admin → Agences avant de générer des QR codes.');
+      return false;
+    }
+    if (agencies.filter(a => a.active).length === 0) {
+      setErrorMessage('Aucune agence active. Veuillez activer au moins une agence dans Admin → Agences.');
+      return false;
+    }
     if (!agencyForm.agencyId) {
       setErrorMessage('Veuillez sélectionner une agence');
       return false;
@@ -498,21 +506,28 @@ export default function GenererQRPage() {
 
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">Agence partenaire *</Label>
-                  <Select 
-                    value={agencyForm.agencyId} 
-                    onValueChange={(v) => setAgencyForm({ ...agencyForm, agencyId: v })}
-                  >
-                    <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
-                      <SelectValue placeholder="Sélectionner une agence" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                      {agencies.filter(a => a.active).map((agency) => (
-                        <SelectItem key={agency.id} value={agency.id}>
-                          {agency.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {agencies.filter(a => a.active).length === 0 ? (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 text-sm text-amber-700 dark:text-amber-400">
+                      <p className="font-medium mb-1">⚠️ Aucune agence disponible</p>
+                      <p>Pour générer des QR codes en mode agence, créez d&apos;abord une agence dans <strong>Admin → Agences</strong>, puis revenez ici.</p>
+                    </div>
+                  ) : (
+                    <Select 
+                      value={agencyForm.agencyId} 
+                      onValueChange={(v) => setAgencyForm({ ...agencyForm, agencyId: v })}
+                    >
+                      <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
+                        <SelectValue placeholder="Sélectionner une agence" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                        {agencies.filter(a => a.active).map((agency) => (
+                          <SelectItem key={agency.id} value={agency.id}>
+                            {agency.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

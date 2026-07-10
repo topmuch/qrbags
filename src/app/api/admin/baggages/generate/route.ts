@@ -80,8 +80,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Prisma foreign key violation (P2003) — agencyId doesn't exist
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2003') {
+      return NextResponse.json(
+        { error: 'L\'agence sélectionnée n\'existe pas. Veuillez créer une agence d\'abord ou sélectionner une agence valide.' },
+        { status: 400 }
+      );
+    }
+
+    // Generic error — expose the message in dev for easier debugging
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
