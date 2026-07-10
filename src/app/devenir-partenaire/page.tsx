@@ -26,7 +26,7 @@ function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+            <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
           </Link>
 
           {/* Desktop Nav */}
@@ -379,7 +379,7 @@ function Footer() {
           {/* Logo */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+              <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain brightness-0 invert" />
             </div>
             <p className="text-[#a0a8b8] text-sm">
               Protection intelligente des bagages pour voyageurs et pèlerins.

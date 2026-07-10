@@ -94,7 +94,7 @@ function HajjActivateContent() {
             <span>Retour</span>
           </Link>
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+            <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
           </div>
         </div>
       </nav>

@@ -101,7 +101,7 @@ function VerifyEmailContent() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex flex-col items-center gap-3">
-            <img src="/logo.png" alt="QRBag" className="h-14 w-auto object-contain" />
+            <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
           </Link>
           <p className="text-slate-500 mt-3 text-sm">Vérification de l&apos;email</p>
         </div>

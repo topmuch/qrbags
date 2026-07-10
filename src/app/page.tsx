@@ -136,7 +136,7 @@ function Navigation() {
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-[72px]">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+            <img src="/logo.png" alt="QRBag" className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
@@ -1126,7 +1126,7 @@ function Footer() {
       <div className="max-w-6xl mx-auto px-5">
         <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-12">
           <div className="lg:col-span-2">
-            <div className="mb-5"><img src="/logo.png" alt="QRBag" className="h-14 w-auto object-contain" /></div>
+            <div className="mb-5"><img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" /></div>
             <p className="text-base leading-relaxed max-w-xs text-slate-500 mb-7">Protection intelligente des bagages pour voyageurs et pèlerins.</p>
             <div className="flex items-center gap-2.5">
               {[{ icon: Facebook, href: 'https://facebook.com/qrbag', label: 'Facebook' }, { icon: Instagram, href: 'https://instagram.com/qrbag', label: 'Instagram' }, { icon: Twitter, href: 'https://twitter.com/qrbag', label: 'Twitter' }].map(s => (
@@ -1137,18 +1137,18 @@ function Footer() {
           {columns.map(col => (
             <div key={col.title}>
               <h4 className="text-sm font-bold tracking-[0.1em] uppercase text-slate-900 mb-5">{col.title}</h4>
-              <ul className="space-y-3">{col.links.map(link => (<li key={link.label}><Link href={link.href} className="text-sm text-slate-500 hover:text-blue-600 transition-colors duration-300">{link.label}</Link></li>))}</ul>
+              <ul className="space-y-3">{col.links.map(link => (<li key={link.label}><Link href={link.href} className="text-sm text-slate-700 hover:text-blue-600 font-medium transition-colors duration-300">{link.label}</Link></li>))}</ul>
             </div>
           ))}
         </div>
         <div className="mt-16 pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-slate-400">&copy; {new Date().getFullYear()} QRBag. Tous droits réservés.</p>
+          <p className="text-sm text-slate-600">&copy; {new Date().getFullYear()} QRBag. Tous droits réservés.</p>
           <div className="flex items-center gap-4 text-sm">
-            <Link href="/mentions-legales" className="text-slate-400 hover:text-blue-600 transition-colors">Mentions légales</Link>
+            <Link href="/mentions-legales" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Mentions légales</Link>
             <span className="text-slate-300">·</span>
-            <Link href="/confidentialite" className="text-slate-400 hover:text-blue-600 transition-colors">Confidentialité</Link>
+            <Link href="/confidentialite" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Confidentialité</Link>
             <span className="text-slate-300">·</span>
-            <Link href="/cgu" className="text-slate-400 hover:text-blue-600 transition-colors">CGU</Link>
+            <Link href="/cgu" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">CGU</Link>
           </div>
         </div>
       </div>

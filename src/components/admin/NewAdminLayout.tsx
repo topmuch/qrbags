@@ -110,7 +110,7 @@ export default function AdminLayout({ children, title, subtitle, unreadMessages 
           {/* Logo */}
           <div className="p-6 border-b border-white/10">
             <Link href="/admin/dashboard" className="flex items-center">
-              <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+              <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
             </Link>
             <button
               className="lg:hidden absolute top-6 right-4 text-white/60 hover:text-white transition-colors"
