@@ -110,6 +110,7 @@ model Baggage {
   departureTime     String?   // Heure de départ saisie lors de l'activation (ex: "08:30")
   createdAt         DateTime  @default(now())
   expiresAt         DateTime?
+  duration          String?   // QR validity duration chosen by superadmin at generation: '1m' | '3m' | '6m' | '1y' (null = legacy default)
   lastScanDate      DateTime?
   lastLocation      String?
   declaredLostAt    DateTime? // Timestamp when baggage was declared lost

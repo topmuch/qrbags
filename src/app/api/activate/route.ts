@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { calculateExpirationDate } from '@/lib/qr';
+import { calculateExpirationDate, QrDuration } from '@/lib/qr';
 import { z } from 'zod';
 
 // Validation schema for activation
@@ -49,11 +49,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine subtype for expiration calculation
+    // Determine subtype for expiration calculation (legacy fallback)
     const subtype = baggage.type === 'voyageur' ? 'sticker' : undefined;
 
-    // Calculate expiration date
-    const expiresAt = calculateExpirationDate(baggage.type as 'hajj' | 'voyageur', subtype);
+    // Calculate expiration date — HONOR stored duration if superadmin set one
+    // at generation time, otherwise fall back to legacy type/subtype logic.
+    const storedDuration = baggage.duration as QrDuration | null;
+    const expiresAt = storedDuration
+      ? calculateExpirationDate(baggage.type as 'hajj' | 'voyageur', undefined, storedDuration)
+      : calculateExpirationDate(baggage.type as 'hajj' | 'voyageur', subtype);
 
     // Update baggage with traveler info
     const updatedBaggage = await db.baggage.update({

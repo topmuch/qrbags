@@ -40,6 +40,21 @@ interface Agency {
 
 type GenerationContext = 'individual' | 'agency';
 
+// QR duration options (superadmin-selectable)
+type QrDuration = '1m' | '3m' | '6m' | '1y';
+const DURATION_OPTIONS: { value: QrDuration; label: string }[] = [
+  { value: '1m', label: '1 mois' },
+  { value: '3m', label: '3 mois' },
+  { value: '6m', label: '6 mois' },
+  { value: '1y', label: '1 an' },
+];
+const DURATION_LABEL: Record<QrDuration, string> = {
+  '1m': '1 mois',
+  '3m': '3 mois',
+  '6m': '6 mois',
+  '1y': '1 an',
+};
+
 export default function GenererQRPage() {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,7 +72,7 @@ export default function GenererQRPage() {
     firstName: '',
     lastName: '',
     whatsapp: '',
-    duration: '7d' as '7d' | '1y',
+    duration: '1m' as QrDuration,
     baggageCount: 1 as 1 | 2,
   });
   
@@ -67,6 +82,7 @@ export default function GenererQRPage() {
     agencyId: '',
     travelerCount: 1,
     baggagePerTraveler: 2 as 1 | 2,
+    duration: '1m' as QrDuration,
   });
 
   useEffect(() => {
@@ -252,6 +268,7 @@ export default function GenererQRPage() {
             agencyId: agencyForm.agencyId,
             travelerCount: agencyForm.travelerCount,
             count: agencyForm.type === 'hajj' ? 3 : agencyForm.baggagePerTraveler,
+            duration: agencyForm.duration,
           };
       
       const response = await fetch('/api/admin/baggages/generate', {
@@ -271,7 +288,7 @@ export default function GenererQRPage() {
             firstName: '',
             lastName: '',
             whatsapp: '',
-            duration: '7d',
+            duration: '1m',
             baggageCount: 1,
           });
         }
@@ -422,14 +439,15 @@ export default function GenererQRPage() {
                     <Label className="text-slate-700 dark:text-slate-300">Durée</Label>
                     <Select 
                       value={individualForm.duration} 
-                      onValueChange={(v) => setIndividualForm({ ...individualForm, duration: v as '7d' | '1y' })}
+                      onValueChange={(v) => setIndividualForm({ ...individualForm, duration: v as QrDuration })}
                     >
                       <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                        <SelectItem value="7d">7 jours</SelectItem>
-                        <SelectItem value="1y">1 an</SelectItem>
+                        {DURATION_OPTIONS.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -456,7 +474,7 @@ export default function GenererQRPage() {
 
                 <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300">
                   <p><strong>Statut :</strong> Actif immédiatement • les infos voyageur sont pré-remplies.</p>
-                  <p><strong>Expiration :</strong> {individualForm.duration === '7d' ? '7 jours' : '1 an'} à partir de la génération</p>
+                  <p><strong>Expiration :</strong> {DURATION_LABEL[individualForm.duration]} à partir de la génération</p>
                 </div>
               </>
             ) : (
@@ -540,6 +558,27 @@ export default function GenererQRPage() {
                     <p>ℹ️ Chaque voyageur reçoit {agencyForm.baggagePerTraveler} bagage(s) soute</p>
                   </div>
                 )}
+
+                {/* Duration selector — superadmin chooses QR validity period */}
+                <div className="space-y-2">
+                  <Label className="text-slate-700 dark:text-slate-300">Durée de validité des QR</Label>
+                  <Select 
+                    value={agencyForm.duration} 
+                    onValueChange={(v) => setAgencyForm({ ...agencyForm, duration: v as QrDuration })}
+                  >
+                    <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                      {DURATION_OPTIONS.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Tous les QR générés dans ce lot auront une durée de validité de <strong>{DURATION_LABEL[agencyForm.duration]}</strong> à compter de l’activation par le voyageur.
+                  </p>
+                </div>
               </>
             )}
 
@@ -615,10 +654,8 @@ export default function GenererQRPage() {
                   <p className="text-slate-500 dark:text-slate-400">Expiration</p>
                   <p className="text-slate-800 dark:text-white font-medium">
                     {context === 'individual' 
-                      ? individualForm.duration === '7d' ? '7 jours' : '1 an'
-                      : agencyForm.type === 'hajj' 
-                        ? '60 jours'
-                        : '5 jours'
+                      ? DURATION_LABEL[individualForm.duration]
+                      : DURATION_LABEL[agencyForm.duration]
                     }
                   </p>
                 </div>

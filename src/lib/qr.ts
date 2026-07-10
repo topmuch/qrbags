@@ -134,9 +134,39 @@ export async function generateBaggages(options: GenerateBaggageOptions): Promise
 }
 
 // Calculate expiration date based on type
-export function calculateExpirationDate(type: 'hajj' | 'voyageur', subtype?: 'sticker' | 'tag'): Date {
+// Supports both legacy mode (type+subtype) and new explicit duration mode.
+// New duration enum (superadmin-selectable): '1m' | '3m' | '6m' | '1y'
+export type QrDuration = '1m' | '3m' | '6m' | '1y';
+
+// Map duration code → milliseconds
+const DURATION_MS: Record<QrDuration, number> = {
+  '1m': 30 * 24 * 60 * 60 * 1000,   // ~30 days
+  '3m': 90 * 24 * 60 * 60 * 1000,   // ~90 days
+  '6m': 180 * 24 * 60 * 60 * 1000,  // ~180 days
+  '1y': 365 * 24 * 60 * 60 * 1000,  // ~365 days
+};
+
+// Human-readable labels for UI (French)
+export const DURATION_LABELS: Record<QrDuration, string> = {
+  '1m': '1 mois',
+  '3m': '3 mois',
+  '6m': '6 mois',
+  '1y': '1 an',
+};
+
+export function calculateExpirationDate(
+  type: 'hajj' | 'voyageur',
+  subtype?: 'sticker' | 'tag',
+  duration?: QrDuration
+): Date {
   const now = new Date();
-  
+
+  // NEW: explicit duration wins over legacy type/subtype logic
+  if (duration && DURATION_MS[duration]) {
+    return new Date(now.getTime() + DURATION_MS[duration]);
+  }
+
+  // LEGACY fallback (used by /api/activate for public traveler activations)
   switch (type) {
     case 'hajj':
       return new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000); // +60 days
@@ -144,7 +174,7 @@ export function calculateExpirationDate(type: 'hajj' | 'voyageur', subtype?: 'st
       if (subtype === 'tag') {
         return new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // +365 days
       }
-      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days (sticker) - changed from 72h
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days (sticker)
     default:
       return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
   }

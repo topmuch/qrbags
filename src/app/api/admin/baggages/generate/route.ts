@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { generateReference, generateReferencesBulk, generateSetId, calculateExpirationDate } from '@/lib/qr';
+import { generateReference, generateReferencesBulk, generateSetId, calculateExpirationDate, QrDuration } from '@/lib/qr';
 import { db } from '@/lib/db';
+
+// Duration enum shared by individual + agency schemas
+const durationEnum = z.enum(['1m', '3m', '6m', '1y']);
 
 // Schema for individual generation
 const individualSchema = z.object({
@@ -10,7 +13,7 @@ const individualSchema = z.object({
   firstName: z.string().min(2).max(50),
   lastName: z.string().min(2).max(50),
   whatsapp: z.string().min(6).max(20),
-  duration: z.enum(['7d', '1y']),
+  duration: durationEnum,
   baggageCount: z.number().min(1).max(2),
 });
 
@@ -21,6 +24,7 @@ const agencySchema = z.object({
   agencyId: z.string().min(1),
   count: z.number().min(1).max(2),
   travelerCount: z.number().min(1).max(1000),
+  duration: durationEnum,
 });
 
 // Combined schema using discriminated union
@@ -57,6 +61,7 @@ export async function POST(request: NextRequest) {
         agencyId: validatedData.agencyId,
         travelerCount: validatedData.travelerCount,
         count: validatedData.type === 'hajj' ? 3 : validatedData.count as 1 | 3,
+        duration: validatedData.duration,
       });
 
       return NextResponse.json({
@@ -90,13 +95,13 @@ async function generateBaggagesWithTraveler(options: {
   firstName: string;
   lastName: string;
   whatsapp: string;
-  duration: '7d' | '1y';
+  duration: QrDuration;
   baggageCount: 1 | 2;
 }): Promise<string[]> {
   const { type, firstName, lastName, whatsapp, duration, baggageCount } = options;
   
   const setId = generateSetId(type);
-  const expiresAt = calculateExpirationDate(type, duration === '1y' ? 'tag' : 'sticker');
+  const expiresAt = calculateExpirationDate(type, undefined, duration);
 
   // Generate all references upfront
   const references: string[] = [];
@@ -118,6 +123,7 @@ async function generateBaggagesWithTraveler(options: {
       baggageType: 'soute',
       status: 'active',
       expiresAt,
+      duration,
     })),
   });
 
@@ -133,11 +139,12 @@ async function generateBaggagesBatch(options: {
   agencyId: string;
   travelerCount: number;
   count: 1 | 2;
+  duration: QrDuration;
 }): Promise<string[]> {
-  const { type, agencyId, travelerCount, count } = options;
+  const { type, agencyId, travelerCount, count, duration } = options;
   const totalBaggages = travelerCount * count;
   
-  console.log(`[GENERATE] Starting bulk generation: ${travelerCount} travelers × ${count} bags = ${totalBaggages} QR codes`);
+  console.log(`[GENERATE] Starting bulk generation: ${travelerCount} travelers × ${count} bags = ${totalBaggages} QR codes (duration: ${duration})`);
 
   // Pre-generate all set IDs (no DB calls needed)
   const setIds: string[] = [];
@@ -148,6 +155,13 @@ async function generateBaggagesBatch(options: {
   // Generate ALL references in bulk (1-2 DB queries instead of 1800)
   const allReferences = await generateReferencesBulk(type, totalBaggages);
 
+  // Compute expiresAt once (same for all baggages in this batch)
+  // Note: in agency mode, baggages are 'pending_activation' — expiresAt will be
+  // recomputed at activation time by /api/activate, BUT we store the chosen
+  // duration on each row so the activation endpoint can honor it.
+  // We also pre-set expiresAt as a safety default.
+  const expiresAt = calculateExpirationDate(type, undefined, duration);
+
   // Build all baggage data
   const allData: Array<{
     reference: string;
@@ -157,6 +171,8 @@ async function generateBaggagesBatch(options: {
     baggageIndex: number;
     baggageType: string;
     status: string;
+    expiresAt: Date;
+    duration: string;
   }> = [];
 
   let refIndex = 0;
@@ -171,6 +187,8 @@ async function generateBaggagesBatch(options: {
         baggageIndex: i + 1,
         baggageType: 'soute',
         status: 'pending_activation',
+        expiresAt,
+        duration,
       });
     }
   }
