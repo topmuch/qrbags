@@ -157,7 +157,7 @@ function PulsingCircles() {
       {[80, 140, 210, 290].map((size, i) => (
         <div
           key={i}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-500/20 animate-pulse"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-500/20 animate-pulse"
           style={{
             width: size,
             height: size,
@@ -182,8 +182,8 @@ function StatCard({ value, label, icon: Icon }: { value: string; label: string; 
       transition={{ duration: 0.6, ease: 'easeOut' }}
       className="text-center group"
     >
-      <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 mb-2 group-hover:bg-violet-500/20 transition-colors">
-        <Icon className="w-4 h-4 text-violet-400" />
+      <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 mb-2 group-hover:bg-blue-500/20 transition-colors">
+        <Icon className="w-4 h-4 text-blue-400" />
       </div>
       <p className="text-2xl xl:text-3xl font-bold text-white tracking-tight" style={{ textShadow: '0 0 20px rgba(139, 92, 246, 0.4)' }}>
         {value}
@@ -289,7 +289,7 @@ export default function AdminLoginPage() {
     .join('');
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#0F0A2E] overflow-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#0047d6] overflow-hidden">
       {/* ════════════════════════════════════════════════════════
           LEFT PANEL — "Midnight Command Center" (desktop only)
           ════════════════════════════════════════════════════════ */}
@@ -300,7 +300,7 @@ export default function AdminLoginPage() {
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(ellipse at 30% 20%, rgba(124, 58, 237, 0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%), linear-gradient(160deg, #0F0A2E 0%, #1a1145 40%, #0F0A2E 100%)',
+                'radial-gradient(ellipse at 30% 20%, rgba(0, 71, 214, 0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(0, 71, 214, 0.10) 0%, transparent 50%), linear-gradient(160deg, #0047d6 0%, #0033a8 40%, #0047d6 100%)',
             }}
           />
         </div>
@@ -315,17 +315,17 @@ export default function AdminLoginPage() {
         <PulsingCircles />
 
         {/* Floating violet/purple orbs */}
-        <div className="absolute top-[15%] -left-16 w-72 h-72 rounded-full bg-violet-600/15 blur-[100px] animate-pulse" />
+        <div className="absolute top-[15%] -left-16 w-72 h-72 rounded-full bg-blue-600/15 blur-[100px] animate-pulse" />
         <div
-          className="absolute bottom-[20%] right-[-40px] w-80 h-80 rounded-full bg-purple-500/10 blur-[120px] animate-pulse"
+          className="absolute bottom-[20%] right-[-40px] w-80 h-80 rounded-full bg-blue-600/10 blur-[120px] animate-pulse"
           style={{ animationDelay: '1.5s' }}
         />
         <div
-          className="absolute top-[50%] left-[40%] w-96 h-96 rounded-full bg-violet-500/5 blur-[150px] animate-pulse"
+          className="absolute top-[50%] left-[40%] w-96 h-96 rounded-full bg-blue-500/5 blur-[150px] animate-pulse"
           style={{ animationDelay: '3s' }}
         />
         <div
-          className="absolute bottom-[5%] left-[15%] w-48 h-48 rounded-full bg-fuchsia-500/8 blur-[80px] animate-pulse"
+          className="absolute bottom-[5%] left-[15%] w-48 h-48 rounded-full bg-yellow-500/8 blur-[80px] animate-pulse"
           style={{ animationDelay: '2s' }}
         />
 
@@ -338,9 +338,9 @@ export default function AdminLoginPage() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
           >
             <Link href="/" className="group inline-block">
-              <div className="relative w-20 h-20 rounded-2xl bg-white/[0.07] backdrop-blur-sm p-2 border border-violet-500/20 flex items-center justify-center group-hover:bg-white/[0.12] group-hover:border-violet-500/40 transition-all duration-300">
+              <div className="relative w-20 h-20 rounded-2xl bg-white/[0.07] backdrop-blur-sm p-2 border border-blue-500/20 flex items-center justify-center group-hover:bg-white/[0.12] group-hover:border-blue-500/40 transition-all duration-300">
                 {/* Glow effect behind logo */}
-                <div className="absolute -inset-1 rounded-2xl bg-violet-500/10 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute -inset-1 rounded-2xl bg-blue-500/10 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <img src="/logo.png" alt="QRBag" className="w-full h-full object-contain relative z-10" />
               </div>
             </Link>
@@ -355,10 +355,10 @@ export default function AdminLoginPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
             >
-              <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center shadow-2xl shadow-violet-600/30">
+              <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-2xl shadow-blue-600/30">
                 <QrCode className="w-10 h-10 text-white" />
                 {/* Animated ring */}
-                <div className="absolute -inset-2 rounded-2xl border-2 border-violet-400/30 animate-ping" style={{ animationDuration: '3s' }} />
+                <div className="absolute -inset-2 rounded-2xl border-2 border-blue-400/30 animate-ping" style={{ animationDuration: '3s' }} />
               </div>
               {/* Decorative floating dots */}
               <div
@@ -370,7 +370,7 @@ export default function AdminLoginPage() {
                 style={{ animationDelay: '1.2s', animationDuration: '3s' }}
               />
               <div
-                className="absolute -top-1 -left-5 w-4 h-4 rounded-full bg-violet-300/40 animate-bounce"
+                className="absolute -top-1 -left-5 w-4 h-4 rounded-full bg-blue-300/40 animate-bounce"
                 style={{ animationDelay: '0.8s', animationDuration: '2.8s' }}
               />
             </motion.div>
@@ -426,7 +426,7 @@ export default function AdminLoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.9 }}
           >
-            <div className="border-l-2 border-violet-500/40 pl-5">
+            <div className="border-l-2 border-blue-500/40 pl-5">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTestimonial}
@@ -439,7 +439,7 @@ export default function AdminLoginPage() {
                     &ldquo;{currentTestimonial.text}&rdquo;
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center border border-violet-500/30">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 flex items-center justify-center border border-blue-500/30">
                       <span className="text-white text-xs font-bold">{initials}</span>
                     </div>
                     <div>
@@ -459,7 +459,7 @@ export default function AdminLoginPage() {
                   onClick={() => setActiveTestimonial(i)}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
                     i === activeTestimonial
-                      ? 'bg-violet-500 w-5'
+                      ? 'bg-blue-500 w-5'
                       : 'bg-white/15 hover:bg-white/25 w-1.5'
                   }`}
                   aria-label={`Témoignage ${i + 1}`}
@@ -473,7 +473,7 @@ export default function AdminLoginPage() {
       {/* ════════════════════════════════════════════════════════
           RIGHT PANEL — DARK MODE FORM
           ════════════════════════════════════════════════════════ */}
-      <div className="w-full lg:w-[48%] min-h-screen flex items-center justify-center bg-[#0F0A2E] px-6 py-12 sm:px-10 relative">
+      <div className="w-full lg:w-[48%] min-h-screen flex items-center justify-center bg-[#0047d6] px-6 py-12 sm:px-10 relative">
         {/* Subtle right-side background treatment */}
         <div className="absolute inset-0">
           <div
@@ -506,15 +506,15 @@ export default function AdminLoginPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="relative w-20 h-20 rounded-2xl bg-white/[0.07] backdrop-blur-sm p-2 border border-violet-500/20 flex items-center justify-center">
-              <div className="absolute -inset-1 rounded-2xl bg-violet-500/10 blur-lg" />
+            <div className="relative w-20 h-20 rounded-2xl bg-white/[0.07] backdrop-blur-sm p-2 border border-blue-500/20 flex items-center justify-center">
+              <div className="absolute -inset-1 rounded-2xl bg-blue-500/10 blur-lg" />
               <img src="/logo.png" alt="QRBag" className="w-full h-full object-contain relative z-10" />
             </div>
           </motion.div>
 
           {/* Admin Badge */}
           <motion.div className="flex items-center gap-2 mb-6" {...formChild} transition={{ delay: 0.1 }}>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-violet-600/20 text-violet-300 border border-violet-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-600/20 text-blue-300 border border-blue-500/20">
               <Shield className="w-3 h-3" />
               Admin
             </span>
@@ -558,13 +558,13 @@ export default function AdminLoginPage() {
               <div
                 className={`relative flex items-center rounded-xl border transition-all duration-300 ${
                   focusedField === 'email'
-                    ? 'border-violet-500 bg-[#1a1145] shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_0_20px_rgba(124,58,237,0.1)]'
-                    : 'border-white/10 bg-[#1a1145]/80 hover:border-white/20'
+                    ? 'border-blue-500 bg-[#0033a8] shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_0_20px_rgba(124,58,237,0.1)]'
+                    : 'border-white/10 bg-[#0033a8]/80 hover:border-white/20'
                 }`}
               >
                 <div
                   className={`pl-4 transition-colors duration-200 ${
-                    focusedField === 'email' ? 'text-violet-400' : 'text-white/30'
+                    focusedField === 'email' ? 'text-blue-400' : 'text-white/30'
                   }`}
                 >
                   <Mail className="w-[18px] h-[18px]" />
@@ -583,7 +583,7 @@ export default function AdminLoginPage() {
                 {/* Focus glow indicator */}
                 {focusedField === 'email' && (
                   <motion.div
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-400"
                     layoutId="focus-dot"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -601,13 +601,13 @@ export default function AdminLoginPage() {
               <div
                 className={`relative flex items-center rounded-xl border transition-all duration-300 ${
                   focusedField === 'password'
-                    ? 'border-violet-500 bg-[#1a1145] shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_0_20px_rgba(124,58,237,0.1)]'
-                    : 'border-white/10 bg-[#1a1145]/80 hover:border-white/20'
+                    ? 'border-blue-500 bg-[#0033a8] shadow-[0_0_0_4px_rgba(124,58,237,0.15),0_0_20px_rgba(124,58,237,0.1)]'
+                    : 'border-white/10 bg-[#0033a8]/80 hover:border-white/20'
                 }`}
               >
                 <div
                   className={`pl-4 transition-colors duration-200 ${
-                    focusedField === 'password' ? 'text-violet-400' : 'text-white/30'
+                    focusedField === 'password' ? 'text-blue-400' : 'text-white/30'
                   }`}
                 >
                   <Lock className="w-[18px] h-[18px]" />
@@ -626,7 +626,7 @@ export default function AdminLoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="pr-4 text-white/30 hover:text-violet-400 transition-colors duration-200"
+                  className="pr-4 text-white/30 hover:text-blue-400 transition-colors duration-200"
                   tabIndex={-1}
                   aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
@@ -634,7 +634,7 @@ export default function AdminLoginPage() {
                 </button>
                 {focusedField === 'password' && (
                   <motion.div
-                    className="absolute right-10 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400"
+                    className="absolute right-10 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-400"
                     layoutId="focus-dot"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -655,7 +655,7 @@ export default function AdminLoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-white/20 bg-white/5 text-violet-600 focus:ring-violet-500/30 focus:ring-offset-0 cursor-pointer accent-violet-600"
+                  className="w-4 h-4 rounded border-white/20 bg-white/5 text-blue-600 focus:ring-blue-500/30 focus:ring-offset-0 cursor-pointer accent-blue-600"
                 />
                 <span className="text-sm text-white/40 group-hover:text-white/60 transition-colors duration-200">
                   Se souvenir de moi
@@ -663,7 +663,7 @@ export default function AdminLoginPage() {
               </label>
               <Link
                 href="/forgot-password"
-                className="text-sm font-medium text-violet-400 hover:text-violet-300 transition-colors duration-200"
+                className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors duration-200"
               >
                 Mot de passe oublié ?
               </Link>
@@ -674,7 +674,7 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 text-sm bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 active:scale-[0.98] shadow-lg shadow-violet-600/30 hover:shadow-xl hover:shadow-violet-600/40 relative overflow-hidden group"
+                className="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 text-sm bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 active:scale-[0.98] shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 relative overflow-hidden group"
               >
                 {/* Shimmer overlay */}
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -695,15 +695,15 @@ export default function AdminLoginPage() {
 
           {/* Demo Account Card */}
           <motion.div
-            className="mt-6 p-4 rounded-xl bg-white/[0.04] border border-violet-500/15 backdrop-blur-sm"
+            className="mt-6 p-4 rounded-xl bg-white/[0.04] border border-blue-500/15 backdrop-blur-sm"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.75 }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-violet-600/20 border border-violet-500/20 flex items-center justify-center">
-                  <Fingerprint className="w-4 h-4 text-violet-400" />
+                <div className="w-9 h-9 rounded-lg bg-blue-600/20 border border-blue-500/20 flex items-center justify-center">
+                  <Fingerprint className="w-4 h-4 text-blue-400" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-white/70">Compte démo</p>
@@ -715,7 +715,7 @@ export default function AdminLoginPage() {
               <button
                 type="button"
                 onClick={fillDemo}
-                className="text-xs font-semibold px-4 py-2 rounded-lg bg-violet-600/20 text-violet-300 border border-violet-500/20 hover:bg-violet-600/30 hover:text-violet-200 hover:border-violet-500/40 transition-all duration-200 active:scale-95"
+                className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600/20 text-blue-300 border border-blue-500/20 hover:bg-blue-600/30 hover:text-blue-200 hover:border-blue-500/40 transition-all duration-200 active:scale-95"
               >
                 Remplir
               </button>
@@ -732,7 +732,7 @@ export default function AdminLoginPage() {
             Vous êtes une agence ?{' '}
             <Link
               href="/agence/connexion"
-              className="font-semibold text-violet-400 hover:text-violet-300 transition-colors duration-200"
+              className="font-semibold text-blue-400 hover:text-blue-300 transition-colors duration-200"
             >
               Connexion Agence
             </Link>

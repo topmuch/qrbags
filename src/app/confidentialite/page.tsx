@@ -11,11 +11,11 @@ export default function Confidentialite() {
     <PublicLayout>
       <div className="min-h-screen py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-white mb-8">Politique de confidentialité</h1>
+          <h1 className="text-4xl font-bold text-slate-900 mb-8">Politique de confidentialité</h1>
           
-          <div className="space-y-8 text-[#e0e6f0]">
+          <div className="space-y-8 text-slate-700">
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">1. Introduction</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">1. Introduction</h2>
               <p className="mb-4">
                 La société MMASOLUTION s&apos;engage à protéger la vie privée des utilisateurs de son site QRBag. La présente politique de confidentialité a pour but de vous informer sur la manière dont nous collectons, utilisons et protégeons vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD).
               </p>
@@ -25,7 +25,7 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">2. Données collectées</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">2. Données collectées</h2>
               <p className="mb-4">Nous collectons les types de données suivantes :</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Données d&apos;identification :</strong> nom, prénom, adresse email, numéro de téléphone</li>
@@ -37,7 +37,7 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">3. Finalités du traitement</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">3. Finalités du traitement</h2>
               <p className="mb-4">Vos données personnelles sont collectées et traitées pour les finalités suivantes :</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Gestion et suivi des bagages enregistrés via le système QRBag</li>
@@ -50,7 +50,7 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">4. Base légale du traitement</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">4. Base légale du traitement</h2>
               <p className="mb-4">Le traitement de vos données personnelles repose sur les bases légales suivantes :</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Exécution du contrat :</strong> pour la fourniture de nos services de protection des bagages</li>
@@ -61,7 +61,7 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">5. Cookies</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">5. Cookies</h2>
               <p className="mb-4">
                 Notre site utilise des cookies pour améliorer votre expérience de navigation. Un cookie est un petit fichier texte stocké sur votre appareil.
               </p>
@@ -77,7 +77,7 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">6. Durée de conservation</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">6. Durée de conservation</h2>
               <p className="mb-4">
                 Vos données personnelles sont conservées pendant la durée nécessaire aux finalités pour lesquelles elles ont été collectées :
               </p>
@@ -90,7 +90,7 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">7. Vos droits</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">7. Vos droits</h2>
               <p className="mb-4">
                 Conformément au RGPD, vous disposez des droits suivants sur vos données personnelles :
               </p>
@@ -108,7 +108,7 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">8. Partage des données</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">8. Partage des données</h2>
               <p className="mb-4">
                 Vos données personnelles peuvent être partagées avec :
               </p>
@@ -123,14 +123,14 @@ export default function Confidentialite() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">9. Sécurité</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">9. Sécurité</h2>
               <p>
                 Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données personnelles contre tout accès non autorisé, modification, divulgation ou destruction. Ces mesures incluent le chiffrement des données, des pare-feu, et des accès restreints aux données.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-white mb-4">10. Contact</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-4">10. Contact</h2>
               <p className="mb-4">
                 Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter :
               </p>

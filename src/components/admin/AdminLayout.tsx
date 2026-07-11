@@ -89,7 +89,7 @@ export default function AdminLayout({
           <div className="p-5 border-b border-[#1a1a3a]">
             <div className="flex items-center justify-between">
               <Link href="/admin/dashboard" className="flex items-center gap-2.5">
-                <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+                <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain brightness-0 invert" />
               </Link>
               <button
                 className="lg:hidden text-[#94a3b8] hover:text-white transition-colors"

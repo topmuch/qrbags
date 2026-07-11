@@ -231,7 +231,7 @@ function InscrireContent() {
           <span className="text-sm md:text-base font-medium">{t('inscrire.back')}</span>
         </Link>
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+          <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
         </div>
         <LanguageSelector lang={lang} setLang={setLang} />
       </header>

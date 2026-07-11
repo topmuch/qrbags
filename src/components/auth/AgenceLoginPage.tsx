@@ -76,7 +76,7 @@ function FloatingIcon({
         ease: 'easeInOut',
       }}
     >
-      <Icon className="w-full h-full text-emerald-300/40" strokeWidth={1.2} />
+      <Icon className="w-full h-full text-yellow-300/40" strokeWidth={1.2} />
     </motion.div>
   );
 }
@@ -107,7 +107,7 @@ function AnimatedTestimonial({
             &ldquo;{testimonial.text}&rdquo;
           </p>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-700/30">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-700/30">
               <span className="text-white text-xs font-bold">
                 {testimonial.name
                   .split(' ')
@@ -220,21 +220,21 @@ export default function AgenceLoginPage() {
       <div className="relative hidden lg:flex lg:w-[52%] min-h-screen flex-col overflow-hidden">
         {/* Base gradient */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#064E3B] via-[#047857] to-[#059669]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0033a8] via-[#0047d6] to-[#0047d6]" />
           {/* Secondary depth gradient */}
           <div
-            className="absolute inset-0 bg-gradient-to-t from-[#022c22]/80 via-transparent to-[#064E3B]/60"
+            className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a]/80 via-transparent to-[#0033a8]/60"
           />
         </div>
 
         {/* Animated gradient orbs */}
-        <div className="absolute top-[15%] -left-16 w-[340px] h-[340px] rounded-full bg-emerald-400/15 blur-[100px] animate-pulse" />
+        <div className="absolute top-[15%] -left-16 w-[340px] h-[340px] rounded-full bg-yellow-400/15 blur-[100px] animate-pulse" />
         <div
-          className="absolute bottom-[20%] right-[-40px] w-[400px] h-[400px] rounded-full bg-emerald-500/10 blur-[120px] animate-pulse"
+          className="absolute bottom-[20%] right-[-40px] w-[400px] h-[400px] rounded-full bg-yellow-500/10 blur-[120px] animate-pulse"
           style={{ animationDelay: '1.2s' }}
         />
         <div
-          className="absolute top-[55%] left-[35%] w-[500px] h-[500px] rounded-full bg-emerald-300/8 blur-[150px] animate-pulse"
+          className="absolute top-[55%] left-[35%] w-[500px] h-[500px] rounded-full bg-yellow-300/8 blur-[150px] animate-pulse"
           style={{ animationDelay: '2.4s' }}
         />
 
@@ -293,16 +293,16 @@ export default function AgenceLoginPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center shadow-2xl shadow-emerald-700/40">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-700 flex items-center justify-center shadow-2xl shadow-amber-700/40">
                 <QrCode className="w-10 h-10 text-white" />
               </div>
               {/* Decorative dots */}
               <div
-                className="absolute -top-2.5 -right-2.5 w-5 h-5 rounded-full bg-[#c5a643] animate-bounce"
+                className="absolute -top-2.5 -right-2.5 w-5 h-5 rounded-full bg-[#fcd616] animate-bounce"
                 style={{ animationDelay: '0.4s' }}
               />
               <div
-                className="absolute -bottom-1.5 -right-5 w-3.5 h-3.5 rounded-full bg-emerald-300/70 animate-bounce"
+                className="absolute -bottom-1.5 -right-5 w-3.5 h-3.5 rounded-full bg-yellow-300/70 animate-bounce"
                 style={{ animationDelay: '1s' }}
               />
               <div
@@ -319,7 +319,7 @@ export default function AgenceLoginPage() {
             >
               Protégez chaque
               <br />
-              <span className="bg-gradient-to-r from-[#c5a643] via-[#D4AF37] to-[#c5a643] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#fcd616] via-[#fcd616] to-[#fcd616] bg-clip-text text-transparent">
                 bagage, en toute
               </span>
               <br />
@@ -387,7 +387,7 @@ export default function AgenceLoginPage() {
                   aria-label={`Témoignage ${i + 1}`}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
                     i === activeTestimonial
-                      ? 'bg-[#c5a643] w-4'
+                      ? 'bg-[#fcd616] w-4'
                       : 'bg-white/20 w-1.5 hover:bg-white/35'
                   }`}
                 />
@@ -405,7 +405,7 @@ export default function AgenceLoginPage() {
         <div
           className="absolute top-0 left-0 right-0 h-1"
           style={{
-            background: 'linear-gradient(90deg, #047857, #c5a643, #059669, #D4AF37, #047857)',
+            background: 'linear-gradient(90deg, #0047d6, #fcd616, #0047d6, #fcd616, #0047d6)',
           }}
         />
 
@@ -420,7 +420,7 @@ export default function AgenceLoginPage() {
             className="lg:hidden flex items-center justify-center mb-8"
             variants={itemVariants}
           >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-900 p-2 flex items-center justify-center shadow-lg shadow-emerald-800/20">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-700 to-emerald-900 p-2 flex items-center justify-center shadow-lg shadow-emerald-800/20">
               <img
                 src="/logo.png"
                 alt="QRBag"
@@ -431,7 +431,7 @@ export default function AgenceLoginPage() {
 
           {/* Badge */}
           <motion.div className="flex items-center gap-2 mb-6" variants={itemVariants}>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-700 text-white shadow-sm">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-700 text-white shadow-sm">
               <Building2 className="w-3 h-3" />
               Agence
             </span>
@@ -482,13 +482,13 @@ export default function AgenceLoginPage() {
               <div
                 className={`relative flex items-center rounded-xl border transition-all duration-200 ${
                   focusedField === 'email'
-                    ? 'border-emerald-600 bg-white ring-4 ring-emerald-600/[0.08]'
+                    ? 'border-yellow-600 bg-white ring-4 ring-yellow-600/[0.08]'
                     : 'border-slate-200 bg-slate-50 hover:border-slate-300'
                 }`}
               >
                 <div
                   className={`pl-4 transition-colors duration-200 ${
-                    focusedField === 'email' ? 'text-emerald-700' : 'text-slate-400'
+                    focusedField === 'email' ? 'text-amber-700' : 'text-slate-400'
                   }`}
                 >
                   <Mail className="w-[18px] h-[18px]" />
@@ -515,14 +515,14 @@ export default function AgenceLoginPage() {
               <div
                 className={`relative flex items-center rounded-xl border transition-all duration-200 ${
                   focusedField === 'password'
-                    ? 'border-emerald-600 bg-white ring-4 ring-emerald-600/[0.08]'
+                    ? 'border-yellow-600 bg-white ring-4 ring-yellow-600/[0.08]'
                     : 'border-slate-200 bg-slate-50 hover:border-slate-300'
                 }`}
               >
                 <div
                   className={`pl-4 transition-colors duration-200 ${
                     focusedField === 'password'
-                      ? 'text-emerald-700'
+                      ? 'text-amber-700'
                       : 'text-slate-400'
                   }`}
                 >
@@ -542,7 +542,7 @@ export default function AgenceLoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="pr-4 text-slate-400 hover:text-emerald-600 transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  className="pr-4 text-slate-400 hover:text-yellow-600 transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
                   tabIndex={-1}
                   aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
@@ -562,7 +562,7 @@ export default function AgenceLoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-emerald-700 focus:ring-emerald-700/20 cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-amber-700 focus:ring-amber-700/20 cursor-pointer"
                 />
                 <span className="text-sm text-slate-500 group-hover:text-slate-700 transition-colors">
                   Se souvenir de moi
@@ -570,7 +570,7 @@ export default function AgenceLoginPage() {
               </label>
               <Link
                 href="/forgot-password"
-                className="text-sm font-medium text-emerald-700 hover:text-emerald-800 transition-colors"
+                className="text-sm font-medium text-amber-700 hover:text-emerald-800 transition-colors"
               >
                 Mot de passe oublié ?
               </Link>
@@ -582,7 +582,7 @@ export default function AgenceLoginPage() {
               disabled={loading}
               whileHover={loading ? {} : { scale: 1.01 }}
               whileTap={loading ? {} : { scale: 0.98 }}
-              className="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30"
+              className="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 text-sm bg-gradient-to-r from-yellow-600 to-amber-700 hover:from-yellow-500 hover:to-yellow-600 shadow-lg shadow-yellow-600/25 hover:shadow-xl hover:shadow-yellow-600/30"
             >
               {loading ? (
                 <>
@@ -600,19 +600,19 @@ export default function AgenceLoginPage() {
 
           {/* Demo Account Card */}
           <motion.div
-            className="mt-6 p-4 rounded-xl bg-emerald-50/70 border border-emerald-100"
+            className="mt-6 p-4 rounded-xl bg-yellow-50/70 border border-yellow-100"
             variants={itemVariants}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-emerald-700 flex items-center justify-center shadow-sm shadow-emerald-700/20">
+                <div className="w-9 h-9 rounded-lg bg-amber-700 flex items-center justify-center shadow-sm shadow-amber-700/20">
                   <Fingerprint className="w-4 h-4 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-emerald-900">
                     Compte démo
                   </p>
-                  <p className="text-[10px] text-emerald-600/70 font-mono leading-relaxed">
+                  <p className="text-[10px] text-yellow-600/70 font-mono leading-relaxed">
                     agence@qrbag.com / agence123
                   </p>
                 </div>
@@ -620,7 +620,7 @@ export default function AgenceLoginPage() {
               <button
                 type="button"
                 onClick={fillDemo}
-                className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-emerald-700 text-white hover:bg-emerald-600 active:scale-[0.97] transition-all duration-200 shadow-sm shadow-emerald-700/20"
+                className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-amber-700 text-white hover:bg-yellow-600 active:scale-[0.97] transition-all duration-200 shadow-sm shadow-amber-700/20"
               >
                 Remplir
               </button>
@@ -635,7 +635,7 @@ export default function AgenceLoginPage() {
             Vous êtes administrateur ?{' '}
             <Link
               href="/admin/connexion"
-              className="font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
+              className="font-semibold text-amber-700 hover:text-emerald-800 transition-colors"
             >
               Connexion SuperAdmin
             </Link>
@@ -648,21 +648,21 @@ export default function AgenceLoginPage() {
           >
             <Link
               href="/cgu"
-              className="hover:text-emerald-600 transition-colors"
+              className="hover:text-yellow-600 transition-colors"
             >
               CGU
             </Link>
             <span className="text-slate-200">•</span>
             <Link
               href="/confidentialite"
-              className="hover:text-emerald-600 transition-colors"
+              className="hover:text-yellow-600 transition-colors"
             >
               Confidentialité
             </Link>
             <span className="text-slate-200">•</span>
             <Link
               href="/contact"
-              className="hover:text-emerald-600 transition-colors"
+              className="hover:text-yellow-600 transition-colors"
             >
               Aide
             </Link>
