@@ -65,8 +65,8 @@ export default function TransportModeSelector({
             aria-label={t(`transport.mode_${mode}`)}
             className={`
               relative flex flex-col items-center justify-center
-              rounded-xl p-4 sm:p-5 min-h-[110px] sm:min-h-[120px]
-              border-2 transition-all duration-200
+              rounded-xl p-3 sm:p-4 min-h-[140px] sm:min-h-[160px]
+              border-2 transition-all duration-200 overflow-hidden
               focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2
               ${
                 isSelected
@@ -75,16 +75,15 @@ export default function TransportModeSelector({
               }
             `}
           >
-            {/* Vraie image du moyen de transport.
-                mix-blend-multiply fait fondre le fond blanc de l'image
-                avec la couleur de la carte (jaune #fcd616). */}
-            <div className="w-12 h-12 sm:w-14 sm:h-14 mb-1.5 flex items-center justify-center">
+            {/* Vraie photo du moyen de transport — full color, gros plan.
+                object-cover pour remplir entièrement le cadre (effet visuel fort). */}
+            <div className="w-full h-20 sm:h-24 mb-2 flex items-center justify-center overflow-hidden rounded-lg">
               <Image
                 src={imgSrc}
                 alt={label}
-                width={56}
-                height={56}
-                className="w-full h-full object-contain mix-blend-multiply transition-transform duration-200"
+                width={120}
+                height={96}
+                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                 priority={false}
               />
             </div>
