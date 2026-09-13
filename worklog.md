@@ -157,3 +157,20 @@ Stage Summary:
 - Étiquette 7×10 cm prête à imprimer générée automatiquement pour chaque QR voyageur (design officiel + QR scannable + référence)
 - Points d'accès : GET /api/labels/{reference}[?download=1] · planche A4 /admin/etiquettes/planche?setId=...
 - Le design hajj pourra être ajouté sans changer l'API (mapping LABEL_BACKGROUNDS par type)
+
+---
+Task ID: 4
+Agent: Main Agent (session page inscription)
+Task: Page /inscrire — supprimer les 4 options transport (bateau/avion/bus/train), garder uniquement « Bienvenue ! Protégez vos bagages pour votre voyage » + « Continuer » ; couleurs : zone haute bleu nuit #16234e écriture blanche, fond de page (bas) or #be9a5e
+
+Work Log:
+- src/app/inscrire/page.tsx réécrit : step 1 = accueil (Bienvenue ! + subtitle) + bouton Continuer (clés i18n existantes common.welcome / inscrire.subtitle / inscrire.next_step) ; plus de TransportModeSelector ni d'onglets Remplir/Scanner
+- Couleurs : NAVY=#16234e (bande haute arrondie rounded-b-[2rem], header + titre blancs) ; GOLD=#be9a5e (fond de page, carte formulaire blanche) ; boutons primaires navy/texte blanc ; lien help navy sur or ; fallback Suspense navy
+- Formulaire épuré : champs vol/train/navire/bus retirés (formData + payload API) ; transportMode:'flight' envoyé en dur (défaut déjà côté API, cohérent avec refs VOL26-) ; handleModeSelect/?mode= supprimés (param ignoré, sans casse)
+- Vérifié : eslint 0 erreur ; /inscrire?qr=... → 200, #16234e + #be9a5e présents, #0047d6 absent, aucun mot Avion/Bateau/Bus/Train, « Choisissez votre mode » absent ; clés brutes SSR = comportement i18n async existant (non régressif)
+- Test E2E scripts/test-inscrire-payload.ts : set 2 QR pending_activation → POST payload minimal → activatedCount=2, les 2 actives, transportMode=flight, infos copiées ; nettoyage OK
+
+Stage Summary:
+- /inscrire : flux 2 étapes simplifié (Bienvenue+Continuer → formulaire), brand navy #16234e / or #be9a5e aligné sur l'étiquette 7×10 cm
+- Activation groupée setId inchangée et re-validée ; API /api/activate non modifiée
+- Reste à faire (proposé) : la page /scan/[reference] a encore son propre sélecteur de mode transport avant redirection vers /inscrire

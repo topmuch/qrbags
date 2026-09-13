@@ -1,15 +1,12 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   ArrowRight,
   CheckCircle,
-  Camera,
-  FileText,
   Sparkles,
   Globe,
   AlertCircle,
@@ -17,22 +14,12 @@ import {
 import PhoneInput from '@/components/ui/PhoneInput';
 import CountryRegionSelect from '@/components/inscrire/CountryRegionSelect';
 
-// TRANSPORT-FEATURE: Import transport utilities
 import { useTranslation } from '@/hooks/useTranslation';
 import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
-import TransportModeSelector from '@/components/inscrire/TransportModeSelector';
-import type { TransportMode } from '@/lib/transport';
-import {
-  TRANSPORT_ICONS,
-  TRANSPORT_IMAGES,
-  TRANSPORT_FIELDS,
-  getTransportImage,
-} from '@/lib/transport';
 
-// ─── Brand constants (QRBag palette: blue #0047d6 + yellow #fcd616) ───
-const BRAND = '#0047d6'; // bleu vif — fonds principaux, headers
-const ACCENT = '#fcd616'; // jaune vif — cards, badges, accents
-const INK = '#1a1a1a'; // noir — texte sur jaune, bordures dashed
+// ─── Brand constants (palette étiquette QRBag : bleu nuit #16234e + or #be9a5e) ───
+const NAVY = '#16234e'; // fond de la zone haute (en-tête + accueil) — écriture blanche
+const GOLD = '#be9a5e'; // fond de la page (zone basse / contenu)
 
 // ─── Language Selector Component ───
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
@@ -66,8 +53,9 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
                 setIsOpen(false);
               }}
               className={`w-full px-4 py-2.5 sm:px-5 sm:py-3 text-left text-xs sm:text-sm md:text-base font-medium transition-colors ${
-                lang === l ? 'bg-[#fcd616] text-black' : 'text-black hover:bg-black/5'
+                lang === l ? 'text-black' : 'text-black hover:bg-black/5'
               }`}
+              style={lang === l ? { backgroundColor: GOLD } : undefined}
             >
               {LANGUAGE_NAMES[l]}
             </button>
@@ -81,7 +69,7 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
 // ─── Dashed Encart Helper (bordure noire pointillée) ───
 function DashedEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`border-2 border-dashed border-black rounded-xl p-4 mb-3 last:mb-0 bg-white/30 ${className}`}>
+    <div className={`border-2 border-dashed border-black rounded-xl p-4 mb-3 last:mb-0 bg-white ${className}`}>
       {children}
     </div>
   );
@@ -92,16 +80,8 @@ function InscrireContent() {
   const searchParams = useSearchParams();
   const qrFromUrl = searchParams.get('qr') || '';
 
-  // TRANSPORT-FEATURE: Translation hook + transport mode + step state
   const { t, lang, setLang, dir, countryCode } = useTranslation();
-  // ACTIVATION-FLOW: Lire ?mode= depuis l'URL pour pré-sélectionner le mode de transport
-  const modeFromUrl = searchParams.get('mode') || '';
-  const isModeFromUrl = ['flight', 'train', 'boat', 'bus'].includes(modeFromUrl);
-  const [transportMode, setTransportMode] = useState<TransportMode | ''>(
-    isModeFromUrl ? (modeFromUrl as TransportMode) : ''
-  );
-  const [step, setStep] = useState(isModeFromUrl ? 2 : 1);
-  const [activeTab, setActiveTab] = useState<'manual' | 'scan'>('manual');
+  const [step, setStep] = useState(1);
 
   const [loading, setLoading] = useState(false);
   const [phoneCountry, setPhoneCountry] = useState(countryCode);
@@ -113,15 +93,6 @@ function InscrireContent() {
     departureDate: '',
     departureTime: '',
     whatsapp: '',
-    // TRANSPORT-FEATURE: Conditional fields (all modes)
-    airlineName: '',
-    flightNumber: '',
-    trainCompany: '',
-    trainNumber: '',
-    shipName: '',
-    shipCabin: '',
-    busCompany: '',
-    busLineNumber: '',
   });
 
   // Sync phoneCountry when countryCode is detected
@@ -131,24 +102,11 @@ function InscrireContent() {
     }
   }, [countryCode]);
 
-  // TRANSPORT-FEATURE: Get dynamic fields for current transport mode
-  const currentFields = transportMode ? TRANSPORT_FIELDS[transportMode] : [];
-
-  // TRANSPORT-FEATURE: Handle transport mode selection → advance to step 2
-  const handleModeSelect = (mode: TransportMode) => {
-    setTransportMode(mode);
-    setStep(2);
-  };
-
-  const handleBackToMode = () => {
-    setStep(1);
-  };
-
   // 🔒 Référence absente → activation impossible
   const missingReference = !formData.reference;
 
   const doSubmit = async () => {
-    if (!transportMode || missingReference) return;
+    if (missingReference) return;
     setLoading(true);
 
     try {
@@ -160,15 +118,9 @@ function InscrireContent() {
           travelerFirstName: formData.firstName,
           travelerLastName: formData.lastName,
           whatsappOwner: formData.whatsapp,
-          transportMode: transportMode,
-          airlineName: formData.airlineName,
-          flightNumber: formData.flightNumber,
-          trainCompany: formData.trainCompany,
-          trainNumber: formData.trainNumber,
-          shipName: formData.shipName,
-          shipCabin: formData.shipCabin,
-          busCompany: formData.busCompany,
-          busLineNumber: formData.busLineNumber,
+          // Plus de sélection de transport côté UI — l'API applique son défaut ('flight',
+          // cohérent avec les références voyageur VOL26-)
+          transportMode: 'flight',
           destination: formData.destination,
           departureDate: formData.departureDate || undefined,
           departureTime: formData.departureTime || undefined,
@@ -185,15 +137,7 @@ function InscrireContent() {
             lastName: formData.lastName,
             whatsapp: formData.whatsapp,
             destination: formData.destination,
-            transportMode: transportMode,
-            airlineName: formData.airlineName,
-            flightNumber: formData.flightNumber,
-            trainCompany: formData.trainCompany,
-            trainNumber: formData.trainNumber,
-            shipName: formData.shipName,
-            shipCabin: formData.shipCabin,
-            busCompany: formData.busCompany,
-            busLineNumber: formData.busLineNumber,
+            transportMode: 'flight',
             type: 'voyageur',
             activatedAt: new Date().toISOString(),
             expiresAt: data.baggage?.expiresAt,
@@ -214,182 +158,104 @@ function InscrireContent() {
     }
   };
 
-  // TRANSPORT_ICON: Utilise la vraie image PNG si un mode est sélectionné, sinon emoji fallback.
-  const TransportIcon = transportMode ? TRANSPORT_ICONS[transportMode] : '✈️';
-  const TransportImageSrc = transportMode ? getTransportImage(transportMode) : null;
-
   return (
     <main
-      className="min-h-[100dvh] min-h-screen bg-[#0047d6] flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
+      className="min-h-[100dvh] min-h-screen flex flex-col pb-[env(safe-area-inset-bottom,0px)]"
+      style={{ backgroundColor: GOLD }}
       dir={dir}
     >
-      {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex items-center justify-between pt-[env(safe-area-inset-top,0px)] px-0 py-2 sm:py-3 md:py-4 bg-[#0047d6]">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-white hover:text-[#fcd616] transition-colors min-h-[44px]"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm md:text-base font-medium">{t('inscrire.back')}</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
-        </div>
-        <LanguageSelector lang={lang} setLang={setLang} />
-      </header>
-
-      {/* ─── Container ─── */}
-      <div className="w-full max-w-md mx-auto flex-1 flex flex-col py-4 sm:py-6 md:py-0">
-        {/* ═══ BADGE DE STATUT ═══ */}
-        <div className="mt-2 sm:mt-4 md:mt-6 mb-4 sm:mb-6 text-center">
-          <span
-            className="inline-flex items-center justify-center px-6 py-3 rounded-full font-bold text-lg shadow-lg text-black"
-            style={{ backgroundColor: ACCENT, boxShadow: `0 10px 25px ${INK}40` }}
+      {/* ═══ ZONE HAUTE — bleu nuit #16234e, écriture blanche ═══ */}
+      <div
+        className="px-4 sm:px-5 md:px-8 pt-[env(safe-area-inset-top,0px)] pb-14 rounded-b-[2rem] shadow-lg"
+        style={{ backgroundColor: NAVY }}
+      >
+        {/* ─── Header ─── */}
+        <header className="flex items-center justify-between py-2 sm:py-3">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-white hover:text-white/80 transition-colors min-h-[44px]"
           >
-            {qrFromUrl ? `✨ ${t('inscrire.voyageur_badge')}` : `🧳 ${t('inscrire.title')}`}
-          </span>
-          <p className="mt-3 text-white text-base md:text-lg leading-relaxed max-w-md mx-auto">
-            {qrFromUrl ? t('inscrire.welcome_desc') : t('inscrire.subtitle')}
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm md:text-base font-medium">{t('inscrire.back')}</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
+          </div>
+          <LanguageSelector lang={lang} setLang={setLang} />
+        </header>
+
+        {/* ─── Bienvenue ! + Protégez vos bagages pour votre voyage ─── */}
+        <div className="mt-4 sm:mt-6 text-center max-w-md mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+            {t('common.welcome')}
+          </h1>
+          <p className="mt-3 text-white/90 text-base md:text-lg leading-relaxed">
+            {t('inscrire.subtitle')}
           </p>
-        </div>
 
-        {/* ─── Status Indicator ─── */}
-        <div className="flex items-center justify-center gap-2 mb-5">
-          <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: ACCENT }} />
-          <span className="text-sm font-bold uppercase tracking-widest text-white">
-            {step === 1 ? t('transport.select_mode') : t('inscrire.step_2_subtitle')}
-          </span>
+          {/* Indicateur d'étape (uniquement à l'étape 2) */}
+          {step === 2 && (
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <span className="w-2 h-2 rounded-full animate-pulse bg-white" />
+              <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+                {t('inscrire.step_2_subtitle')}
+              </span>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* ═══ BLOC PRINCIPAL — Formulaire Activation (jaune QRBag) ═══ */}
-        <div
-          className="w-full rounded-2xl p-5 md:p-6 mb-5 shadow-xl"
-          style={{ backgroundColor: ACCENT, boxShadow: `0 20px 40px ${INK}15` }}
-        >
-          {/* ─── Step 1: Transport Mode Selector ─── */}
+      {/* ═══ ZONE BASSE — fond or #be9a5e, carte blanche ═══ */}
+      <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-4 sm:px-5 -mt-8 pb-6">
+        <div className="w-full rounded-2xl p-5 md:p-6 shadow-xl bg-white">
+          {/* ─── Étape 1 : Bienvenue + Continuer ─── */}
           {step === 1 && (
-            <>
-              <h2 className="text-xs uppercase tracking-widest text-black font-bold mb-4 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" style={{ color: INK }} />
-                {t('transport.select_mode')}
-              </h2>
-
-              {/* Tab Toggle — Manual / Scan (selected = blanc) */}
-              <div className="flex gap-2 mb-5">
-                <button
-                  onClick={() => setActiveTab('manual')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all min-h-[44px] border-2 border-black ${
-                    activeTab === 'manual'
-                      ? 'bg-white text-black shadow-lg'
-                      : 'bg-white/40 text-black hover:bg-white/60'
-                  }`}
+            <div>
+              {qrFromUrl && (
+                <div
+                  className="flex items-center justify-center gap-2 mb-4 text-sm font-semibold"
+                  style={{ color: NAVY }}
                 >
-                  <FileText className="w-4 h-4" />
-                  {t('inscrire.manual_tab')}
-                </button>
-                <button
-                  onClick={() => setActiveTab('scan')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all min-h-[44px] border-2 border-black ${
-                    activeTab === 'scan'
-                      ? 'bg-white text-black shadow-lg'
-                      : 'bg-white/40 text-black hover:bg-white/60'
-                  }`}
-                >
-                  <Camera className="w-4 h-4" />
-                  {t('inscrire.scan_tab')}
-                </button>
-              </div>
-
-              {activeTab === 'scan' ? (
-                <div className="text-center py-6">
-                  <div className="w-20 h-20 bg-white/40 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-black">
-                    <Camera className="w-10 h-10 text-black/60" />
-                  </div>
-                  <h3 className="text-black font-semibold text-lg mb-2">{t('inscrire.scan_title')}</h3>
-                  <p className="text-black/70 text-sm mb-5">{t('inscrire.scan_desc')}</p>
-                  <button className="w-full py-4 px-6 bg-black hover:bg-black/80 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px] shadow-lg">
-                    <Camera className="w-5 h-5" />
-                    {t('inscrire.scan_button')}
-                  </button>
+                  <CheckCircle className="w-4 h-4" />
+                  {t('inscrire.reference_detected')}
                 </div>
-              ) : (
-                <>
-                  <TransportModeSelector
-                    selectedMode={transportMode}
-                    onSelect={handleModeSelect}
-                    t={t}
-                    lang={lang}
-                  />
-                  <button
-                    type="button"
-                    disabled={!transportMode}
-                    onClick={() => transportMode && setStep(2)}
-                    className="w-full mt-5 py-4 px-6 bg-black hover:bg-black/80 disabled:bg-black/30 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px] shadow-lg"
-                  >
-                    {t('inscrire.next_step')}
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                </>
               )}
-            </>
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="w-full py-4 px-6 text-white rounded-xl font-bold text-lg transition-all hover:opacity-90 flex items-center justify-center gap-2 min-h-[56px] shadow-lg"
+                style={{ backgroundColor: NAVY }}
+              >
+                {t('inscrire.next_step')}
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
           )}
 
-          {/* ─── Step 2: Activation Form ─── */}
+          {/* ─── Étape 2 : Formulaire d'activation ─── */}
           {step === 2 && (
             <div className="space-y-4">
               {/* Back button */}
               <button
                 type="button"
-                onClick={handleBackToMode}
+                onClick={() => setStep(1)}
                 className="flex items-center gap-1.5 text-black/70 hover:text-black transition-colors text-sm mb-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 {t('inscrire.back_step')}
               </button>
 
-              {/* Mode indicator — vraie image au lieu d'emoji */}
-              <DashedEncart>
-                <div className="flex items-center gap-3">
-                  {TransportImageSrc ? (
-                    <div className="w-10 h-10 flex-shrink-0">
-                      <Image
-                        src={TransportImageSrc}
-                        alt={t(`transport.mode_${transportMode}`)}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-contain mix-blend-multiply"
-                      />
-                    </div>
-                  ) : (
-                    <span className="text-2xl">{TransportIcon}</span>
-                  )}
-                  <div>
-                    <p className="text-sm text-black/70 font-medium">{t('common.baggage_type')}</p>
-                    <p className="text-lg font-bold text-black">{t(`transport.mode_${transportMode}`)}</p>
-                  </div>
-                </div>
-              </DashedEncart>
-
-              <h2 className="text-xs uppercase tracking-widest text-black font-bold flex items-center gap-2">
-                {TransportImageSrc ? (
-                  <div className="w-4 h-4 flex-shrink-0">
-                    <Image
-                      src={TransportImageSrc}
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="w-full h-full object-contain mix-blend-multiply"
-                    />
-                  </div>
-                ) : (
-                  <span>{TransportIcon}</span>
-                )}
+              <h2
+                className="text-xs uppercase tracking-widest font-bold flex items-center gap-2"
+                style={{ color: NAVY }}
+              >
+                <Sparkles className="w-4 h-4" />
                 {t('transport.traveler_info')}
               </h2>
 
-              {/* 🔒 Référence absente — warning + bouton désactivé */}
+              {/* 🔒 Référence absente — warning */}
               {missingReference && (
-                <div className="border-2 border-dashed border-black bg-white/60 rounded-xl p-4 mb-3 flex items-start gap-3">
+                <div className="border-2 border-dashed border-black bg-white rounded-xl p-4 mb-3 flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-black flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-black">
                     <p className="font-bold mb-1">⚠️ Aucun code QR détecté</p>
@@ -436,26 +302,6 @@ function InscrireContent() {
                   </div>
                 </div>
               </DashedEncart>
-
-              {/* TRANSPORT-FEATURE: Dynamic conditional fields */}
-              {currentFields.length > 0 && (
-                <DashedEncart>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {currentFields.map((field) => (
-                      <div key={field.key}>
-                        <p className="text-sm text-black/80 font-medium mb-1.5">{t(field.labelKey)}</p>
-                        <input
-                          type="text"
-                          placeholder={t(field.placeholderKey)}
-                          value={(formData as Record<string, string>)[field.key] || ''}
-                          onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                          className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </DashedEncart>
-              )}
 
               {/* Destination — Dashed Encart + dropdown pays par régions */}
               <DashedEncart>
@@ -514,38 +360,35 @@ function InscrireContent() {
                   </div>
                 </div>
               </DashedEncart>
+
+              {/* ═══ BOUTON SUBMIT ═══ */}
+              <button
+                onClick={doSubmit}
+                disabled={loading || missingReference}
+                className="w-full py-4 px-6 active:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 min-h-[56px] flex items-center justify-center gap-2"
+                style={{ backgroundColor: NAVY }}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    {t('inscrire.submit_loading')}
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    {t('inscrire.submit')}
+                  </span>
+                )}
+              </button>
             </div>
           )}
         </div>
 
-        {/* ═══ BOUTON SUBMIT (noir) ═══ */}
-        {step === 2 && (
-          <div className="mb-6">
-            <button
-              onClick={doSubmit}
-              disabled={loading || !transportMode || missingReference}
-              className="w-full py-4 px-6 bg-black hover:bg-black/80 active:bg-black/90 disabled:bg-black/30 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-1 min-h-[56px] focus:ring-2 focus:ring-black focus:ring-offset-2 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {t('inscrire.submit_loading')}
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <Sparkles className="w-5 h-5" />
-                  {t('inscrire.submit')}
-                </span>
-              )}
-            </button>
-          </div>
-        )}
-
         {/* ─── Help Section ─── */}
-        <div className="text-center pb-6">
-          <p className="text-white/80 text-sm">
+        <div className="text-center pt-5">
+          <p className="text-sm" style={{ color: NAVY }}>
             {t('inscrire.no_qr')}{' '}
-            <Link href="/#pricing" className="font-bold underline" style={{ color: ACCENT }}>
+            <Link href="/#pricing" className="font-bold underline" style={{ color: NAVY }}>
               {t('inscrire.order_sticker')}
             </Link>
           </p>
@@ -561,9 +404,9 @@ export default function InscrirePage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#0047d6] flex items-center justify-center">
+        <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: NAVY }}>
           <div className="text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-white/20 border-t-[#fcd616] rounded-full mx-auto mb-4" />
+            <div className="animate-spin w-12 h-12 border-4 border-white/20 border-t-white rounded-full mx-auto mb-4" />
             <p className="text-lg text-white">{t('common.loading')}</p>
           </div>
         </main>
