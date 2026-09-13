@@ -6,6 +6,8 @@
 cd /home/z/my-project || exit 1
 
 echo "[dev.sh] $(date '+%F %T') — démarrage du superviseur QRBag dev"
+# NB: l'auto-persistance DB (commit+push anti-restore) vit désormais dans
+# src/instrumentation.ts (timer du process next-server, supervisé par la plateforme).
 
 # ── Mini-service tracking-ws (Socket.IO, port 3005) ──
 start_mini() {

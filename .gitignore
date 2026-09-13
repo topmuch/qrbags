@@ -57,8 +57,15 @@ server.log
 # Sans exception, la plateforme restore le workspace entre sessions → données perdues.
 db/*.db
 db/*.db-journal
+db/*.db-wal
+db/*.db-shm
+db/*.db-oplog
 !db/.gitkeep
 !db/custom.db
+# Token push GitHub (JAMAIS committé)
+.zscripts/.gittoken
+.zscripts/*.log
+tool-results/
 
 # Uploads (user data)
 /upload/*

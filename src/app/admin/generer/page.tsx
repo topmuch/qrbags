@@ -184,7 +184,8 @@ export default function GenererQRPage() {
 
       if (!exportResponse.ok) {
         const errorData = await exportResponse.json().catch(() => ({ error: 'Export échoué' }));
-        throw new Error(errorData.error || 'Export failed');
+        // NB: details = cause technique renvoyée par l'API (diagnostic utilisateur)
+        throw new Error((errorData.error || 'Export failed') + (errorData.details ? ` — ${errorData.details}` : ''));
       }
 
       // Check that the response is actually a ZIP
@@ -192,7 +193,7 @@ export default function GenererQRPage() {
       if (contentType && !contentType.includes('zip') && !contentType.includes('octet-stream')) {
         // Response is not a ZIP - likely an error JSON
         const errorData = await exportResponse.json().catch(() => ({ error: 'Réponse invalide' }));
-        throw new Error(errorData.error || 'Le serveur n\'a pas renvoyé un fichier ZIP');
+        throw new Error((errorData.error || 'Le serveur n\'a pas renvoyé un fichier ZIP') + (errorData.details ? ` — ${errorData.details}` : ''));
       }
 
       // Get filename

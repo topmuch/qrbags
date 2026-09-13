@@ -19,7 +19,7 @@ import {
   Loader2
 } from "lucide-react";
 import { useAgency } from '../layout';
-import { isActive, isPending } from '@/lib/status';
+import { isActive, isPending, isLost } from '@/lib/status';
 
 interface Baggage {
   id: string;

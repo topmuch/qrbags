@@ -280,7 +280,8 @@ export default function QRCodesPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Export échoué' }));
-        throw new Error(errorData.error || 'Export failed');
+        // NB: details = cause technique renvoyée par l'API (diagnostic utilisateur)
+        throw new Error((errorData.error || 'Export failed') + (errorData.details ? ` — ${errorData.details}` : ''));
       }
 
       setExportProgress('Téléchargement du fichier ZIP...');
