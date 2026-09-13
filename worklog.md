@@ -118,3 +118,21 @@ Stage Summary:
 - main = V.6 exact (d25d6a4), serveur V.6 fonctionnel, DB intègre (8 bagages démo)
 - Mods ré-applicables depuis backup-post-V6-fixes : (1) persistance DB autocommit+selfheal, (2) export ZIP robuste + fix isLost, (3) Passeport QRBags, (4) photo+récompense, (5) étiquettes+planche, (6) restyle homepage/login
 - Prochaine étape : utilisateur choisit l'ordre, on applique UNE mod à la fois avec validation
+
+---
+Task ID: 16
+Agent: Super Z (main)
+Task: Mod 1 — intégration design pages inscription + passeport (depuis backup)
+
+Work Log:
+- Analyse dépendances : passeport = page 508 lignes + html-to-image (dep absente V.6) + /api/suivi (déjà présent) ; inscription = redesign 591 lignes avec PHOTO-FEATURE imbriquée (upload + payload photoPath) → intégration complète de la chaîne pour éviter un bouton photo cassé
+- Restauré depuis backup-post-V6-fixes : src/app/passeport/[reference]/page.tsx, src/app/inscrire/page.tsx, src/app/api/baggage-photo/{upload,[reference]}/route.ts, src/app/api/activate/route.ts, prisma/schema.prisma, public/locales/{fr,en,ar}.json (clés passport + photo, +58 lignes ×3)
+- bun add html-to-image@^1.11.13 ; prisma db push (colonnes photoPath/reward additives, client regénéré, 8 bagages intacts)
+- Redémarrage serveur : 1er kill insuffisant (port 3000 resté fermé pendant recompile) → kill -9 chaîne next dev → superviseur relancé proprement
+- Vérifié navigateur : /inscrire 200 + formulaire étape 2/2 avec sections « Photo de la valise » (Prendre une photo/Télécharger) + « Récompense en cas de perte » ; /passeport/VOL26-FLUX01 200 carte complète (Fatou Ndiaye, Dakar, Air Sénégal SN209, QR, PROTÉGÉ) ; API upload photo = validation OK ; GET photo 200 ; export PNG cliqué sans erreur
+- Screenshots : download/mod1-inscription-formulaire.png, mod1-passeport-integre.png
+- Commit plateforme UUID eb4128c (worklog uniquement, rien de sensible) remarqué entre d25d6a4 et mod 1 — normal
+
+Stage Summary:
+- Mod 1 LIVRÉE : main = a036ebd poussé GitHub — inscription + passeport au design récent, entièrement fonctionnels
+- Prochaines mods disponibles : (2) export ZIP robuste + fix isLost, (3) persistance DB auto, (4) étiquettes/planche, (5) restyle homepage/login
