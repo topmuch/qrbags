@@ -266,6 +266,29 @@ function SuccessContent() {
           </button>
         </div>
 
+        {/* ═══ 4ter. Passeport QRBags (carte numérique officielle) ═══ */}
+        <div className="mb-4">
+          <a
+            href={`/passeport/${reference}`}
+            aria-label="Voir mon Passeport QRBags"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2"
+            style={{ backgroundColor: '#16234e', color: ACCENT, borderColor: INK }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = ACCENT;
+              e.currentTarget.style.color = '#16234e';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#16234e';
+              e.currentTarget.style.color = ACCENT;
+            }}
+          >
+            🛂 Voir mon Passeport QRBags
+          </a>
+          <p className="text-center text-xs mt-2" style={{ color: INK, opacity: 0.65 }}>
+            Votre carte numérique officielle — à ajouter à votre téléphone
+          </p>
+        </div>
+
         {/* ═══ 4bis. Étiquette imprimable 7×10 cm (design officiel + QR) ═══ */}
         <div className="mb-4">
           <a

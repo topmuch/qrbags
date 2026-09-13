@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import {
@@ -1327,7 +1328,7 @@ export default function SuiviPage() {
 
               {/* Departure Date */}
               {(baggage.departureDate || baggage.createdAt) && (
-                <DashedEncart className="mb-0">
+                <DashedEncart>
                   <div className="flex items-center gap-3">
                     <span className="text-xl">📅</span>
                     <div>
@@ -1339,6 +1340,19 @@ export default function SuiviPage() {
                   </div>
                 </DashedEncart>
               )}
+
+              {/* PASSEPORT : lien carte numérique (réservé propriétaire) */}
+              <Link
+                href={`/passeport/${baggage.reference}`}
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-dashed border-[#16234e] bg-[#16234e] hover:bg-[#be9a5e] text-white font-bold transition-colors min-h-[52px] mb-0"
+              >
+                <span className="text-xl">🛂</span>
+                <span className="flex-1 text-left">
+                  <span className="block text-sm font-bold">{t('passport.title')}</span>
+                  <span className="block text-xs font-normal text-white/80">{t('passport.subtitle')}</span>
+                </span>
+                <span className="text-lg" aria-hidden="true">→</span>
+              </Link>
             </div>
           )}
         </div>

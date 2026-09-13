@@ -287,3 +287,25 @@ Stage Summary:
 - Tests: scripts/test-vol-form.ts réutilisable (setup|check|cleanup)
 - Screenshots preuve : download/suivi-avec-vol.png
 - Idée Passeport QRBags reportée par l'utilisateur (à reprendre plus tard)
+
+---
+Task ID: 10
+Agent: Super Z (main)
+Task: Passeport QRBags Niveau 1 — carte numérique style boarding pass (navy/gold)
+
+Work Log:
+- Décisions utilisateur : Niveau 1 web OUI · réservé propriétaire OUI · design navy/gold OUI · petit QR pointant vers le document · regarder /success + /suivi AVANT de coder
+- Nouvelle page src/app/passeport/[reference]/page.tsx (client) : carte boarding pass navy #16234e / gold #be9a5e, perforations billetterie, badge statut (PROTÉGÉ or / PERDU rouge / EXPIRÉ gris), grille Destination/Compagnie/Vol n°, Départ + Validité, photo + badge récompense #fcd616, bande basse gold avec QRCodeSVG → URL du document (/passeport/{ref}) + mention « Document personnel »
+- Actions : export PNG (html-to-image toPng pixelRatio 3, import dynamique, couleurs hex inline pour compat canvas), Partager (Web Share API + fallback clipboard), Ajouter à l'écran d'accueil (hint iOS/Android selon userAgent), lien vers /suivi
+- Données via API /api/suivi existante (aucune modif backend) ; erreurs not_found/pending gérées ; RTL dir supporté
+- i18n : section "passport" (33 clés) ajoutée dans fr/en/ar
+- /success : bouton « 🛂 Voir mon Passeport QRBags » (navy→jaune hover) inséré entre boutons d'action et étiquette imprimable
+- /suivi : lien « 🛂 Passeport QRBags → » navy dans l'accordéon Informations du bagage (après Date de départ) ; import Link ajouté
+- Dépendance : html-to-image ^1.11.13 (--legacy-peer-deps, conflit sinon)
+- E2E navigateur : carte complète vérifiée (titre, voyageur, réf, compagnie, vol, statut, récompense, QR, 3 boutons), export PNG cliqué sans erreur console, bouton success visible (sessionStorage seedé), lien suivi présent
+- Cleanup set de test effectué ; lint 0 erreur ; screenshots download/passeport-qrbags.png + suivi-lien-passeport.png
+
+Stage Summary:
+- Passeport QRBags Niveau 1 livré : /passeport/{ref} réservé propriétaire (accès par lien depuis /success et /suivi uniquement, jamais depuis /scan trouveur)
+- QR de la carte = auto-vérification du document (boucle passeport ↔ lui-même)
+- Prochaines étapes possibles : Niveau 2 Apple Wallet (.pkpass, compte dev 99$/an) + Niveau 3 Google Wallet
