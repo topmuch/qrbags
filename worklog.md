@@ -99,3 +99,22 @@ Stage Summary:
 - All routes use `import { db } from '@/lib/db'`
 - Lint passes cleanly
 - Routes follow existing project patterns (NextRequest/NextResponse, rate-limit.ts, CRON_SECRET auth)
+---
+Task ID: 15
+Agent: Super Z (main)
+Task: Décision utilisateur "ça marche pas" → reset main sur V.6 + ré-application des mods une par une
+
+Work Log:
+- Sauvegarde : branche backup-post-V6-fixes + tag backup-main-ca88f86 (ca88f86) poussés GitHub — RIEN perdu
+- Backup local .zscripts/backup-avant-V6/ : custom.db (8 bagages) + 3 photos + dev.sh
+- Reset : git read-tree -u --reset V.6 → commit d25d6a4 (arbre EXACTEMENT égal à V.6 : f35061b) poussé sur main
+- ERREUR ÉVITÉE : 1er commit via git add -A contenait .zscripts/.gittoken → push rejeté (protection GitHub) → recommencé avec read-tree propre + exclusions locales .git/info/exclude (.zscripts/, uploads/, db/*.db, tool-results/, logs, download/, worklog.md)
+- Install : bun install (prune html-to-image), prisma generate (client V.6 sans photoPath/reward), serveur redémarré par le superviseur dev.sh (PIDs 24805/24818)
+- Vérif : GET / 200, /suivi/VOL26-FLUX01 200, /admin/connexion 200, Prisma V.6 lit les 8 bagages (extra-columns ignorées), aucun P2022, aucun timer autocommit (V.6 sans instrumentation)
+- Découverte : V.6 N'A PAS le Passeport QRBags, ni photo/récompense, ni étiquettes/planche (ajoutés après le 11 juillet) → à ré-appliquer depuis la backup si voulus
+- Persistance worklog : commité sur branche backup-post-V6-fixes (worklog non tracké sur main sous V.6)
+
+Stage Summary:
+- main = V.6 exact (d25d6a4), serveur V.6 fonctionnel, DB intègre (8 bagages démo)
+- Mods ré-applicables depuis backup-post-V6-fixes : (1) persistance DB autocommit+selfheal, (2) export ZIP robuste + fix isLost, (3) Passeport QRBags, (4) photo+récompense, (5) étiquettes+planche, (6) restyle homepage/login
+- Prochaine étape : utilisateur choisit l'ordre, on applique UNE mod à la fois avec validation
