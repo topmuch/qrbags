@@ -47,6 +47,8 @@ export default function GenererQRPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [lastGeneratedRefs, setLastGeneratedRefs] = useState<string[]>([]);
+  // NB: conservé jusqu'à la prochaine génération (PAS vidé après 10s) — sinon l'export ZIP échoue
+  const [lastGeneratedSetIds, setLastGeneratedSetIds] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   
   // Context selection
@@ -130,26 +132,31 @@ export default function GenererQRPage() {
 
   // Export generated QR codes as ZIP
   const handleExportGenerated = async () => {
-    if (lastGeneratedRefs.length === 0) return;
+    if (lastGeneratedRefs.length === 0 && lastGeneratedSetIds.length === 0) return;
     setIsExporting(true);
     try {
-      // Find the setId from the first reference
-      // For agency mode, we need to fetch the baggages to get setIds
-      const response = await fetch('/api/admin/baggages/generate?limit=2000');
-      const data = await response.json();
-      const baggages = data.baggages || [];
+      // Source prioritaire : setIds retournés directement par la génération (fiable,
+      // pas de re-scan). Fallback : re-scan par références (compat ancienne session).
+      let setIdsToExport: string[] = [...lastGeneratedSetIds];
 
-      // Find setIds that contain our generated references
-      const refSet = new Set(lastGeneratedRefs);
-      const matchingSetIds = new Set<string>();
-      for (const baggage of baggages) {
-        if (refSet.has(baggage.reference) && baggage.setId) {
-          matchingSetIds.add(baggage.setId);
+      if (setIdsToExport.length === 0 && lastGeneratedRefs.length > 0) {
+        const response = await fetch('/api/admin/baggages/generate?limit=2000');
+        if (response.ok) {
+          const data = await response.json();
+          const baggages = data.baggages || [];
+          const refSet = new Set(lastGeneratedRefs);
+          const matchingSetIds = new Set<string>();
+          for (const baggage of baggages) {
+            if (refSet.has(baggage.reference) && baggage.setId) {
+              matchingSetIds.add(baggage.setId);
+            }
+          }
+          setIdsToExport = Array.from(matchingSetIds);
         }
       }
 
-      if (matchingSetIds.size === 0) {
-        alert('Impossible de trouver les sets générés');
+      if (setIdsToExport.length === 0) {
+        alert('Sets introuvables. La génération est peut-être trop ancienne — relancez une génération puis exportez immédiatement.');
         setIsExporting(false);
         return;
       }
@@ -163,7 +170,7 @@ export default function GenererQRPage() {
         exportResponse = await fetch('/api/admin/baggages/export-zip', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ setIds: Array.from(matchingSetIds) }),
+          body: JSON.stringify({ setIds: setIdsToExport }),
           signal: controller.signal,
         });
       } catch (fetchError) {
@@ -265,6 +272,9 @@ export default function GenererQRPage() {
       if (response.ok) {
         setSuccessMessage(`${data.generated} codes QR générés avec succès !`);
         setLastGeneratedRefs(data.references || []);
+        // FIX BUG EXPORT : conserver les setIds retournés par l'API (source fiable).
+        // Avant : refs vidées après 10s + re-scan client → "Impossible de trouver les sets générés".
+        setLastGeneratedSetIds(Array.isArray(data.setIds) ? data.setIds : []);
         // Reset individual form
         if (context === 'individual') {
           setIndividualForm({
@@ -275,9 +285,9 @@ export default function GenererQRPage() {
             baggageCount: 1,
           });
         }
+        // Le message disparaît visuellement, mais refs/setIds restent pour l'export
         setTimeout(() => {
           setSuccessMessage('');
-          setLastGeneratedRefs([]);
         }, 10000);
       } else {
         setErrorMessage(data.error || 'Erreur lors de la génération');
@@ -298,41 +308,43 @@ export default function GenererQRPage() {
         <p className="text-slate-500 dark:text-slate-400 mt-1">Créez des QR codes anti-fraude pour vos voyageurs</p>
       </div>
 
-      {/* Success Message */}
+      {/* Success Message (message seul — le bouton export vit dans son propre bloc persistant) */}
       {successMessage && (
         <div className="mb-6 bg-emerald-50 dark:bg-emerald-600/10 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 px-4 py-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5" />
             <span className="font-medium">{successMessage}</span>
           </div>
-          {lastGeneratedRefs.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              <button
-                onClick={handleExportGenerated}
-                disabled={isExporting}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1e7e34] to-[#0d5e34] text-white rounded-lg hover:from-[#228b22] hover:to-[#1e7e34] transition-all text-sm shadow-lg shadow-green-900/20 disabled:opacity-50"
-              >
-                {isExporting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Export en cours...
-                  </>
-                ) : (
-                  <>
-                    <Archive className="w-4 h-4" />
-                    Exporter en ZIP ({lastGeneratedRefs.length} QR)
-                  </>
-                )}
-              </button>
-              <a
-                href="/admin/qrcodes"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              >
-                <QrCode className="w-4 h-4" />
-                Voir tous les QR codes
-              </a>
-            </div>
-          )}
+        </div>
+      )}
+
+      {/* Bloc export PERSISTANT : visible tant que des refs/setIds de la dernière génération existent */}
+      {(lastGeneratedSetIds.length > 0 || lastGeneratedRefs.length > 0) && (
+        <div className="mb-6 flex flex-wrap gap-2">
+          <button
+            onClick={handleExportGenerated}
+            disabled={isExporting}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1e7e34] to-[#0d5e34] text-white rounded-lg hover:from-[#228b22] hover:to-[#1e7e34] transition-all text-sm shadow-lg shadow-green-900/20 disabled:opacity-50"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Export en cours...
+              </>
+            ) : (
+              <>
+                <Archive className="w-4 h-4" />
+                Exporter en ZIP ({lastGeneratedRefs.length} QR)
+              </>
+            )}
+          </button>
+          <a
+            href="/admin/qrcodes"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+          >
+            <QrCode className="w-4 h-4" />
+            Voir tous les QR codes
+          </a>
         </div>
       )}
 

@@ -53,9 +53,12 @@ prompt
 server.log
 
 # Database files (keep structure)
+# NB: db/custom.db est EXCEPTIONNÉ car c'est la vraie base runtime (DATABASE_URL .env).
+# Sans exception, la plateforme restore le workspace entre sessions → données perdues.
 db/*.db
 db/*.db-journal
 !db/.gitkeep
+!db/custom.db
 
 # Uploads (user data)
 /upload/*

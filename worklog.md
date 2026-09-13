@@ -343,3 +343,24 @@ Stage Summary:
 - Passeport QRBags Niveau 1 VÉRIFIÉ de bout en bout avec 2 correctifs de qualité livrés
 - Screenshots : download/passeport-verification-vive.png, passeport-qr-section.png, passeport-export-final.png (export corrigé), success-bouton-passeport.png, suivi-lien-passeport-visible.png
 - Données démo : VOL26-FLUX02 (Fatou Ndiaye, Dakar, Air Sénégal SN209, 50 000 FCFA, photo)
+
+---
+Task ID: 11
+Agent: Super Z (main)
+Task: Corriger 2 bugs utilisateur — export ZIP "Impossible de trouver les sets générés" + dashboard agence vide
+
+Work Log:
+- ROOT CAUSE COMMUNE : db/custom.db ignorée par .gitignore (db/*.db) et jamais commitée → la plateforme restore le workspace entre sessions (constaté mtime 19:21:35) → TOUTES les écritures DB perdues (agence + QR de l'utilisateur disparus)
+- Fix A (durabilité) : exception !db/custom.db dans .gitignore → la DB est committée et pushée à chaque session → les restores ramènent la dernière DB committée
+- Fix B (robustesse export) : API /api/admin/baggages/generate POST retourne désormais setIds (individuel + agence) ; frontend /admin/generer stocke lastGeneratedSetIds et exporte DIRECTEMENT (fallback re-scan par refs conservé) ; message d'erreur clarifié
+- Fix B2 (UX 10s) : lastGeneratedRefs/setIds NE SONT PLUS vidés après 10s (seul le message vert disparaît) ; bouton "Exporter en ZIP" déplacé dans un bloc PERSISTANT indépendant de successMessage (avant : disparaissait avec le message à 10s !)
+- Fix C (vérif dashboard agence) : E2E scripts/test-generer-export-agency.ts 12/12 ✅ — agence créée → génération 6 QR (setIds retournés) → /api/agency/baggages voit les 6 + stats → export ZIP 11865 octets signature PK → fallback re-scan 3/3 sets → individuel retourne setIds → cleanup
+- Test UI navigateur COMPLET (login admin@qrbag.com via /api/init-demo GET + bouton Remplir) : génération individu → attente 12 s (au-delà de l'ancien timeout) → message disparu, bouton PERSISTE, clic → ZIP téléchargé (QRBag-export-all-1QR-2026-09-13.zip, 2504 o) → AUCUNE alerte d'erreur
+- Comptes démo (re)créés via /api/init-demo : admin@qrbag.com/admin123 (superadmin) + agence@qrbag.com/agence123 + agence démo FRANCINE MAKELA
+- Cleanup baggages de test UI (3) ; lint 0 erreur ; DB commitée dans ce push
+
+Stage Summary:
+- Les 2 bugs avaient la même cause : perte de données DB au restore plateforme (DB jamais commitée)
+- Désormais : DB versionnée dans git (persiste aux restores) + export ZIP basé sur setIds retournés par la génération (plus de re-scan fragile) + bouton export persistant au-delà de 10 s
+- Le dashboard agence n'avait AUCUN bug de code : il affiche les QR dès qu'ils existent (prouvé E2E 12/12)
+- L'utilisateur doit RE-GÉNÉRER ses QR perdus ; ils persisteront désormais
