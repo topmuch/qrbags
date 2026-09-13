@@ -188,3 +188,24 @@ Work Log:
 Stage Summary:
 - Flux voyageur 100 % sans question transport : scan QR → /scan (badge + Démarrer) → /inscrire?qr=REF (Bienvenue + Continuer → formulaire) → activation groupée setId
 - API /api/scan et /api/activate inchangées
+
+---
+Task ID: 6
+Agent: Main Agent (session photo + récompense)
+Task: Ajouter photo de la valise (téléchargement/caméra) + récompense en cas de perte à l'inscription, affichées sur la page trouveur /scan
+
+Work Log:
+- prisma/schema.prisma : Baggage.photoPath (String?) + Baggage.reward (String?) ; db push OK — ATTENTION : la vraie base runtime est db/custom.db (DATABASE_URL du process prime sur .env qui pointe prisma/qrbag.db) ; prisma generate refait
+- Nouvelle API POST /api/baggage-photo/upload (multipart, rate-limit 15/h, JPG/PNG/WEBP/GIF, max 10 Mo, stockage uploads/baggage-photos/UUID.ext — pattern checklist)
+- Nouvelle API GET /api/baggage-photo/[reference] (sert l'image inline, cache 1h, 404 si absente, neutralisation traversée de chemin)
+- API /api/activate : zod +photoPath(+500)/+reward(+120), save sur le QR principal ET copie vers tout le set (activation groupée)
+- API /api/scan/[reference] : réponse enrichie photoUrl=/api/baggage-photo/{ref} (si photoPath) + reward
+- /inscrire : encart 📸 Photo de la valise (2 boutons : caméra capture=environment / téléchargement, compression client canvas max 1200px JPEG 80%, aperçu + suppression + changement) + encart 🎁 Récompense (chips 10k/25k/50k/100k FCFA + champ libre) ; payload + sessionStorage enrichis (reward)
+- /scan (trouveur) : nouveau bloc entre titre et bloc propriétaire — photo du bagage (img bordée) + badge récompense or #fcd616 avec description ; n'affiche que si les données existent
+- i18n : +14 clés photo/reward dans fr.json, en.json, ar.json (scripts/add-photo-reward-i18n.py)
+- Tests : eslint 6 fichiers → 0 erreur ; E2E scripts/test-photo-reward.ts : upload PNG → activation (activatedCount=2, photoPath+reward copiés sur le set) → scan expose photoUrl+reward → image servie 200 image/png → 404 sans photo → nettoyage ; pages /inscrire + /scan → 200 sans erreur compile
+- Piège corrigé : premier test E2E échoué car serveur actif avec ancien client Prisma en mémoire → pkill + restart avant test
+
+Stage Summary:
+- Le voyageur ajoute photo + récompense à l'activation ; le trouveur voit la photo du bagage (confirmation visuelle) et la récompense proposée (motivation) sur /scan
+- Fichiers : schema.prisma, api/baggage-photo/{upload,[reference]}/route.ts, api/activate/route.ts, api/scan/[reference]/route.ts, inscrire/page.tsx, scan/[reference]/page.tsx, locales fr/en/ar

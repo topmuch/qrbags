@@ -14,6 +14,9 @@ const activateSchema = z.object({
   destination: z.string().optional(),
   departureDate: z.string().date().optional(),
   departureTime: z.string().optional(),
+  // PHOTO + REWARD FEATURE: photo de la valise + récompense en cas de perte
+  photoPath: z.string().max(500).optional(),
+  reward: z.string().max(120).optional(),
   // TRANSPORT-FEATURE: Multi-transport mode support
   transportMode: z.enum(['flight', 'train', 'boat', 'bus']).optional(),
   trainCompany: z.string().optional(),
@@ -75,6 +78,9 @@ export async function POST(request: NextRequest) {
         shipCabin: validatedData.shipCabin || null,
         busCompany: validatedData.busCompany || null,
         busLineNumber: validatedData.busLineNumber || null,
+        // PHOTO + REWARD FEATURE
+        photoPath: validatedData.photoPath || null,
+        reward: validatedData.reward?.trim() || null,
         status: 'active',
         expiresAt,
       }
@@ -115,6 +121,9 @@ export async function POST(request: NextRequest) {
               shipCabin: validatedData.shipCabin || null,
               busCompany: validatedData.busCompany || null,
               busLineNumber: validatedData.busLineNumber || null,
+              // PHOTO + REWARD FEATURE (copiés vers tout le set)
+              photoPath: validatedData.photoPath || null,
+              reward: validatedData.reward?.trim() || null,
               status: 'active',
               expiresAt,
             }

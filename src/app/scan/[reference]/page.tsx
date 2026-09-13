@@ -77,6 +77,9 @@ interface BaggageData {
     shipCabin?: string | null;
     busCompany?: string | null;
     busLineNumber?: string | null;
+    // PHOTO + REWARD FEATURE: photo de la valise + récompense (affichées au trouveur)
+    photoUrl?: string | null;
+    reward?: string | null;
   };
 }
 
@@ -602,6 +605,35 @@ export default function ScanPage() {
               : t('finder.bagage_trouve_desc')}
           </p>
         </div>
+
+        {/* ═══ 📸 PHOTO DU BAGAGE + 🎁 RÉCOMPENSE (photo/reward feature) ═══ */}
+        {baggage && (baggage.photoUrl || baggage.reward) && (
+          <div className="w-full bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 md:p-6 mb-4">
+            {baggage.photoUrl && (
+              <>
+                <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
+                  <span>📸</span> {t('scan.photo_section')}
+                </h2>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={baggage.photoUrl}
+                  alt={t('scan.photo_section')}
+                  className="w-full max-h-72 object-cover rounded-xl border-2 border-[#1a1a1a]"
+                />
+              </>
+            )}
+
+            {baggage.reward && (
+              <div className={`bg-[#fcd616] border-2 border-solid border-[#1a1a1a] rounded-xl p-4 ${baggage.photoUrl ? 'mt-4' : ''}`}>
+                <p className="text-[#1a1a1a] text-xs font-bold uppercase tracking-widest mb-1">
+                  🎁 {t('scan.reward_label')}
+                </p>
+                <p className="text-xl md:text-2xl font-extrabold text-[#1a1a1a]">{baggage.reward}</p>
+                <p className="text-[#1a1a1a]/70 text-xs mt-1.5 leading-relaxed">{t('scan.reward_desc')}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (white + dashed black) ═══ */}
         {baggage && (

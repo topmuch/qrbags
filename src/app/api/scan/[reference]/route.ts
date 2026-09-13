@@ -118,6 +118,9 @@ export async function GET(
         createdAt: baggage.createdAt?.toISOString() || null,
         departureDate: baggage.departureDate?.toISOString() || null,
         departureTime: baggage.departureTime || null,
+        // PHOTO + REWARD FEATURE: photo de la valise + récompense (affichées au trouveur)
+        photoUrl: baggage.photoPath ? `/api/baggage-photo/${baggage.reference}` : null,
+        reward: baggage.reward || null,
       }
     },
     {

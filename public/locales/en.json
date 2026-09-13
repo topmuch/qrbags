@@ -166,7 +166,18 @@
     "next_step": "Continue",
     "back_step": "Back",
     "step_1_subtitle": "Step 1 of 2 — Transport mode",
-    "step_2_subtitle": "Step 2 of 2 — Your information"
+    "step_2_subtitle": "Step 2 of 2 — Your information",
+    "photo_label": "Luggage photo",
+    "photo_hint": "A photo helps identify your luggage if it gets lost",
+    "photo_camera": "Take a photo",
+    "photo_upload": "Upload",
+    "photo_change": "Change photo",
+    "photo_remove": "Remove photo",
+    "photo_uploading": "Uploading...",
+    "photo_error": "Photo upload failed",
+    "reward_label": "Lost & found reward",
+    "reward_hint": "Offer a reward to motivate a quick return of your luggage",
+    "reward_placeholder": "E.g.: 50,000 FCFA"
   },
   "tracking": {
     "page_title": "Baggage Tracking",
@@ -246,7 +257,10 @@
     "audio_alert_scanning": "Active monitoring…"
   },
   "scan": {
-    "success": "Scan successful! ✓"
+    "success": "Scan successful! ✓",
+    "photo_section": "Luggage photo",
+    "reward_label": "Reward",
+    "reward_desc": "The owner offers this reward to whoever returns the luggage"
   },
   "activation": {
     "success": "Activation successful! ✓"

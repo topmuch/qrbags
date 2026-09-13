@@ -166,7 +166,18 @@
     "next_step": "متابعة",
     "back_step": "رجوع",
     "step_1_subtitle": "الخطوة 1 من 2 — وضع النقل",
-    "step_2_subtitle": "الخطوة 2 من 2 — معلوماتك"
+    "step_2_subtitle": "الخطوة 2 من 2 — معلوماتك",
+    "photo_label": "صورة الحقيبة",
+    "photo_hint": "الصورة تساعد في التعرف على حقيبتك في حالة فقدانها",
+    "photo_camera": "التقاط صورة",
+    "photo_upload": "تحميل",
+    "photo_change": "تغيير الصورة",
+    "photo_remove": "حذف الصورة",
+    "photo_uploading": "جارٍ الإرسال...",
+    "photo_error": "فشل إرسال الصورة",
+    "reward_label": "مكافأة عند الفقدان",
+    "reward_hint": "اعرض مكافأة لتحفيز إعادة حقيبتك بسرعة",
+    "reward_placeholder": "مثال: 50,000 فرنك"
   },
   "tracking": {
     "page_title": "تتبع الأمتعة",
@@ -246,7 +257,10 @@
     "audio_alert_scanning": "مراقبة نشطة…"
   },
   "scan": {
-    "success": "تم المسح بنجاح! ✓"
+    "success": "تم المسح بنجاح! ✓",
+    "photo_section": "صورة الحقيبة",
+    "reward_label": "مكافأة",
+    "reward_desc": "يقدم المالك هذه المكافأة لمن يعيد له حقيبته"
   },
   "activation": {
     "success": "تم التفعيل بنجاح! ✓"

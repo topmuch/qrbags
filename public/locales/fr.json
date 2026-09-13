@@ -166,7 +166,18 @@
     "next_step": "Continuer",
     "back_step": "Retour",
     "step_1_subtitle": "Étape 1 sur 2 — Mode de transport",
-    "step_2_subtitle": "Étape 2 sur 2 — Vos informations"
+    "step_2_subtitle": "Étape 2 sur 2 — Vos informations",
+    "photo_label": "Photo de la valise",
+    "photo_hint": "Une photo aide à identifier votre bagage en cas de perte",
+    "photo_camera": "Prendre une photo",
+    "photo_upload": "Télécharger",
+    "photo_change": "Changer la photo",
+    "photo_remove": "Supprimer la photo",
+    "photo_uploading": "Envoi en cours...",
+    "photo_error": "Échec de l'envoi de la photo",
+    "reward_label": "Récompense en cas de perte",
+    "reward_hint": "Motivez le retour rapide de votre bagage en proposant une récompense",
+    "reward_placeholder": "Ex : 50 000 FCFA"
   },
   "tracking": {
     "page_title": "Suivi de bagage",
@@ -246,7 +257,10 @@
     "audio_alert_scanning": "Surveillance active…"
   },
   "scan": {
-    "success": "Scan réussi ! ✓"
+    "success": "Scan réussi ! ✓",
+    "photo_section": "Photo du bagage",
+    "reward_label": "Récompense",
+    "reward_desc": "Le propriétaire offre cette récompense à la personne qui lui rendra son bagage"
   },
   "activation": {
     "success": "Activation réussie ! ✓"

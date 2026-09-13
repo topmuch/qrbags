@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -10,6 +10,9 @@ import {
   Sparkles,
   Globe,
   AlertCircle,
+  Camera,
+  Upload,
+  X,
 } from 'lucide-react';
 import PhoneInput from '@/components/ui/PhoneInput';
 import CountryRegionSelect from '@/components/inscrire/CountryRegionSelect';
@@ -20,6 +23,9 @@ import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
 // ─── Brand constants (palette étiquette QRBag : bleu nuit #16234e + or #be9a5e) ───
 const NAVY = '#16234e'; // fond de la zone haute (en-tête + accueil) — écriture blanche
 const GOLD = '#be9a5e'; // fond de la page (zone basse / contenu)
+
+// REWARD-FEATURE: suggestions de récompense (boutons rapides)
+const REWARD_SUGGESTIONS = ['10 000', '25 000', '50 000', '100 000'];
 
 // ─── Language Selector Component ───
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
@@ -95,6 +101,17 @@ function InscrireContent() {
     whatsapp: '',
   });
 
+  // PHOTO-FEATURE: photo de la valise (caméra ou téléchargement) + aperçu
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoPath, setPhotoPath] = useState('');
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+
+  // REWARD-FEATURE: récompense proposée en cas de perte
+  const [reward, setReward] = useState('');
+
   // Sync phoneCountry when countryCode is detected
   useEffect(() => {
     if ((countryCode && countryCode !== 'FR') || !phoneCountry) {
@@ -104,6 +121,63 @@ function InscrireContent() {
 
   // 🔒 Référence absente → activation impossible
   const missingReference = !formData.reference;
+
+  // PHOTO-FEATURE: compression client (max 1200px, JPEG 80%) puis upload vers /api/baggage-photo/upload
+  const compressAndUpload = async (file: File) => {
+    setPhotoError('');
+    setPhotoUploading(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const img = new window.Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('image'));
+        img.src = dataUrl;
+      });
+
+      const maxDim = 1200;
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('canvas');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+      const compressed = blob ?? file;
+
+      const fd = new FormData();
+      fd.append('file', compressed, 'photo-valise.jpg');
+      const res = await fetch('/api/baggage-photo/upload', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('upload');
+      const data = await res.json();
+
+      setPhotoPath(data.photoPath || '');
+      setPhotoPreview(canvas.toDataURL('image/jpeg', 0.6));
+    } catch {
+      setPhotoError(t('inscrire.photo_error'));
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // permet de re-sélectionner le même fichier
+    if (file) compressAndUpload(file);
+  };
 
   const doSubmit = async () => {
     if (missingReference) return;
@@ -124,6 +198,9 @@ function InscrireContent() {
           destination: formData.destination,
           departureDate: formData.departureDate || undefined,
           departureTime: formData.departureTime || undefined,
+          // PHOTO + REWARD FEATURE
+          photoPath: photoPath || undefined,
+          reward: reward.trim() || undefined,
         }),
       });
 
@@ -138,6 +215,7 @@ function InscrireContent() {
             whatsapp: formData.whatsapp,
             destination: formData.destination,
             transportMode: 'flight',
+            reward: reward.trim(),
             type: 'voyageur',
             activatedAt: new Date().toISOString(),
             expiresAt: data.baggage?.expiresAt,
@@ -301,6 +379,132 @@ function InscrireContent() {
                     />
                   </div>
                 </div>
+              </DashedEncart>
+
+              {/* PHOTO DE LA VALISE — caméra ou téléchargement */}
+              <DashedEncart>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xl">📸</span>
+                  <div className="flex-1">
+                    <p className="text-sm text-black/80 font-medium">{t('inscrire.photo_label')}</p>
+                    <p className="text-xs text-black/50">{t('inscrire.photo_hint')}</p>
+                  </div>
+                </div>
+
+                {photoPreview ? (
+                  <div>
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photoPreview}
+                        alt={t('inscrire.photo_label')}
+                        className="w-full max-h-56 object-cover rounded-lg border-2 border-black"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setPhotoPreview(''); setPhotoPath(''); }}
+                        aria-label={t('inscrire.photo_remove')}
+                        className="absolute top-2 right-2 w-8 h-8 bg-black/70 hover:bg-black text-white rounded-full flex items-center justify-center shadow-md"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => cameraInputRef.current?.click()}
+                      disabled={photoUploading}
+                      className="mt-2 w-full py-2.5 bg-white border-2 border-black text-black rounded-lg font-semibold text-sm flex items-center justify-center gap-2 min-h-[44px] disabled:opacity-50"
+                    >
+                      <Camera className="w-4 h-4" />
+                      {t('inscrire.photo_change')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => cameraInputRef.current?.click()}
+                      disabled={photoUploading}
+                      className="py-3 px-3 bg-black hover:bg-black/80 text-white rounded-lg font-semibold text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] disabled:opacity-50 transition-colors"
+                    >
+                      <Camera className="w-5 h-5" />
+                      <span className="text-xs">{t('inscrire.photo_camera')}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={photoUploading}
+                      className="py-3 px-3 bg-white border-2 border-black text-black rounded-lg font-semibold text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] disabled:opacity-50 transition-colors"
+                    >
+                      <Upload className="w-5 h-5" />
+                      <span className="text-xs">{t('inscrire.photo_upload')}</span>
+                    </button>
+                  </div>
+                )}
+
+                {photoUploading && (
+                  <p className="text-xs text-black/60 mt-2 flex items-center gap-1.5">
+                    <span className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin inline-block" />
+                    {t('inscrire.photo_uploading')}
+                  </p>
+                )}
+                {photoError && <p className="text-xs text-red-600 mt-2 font-medium">{photoError}</p>}
+
+                {/* Inputs cachés : caméra (capture) + galerie/téléchargement */}
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handlePhotoFile}
+                />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoFile}
+                />
+              </DashedEncart>
+
+              {/* RÉCOMPENSE EN CAS DE PERTE */}
+              <DashedEncart>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xl">🎁</span>
+                  <div className="flex-1">
+                    <p className="text-sm text-black/80 font-medium">{t('inscrire.reward_label')}</p>
+                    <p className="text-xs text-black/50">{t('inscrire.reward_hint')}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mb-2.5">
+                  {REWARD_SUGGESTIONS.map((amount) => {
+                    const value = `${amount} FCFA`;
+                    return (
+                      <button
+                        key={amount}
+                        type="button"
+                        onClick={() => setReward(value)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-colors min-h-[32px] ${
+                          reward === value
+                            ? 'bg-black text-white border-black'
+                            : 'bg-white text-black border-black hover:bg-black/5'
+                        }`}
+                      >
+                        {value}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <input
+                  type="text"
+                  placeholder={t('inscrire.reward_placeholder')}
+                  value={reward}
+                  onChange={(e) => setReward(e.target.value)}
+                  className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+                />
               </DashedEncart>
 
               {/* Destination — Dashed Encart + dropdown pays par régions */}
