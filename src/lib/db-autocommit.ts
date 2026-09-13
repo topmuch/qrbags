@@ -6,8 +6,13 @@
  * Ce module exécute scripts/db-autocommit-once.sh (commit + push de
  * db/custom.db) toutes les DB_AUTOCOMMIT_INTERVAL_MS millisecondes.
  * Le process next-server est supervisé par la plateforme → le timer survit.
+ *
+ * NB robustesse : chemin ABSOLU de bash et du script + env PATH garanti
+ * (le spawn depuis next-server peut hériter d'un PATH restreint sans /bin
+ * → "spawn bash ENOENT" constaté en production).
  */
 
+const PROJECT_ROOT = '/home/z/my-project';
 const INTERVAL_MS = Number(process.env.DB_AUTOCOMMIT_INTERVAL_MS || 60000);
 const FIRST_RUN_MS = 15000; // première passe peu après le boot
 
@@ -19,11 +24,12 @@ async function runOnce(): Promise<void> {
   running = true;
   try {
     const { execFile } = await import('child_process');
+    const { safeEnv } = await import('./db-selfheal');
     await new Promise<void>((resolve) => {
       execFile(
-        'bash',
-        ['scripts/db-autocommit-once.sh'],
-        { cwd: process.cwd(), timeout: 30000 },
+        '/bin/bash',
+        [`${PROJECT_ROOT}/scripts/db-autocommit-once.sh`],
+        { cwd: PROJECT_ROOT, timeout: 30000, env: safeEnv() },
         (error, stdout, stderr) => {
           const out = `${stdout || ''}${stderr || ''}`.trim();
           if (out) console.log(out);
