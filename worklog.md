@@ -136,3 +136,18 @@ Work Log:
 Stage Summary:
 - Mod 1 LIVRÉE : main = a036ebd poussé GitHub — inscription + passeport au design récent, entièrement fonctionnels
 - Prochaines mods disponibles : (2) export ZIP robuste + fix isLost, (3) persistance DB auto, (4) étiquettes/planche, (5) restyle homepage/login
+
+---
+Task ID: 17
+Agent: Super Z (main)
+Task: Utilisateur : "déployé mais ancienne version / y a rien" — diagnostic deploy
+
+Work Log:
+- Vérifié : workspace + GitHub main (71eed66) contiennent la mod 1 ; /api + pages 200 en dev
+- Reproduit le pipeline deploy (build.sh = bun install + bun run build dans le workspace) : bun run build RÉUSSIT avec le nouveau design (route /passeport/[reference] listée)
+- Lancé le standalone produit (.next/standalone/server.js :3100, DATABASE_URL pointé sur db/custom.db) : /inscrire 200 + écran Bienvenue nouveau design ; /passeport/VOL26-FLUX01 200 carte complète — screenshots download/prod-3100-inscrire.png + prod-3100-passeport.png
+- Conclusion : le bundle production du workspace est CORRECT — si le deploy montre l'ancienne version, c'est que le deploy ne build pas depuis ce workspace/main (source périmée : tag/release V.6, autre branche, ou snapshot antérieur) ou cache navigateur
+- 1er test 3100 : EADDRINUSE passager (instance timeout 60 encore vivante) — relance nohup OK
+
+Stage Summary:
+- Production build prouvé conforme (2 screenshots) → l'utilisateur doit redéployer MAINTENANT + vider le cache navigateur (Ctrl+Shift+R) ; si toujours ancien, le bouton deploy pointe sur une autre source que le workspace/main
