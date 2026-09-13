@@ -1,5 +1,6 @@
 Dockerfile
 .dockerignore
+docker-compose.yml
 node_modules
 npm-debug.log
 README.md
@@ -9,5 +10,20 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 test
+__tests__
 *.log
 local-*
+.env
+.env.*
+.env.local
+db
+uploads
+download
+.zscripts
+worklog.md
+prisma/*.db
+prisma/*.sqlite
+examples
+tool-results
+agent-ctx
+logs

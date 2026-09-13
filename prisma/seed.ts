@@ -80,32 +80,37 @@ async function main() {
     },
   });
 
-  // Create sample baggages
+  // Create sample baggages (idempotent : ignore les références déjà présentes)
   console.log('Creating sample baggages...');
-  
-  // Hajj baggages (3 per pilgrim)
-  const hajjReferences = [
-    'HAJJ25-MLQGY7',
-    'HAJJ25-K9X2P4',
-    'HAJJ25-ABC123',
-  ];
 
-  for (let i = 0; i < hajjReferences.length; i++) {
-    await prisma.baggage.create({
-      data: {
-        reference: hajjReferences[i],
-        type: 'hajj',
-        agencyId: agency.id,
-        baggageIndex: i + 1,
-        baggageType: i === 0 ? 'cabine' : 'soute',
-        status: 'pending_activation',
-      },
-    });
-  }
-
-  // Voyageur baggage (activated)
-  await prisma.baggage.create({
-    data: {
+  const demoBaggages = [
+    // Hajj baggages (3 per pilgrim, pending activation)
+    {
+      reference: 'HAJJ25-MLQGY7',
+      type: 'hajj',
+      agencyId: agency.id,
+      baggageIndex: 1,
+      baggageType: 'cabine',
+      status: 'pending_activation',
+    },
+    {
+      reference: 'HAJJ25-K9X2P4',
+      type: 'hajj',
+      agencyId: agency.id,
+      baggageIndex: 2,
+      baggageType: 'soute',
+      status: 'pending_activation',
+    },
+    {
+      reference: 'HAJJ25-ABC123',
+      type: 'hajj',
+      agencyId: agency.id,
+      baggageIndex: 3,
+      baggageType: 'soute',
+      status: 'pending_activation',
+    },
+    // Voyageur baggage (activated)
+    {
       reference: 'VOL25-DEMO01',
       type: 'voyageur',
       agencyId: null,
@@ -119,11 +124,8 @@ async function main() {
       status: 'active',
       expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days
     },
-  });
-
-  // Hajj baggage (activated)
-  await prisma.baggage.create({
-    data: {
+    // Hajj baggage (activated)
+    {
       reference: 'HAJJ25-ACTIVE',
       type: 'hajj',
       agencyId: agency.id,
@@ -135,11 +137,8 @@ async function main() {
       status: 'active',
       expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
     },
-  });
-
-  // Lost baggage
-  await prisma.baggage.create({
-    data: {
+    // Lost baggage
+    {
       reference: 'HAJJ25-LOST01',
       type: 'hajj',
       agencyId: agency.id,
@@ -153,7 +152,38 @@ async function main() {
       lastScanDate: new Date(),
       lastLocation: 'Aéroport de Jeddah',
     },
-  });
+    // FLUX demo — utilisée pour tester /passeport/VOL26-FLUX01
+    {
+      reference: 'VOL26-FLUX01',
+      type: 'voyageur',
+      setId: 'VOL-2026-FLUX',
+      agencyId: null,
+      travelerFirstName: 'Fatou',
+      travelerLastName: 'Ndiaye',
+      whatsappOwner: '+221771234567',
+      baggageIndex: 1,
+      baggageType: 'cabine',
+      status: 'active',
+      transportMode: 'flight',
+      airlineName: 'Air Sénégal',
+      flightNumber: 'SN209',
+      destination: 'Dakar',
+      departureDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      departureTime: '14:30',
+      expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+      reward: '50 000 FCFA',
+    },
+  ];
+
+  for (const data of demoBaggages) {
+    const existing = await prisma.baggage.findUnique({ where: { reference: data.reference } });
+    if (existing) {
+      console.log(`   ${data.reference} existe déjà — ignoré`);
+      continue;
+    }
+    await prisma.baggage.create({ data });
+    console.log(`   ${data.reference} créé`);
+  }
 
   console.log('✅ Seed completed successfully!');
   console.log('');
@@ -162,6 +192,7 @@ async function main() {
   console.log('  Agency: agency@qrbag.com / agency123');
   console.log('');
   console.log('📱 Test QR codes:');
+  console.log('  VOL26-FLUX01 - Passeport voyageur (Dakar, Air Sénégal SN209)');
   console.log('  VOL25-DEMO01 - Active traveler baggage');
   console.log('  HAJJ25-ACTIVE - Active Hajj baggage');
   console.log('  HAJJ25-LOST01 - Lost Hajj baggage');

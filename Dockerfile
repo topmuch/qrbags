@@ -1,89 +1,75 @@
-# QRBag - Dockerfile for Coolify Deployment
+# QRBag — Dockerfile pour Coolify
+# Build Pack : "Dockerfile" — Coolify clone le repo puis build CE fichier.
+# COPY . . = toujours le DERNIER commit de la branche (pas de cache git clone périmé).
+# Volumes Coolify à monter : /app/data (SQLite) + /app/uploads (photos des valises)
+
+# ─── Base ───
 FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat openssl
 
-# Install dependencies only when needed
+# ─── Étape 1 : dépendances ───
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Install bun
 RUN npm install -g bun
-
-# Copy package files
 COPY package.json bun.lock ./
-
-# Install dependencies
 RUN bun install --frozen-lockfile
 
-# Rebuild the source code only when needed
+# ─── Étape 2 : build Next.js ───
 FROM base AS builder
 WORKDIR /app
 RUN npm install -g bun
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma Client
-RUN bun run db:generate || npx prisma generate
+# Coolify injecte SOURCE_COMMIT automatiquement (traçabilité de la version déployée)
+ARG SOURCE_COMMIT=""
+ENV QRBAGS_COMMIT=${SOURCE_COMMIT}
 
-# Set environment variables for build
+# Optionnel : URL publique (build arg Coolify si besoin)
+ARG NEXT_PUBLIC_BASE_URL=""
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Build the application
+RUN npx prisma generate
 RUN bun run build
 
-# Production image, copy all the files and run next
+# ─── Étape 3 : image finale ───
 FROM base AS runner
 WORKDIR /app
-
-# Install required tools
-RUN apk add --no-cache sqlite
+# bun sert uniquement au seed optionnel (prisma/seed.ts en TypeScript)
+RUN npm install -g bun
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+ENV DATABASE_URL=file:/app/data/custom.db
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-# Copy built application
+# Application buildée (next.config.ts → output: standalone)
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma files for runtime
+# Prisma runtime + CLI (db push au démarrage) + bcryptjs (seed)
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/bcrypt ./node_modules/bcrypt
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
 COPY --from=builder /app/prisma ./prisma
-
-# Copy package.json for scripts
 COPY --from=builder /app/package.json ./package.json
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
+# Script de démarrage (db push + seed optionnel + serveur)
+COPY docker/start.sh /app/start.sh
 
-# Create startup script
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'set -e' >> /app/start.sh && \
-    echo 'echo "🚀 Starting QRBag..."' >> /app/start.sh && \
-    echo 'mkdir -p /app/data' >> /app/start.sh && \
-    echo 'export DATABASE_URL=file:/app/data/custom.db' >> /app/start.sh && \
-    echo 'cd /app' >> /app/start.sh && \
-    echo 'npx prisma db push --skip-generate 2>/dev/null || true' >> /app/start.sh && \
-    echo 'echo "✅ Starting server..."' >> /app/start.sh && \
-    echo 'exec node server.js' >> /app/start.sh && \
-    chmod +x /app/start.sh
-
-# Change ownership
-RUN chown -R nextjs:nodejs /app
+# Répertoires persistants
+RUN mkdir -p /app/data /app/uploads \
+ && chmod +x /app/start.sh \
+ && chown -R nextjs:nodejs /app
 
 USER nextjs
-
 EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
 CMD ["/app/start.sh"]
