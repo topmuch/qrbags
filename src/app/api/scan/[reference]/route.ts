@@ -415,7 +415,7 @@ export async function POST(
     const finderNameDisplay = finderName?.trim() || 'Une personne';
     const finderPhoneDisplay = finderPhone?.trim() || 'numéro non précisé';
 
-    const whatsappText =
+    let whatsappText =
       `🎉 Bonne nouvelle ${ownerFirstName} !\n\n` +
       `Quelqu'un a trouvé ton bagage ${typeLabel} à ${lieu} !\n` +
       `📍 Il est actuellement à ${address}\n` +
@@ -426,6 +426,11 @@ export async function POST(
       `👉 ${trackingUrl}\n` +
       `Ne panique pas, tout va bien se passer ! 💪\n` +
       `L'équipe QRBag`;
+
+    // PHOTO-REWARD: lien de la photo de la valise (confirmation visuelle pour le propriétaire)
+    if (baggage.photoPath) {
+      whatsappText += `\n📸 Photo du bagage : ${appUrl}/api/baggage-photo/${reference}`;
+    }
 
     // Clean phone number
     const phone = baggage.whatsappOwner.replace(/[^0-9]/g, '');

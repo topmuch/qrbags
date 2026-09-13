@@ -228,3 +228,24 @@ Stage Summary:
 - Le propriétaire voit la photo de sa valise + la récompense promise sur /suivi ; l'alerte WhatsApp qu'il reçoit contient le lien photo (confirmation visuelle) ; le message WhatsApp pré-rempli envoyé au trouveur mentionne désormais la récompense (motivation renforcée)
 - Fichiers : api/suivi/[reference]/route.ts, lib/whatsapp-message.ts, suivi/[reference]/page.tsx, api/scan/notify/route.ts, locales fr/en/ar
 - Scripts : scripts/test-suivi-photo-reward.ts (réutilisable), scripts/add-suivi-photo-i18n.py
+
+---
+Task ID: 8
+Agent: Main Agent (session flux complet + étiquette)
+Task: Tester le flux complet sur mobile avec une vraie photo + vérifier l'étiquette QR voyageur 7×10 cm (validation utilisateur : « OUI »)
+
+Work Log:
+- Vraie photo générée (z-ai image, 768×1344) → compression PIL max 1200px JPEG 80% (simule le canvas client /inscrire)
+- INCIDENT INFRA corrigé : node_modules vidé + db/custom.db supprimés (nettoyage plateforme) → bun install (947 pkgs), restauration db/custom.db depuis prisma/qrbag.db + prisma db push + generate (schéma resynchronisé, colonnes photoPath/reward OK)
+- Route /api/baggage-photo/upload restaurée depuis git (supprimée du working tree, HEAD intact) ; faux positif « ln/lns » = erreur d'affichage due au flag -r de ripgrep (jamais dans le code réel)
+- BUG CORRIGÉ au passage : le VRAI flux trouveur = POST /api/scan/[reference] (page /scan) dont le whatsappText « 🎉 Bonne nouvelle » au propriétaire ne contenait pas la photo → ajout « 📸 Photo du bagage : {APP_URL}/api/baggage-photo/{ref} » si photoPath (let whatsappText)
+- scripts/test-flux-complet-photo.ts : E2E 24/24 ✅ — upload multipart → activation groupée (2 QR, photo+reward copiés) → scan expose photoUrl+reward → POST scan trouveur → whatsappUrl wa.me avec 📸 photo → suivi expose photo+reward+trouveur (Moussa Fall) → étiquette PNG servie
+- Étiquette 7×10 cm validée : 1049×1499 px (ratio 0.700), QR décodé cv2 = http://localhost:3000/scan/VOL26-FLUX01, design visuel parfait (logo, équerres, référence)
+- Captures mobiles iPhone 14 (agent-browser) → download/ : 1-trouveur-scan.png (photo+récompense visibles), 2-proprietaire-suivi.png (carte photo+récompense promise+trouveur), 3a-bienvenue, 3b-formulaire (encarts photo caméra/télécharger + chips récompense)
+- Démo conservée en base : VOL26-FLUX01 + VOL26-FLUX02 (set VOL-2026-FLUX), photo réelle + récompense « 50 000 FCFA »
+- eslint scan/[reference]/route.ts : 0 erreur
+
+Stage Summary:
+- Flux complet VALIDÉ de bout en bout avec une vraie photo : /inscrire (upload+récompense) → activation groupée 2 QR → /scan trouveur (photo+récompense) → WhatsApp propriétaire (« Bonne nouvelle » avec 📸 lien photo) → /suivi (photo + récompense promise + trouveur) → étiquette 7×10 cm imprimable scannable
+- Livrables download/ : valise-demo.png, etiquette-voyageur-VOL26-FLUX01.png, 4 captures mobiles
+- Le correctif POST /api/scan/[reference] complète la Tâche 7 : le message WhatsApp réel du trouveur→propriétaire contient désormais aussi le lien photo
