@@ -51,6 +51,9 @@ if [ "$did_commit" = "1" ] || [ "${AHEAD:-0}" -gt 0 ]; then
     TOKEN=$(tr -d '[:space:]' < "$TOKEN_FILE")
     if git push "https://${TOKEN}@github.com/topmuch/qrbags.git" HEAD:main >/dev/null 2>&1; then
       echo "[db-autocommit] push OK (ahead ${AHEAD:-0})"
+      # un push par URL ne met pas à jour refs/remotes/origin/main → sans ça,
+      # AHEAD resterait >0 et chaque cycle referait un push inutile
+      git update-ref refs/remotes/origin/main "$(git rev-parse HEAD)" 2>/dev/null || true
     else
       echo "[db-autocommit] push ÉCHOUÉ (le commit local reste, réessai au prochain cycle)"
     fi
