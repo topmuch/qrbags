@@ -166,7 +166,52 @@
     "next_step": "Continue",
     "back_step": "Back",
     "step_1_subtitle": "Step 1 of 2 — Transport mode",
-    "step_2_subtitle": "Step 2 of 2 — Your information"
+    "step_2_subtitle": "Step 2 of 2 — Your information",
+    "photo_label": "Luggage photo",
+    "photo_hint": "A photo helps identify your luggage if it gets lost",
+    "photo_camera": "Take a photo",
+    "photo_upload": "Upload",
+    "photo_change": "Change photo",
+    "photo_remove": "Remove photo",
+    "photo_uploading": "Uploading...",
+    "photo_error": "Photo upload failed",
+    "reward_label": "Lost & found reward",
+    "reward_hint": "Optional — offer a reward to motivate a quick return of your luggage",
+    "reward_optional": "Optional",
+    "reward_placeholder": "Type any amount you want"
+  },
+  "passport": {
+    "title": "QRBags Passport",
+    "subtitle": "Official digital baggage card",
+    "traveler": "Traveler",
+    "destination": "Destination",
+    "airline": "Airline",
+    "flight_number": "Flight no.",
+    "departure": "Departure",
+    "not_specified": "—",
+    "valid_until": "Valid until",
+    "reward_promised": "Reward promised",
+    "photo_alt": "Luggage photo",
+    "verify_hint": "Scan to verify this document",
+    "issued_on": "Issued on",
+    "personal_doc": "Personal document of the baggage owner",
+    "save_png": "Save as image (PNG)",
+    "saving_png": "Generating image...",
+    "share": "Share",
+    "share_text": "My luggage is protected with QRBag — here is my QRBags Passport!",
+    "copied": "Link copied!",
+    "add_home": "Add to Home Screen",
+    "add_home_ios": "On iPhone: tap the Share button (⬆️) at the bottom of Safari, then “Add to Home Screen”.",
+    "add_home_android": "On Android: tap Chrome's ⋮ menu, then “Add to Home Screen”.",
+    "status_protected": "PROTECTED",
+    "status_lost": "DECLARED LOST",
+    "status_expired": "EXPIRED",
+    "back": "Back",
+    "not_found": "Passport not found",
+    "not_found_hint": "This passport does not exist or the link is incorrect.",
+    "pending": "This baggage is not activated yet — the passport will be available after activation.",
+    "go_home": "Back to home",
+    "open_tracking": "Open baggage tracking"
   },
   "tracking": {
     "page_title": "Baggage Tracking",
@@ -243,10 +288,15 @@
     "audio_alert_enabled": "Alerts enabled",
     "audio_alert_disabled": "Alerts disabled",
     "audio_alert_toggle_aria": "Toggle sound alerts on or off",
-    "audio_alert_scanning": "Active monitoring…"
+    "audio_alert_scanning": "Active monitoring…",
+    "baggage_photo": "Luggage photo",
+    "reward_promise": "Reward offered"
   },
   "scan": {
-    "success": "Scan successful! ✓"
+    "success": "Scan successful! ✓",
+    "photo_section": "Luggage photo",
+    "reward_label": "Reward",
+    "reward_desc": "The owner offers this reward to whoever returns the luggage"
   },
   "activation": {
     "success": "Activation successful! ✓"

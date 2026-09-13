@@ -166,7 +166,52 @@
     "next_step": "متابعة",
     "back_step": "رجوع",
     "step_1_subtitle": "الخطوة 1 من 2 — وضع النقل",
-    "step_2_subtitle": "الخطوة 2 من 2 — معلوماتك"
+    "step_2_subtitle": "الخطوة 2 من 2 — معلوماتك",
+    "photo_label": "صورة الحقيبة",
+    "photo_hint": "الصورة تساعد في التعرف على حقيبتك في حالة فقدانها",
+    "photo_camera": "التقاط صورة",
+    "photo_upload": "تحميل",
+    "photo_change": "تغيير الصورة",
+    "photo_remove": "حذف الصورة",
+    "photo_uploading": "جارٍ الإرسال...",
+    "photo_error": "فشل إرسال الصورة",
+    "reward_label": "مكافأة عند الفقدان",
+    "reward_hint": "اختياري — اعرض مكافأة لتحفيز إعادة حقيبتك بسرعة",
+    "reward_optional": "اختياري",
+    "reward_placeholder": "اكتب المبلغ الذي تريده"
+  },
+  "passport": {
+    "title": "جواز QRBag",
+    "subtitle": "البطاقة الرقمية الرسمية للأمتعة",
+    "traveler": "المسافر",
+    "destination": "الوجهة",
+    "airline": "شركة الطيران",
+    "flight_number": "رقم الرحلة",
+    "departure": "المغادرة",
+    "not_specified": "—",
+    "valid_until": "صالح حتى",
+    "reward_promised": "مكافأة معلنة",
+    "photo_alt": "صورة الحقيبة",
+    "verify_hint": "امسح للتحقق من هذا المستند",
+    "issued_on": "تاريخ الإصدار",
+    "personal_doc": "مستند شخصي لصاحب الأمتعة",
+    "save_png": "حفظ كصورة (PNG)",
+    "saving_png": "جارٍ إنشاء الصورة...",
+    "share": "مشاركة",
+    "share_text": "أمتعتي محمية مع QRBag — هذا هو جواز أمتعتي!",
+    "copied": "تم نسخ الرابط!",
+    "add_home": "إضافة إلى الشاشة الرئيسية",
+    "add_home_ios": "على الآيفون: اضغط زر المشاركة (⬆️) أسفل Safari ثم «إضافة إلى الشاشة الرئيسية».",
+    "add_home_android": "على أندرويد: اضغط قائمة ⋮ في Chrome ثم «إضافة إلى الشاشة الرئيسية».",
+    "status_protected": "محمي",
+    "status_lost": "مُعلن عن فقدانه",
+    "status_expired": "منتهي",
+    "back": "رجوع",
+    "not_found": "الجواز غير موجود",
+    "not_found_hint": "هذا الجواز غير موجود أو الرابط غير صحيح.",
+    "pending": "لم يتم تفعيل هذه الأمتعة بعد — سيكون الجواز متاحًا بعد التفعيل.",
+    "go_home": "العودة إلى الرئيسية",
+    "open_tracking": "فتح تتبع الأمتعة"
   },
   "tracking": {
     "page_title": "تتبع الأمتعة",
@@ -243,10 +288,15 @@
     "audio_alert_enabled": "تم تفعيل التنبيهات",
     "audio_alert_disabled": "تم إيقاف التنبيهات",
     "audio_alert_toggle_aria": "تفعيل أو إيقاف التنبيهات الصوتية",
-    "audio_alert_scanning": "مراقبة نشطة…"
+    "audio_alert_scanning": "مراقبة نشطة…",
+    "baggage_photo": "صورة الحقيبة",
+    "reward_promise": "مكافأة معروضة"
   },
   "scan": {
-    "success": "تم المسح بنجاح! ✓"
+    "success": "تم المسح بنجاح! ✓",
+    "photo_section": "صورة الحقيبة",
+    "reward_label": "مكافأة",
+    "reward_desc": "يقدم المالك هذه المكافأة لمن يعيد له حقيبته"
   },
   "activation": {
     "success": "تم التفعيل بنجاح! ✓"
