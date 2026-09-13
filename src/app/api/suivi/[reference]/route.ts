@@ -163,9 +163,6 @@ export async function GET(
         declaredLostAt: baggage.declaredLostAt?.toISOString() || null,
         foundAt: baggage.foundAt?.toISOString() || null,
         expiresAt: baggage.expiresAt?.toISOString() || null,
-        // PHOTO-REWARD: Photo de la valise + récompense promise (affichés sur /suivi)
-        photoUrl: baggage.photoPath ? `/api/baggage-photo/${baggage.reference}` : null,
-        reward: baggage.reward || null,
       },
       // Dernier trouveur (nom + téléphone EN ENTIER)
       lastFinder: lastScanWithFinder

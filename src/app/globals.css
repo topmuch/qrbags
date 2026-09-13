@@ -657,26 +657,3 @@ body * {
     transform: translateX(0);
   }
 }
-
-/* ============================================
-   🖨️ IMPRESSION — Planche d'étiquettes QRBag (A4, étiquettes 7×10 cm)
-   ============================================ */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 1cm;
-  }
-
-  .no-print {
-    display: none !important;
-  }
-
-  body {
-    background: white !important;
-  }
-
-  .planche .etiquette {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-}

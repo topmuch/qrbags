@@ -70,8 +70,6 @@ function HajjActivateContent() {
           type: 'hajj',
           activatedAt: new Date().toISOString(),
           expiresAt: data.baggage?.expiresAt,
-          activatedCount: data.activatedCount || 1,
-          activatedReferences: data.activatedReferences || [formData.reference.toUpperCase()],
         }));
         router.push('/success?type=hajj');
       } else {
@@ -96,7 +94,7 @@ function HajjActivateContent() {
             <span>Retour</span>
           </Link>
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
+            <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
           </div>
         </div>
       </nav>

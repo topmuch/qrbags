@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (validatedData.context === 'individual') {
       // Generate for individual traveler
-      const { references, setId } = await generateBaggagesWithTraveler({
+      const references = await generateBaggagesWithTraveler({
         type: validatedData.type,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
@@ -48,12 +48,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         generated: references.length,
-        references,
-        setIds: [setId],
+        references
       });
     } else {
       // Generate for agency - use batch insert for performance
-      const { references, setIds } = await generateBaggagesBatch({
+      const result = await generateBaggagesBatch({
         type: validatedData.type,
         agencyId: validatedData.agencyId,
         travelerCount: validatedData.travelerCount,
@@ -62,9 +61,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        generated: references.length,
-        references,
-        setIds,
+        generated: result.length,
+        references: result
       });
     }
   } catch (error) {
@@ -94,7 +92,7 @@ async function generateBaggagesWithTraveler(options: {
   whatsapp: string;
   duration: '7d' | '1y';
   baggageCount: 1 | 2;
-}): Promise<{ references: string[]; setId: string }> {
+}): Promise<string[]> {
   const { type, firstName, lastName, whatsapp, duration, baggageCount } = options;
   
   const setId = generateSetId(type);
@@ -123,7 +121,7 @@ async function generateBaggagesWithTraveler(options: {
     })),
   });
 
-  return { references, setId };
+  return references;
 }
 
 /**
@@ -135,7 +133,7 @@ async function generateBaggagesBatch(options: {
   agencyId: string;
   travelerCount: number;
   count: 1 | 2;
-}): Promise<{ references: string[]; setIds: string[] }> {
+}): Promise<string[]> {
   const { type, agencyId, travelerCount, count } = options;
   const totalBaggages = travelerCount * count;
   
@@ -186,7 +184,7 @@ async function generateBaggagesBatch(options: {
   }
 
   console.log(`[GENERATE] Complete: ${totalBaggages} QR codes generated for ${travelerCount} travelers`);
-  return { references: allReferences, setIds };
+  return allReferences;
 }
 
 // GET - Get all baggages (for QR codes list)

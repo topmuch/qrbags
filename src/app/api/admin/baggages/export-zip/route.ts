@@ -27,24 +27,6 @@ import {
 // Max QR codes per export to prevent server overload
 const MAX_EXPORT_SIZE = 5000;
 
-/**
- * Retry wrapper for transient SQLite errors (SQLITE_BUSY / locked / stale handle
- * après un restart serveur). 2 tentatives supplémentaires avec backoff court.
- */
-async function withDbRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
-  let lastError: unknown;
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      return await fn();
-    } catch (err) {
-      lastError = err;
-      console.warn(`[EXPORT-ZIP] ${label} tentative ${attempt}/3 échouée:`, err);
-      if (attempt < 3) await new Promise(r => setTimeout(r, 400 * attempt));
-    }
-  }
-  throw lastError;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -80,8 +62,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // First, count total baggages to check size (retry: erreurs SQLite transitoires)
-    const totalCount = await withDbRetry(() => db.baggage.count({ where }), 'count');
+    // First, count total baggages to check size
+    const totalCount = await db.baggage.count({ where });
 
     if (totalCount === 0) {
       return NextResponse.json(
@@ -97,12 +79,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch baggages (retry: erreurs SQLite transitoires)
-    const baggages = await withDbRetry(() => db.baggage.findMany({
+    // Fetch baggages
+    const baggages = await db.baggage.findMany({
       where,
       include: { agency: true },
       orderBy: [{ setId: 'asc' }, { baggageIndex: 'asc' }],
-    }), 'findMany');
+    });
 
     // Get base URL from request
     const protocol = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '');

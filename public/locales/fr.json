@@ -166,52 +166,7 @@
     "next_step": "Continuer",
     "back_step": "Retour",
     "step_1_subtitle": "Étape 1 sur 2 — Mode de transport",
-    "step_2_subtitle": "Étape 2 sur 2 — Vos informations",
-    "photo_label": "Photo de la valise",
-    "photo_hint": "Une photo aide à identifier votre bagage en cas de perte",
-    "photo_camera": "Prendre une photo",
-    "photo_upload": "Télécharger",
-    "photo_change": "Changer la photo",
-    "photo_remove": "Supprimer la photo",
-    "photo_uploading": "Envoi en cours...",
-    "photo_error": "Échec de l'envoi de la photo",
-    "reward_label": "Récompense en cas de perte",
-    "reward_hint": "Optionnel — motivez le retour rapide de votre bagage en proposant une récompense",
-    "reward_optional": "Optionnel",
-    "reward_placeholder": "Tapez le montant de votre choix"
-  },
-  "passport": {
-    "title": "Passeport QRBags",
-    "subtitle": "Carte numérique officielle du bagage",
-    "traveler": "Voyageur",
-    "destination": "Destination",
-    "airline": "Compagnie",
-    "flight_number": "Vol n°",
-    "departure": "Départ",
-    "not_specified": "—",
-    "valid_until": "Valable jusqu'au",
-    "reward_promised": "Récompense promise",
-    "photo_alt": "Photo du bagage",
-    "verify_hint": "Scannez pour vérifier ce document",
-    "issued_on": "Délivré le",
-    "personal_doc": "Document personnel du propriétaire du bagage",
-    "save_png": "Enregistrer en image (PNG)",
-    "saving_png": "Génération de l'image...",
-    "share": "Partager",
-    "share_text": "Mon bagage est protégé avec QRBag — voici mon Passeport QRBags !",
-    "copied": "Lien copié !",
-    "add_home": "Ajouter à l'écran d'accueil",
-    "add_home_ios": "Sur iPhone : touchez le bouton Partager (⬆️) en bas de Safari, puis « Sur l'écran d'accueil ».",
-    "add_home_android": "Sur Android : touchez le menu ⋮ de Chrome, puis « Ajouter à l'écran d'accueil ».",
-    "status_protected": "PROTÉGÉ",
-    "status_lost": "DÉCLARÉ PERDU",
-    "status_expired": "EXPIRÉ",
-    "back": "Retour",
-    "not_found": "Passeport introuvable",
-    "not_found_hint": "Ce passeport n'existe pas ou le lien est incorrect.",
-    "pending": "Ce bagage n'est pas encore activé — le passeport sera disponible après activation.",
-    "go_home": "Retour à l'accueil",
-    "open_tracking": "Ouvrir le suivi du bagage"
+    "step_2_subtitle": "Étape 2 sur 2 — Vos informations"
   },
   "tracking": {
     "page_title": "Suivi de bagage",
@@ -288,15 +243,10 @@
     "audio_alert_enabled": "Alertes activées",
     "audio_alert_disabled": "Alertes désactivées",
     "audio_alert_toggle_aria": "Activer ou désactiver les alertes sonores",
-    "audio_alert_scanning": "Surveillance active…",
-    "baggage_photo": "Photo du bagage",
-    "reward_promise": "Récompense promise"
+    "audio_alert_scanning": "Surveillance active…"
   },
   "scan": {
-    "success": "Scan réussi ! ✓",
-    "photo_section": "Photo du bagage",
-    "reward_label": "Récompense",
-    "reward_desc": "Le propriétaire offre cette récompense à la personne qui lui rendra son bagage"
+    "success": "Scan réussi ! ✓"
   },
   "activation": {
     "success": "Activation réussie ! ✓"

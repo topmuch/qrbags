@@ -28,8 +28,10 @@ import {
   safeTransportMode,
   getTransportImage,
   getTransportBlockHeader,
+  TRANSPORT_ICONS,
 } from '@/lib/transport';
 import type { TransportMode } from '@/lib/transport';
+import TransportModeSelector from '@/components/inscrire/TransportModeSelector';
 
 // AI-FEATURE: Lazy-load ChatbotWidget (Feature #1) — doesn't block page render
 const ChatbotWidget = dynamic(() => import('@/components/finder/ChatbotWidget'), {
@@ -77,9 +79,6 @@ interface BaggageData {
     shipCabin?: string | null;
     busCompany?: string | null;
     busLineNumber?: string | null;
-    // PHOTO + REWARD FEATURE: photo de la valise + récompense (affichées au trouveur)
-    photoUrl?: string | null;
-    reward?: string | null;
   };
 }
 
@@ -126,8 +125,7 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
 }
 
 // ─── Activation Redirect Component (recolored with brand) ───
-// ACTIVATION-FLOW: redirection directe vers /hajj/activate ou /inscrire?qr=REF
-// (plus de sélection de mode de transport — le formulaire d'inscription est simplifié).
+// ACTIVATION-FLOW: User selects transport mode BEFORE being redirected to /inscrire?qr=REF&mode=XXX.
 function ActivationRedirect({ type, reference, t, lang, setLang }: {
   type: string;
   reference: string;
@@ -136,13 +134,14 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   setLang: (l: Language) => void;
 }) {
   const router = useRouter();
+  const [selectedMode, setSelectedMode] = useState<TransportMode | ''>('');
 
   const isHajj = type === 'hajj';
 
   const handleContinue = () => {
     const url = isHajj
       ? `/hajj/activate?qr=${reference}`
-      : `/inscrire?qr=${reference}`;
+      : `/inscrire?qr=${reference}${selectedMode ? `&mode=${selectedMode}` : ''}`;
     router.push(url);
   };
 
@@ -155,7 +154,17 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
 
         <div className="relative inline-block mb-5 mt-6">
           <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] rounded-full flex items-center justify-center">
-            <Luggage className="w-8 h-8 text-[#1a1a1a]" />
+            {selectedMode ? (
+              <Image
+                src={getTransportImage(selectedMode)}
+                alt={selectedMode}
+                width={36}
+                height={36}
+                className="mix-blend-multiply"
+              />
+            ) : (
+              <Luggage className="w-8 h-8 text-[#1a1a1a]" />
+            )}
           </div>
           <div className="absolute -top-1 -right-1 w-7 h-7 bg-[#1a1a1a] rounded-full flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5 text-[#fcd616]" />
@@ -196,9 +205,22 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
               </Badge>
             </div>
 
+            <div className="text-left mb-5">
+              <p className="text-[#1a1a1a] font-semibold text-sm mb-3 text-center">
+                {t('transport.select_mode')}
+              </p>
+              <TransportModeSelector
+                selectedMode={selectedMode}
+                onSelect={setSelectedMode}
+                t={t}
+                lang={lang}
+              />
+            </div>
+
             <button
-              className="w-full py-4 px-6 bg-[#1a1a1a] hover:bg-black text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
+              className="w-full py-4 px-6 bg-[#1a1a1a] hover:bg-black disabled:bg-[#1a1a1a]/30 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
               onClick={handleContinue}
+              disabled={!selectedMode}
             >
               {t('common.start_activation')}
               <ArrowRight className="w-5 h-5" />
@@ -605,34 +627,6 @@ export default function ScanPage() {
               : t('finder.bagage_trouve_desc')}
           </p>
         </div>
-
-        {/* ═══ 📸 PHOTO DU BAGAGE + 🎁 RÉCOMPENSE (photo/reward feature) ═══ */}
-        {baggage && (baggage.photoUrl || baggage.reward) && (
-          <div className="w-full bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 md:p-6 mb-4">
-            {baggage.photoUrl && (
-              <>
-                <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
-                  <span>📸</span> {t('scan.photo_section')}
-                </h2>
-                <img
-                  src={baggage.photoUrl}
-                  alt={t('scan.photo_section')}
-                  className="w-full max-h-72 object-cover rounded-xl border-2 border-[#1a1a1a]"
-                />
-              </>
-            )}
-
-            {baggage.reward && (
-              <div className={`bg-[#fcd616] border-2 border-solid border-[#1a1a1a] rounded-xl p-4 ${baggage.photoUrl ? 'mt-4' : ''}`}>
-                <p className="text-[#1a1a1a] text-xs font-bold uppercase tracking-widest mb-1">
-                  🎁 {t('scan.reward_label')}
-                </p>
-                <p className="text-xl md:text-2xl font-extrabold text-[#1a1a1a]">{baggage.reward}</p>
-                <p className="text-[#1a1a1a]/70 text-xs mt-1.5 leading-relaxed">{t('scan.reward_desc')}</p>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (white + dashed black) ═══ */}
         {baggage && (

@@ -280,8 +280,7 @@ export default function QRCodesPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Export échoué' }));
-        // NB: details = cause technique renvoyée par l'API (diagnostic utilisateur)
-        throw new Error((errorData.error || 'Export failed') + (errorData.details ? ` — ${errorData.details}` : ''));
+        throw new Error(errorData.error || 'Export failed');
       }
 
       setExportProgress('Téléchargement du fichier ZIP...');
@@ -894,15 +893,6 @@ export default function QRCodesPage() {
                     <p className="text-gray-500 text-xs">
                       {index === 0 ? 'Cabine' : 'Soute'} #{index + 1}
                     </p>
-                    {/* Étiquette imprimable 7×10 cm (design officiel) */}
-                    <a
-                      href={`/api/labels/${ref}?download=1`}
-                      download
-                      className="mt-3 inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-lg bg-[#0d5e34] text-white text-xs font-medium hover:bg-[#0a4a2a] transition-colors"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Étiquette 7×10 cm
-                    </a>
                   </div>
                 ))}
               </div>

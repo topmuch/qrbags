@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import {
@@ -104,9 +103,6 @@ interface BaggageInfo {
   declaredLostAt: string | null;
   foundAt: string | null;
   expiresAt: string | null;
-  // PHOTO-REWARD: Photo de la valise + récompense promise
-  photoUrl: string | null;
-  reward: string | null;
 }
 
 interface SuiviData {
@@ -558,8 +554,6 @@ export default function SuiviPage() {
         busCompany: data.baggage.busCompany || undefined,
         busLineNumber: data.baggage.busLineNumber || undefined,
         destination: data.baggage.destination || undefined,
-        // PHOTO-REWARD: récompense promise — renforce la motivation du trouveur
-        reward: data.baggage?.reward || undefined,
       },
       scanData: {
         city: data.lastPosition?.address || data.baggage?.lastLocation || '',
@@ -958,48 +952,6 @@ export default function SuiviPage() {
           )}
         </div>
 
-        {/* ═══ 📸 PHOTO DE LA VALISE + 🎁 RÉCOMPENSE PROMISE (PHOTO-REWARD) ═══ */}
-        {(baggage?.photoUrl || baggage?.reward) && (
-          <div className="bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 shadow-sm">
-            {baggage.photoUrl && (
-              <>
-                <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
-                  <span>📸</span> {t('tracking.baggage_photo')}
-                </h2>
-                <img
-                  src={baggage.photoUrl}
-                  alt={t('tracking.baggage_photo')}
-                  className="w-full max-h-72 object-cover rounded-xl border-2 border-[#1a1a1a]"
-                />
-              </>
-            )}
-
-            {baggage.reward && (
-              <div className={`bg-[#fcd616] border-2 border-solid border-[#1a1a1a] rounded-xl p-4 ${baggage.photoUrl ? 'mt-4' : ''}`}>
-                <p className="text-[#1a1a1a] text-xs font-bold uppercase tracking-widest mb-1">
-                  🎁 {t('tracking.reward_promise')}
-                </p>
-                <p className="text-xl md:text-2xl font-extrabold text-[#1a1a1a]">{baggage.reward}</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ═══ 🛂 PASSEPORT QRBAGS (carte numérique — bien visible, hors accordéon) ═══ */}
-        {baggage && (
-          <Link
-            href={`/passeport/${baggage.reference}`}
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-dashed border-[#16234e] bg-[#16234e] hover:bg-[#be9a5e] text-white font-bold transition-colors min-h-[52px] shadow-sm"
-          >
-            <span className="text-xl">🛂</span>
-            <span className="flex-1 text-left">
-              <span className="block text-sm font-bold">{t('passport.title')}</span>
-              <span className="block text-xs font-normal text-white/80">{t('passport.subtitle')}</span>
-            </span>
-            <span className="text-lg" aria-hidden="true">→</span>
-          </Link>
-        )}
-
         {/* ═══ PANNEAU URGENCE (mode perdu uniquement) ═══ */}
         {isDeclaredLost && (
           <div
@@ -1343,7 +1295,7 @@ export default function SuiviPage() {
 
               {/* Departure Date */}
               {(baggage.departureDate || baggage.createdAt) && (
-                <DashedEncart>
+                <DashedEncart className="mb-0">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">📅</span>
                     <div>
@@ -1355,7 +1307,6 @@ export default function SuiviPage() {
                   </div>
                 </DashedEncart>
               )}
-
             </div>
           )}
         </div>

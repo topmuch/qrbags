@@ -334,12 +334,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       messageContent += '\n' + finderParts.join('\n');
     }
 
-    // PHOTO-REWARD: Ajouter le lien de la photo du bagage (confirmation visuelle pour le propriétaire)
-    if (baggage.photoPath) {
-      const photoAppUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com').replace(/\/$/, '');
-      messageContent += `\n📸 Photo du bagage : ${photoAppUrl}/api/baggage-photo/${baggage.reference}`;
-    }
-
     // ─── 4. Envoi via Wakit (si configuré) ───
     let wakitMessageId: string | null = null;
     let whatsappStatus: string = 'fallback';
@@ -371,10 +365,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           time: new Date().toLocaleTimeString(wakitLocale, { hour: '2-digit', minute: '2-digit' }),
           link: `${process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com'}/suivi/${baggage.reference}`,
           transport_mode: `${TRANSPORT_ICONS[transportMode]} ${transportLabelsWakit[transportMode]?.[wakitLang] || 'vol'}`,
-          // PHOTO-REWARD: URL de la photo du bagage (si template Wakit compatible)
-          photo_url: baggage.photoPath
-            ? `${(process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com').replace(/\/$/, '')}/api/baggage-photo/${baggage.reference}`
-            : '',
         },
       });
 

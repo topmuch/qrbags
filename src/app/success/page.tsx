@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { CheckCircle, Luggage, Calendar, Backpack, QrCode } from 'lucide-react';
+import { CheckCircle, Luggage, Calendar, Backpack } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import SuccessOverlay from '@/components/ui/SuccessOverlay';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -19,14 +19,10 @@ interface ActivationData {
   lastName: string;
   whatsapp: string;
   flightNumber?: string;
-  airlineName?: string;
   destination?: string;
   type: string;
   activatedAt: string;
   expiresAt?: string;
-  // Activation groupée : nombre et références des QR activés automatiquement avec celui-ci
-  activatedCount?: number;
-  activatedReferences?: string[];
   // TRANSPORT-FEATURE: Transport mode + conditional fields (conservés pour sessionStorage, non affichés)
   transportMode?: string;
   trainNumber?: string;
@@ -197,23 +193,10 @@ function SuccessContent() {
           <div className="flex items-center gap-3">
             <Luggage className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
             <p className="font-medium text-sm" style={{ color: INK }}>
-              🧳 {activationData.activatedCount && activationData.activatedCount > 1
-                ? `${activationData.activatedCount} bagages activés`
-                : '1 bagage activé'} •{' '}
+              🧳 1 bagage activé •{' '}
               <span style={{ color: INK, opacity: 0.7 }}>Protection active</span>
             </p>
           </div>
-          {activationData.activatedCount && activationData.activatedCount > 1 && activationData.activatedReferences && (
-            <div className="flex items-start gap-3">
-              <QrCode className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
-              <p className="text-sm" style={{ color: INK }}>
-                ✅ Tous vos QR codes sont actifs :{' '}
-                <span className="font-mono text-xs break-all" style={{ opacity: 0.75 }}>
-                  {activationData.activatedReferences.join(' · ')}
-                </span>
-              </p>
-            </div>
-          )}
           <div className="flex items-center gap-3">
             <Calendar className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
             <p className="font-medium text-sm" style={{ color: INK }}>
@@ -264,45 +247,6 @@ function SuccessContent() {
           >
             📤 Partager
           </button>
-        </div>
-
-        {/* ═══ 4ter. Passeport QRBags (carte numérique officielle) ═══ */}
-        <div className="mb-4">
-          <a
-            href={`/passeport/${reference}`}
-            aria-label="Voir mon Passeport QRBags"
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2"
-            style={{ backgroundColor: '#16234e', color: ACCENT, borderColor: INK }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = ACCENT;
-              e.currentTarget.style.color = '#16234e';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#16234e';
-              e.currentTarget.style.color = ACCENT;
-            }}
-          >
-            🛂 Voir mon Passeport QRBags
-          </a>
-          <p className="text-center text-xs mt-2" style={{ color: INK, opacity: 0.65 }}>
-            Votre carte numérique officielle — à ajouter à votre téléphone
-          </p>
-        </div>
-
-        {/* ═══ 4bis. Étiquette imprimable 7×10 cm (design officiel + QR) ═══ */}
-        <div className="mb-4">
-          <a
-            href={`/api/labels/${reference}?download=1`}
-            download
-            aria-label="Télécharger l'étiquette imprimable de mon bagage"
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2 cursor-pointer"
-            style={{ backgroundColor: '#ffffff', color: INK, borderColor: INK }}
-          >
-            🖨️ Télécharger mon étiquette (7×10 cm)
-          </a>
-          <p className="text-center text-xs mt-2" style={{ color: INK, opacity: 0.65 }}>
-            À imprimer et attacher à votre bagage — design officiel prêt à plier
-          </p>
         </div>
 
         {/* ═══ 5. Encart Checklist (fond jaune QRBag + bordure dashed noire) ═══ */}

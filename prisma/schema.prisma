@@ -118,10 +118,6 @@ model Baggage {
   founderName       String?   // Name of the finder
   founderPhone      String?   // WhatsApp number of the finder
   founderAt         DateTime? // Timestamp when founder info was submitted
-
-  // PHOTO + REWARD FEATURE: Photo de la valise & récompense proposée en cas de perte
-  photoPath         String?   // Chemin de la photo de la valise (uploads/baggage-photos/xxx.jpg)
-  reward            String?   // Récompense offerte au trouveur (ex: "50 000 FCFA")
   agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   scanLogs          ScanLog[]
 }

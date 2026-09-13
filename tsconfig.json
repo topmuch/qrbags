@@ -38,8 +38,6 @@
     "types/**/*.d.ts"
   ],
   "exclude": [
-    "node_modules",
-    "scripts",
-    "mini-services"
+    "node_modules"
   ]
 }
