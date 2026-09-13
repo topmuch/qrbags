@@ -267,3 +267,23 @@ Stage Summary:
 - La récompense est désormais un champ libre optionnel (le backend acceptait déjà reward: undefined)
 - Photo et récompense regroupées en fin de formulaire, juste avant le bouton « Activer mon bagage »
 - Aucune modification backend nécessaire (API /api/activate accepte déjà champ optionnel)
+
+---
+Task ID: 9
+Agent: Super Z (main)
+Task: Réintégrer compagnie aérienne + numéro de vol dans le formulaire /inscrire
+
+Work Log:
+- Backend déjà prêt (schema.prisma airlineName/flightNumber + API /api/activate Zod) — aucune modif DB requise
+- src/app/inscrire/page.tsx : formData +2 champs (airlineName, flightNumber), encart ✈️ Vol entre Destination et Date de départ (2 inputs côte à côte sm:grid-cols-2), vol auto-uppercase (.toUpperCase()), payload POST + sessionStorage enrichis
+- src/app/success/page.tsx : interface ActivationData +airlineName
+- i18n réutilisé : transport.airline / airline_placeholder / flight_number / flight_number_placeholder (fr/en/ar existants)
+- Script persisté scripts/test-vol-form.ts (setup/check/cleanup, main() async — top-level await interdit en CJS)
+- E2E navigateur : ?qr=VOL26-TESTVOL1 (param = qr, PAS ref) → formulaire rempli (Awa Ndiaye, Sénégal, Air Sénégal, sn209→SN209, WhatsApp) → submit → /success → DB 2/2 QR activés avec vol → /suivi accordéon « Informations du bagage » affiche Air Sénégal + SN209 + logo compagnie
+- Cleanup données de test effectué ; lint 0 erreur
+
+Stage Summary:
+- Compagnie aérienne + numéro de vol (optionnels) intégrés au formulaire, sauvegardés et affichés sur /suivi
+- Tests: scripts/test-vol-form.ts réutilisable (setup|check|cleanup)
+- Screenshots preuve : download/suivi-avec-vol.png
+- Idée Passeport QRBags reportée par l'utilisateur (à reprendre plus tard)
