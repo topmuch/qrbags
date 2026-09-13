@@ -99,3 +99,22 @@ Stage Summary:
 - All routes use `import { db } from '@/lib/db'`
 - Lint passes cleanly
 - Routes follow existing project patterns (NextRequest/NextResponse, rate-limit.ts, CRON_SECRET auth)
+---
+Task ID: 1
+Agent: Main Agent (session clone+dev)
+Task: Cloner github.com/topmuch/qrbags, installer les dépendances, lancer le dev
+
+Work Log:
+- Repo demandé "github.com/qrbags" introuvable ; recherche GitHub → topmuch/qrbags (production, TypeScript, push 2026-07-11) cloné
+- Dépendances installées via bun (947 packages, bun.lock)
+- .env créé depuis .env.example : DATABASE_URL=file:/home/z/my-project/prisma/qrbag.db, NEXTAUTH_SECRET + ENCRYPTION_KEY générés (openssl rand -base64 32)
+- Client Prisma généré (bunx prisma generate) + schéma synchronisé (prisma db push, 19ms)
+- Projet déplacé de /home/z/my-project/qrbags vers /home/z/my-project (exigence plateforme : bun run dev auto à la racine)
+- .zscripts/dev.sh créé : superviseur (restart auto) next dev -p 3000 + mini-service tracking-ws (Socket.IO port 3005, bun --hot)
+- Vérifié en un seul appel : / → HTTP 200 (title "QRBag - Protection intelligente des bagages"), /api/auth/session → 200, /login → 200
+- NOTE SANDBOX : les processus utilisateur sont tués entre les appels outils (reaper) ; le serveur doit être géré par la plateforme (auto dev server, cf. logs session précédente EADDRINUSE dans dev-server.log)
+
+Stage Summary:
+- Application QRBag (Next.js 16.1.3 Turbopack + Prisma SQLite + Tailwind 4) opérationnelle en dev sur le port 3000
+- Mini-service WebSocket tracking-ws (port 3005) prêt pour le suivi temps réel
+- Base de données pré-remplie du repo (prisma/qrbag.db) synchronisée avec le schéma
