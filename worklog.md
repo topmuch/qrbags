@@ -387,3 +387,23 @@ Stage Summary:
 - 6 QR démo laissés dans le dashboard agence FRANCINE MAKELA (preuve visible, supprimables)
 - Persistance now self-hosted dans le serveur (aucune action manuelle requise)
 - Commit e33c593 poussé sur GitHub
+
+---
+Task ID: 13
+Agent: Super Z (main)
+Task: Erreurs post-restore — P2022 "photoPath does not exist" + "spawn bash ENOENT" (logs utilisateur)
+
+Work Log:
+- Constat à l'ouverture : DB actuelle SAINE (photoPath présente, 8 bagages dont 6 agence, API 200) → les erreurs P2022 ont eu lieu PENDANT le restore workspace (fichier DB momentanément remplacé par une vieille version, puis revenu à l'état origin/main)
+- Commit 354b9a3 (message UUID, "Z User") = snapshot plateforme du worklog — non poussé à l'époque (le timer ne poussait que sur changement DB)
+- CAUSE ENOENT reproduite : env -i avec le PATH restreint plateforme → bash introuvable ("spawn bash ENOENT") ; le timer héritait de ce PATH après restart plateforme
+- FIX 1 (chemins) : db-autocommit.ts → execFile('/bin/bash', chemin absolu du script, env: safeEnv() avec PATH complet garanti)
+- FIX 2 (auto-réparation P2022) : src/lib/db-selfheal.ts — vérifie PRAGMA table_info (photoPath, reward, airlineName, flightNumber, setId) au boot +8s puis toutes les 5 min → si colonne manquante : ./node_modules/.bin/prisma db push --skip-generate (additif, sans perte de données)
+- FIX 3 (push) : db-autocommit-once.sh pousse aussi quand HEAD est ahead d'origin/main même sans changement DB (snapshots plateforme + correctifs ne s'accumulent plus localement)
+- FIX 4 (bug script) : git rev-parse --count ne gère PAS les ranges (sortie garbage → test -gt en erreur → push silencieusement sauté) → remplacé par git rev-list --count + garde numérique case
+- E2E post-restart 13/13 ✅ ; cleanup 6 QR de test en double (6 démo restants) ; cycle complet vérifié : commit DB → push auto (2bc77ab), commit code → push auto par le timer (054f55c)
+
+Stage Summary:
+- Le système est maintenant AUTO-RÉPARANT : schéma vérifié périodiquement (P2022 guéri seul), DB commitée+poussée toutes les 60s, push aussi pour les commits non-DB
+- Tous les processus enfants utilisent /bin/bash absolu + PATH garanti (immunisé au PATH restreint plateforme)
+- HEAD = remote = 054f55c — tout poussé sur GitHub
