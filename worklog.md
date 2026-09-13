@@ -407,3 +407,21 @@ Stage Summary:
 - Le système est maintenant AUTO-RÉPARANT : schéma vérifié périodiquement (P2022 guéri seul), DB commitée+poussée toutes les 60s, push aussi pour les commits non-DB
 - Tous les processus enfants utilisent /bin/bash absolu + PATH garanti (immunisé au PATH restreint plateforme)
 - HEAD = remote = 054f55c — tout poussé sur GitHub
+
+---
+Task ID: 14
+Agent: Super Z (main)
+Task: Re-signalement P2022 photoPath — vérification complète post-restaure + fix push fantôme
+
+Work Log:
+- Constat : workspace restauré PROPRE sur 9fd2a7a (tous fixes Task 13 présents : db-selfheal.ts, execFile('/bin/bash'), instrumentation.ts) → l'erreur P2022 collée par l'utilisateur datait d'AVANT les fixes
+- DB vérifiée : photoPath présente (34 colonnes Baggage), reward/setId OK, 8 bagages démo — API 200, aucun P2022/ENOENT dans les logs serveur
+- E2E retesté 13/13 ✅ (génération 6 QR → dashboard → export ZIP agencyId 23249o PK → export setIds 11815o PK → 404 propre) puis cleanup des 6 QR de test (8 démo restants)
+- Timer auto-commit PRUVÉ VIVANT dans l'instance serveur courante (20:57) : 2 snapshots automatiques à 21:21:49 et 21:22:49, intervalle exact 60s
+- BUG DÉCOUVERT : le push par URL ne met pas à jour refs/remotes/origin/main → AHEAD restait >0 → push inutile à CHAQUE cycle (fonctionnel mais gaspillage) → fix : git update-ref refs/remotes/origin/main HEAD après push OK — testé live (ahead 1 → push OK → ref sync, ahead 0)
+- HEAD = origin/main = 93eb3bf — tout poussé GitHub
+
+Stage Summary:
+- Système confirmé auto-réparant sur instance serveur fraîche : schéma vérifié (P2022), DB snapshot+push 60s, push fantôme éliminé
+- Les erreurs rapportées (P2022 + spawn bash ENOENT) sont couvertes par les fixes Task 13, désormais re-validées de bout en bout après restaure plateforme
+- 8 bagages démo en base (2 passeport VOL26-FLUX + 6 agence FRANCINE MAKELA)
