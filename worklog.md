@@ -309,3 +309,18 @@ Stage Summary:
 - Passeport QRBags Niveau 1 livré : /passeport/{ref} réservé propriétaire (accès par lien depuis /success et /suivi uniquement, jamais depuis /scan trouveur)
 - QR de la carte = auto-vérification du document (boucle passeport ↔ lui-même)
 - Prochaines étapes possibles : Niveau 2 Apple Wallet (.pkpass, compte dev 99$/an) + Niveau 3 Google Wallet
+
+---
+Task ID: push-001
+Agent: Super Z (main)
+Task: Pousser le code vers GitHub (topmuch/qrbags) avec le token fourni par l'utilisateur
+
+Work Log:
+- Vérifié git status : branche main, 12 commits en avance sur origin/main, working tree clean
+- Poussé avec git push https://ghp_***@github.com/topmuch/qrbags.git main → succès (6329a83..34462fe)
+- Synchronisé la référence de tracking locale via git fetch origin → "up to date with origin/main"
+
+Stage Summary:
+- 12 commits (Tasks 1-9 : batch setId, /inscrire simplifié, /scan sync, photos+récompenses, réordonnancement formulaire, champs vol) maintenant sur GitHub main
+- Contenu poussé : réordonnancement photo/récompense (Task 8), champs compagnie aérienne + n° vol (Task 9), i18n fr/en/ar
+- Token non stocké dans .git/config (push via URL explicite, pas de git remote set-url)
