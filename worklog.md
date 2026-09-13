@@ -137,3 +137,23 @@ Stage Summary:
 - Activation groupée fonctionnelle pour Hajj ET Voyageur, clé fiable = setId (plus de risque d'activation croisée inter-voyageurs)
 - Fichiers modifiés : src/app/api/activate/route.ts, src/app/hajj/activate/page.tsx, src/app/inscrire/page.tsx, src/app/success/page.tsx
 - Script de test réutilisable : scripts/test-group-activation.ts
+
+---
+Task ID: 3
+Agent: Main Agent (session étiquette imprimable)
+Task: Intégrer le design fourni (upload/ori2.png) en étiquette QR imprimable 7×10 cm générée à chaque génération de QR voyageur
+
+Work Log:
+- Design analysé : ori2.png 1049×1499 px = ratio 0.700 (7×10 cm exact) ≈ 381 DPI ; zone QR = carte blanche x[228,828] y[705,1225] avec équerres colorées aux coins
+- Mesures par scripts Python (scripts/measure-label-zone.py) ; QR placé à 370×370 px centré (x 340, y 780) — s'insère ENTRE les équerres sans les toucher
+- Asset copié : public/labels/qrbag-voyageur.png (fond design préservé)
+- API src/app/api/labels/[reference]/route.ts : GET génère le PNG composé (sharp) = fond design + QR (qrcode, niveau H, bleu nuit #111a4d, rendu 2× puis nearest) + référence sous le QR (overlay SVG, DejaVu Sans bold) ; ?download=1 → pièce jointe ; 404 si référence inconnue ; prêt pour un fond hajj dédié (LABEL_BACKGROUNDS)
+- UI : /admin/qrcodes → bouton "Étiquette 7×10 cm" par QR (modal détail) ; /admin/etiquettes → icône imprimante par set + bouton "Planche d'impression" (modal) ; /admin/etiquettes/planche → NOUVELLE page planche A4 (étiquettes 7×10 cm, @page A4, bouton Imprimer, compteur de chargement) ; /success → "Télécharger mon étiquette (7×10 cm)" côté voyageur
+- globals.css : styles @media print (A4 portrait, .no-print, break-inside avoid)
+- Tests : lint 0 erreur ; API → PNG 1049×1499 vérifié VISUELLEMENT (QR bien cadré par les équerres, référence lisible) ; QR décodé par OpenCV = http://localhost:3000/scan/VOL26-DEMO01 ✅ scannable ; headers attachment OK ; 404 OK ; 4 pages → 200 sans erreur Turbopack
+- Baggage de démo créé : VOL26-DEMO01 (set VOL-2026-DEMO)
+
+Stage Summary:
+- Étiquette 7×10 cm prête à imprimer générée automatiquement pour chaque QR voyageur (design officiel + QR scannable + référence)
+- Points d'accès : GET /api/labels/{reference}[?download=1] · planche A4 /admin/etiquettes/planche?setId=...
+- Le design hajj pourra être ajouté sans changer l'API (mapping LABEL_BACKGROUNDS par type)

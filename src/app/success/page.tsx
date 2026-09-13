@@ -265,6 +265,22 @@ function SuccessContent() {
           </button>
         </div>
 
+        {/* ═══ 4bis. Étiquette imprimable 7×10 cm (design officiel + QR) ═══ */}
+        <div className="mb-4">
+          <a
+            href={`/api/labels/${reference}?download=1`}
+            download
+            aria-label="Télécharger l'étiquette imprimable de mon bagage"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2 cursor-pointer"
+            style={{ backgroundColor: '#ffffff', color: INK, borderColor: INK }}
+          >
+            🖨️ Télécharger mon étiquette (7×10 cm)
+          </a>
+          <p className="text-center text-xs mt-2" style={{ color: INK, opacity: 0.65 }}>
+            À imprimer et attacher à votre bagage — design officiel prêt à plier
+          </p>
+        </div>
+
         {/* ═══ 5. Encart Checklist (fond jaune QRBag + bordure dashed noire) ═══ */}
         <div
           className="border-2 border-dashed rounded-2xl p-5 text-center"

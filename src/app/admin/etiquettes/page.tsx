@@ -7,6 +7,7 @@ import {
   Search,
   Eye,
   Download,
+  Printer,
   Share2,
   Trash2,
   Plane,
@@ -524,6 +525,13 @@ export default function EtiquettesPage() {
                           >
                             <Download className="w-4 h-4" />
                           </button>
+                          <a
+                            href={`/admin/etiquettes/planche?setId=${set.setId}`}
+                            className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors"
+                            title="Planche d'impression A4 (étiquettes 7×10 cm)"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </a>
                           <button
                             onClick={() => handleShareSet(set)}
                             className="p-2 text-slate-400 hover:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
@@ -623,6 +631,13 @@ export default function EtiquettesPage() {
 
               {/* Actions */}
               <div className="mt-6 flex gap-3">
+                <a
+                  href={`/admin/etiquettes/planche?setId=${selectedSet.setId}`}
+                  className="flex-1 py-3 bg-[#0d5e34] text-white rounded-xl hover:bg-[#0a4a2a] transition-colors flex items-center justify-center gap-2"
+                >
+                  <Printer className="w-4 h-4" />
+                  Planche d'impression
+                </a>
                 <button
                   onClick={() => handleDownloadPDF(selectedSet)}
                   className="flex-1 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
