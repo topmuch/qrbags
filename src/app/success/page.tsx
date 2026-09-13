@@ -19,6 +19,7 @@ interface ActivationData {
   lastName: string;
   whatsapp: string;
   flightNumber?: string;
+  airlineName?: string;
   destination?: string;
   type: string;
   activatedAt: string;

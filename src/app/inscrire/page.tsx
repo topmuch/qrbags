@@ -93,6 +93,8 @@ function InscrireContent() {
     firstName: '',
     lastName: '',
     destination: '',
+    airlineName: '',
+    flightNumber: '',
     departureDate: '',
     departureTime: '',
     whatsapp: '',
@@ -193,6 +195,8 @@ function InscrireContent() {
           // cohérent avec les références voyageur VOL26-)
           transportMode: 'flight',
           destination: formData.destination,
+          airlineName: formData.airlineName.trim() || undefined,
+          flightNumber: formData.flightNumber.trim() || undefined,
           departureDate: formData.departureDate || undefined,
           departureTime: formData.departureTime || undefined,
           // PHOTO + REWARD FEATURE
@@ -211,6 +215,8 @@ function InscrireContent() {
             lastName: formData.lastName,
             whatsapp: formData.whatsapp,
             destination: formData.destination,
+            airlineName: formData.airlineName.trim(),
+            flightNumber: formData.flightNumber.trim(),
             transportMode: 'flight',
             reward: reward.trim(),
             type: 'voyageur',
@@ -391,6 +397,39 @@ function InscrireContent() {
                       onChange={(v) => setFormData({ ...formData, destination: v })}
                       placeholder="Sélectionnez votre destination"
                     />
+                  </div>
+                </div>
+              </DashedEncart>
+
+              {/* Vol — compagnie aérienne + numéro de vol (optionnel) */}
+              <DashedEncart>
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">✈️</span>
+                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-sm text-black/80 font-medium mb-1.5">
+                        {t('transport.airline')}
+                      </p>
+                      <input
+                        type="text"
+                        placeholder={t('transport.airline_placeholder')}
+                        value={formData.airlineName}
+                        onChange={(e) => setFormData({ ...formData, airlineName: e.target.value })}
+                        className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm text-black/80 font-medium mb-1.5">
+                        {t('transport.flight_number')}
+                      </p>
+                      <input
+                        type="text"
+                        placeholder={t('transport.flight_number_placeholder')}
+                        value={formData.flightNumber}
+                        onChange={(e) => setFormData({ ...formData, flightNumber: e.target.value.toUpperCase() })}
+                        className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+                      />
+                    </div>
                   </div>
                 </div>
               </DashedEncart>
