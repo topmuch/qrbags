@@ -111,10 +111,12 @@ function PassportContent() {
     setSaving(true);
     try {
       const { toPng } = await import('html-to-image');
+      // NB : pas d'option backgroundColor ici — html-to-image l'applique au clone racine
+      // et écraserait le fond blanc de la carte (comportement applyStyle).
+      // La carte est auto-portante : navy + blanc + or, coins arrondis transparents.
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 3,
         cacheBust: true,
-        backgroundColor: GOLD,
       });
       const link = document.createElement('a');
       link.download = `passeport-qrbags-${reference}.png`;

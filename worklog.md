@@ -324,3 +324,22 @@ Stage Summary:
 - 12 commits (Tasks 1-9 : batch setId, /inscrire simplifié, /scan sync, photos+récompenses, réordonnancement formulaire, champs vol) maintenant sur GitHub main
 - Contenu poussé : réordonnancement photo/récompense (Task 8), champs compagnie aérienne + n° vol (Task 9), i18n fr/en/ar
 - Token non stocké dans .git/config (push via URL explicite, pas de git remote set-url)
+
+---
+Task ID: 10-b
+Agent: Super Z (main)
+Task: Vérification live complète du Passeport QRBags + 2 correctifs (export PNG blanc + visibilité lien /suivi)
+
+Work Log:
+- Constat : Task 10 (passeport) déjà implémenté + commit 34462fe (poussé GitHub) — vérification intégrale refaite au lieu de faire confiance au worklog
+- Vérifié fichiers : page passeport complète (507 lignes), html-to-image ^1.11.13, 31 clés i18n passport ×3 langues, bouton /success (ligne 269) + lien /suivi présents
+- Démo enrichie : set VOL-2026-FLUX +airlineName 'Air Sénégal' +flightNumber 'SN209' (scripts/update-demo-vol.ts)
+- BUG 1 CORRIGÉ : export PNG ressortait corps doré au lieu de blanc — cause : option backgroundColor:GOLD de toPng écrase le fond du clone racine (applyStyle html-to-image) ; fix = suppression de l'option (carte auto-portante) ; vérifié pixels : corps (255,255,255) + navy (22,35,78)
+- QR auto-référencé décodé OpenCV : http://localhost:3000/passeport/VOL26-FLUX02 ✅
+- BUG 2 CORRIGÉ : lien passeport /suivi était DANS l'accordéon replié (invisible DOM fermé) → déplacé après la carte photo/récompense (toujours visible) ; ancien lien supprimé (anti-doublon) ; eslint 0 erreur
+- Vérifs live : /passeport/VOL26-FLUX02 carte complète (voyageur, PROTÉGÉ, Dakar, Air Sénégal, SN209, dates, photo, récompense, QR, 3 boutons) ; export PNG cliqué → fichier téléchargé, 0 erreur console ; /success bouton « 🛂 Voir mon Passeport QRBags » (sessionStorage seedé) → href correct ; /suivi lien visible sans déplier
+
+Stage Summary:
+- Passeport QRBags Niveau 1 VÉRIFIÉ de bout en bout avec 2 correctifs de qualité livrés
+- Screenshots : download/passeport-verification-vive.png, passeport-qr-section.png, passeport-export-final.png (export corrigé), success-bouton-passeport.png, suivi-lien-passeport-visible.png
+- Données démo : VOL26-FLUX02 (Fatou Ndiaye, Dakar, Air Sénégal SN209, 50 000 FCFA, photo)
