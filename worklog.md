@@ -174,3 +174,17 @@ Stage Summary:
 - /inscrire : flux 2 étapes simplifié (Bienvenue+Continuer → formulaire), brand navy #16234e / or #be9a5e aligné sur l'étiquette 7×10 cm
 - Activation groupée setId inchangée et re-validée ; API /api/activate non modifiée
 - Reste à faire (proposé) : la page /scan/[reference] a encore son propre sélecteur de mode transport avant redirection vers /inscrire
+
+---
+Task ID: 5
+Agent: Main Agent (session page scan)
+Task: /scan/[reference] — supprimer le sélecteur de transport avant redirection vers /inscrire (validation utilisateur : « OUI »)
+
+Work Log:
+- src/app/scan/[reference]/page.tsx — composant ActivationRedirect : état selectedMode supprimé, TransportModeSelector retiré de la branche voyageur (badge Voyageur + bouton « Démarrer l'activation » directement, comme la branche Hajj) ; icône Luggage fixe (plus d'image transport conditionnelle) ; URL de redirection = /inscrire?qr=REF (param &mode= supprimé)
+- Imports nettoyés : TransportModeSelector retiré, TRANSPORT_ICONS (déjà inutilisé) retiré ; safeTransportMode/getTransportImage/getTransportBlockHeader/Image conservés (bloc transport du suivi, lignes ~660+)
+- Vérifié : eslint 0 erreur ; test E2E scripts/test-scan-redirect.ts (bagage VOL26 pending_activation → API status OK, page /scan 200 sans erreur compile, aucun selectedMode/&mode=/TransportModeSelector dans le source) ; nettoyage base OK
+
+Stage Summary:
+- Flux voyageur 100 % sans question transport : scan QR → /scan (badge + Démarrer) → /inscrire?qr=REF (Bienvenue + Continuer → formulaire) → activation groupée setId
+- API /api/scan et /api/activate inchangées
