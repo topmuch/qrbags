@@ -254,7 +254,9 @@
     "audio_alert_enabled": "Alertes activées",
     "audio_alert_disabled": "Alertes désactivées",
     "audio_alert_toggle_aria": "Activer ou désactiver les alertes sonores",
-    "audio_alert_scanning": "Surveillance active…"
+    "audio_alert_scanning": "Surveillance active…",
+    "baggage_photo": "Photo du bagage",
+    "reward_promise": "Récompense promise"
   },
   "scan": {
     "success": "Scan réussi ! ✓",

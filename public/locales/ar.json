@@ -254,7 +254,9 @@
     "audio_alert_enabled": "تم تفعيل التنبيهات",
     "audio_alert_disabled": "تم إيقاف التنبيهات",
     "audio_alert_toggle_aria": "تفعيل أو إيقاف التنبيهات الصوتية",
-    "audio_alert_scanning": "مراقبة نشطة…"
+    "audio_alert_scanning": "مراقبة نشطة…",
+    "baggage_photo": "صورة الحقيبة",
+    "reward_promise": "مكافأة معروضة"
   },
   "scan": {
     "success": "تم المسح بنجاح! ✓",

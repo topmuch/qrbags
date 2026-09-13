@@ -53,6 +53,7 @@ interface PreFilledMessageParams {
     busCompany?: string;
     busLineNumber?: string;
     destination?: string;
+    reward?: string;
   };
   scanData: {
     city: string;
@@ -145,6 +146,16 @@ const SEE_BAGAGE: Record<WhatsAppLocale, string> = {
   en: '👉 See located bag:',
   ar: '👉 رؤية الأمتعة المحددة:',
 };
+
+// PHOTO-REWARD: Label récompense (motivation trouveur)
+const REWARD_LABELS: Record<WhatsAppLocale, string> = {
+  fr: '🎁 Récompense promise :',
+  en: '🎁 Reward offered:',
+  ar: '🎁 مكافأة معروضة:',
+};
+
+/** Longueur max du texte récompense injecté dans le message (anti-débordement) */
+const REWARD_MAX_LEN = 60;
 
 const TRUNCATED_MARKER: Record<WhatsAppLocale, string> = {
   fr: '…',
@@ -244,8 +255,10 @@ function sanitize(input: string): string {
 
 /**
  * Tronque intelligemment le message si > 400 chars.
- * Priorité de suppression : finder phone → finder name → CTA → signature.
+ * Priorité de suppression : finder phone → finder name → récompense → CTA → signature.
  * Garde toujours : titre, REF, transport line, lien suivi.
+ * PHOTO-REWARD: la récompense est protégée après le nom du trouveur
+ * (motivation forte du trouveur — l'utilisateur la veut visible).
  * Ajoute "…" si tronqué.
  */
 function smartTruncate(message: string, maxChars: number, locale: WhatsAppLocale): string {
@@ -306,6 +319,17 @@ function smartTruncate(message: string, maxChars: number, locale: WhatsAppLocale
   joined = lines.join('\n');
   if (joined.length <= maxChars) return joined + TRUNCATED_MARKER[locale];
 
+  // PHOTO-REWARD: Retirer la récompense (🎁) — protégée après finder name
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (lines[i].startsWith('🎁')) {
+      lines.splice(i, 1);
+      truncated = true;
+      break;
+    }
+  }
+  joined = lines.join('\n');
+  if (joined.length <= maxChars) return joined + TRUNCATED_MARKER[locale];
+
   // Dernier recours : troncation brute
   return joined.substring(0, maxChars - 1).trim() + '…';
 }
@@ -321,6 +345,10 @@ function smartTruncate(message: string, maxChars: number, locale: WhatsAppLocale
  *
  * @param params - Données structurées (baggage, scanData, finder, locale, ownerName)
  * @returns string — Message formaté ≤ 400 caractères, prêt pour wa.me
+ *
+ * PHOTO-REWARD: si baggage.reward est fourni, une ligne
+ * "🎁 Récompense promise : …" est insérée après le lien de suivi
+ * pour renforcer la motivation du trouveur.
  *
  * @example
  * ```ts
@@ -394,6 +422,12 @@ export function generatePreFilledMessage(params: PreFilledMessageParams): string
 
   // Line 4: Tracking link (TOUJOURS)
   lines.push(`${SEE_BAGAGE[locale]} ${appUrl}/suivi/${sanitizedRef}`);
+
+  // Line 4b: Récompense promise (PHOTO-REWARD — motivation trouveur, optionnelle)
+  const reward = sanitize(baggage.reward || '').substring(0, REWARD_MAX_LEN);
+  if (reward) {
+    lines.push(`${REWARD_LABELS[locale]} ${reward}`);
+  }
 
   // Line 5: Finder name (optionnel)
   const finderName = sanitize(finder.name);

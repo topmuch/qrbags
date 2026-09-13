@@ -1,0 +1,714 @@
+   701→        title: `✅ ${t('tracking.badge_found')}`,
+   702→        badgeClass: 'bg-[#fcd616] text-[#1a1a1a]',
+   703→        desc: t('tracking.found_description'),
+   704→      };
+   705→    }
+   706→    if (isScanned) {
+   707→      return {
+   708→        title: t('tracking.bagage_localise'),
+   709→        badgeClass: 'bg-[#fcd616] text-[#1a1a1a]',
+   710→        desc: t('tracking.found_description'),
+   711→      };
+   712→    }
+   713→    return {
+   714→      title: t('tracking.bagage_protege'),
+   715→      badgeClass: 'bg-[#1a1a1a] text-[#fcd616]',
+   716→      desc: t('tracking.active_description'),
+   717→    };
+   718→  })();
+   719→
+   720→  // History accordion: 3 first by default if >3, all if <=3
+   721→  const INITIAL_SCAN_COUNT = 3;
+   722→  const visibleScans = showAllScans ? data.scans : data.scans.slice(0, INITIAL_SCAN_COUNT);
+   723→  const hiddenScansCount = data.scans.length - INITIAL_SCAN_COUNT;
+   724→
+   725→  // Support mailto link
+   726→  const supportSubject = encodeURIComponent(`Problème bagage ${reference}`);
+   727→  const supportBody = encodeURIComponent(
+   728→    `Bonjour, je rencontre un problème avec mon bagage ${reference}.\n\nDescription du problème :\n`
+   729→  );
+   730→  const supportHref = `mailto:contact@qrbags.com?subject=${supportSubject}&body=${supportBody}`;
+   731→
+   732→  // Checklist CTA link
+   733→  const checklistHref = `/checklist?ref=${encodeURIComponent(reference)}&source=tracking_page`;
+   734→
+   735→  // ═══════════════════════════════════════════════════════
+   736→  //  RENDER
+   737→  // ═══════════════════════════════════════════════════════
+   738→
+   739→  return (
+   740→    <main
+   741→      className="min-h-screen bg-[#0047d6] flex flex-col"
+   742→      dir={dir}
+   743→    >
+   744→      {/* ─── Sticky Header ─── */}
+   745→      <header className="sticky top-0 z-40 bg-[#0047d6] border-b-2 border-[#fcd616]/30 pt-[env(safe-area-inset-top,0px)] px-4 sm:px-5 md:px-8 py-2 sm:py-3">
+   746→        <div className="max-w-md mx-auto flex items-center justify-between">
+   747→          <button
+   748→            onClick={() => window.history.back()}
+   749→            className="flex items-center gap-1 text-white hover:text-[#fcd616] transition-colors text-sm font-medium min-h-[40px] px-2"
+   750→            aria-label={t('tracking.back_to_scan')}
+   751→          >
+   752→            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+   753→            <span>{t('tracking.back_to_scan')}</span>
+   754→          </button>
+   755→
+   756→          <div className="flex items-center gap-2">
+   757→            {/* Audio alert toggle */}
+   758→            <button
+   759→              onClick={toggleAudio}
+   760→              className={`flex items-center justify-center w-9 h-9 rounded-full border-2 transition-colors min-h-[40px] ${
+   761→                audioEnabled
+   762→                  ? 'border-[#fcd616] bg-[#fcd616] text-[#1a1a1a]'
+   763→                  : 'border-[#1a1a1a] text-[#1a1a1a] hover:bg-[#fcd616]'
+   764→              }`}
+   765→              aria-label={t('tracking.audio_alert_toggle_aria')}
+   766→              title={audioEnabled ? t('tracking.audio_alert_enabled') : t('tracking.audio_alert_disabled')}
+   767→            >
+   768→              {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+   769→            </button>
+   770→            <button
+   771→              onClick={handleRefresh}
+   772→              disabled={isRefreshing}
+   773→              className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-[#1a1a1a] text-[#1a1a1a] hover:bg-[#fcd616] transition-colors disabled:opacity-50"
+   774→              aria-label={t('common.refresh')}
+   775→            >
+   776→              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+   777→            </button>
+   778→            <LanguageSelector lang={lang} setLang={setLang} />
+   779→          </div>
+   780→        </div>
+   781→      </header>
+   782→
+   783→      {/* ─── Refresh Toast ─── */}
+   784→      {refreshToast && (
+   785→        <div className="fixed top-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(4rem+env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2 bg-[#1a1a1a] text-[#fcd616] px-4 py-2 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-300 text-sm font-medium flex items-center gap-1.5">
+   786→          <CheckCircle className="w-4 h-4" />
+   787→          {t('tracking.refresh_success')}
+   788→        </div>
+   789→      )}
+   790→
+   791→      {/* ─── Status Toast ─── */}
+   792→      {statusToast && (
+   793→        <div className="fixed top-[calc(5.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(6rem+env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-300 text-sm font-medium flex items-center gap-1.5">
+   794→          <CheckCircle className="w-4 h-4" />
+   795→          {t('tracking.status_updated')}
+   796→        </div>
+   797→      )}
+   798→
+   799→      {/* ─── Audio Alert Banner (show when not enabled AND baggage not yet scanned) ─── */}
+   800→      {!audioEnabled && data && data.scans.length === 0 && (
+   801→        <div className="sticky top-[52px] sm:top-[56px] z-30 bg-[#0047d6] px-4 sm:px-5 md:px-8 py-2">
+   802→          <div className="max-w-md mx-auto">
+   803→            <div className="bg-[#fcd616] border-2 border-[#1a1a1a] rounded-2xl p-4 text-center">
+   804→              <p className="font-bold text-[#1a1a1a] text-base mb-2">
+   805→                🔔 {t('tracking.audio_alert_banner_title')}
+   806→              </p>
+   807→              <button
+   808→                onClick={enableAudio}
+   809→                className="bg-[#1a1a1a] hover:bg-black text-[#fcd616] py-2.5 px-6 rounded-xl font-bold transition-colors text-sm min-h-[44px] inline-flex items-center gap-2"
+   810→              >
+   811→                <Volume2 className="w-4 h-4" />
+   812→                {t('tracking.audio_alert_activate_btn')}
+   813→              </button>
+   814→              <p className="text-xs text-[#1a1a1a]/70 mt-2">
+   815→                {t('tracking.audio_alert_keep_open')}
+   816→              </p>
+   817→            </div>
+   818→          </div>
+   819→        </div>
+   820→      )}
+   821→
+   822→      {/* ─── Scanning indicator (show when audio is enabled AND no scans yet) ─── */}
+   823→      {audioEnabled && data && data.scans.length === 0 && (
+   824→        <div className="sticky top-[52px] sm:top-[56px] z-30 bg-[#0047d6] px-4 sm:px-5 md:px-8 py-2">
+   825→          <div className="max-w-md mx-auto">
+   826→            <div className="bg-[#fcd616]/20 border-2 border-dashed border-[#fcd616] rounded-xl px-4 py-2.5 flex items-center gap-2">
+   827→              <div className="w-2 h-2 rounded-full bg-[#fcd616] animate-pulse flex-shrink-0" />
+   828→              <span className="text-sm font-medium text-[#1a1a1a]">{t('tracking.audio_alert_scanning')}</span>
+   829→            </div>
+   830→          </div>
+   831→        </div>
+   832→      )}
+   833→
+   834→      {/* ─── Interactive Map (Leaflet — trajectory + markers) ─── */}
+   835→      {data.lastPosition && (data.lastPosition.hasCoordinates || data.lastPosition.address) && (
+   836→        <section className="sticky top-[52px] sm:top-[56px] z-30 bg-[#0047d6] px-4 sm:px-5 md:px-8 py-3">
+   837→          <div className="max-w-md mx-auto">
+   838→            <div className="bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-2.5 shadow-sm">
+   839→              <div className="flex items-center justify-between mb-2 px-1">
+   840→                <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold flex items-center gap-1.5">
+   841→                  <span>🗺️</span> {showTrajectoryMap ? t('tracking.trajectory_map') || 'Trajectoire complète' : t('tracking.last_location')}
+   842→                </h2>
+   843→                <div className="flex items-center gap-2">
+   844→                  {/* WebSocket status indicator */}
+   845→                  <span className="flex items-center gap-1 text-[10px] text-[#1a1a1a]/50" title={wsConnected ? 'Temps réel' : 'Polling'}>
+   846→                    {wsConnected ? <Wifi className="w-3 h-3 text-green-500" /> : <WifiOff className="w-3 h-3" />}
+   847→                  </span>
+   848→                  {baggage.lastScanDate && (
+   849→                    <span className="text-[10px] text-[#1a1a1a]/60">
+   850→                      {formatDateTime(baggage.lastScanDate)}
+   851→                    </span>
+   852→                  )}
+   853→                </div>
+   854→              </div>
+   855→
+   856→              {/* Toggle: last position vs trajectory */}
+   857→              {data.scans.filter(s => s.latitude && s.longitude).length > 1 && (
+   858→                <div className="flex gap-2 mb-2 px-1">
+   859→                  <button
+   860→                    onClick={() => setShowTrajectoryMap(false)}
+   861→                    className={`text-xs px-3 py-1 rounded-full font-medium transition-colors min-h-[28px] ${!showTrajectoryMap ? 'bg-[#1a1a1a] text-[#fcd616]' : 'bg-[#fcd616]/20 text-[#1a1a1a]/70 hover:bg-[#fcd616]/40'}`}
+   862→                  >
+   863→                    📍 Dernière position
+   864→                  </button>
+   865→                  <button
+   866→                    onClick={() => setShowTrajectoryMap(true)}
+   867→                    className={`text-xs px-3 py-1 rounded-full font-medium transition-colors min-h-[28px] ${showTrajectoryMap ? 'bg-[#1a1a1a] text-[#fcd616]' : 'bg-[#fcd616]/20 text-[#1a1a1a]/70 hover:bg-[#fcd616]/40'}`}
+   868→                  >
+   869→                    🛤️ Trajectoire ({data.scans.filter(s => s.latitude && s.longitude).length})
+   870→                  </button>
+   871→                </div>
+   872→              )}
+   873→
+   874→              <div className="h-56 sm:h-64 md:h-72">
+   875→                {showTrajectoryMap && data.scans.filter(s => s.latitude && s.longitude).length > 0 ? (
+   876→                  <LeafletMap
+   877→                    scans={data.scans.filter(s => s.latitude && s.longitude).map(s => ({
+   878→                      id: s.id,
+   879→                      latitude: s.latitude!,
+   880→                      longitude: s.longitude!,
+   881→                      location: s.location,
+   882→                      city: s.city,
+   883→                      country: s.country,
+   884→                      context: s.context,
+   885→                      scannedAt: s.scannedAt,
+   886→                      finderName: s.finderName,
+   887→                    }))}
+   888→                    destination={baggage.destination}
+   889→                  />
+   890→                ) : (
+   891→                  <LeafletMap
+   892→                    scans={[{
+   893→                      id: 'last',
+   894→                      latitude: data.lastPosition.latitude!,
+   895→                      longitude: data.lastPosition.longitude!,
+   896→                      location: data.lastPosition.address,
+   897→                      city: null,
+   898→                      country: null,
+   899→                      context: 'static_location',
+   900→                      scannedAt: baggage.lastScanDate || new Date().toISOString(),
+   901→                      finderName: null,
+   902→                    }]}
+   903→                    destination={baggage.destination}
+   904→                  />
+   905→                )}
+   906→              </div>
+   907→            </div>
+   908→          </div>
+   909→        </section>
+   910→      )}
+   911→
+   912→      {/* ─── Scrollable Content ─── */}
+   913→      <div className="flex-1 max-w-md mx-auto w-full px-4 sm:px-5 md:px-8 py-4 pb-32 space-y-4">
+   914→
+   915→        {/* ═══ SOCIAL SHARE BAR ═══ */}
+   916→        {data.scans.length > 0 && (
+   917→          <div className="flex items-center justify-between">
+   918→            <span className="text-xs text-[#1a1a1a]/60 font-medium">
+   919→              {lang === 'ar' ? 'مشاركة' : lang === 'en' ? 'Share' : 'Partager'}
+   920→            </span>
+   921→            <SocialShareButtons
+   922→              reference={reference}
+   923→              scanCount={data.scans.length}
+   924→              lastCity={data.scans[0]?.city}
+   925→              lastCountry={data.scans[0]?.country}
+   926→              status={baggage.status}
+   927→              lang={lang}
+   928→            />
+   929→          </div>
+   930→        )}
+   931→
+   932→        {/* ═══ PROACTIVE LOSS ALERT ═══ */}
+   933→        <LossAlertBanner
+   934→          reference={reference}
+   935→          departureDate={baggage.departureDate}
+   936→          hasScans={data.scans.length > 0}
+   937→          lang={lang}
+   938→        />
+   939→
+   940→        {/* ═══ EN-TÊTE DYNAMIQUE SELON STATUT ═══ */}
+   941→        <div className="text-center pt-2">
+   942→          <span className={`inline-flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-bold ${statusConfig.badgeClass}`}>
+   943→            {statusConfig.title}
+   944→          </span>
+   945→          <p className="mt-3 text-sm md:text-base text-white/90 leading-relaxed">
+   946→            {statusConfig.desc}
+   947→          </p>
+   948→          {data.scans.length > 0 && (
+   949→            <p className="mt-1 text-xs text-white/70">
+   950→              {t('tracking.scan_count', { count: String(data.scans.length) })}
+   951→            </p>
+   952→          )}
+   953→        </div>
+   954→
+   955→        {/* ═══ PANNEAU URGENCE (mode perdu uniquement) ═══ */}
+   956→        {isDeclaredLost && (
+   957→          <div
+   958→            className="bg-[#FEF2F2] border-2 border-[#EF4444] rounded-2xl p-6 space-y-5"
+   959→            role="alert"
+   960→          >
+   961→            {/* Titre */}
+   962→            <div className="text-center">
+   963→              <h2 className="text-xl md:text-2xl font-bold text-[#EF4444]">
+   964→                {t('tracking.urgent_title')}
+   965→              </h2>
+   966→            </div>
+   967→
+   968→            {/* Instructions numérotées */}
+   969→            <ol className="space-y-3">
+   970→              <li className="flex gap-3 items-start">
+   971→                <span className="flex-shrink-0 w-7 h-7 bg-[#EF4444] text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</span>
+   972→                <p className="text-sm md:text-base text-[#1a1a1a] leading-relaxed">
+   973→                  {t('tracking.urgent_step1', { company: transportCompany })}
+   974→                </p>
+   975→              </li>
+   976→              <li className="flex gap-3 items-start">
+   977→                <span className="flex-shrink-0 w-7 h-7 bg-[#EF4444] text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</span>
+   978→                <p className="text-sm md:text-base text-[#1a1a1a] leading-relaxed">
+   979→                  {t('tracking.urgent_step2')}
+   980→                </p>
+   981→              </li>
+   982→            </ol>
+   983→
+   984→            {/* Boutons d'action urgence */}
+   985→            <div className="space-y-3">
+   986→              {hasFinderPhone && (
+   987→                <button
+   988→                  onClick={handleWhatsApp}
+   989→                  className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe57] text-white py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px]"
+   990→                >
+   991→                  <MessageCircle className="w-5 h-5" />
+   992→                  {t('tracking.urgent_contact_finder')}
+   993→                </button>
+   994→              )}
+   995→              <button
+   996→                onClick={handleSupportWhatsApp}
+   997→                className="w-full flex items-center justify-center gap-2 bg-[#EF4444] hover:bg-[#DC2626] text-white py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px]"
+   998→              >
+   999→                <AlertTriangle className="w-5 h-5" />
+  1000→                {t('tracking.urgent_support')}
+  1001→              </button>
+  1002→            </div>
+  1003→
+  1004→            {/* Bouton Retrouvé */}
+  1005→            <button
+  1006→              onClick={() => handleStatusToggle('mark-found')}
+  1007→              disabled={isTogglingStatus}
+  1008→              className="w-full flex items-center justify-center gap-2 bg-white border-2 border-green-600 text-green-700 hover:bg-green-50 py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px] disabled:opacity-50"
+  1009→            >
+  1010→              {isTogglingStatus ? (
+  1011→                <RefreshCw className="w-5 h-5 animate-spin" />
+  1012→              ) : (
+  1013→                <CheckCircle className="w-5 h-5" />
+  1014→              )}
+  1015→              {t('tracking.urgent_found_btn')}
+  1016→            </button>
+  1017→          </div>
+  1018→        )}
+  1019→
+  1020→        {/* ═══ CARTE TROUVEUR (white + dashed, lecture seule) ═══ */}
+  1021→        {data.lastFinder && (data.lastFinder.name || data.lastFinder.phone) ? (
+  1022→          <div className="bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 shadow-sm">
+  1023→            <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
+  1024→              <span>🔍</span> {t('tracking.finder_info')}
+  1025→            </h2>
+  1026→
+  1027→            {data.lastFinder.name && (
+  1028→              <DashedEncart>
+  1029→                <div className="flex items-center gap-3">
+  1030→                  <span className="text-xl">👤</span>
+  1031→                  <div>
+  1032→                    <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('finder.fullName')}</p>
+  1033→                    <p className="text-base font-bold text-[#1a1a1a]">{data.lastFinder.name}</p>
+  1034→                  </div>
+  1035→                </div>
+  1036→              </DashedEncart>
+  1037→            )}
+  1038→
+  1039→            {data.lastFinder.phone && (
+  1040→              <DashedEncart className="mb-0">
+  1041→                <div className="flex items-center gap-3">
+  1042→                  <span className="text-xl">📱</span>
+  1043→                  <div>
+  1044→                    <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('finder.whatsapp')}</p>
+  1045→                    <p className="text-base font-bold text-[#1a1a1a]" dir="ltr">{data.lastFinder.phone}</p>
+  1046→                  </div>
+  1047→                </div>
+  1048→              </DashedEncart>
+  1049→            )}
+  1050→          </div>
+  1051→        ) : (
+  1052→          <div className="bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 shadow-sm text-center">
+  1053→            <div className="w-14 h-14 bg-[#fcd616]/20 border-2 border-dashed border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-3">
+  1054→              <Clock className="w-7 h-7 text-[#1a1a1a]/60" />
+  1055→            </div>
+  1056→            <p className="text-[#1a1a1a]/70 text-sm">{t('tracking.no_finder')}</p>
+  1057→          </div>
+  1058→        )}
+  1059→
+  1060→        {/* ═══ CTA CHECKLIST (jaune #fcd616 + dashed) ═══ */}
+  1061→        <div className="bg-[#fcd616] border-2 border-dashed border-[#1a1a1a] rounded-2xl p-4 shadow-sm">
+  1062→          <h3 className="text-base font-bold text-[#1a1a1a] mb-1">{t('tracking.checklist_title')}</h3>
+  1063→          <p className="text-sm text-[#1a1a1a]/80 mb-3 leading-relaxed">{t('tracking.checklist_desc')}</p>
+  1064→          <a
+  1065→            href={checklistHref}
+  1066→            className="block w-full text-center py-3 px-4 bg-[#1a1a1a] hover:bg-black text-[#fcd616] rounded-xl font-bold transition-colors min-h-[44px]"
+  1067→          >
+  1068→            {t('tracking.checklist_cta')}
+  1069→          </a>
+  1070→        </div>
+  1071→
+  1072→        {/* ═══ HISTORIQUE (ACCORDION) ═══ */}
+  1073→        {data.scans.length > 0 && (
+  1074→          <div className="bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl shadow-sm overflow-hidden">
+  1075→            <button
+  1076→              onClick={() => setHistoryOpen(!historyOpen)}
+  1077→              className="w-full flex items-center justify-between px-5 py-4 text-left"
+  1078→              aria-expanded={historyOpen}
+  1079→            >
+  1080→              <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold flex items-center gap-2">
+  1081→                <span>📜</span>
+  1082→                {t('tracking.history_toggle', { count: String(data.scans.length) })}
+  1083→              </h2>
+  1084→              <ChevronDown className={`w-4 h-4 text-[#1a1a1a] transition-transform ${historyOpen ? '' : '-rotate-90'}`} />
+  1085→            </button>
+  1086→
+  1087→            {historyOpen && (
+  1088→              <div className="px-5 pb-4 space-y-2.5">
+  1089→                {visibleScans.map((scan, index) => (
+  1090→                  <DashedEncart key={scan.id} className={index === visibleScans.length - 1 && !showAllScans ? 'mb-0' : ''}>
+  1091→                    <div className="flex items-start justify-between gap-3">
+  1092→                      <div className="flex-1 min-w-0">
+  1093→                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+  1094→                          <span className="text-xs text-[#1a1a1a]/70">
+  1095→                            {formatDateTime(scan.scannedAt)}
+  1096→                          </span>
+  1097→                          <ContextBadge context={scan.context} t={t} />
+  1098→                        </div>
+  1099→                        {scan.location && (
+  1100→                          <p className="text-[#1a1a1a] font-medium text-sm truncate">
+  1101→                            📍 {scan.location}
+  1102→                          </p>
+  1103→                        )}
+  1104→                        {scan.finderName && (
+  1105→                          <p className="text-[#1a1a1a]/70 text-xs mt-1">
+  1106→                            👤 {scan.finderName}
+  1107→                          </p>
+  1108→                        )}
+  1109→                      </div>
+  1110→                      <div className="w-7 h-7 rounded-full bg-[#fcd616]/20 border border-[#1a1a1a]/40 flex items-center justify-center flex-shrink-0">
+  1111→                        <span className="text-xs font-bold text-[#1a1a1a]">{index + 1}</span>
+  1112→                      </div>
+  1113→                    </div>
+  1114→                  </DashedEncart>
+  1115→                ))}
+  1116→
+  1117→                {hiddenScansCount > 0 && !showAllScans && (
+  1118→                  <button
+  1119→                    onClick={() => setShowAllScans(true)}
+  1120→                    className="w-full py-2.5 text-center text-sm font-medium text-[#1a1a1a] hover:text-[#fcd616] border-2 border-dashed border-[#1a1a1a]/40 rounded-xl transition-colors min-h-[40px]"
+  1121→                  >
+  1122→                    {t('tracking.see_more', { count: String(hiddenScansCount) })} ▼
+  1123→                  </button>
+  1124→                )}
+  1125→                {showAllScans && hiddenScansCount > 0 && (
+  1126→                  <button
+  1127→                    onClick={() => setShowAllScans(false)}
+  1128→                    className="w-full py-2.5 text-center text-sm font-medium text-[#1a1a1a]/70 hover:text-[#fcd616] transition-colors min-h-[40px]"
+  1129→                  >
+  1130→                    ▲ Réduire
+  1131→                  </button>
+  1132→                )}
+  1133→              </div>
+  1134→            )}
+  1135→          </div>
+  1136→        )}
+  1137→
+  1138→        {/* ═══ INFOS BAGAGE (COLLAPSIBLE, replié par défaut) ═══ */}
+  1139→        <div className="bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl shadow-sm overflow-hidden">
+  1140→          <button
+  1141→            onClick={() => setBaggageOpen(!baggageOpen)}
+  1142→            className="w-full flex items-center justify-between px-5 py-4 text-left"
+  1143→            aria-expanded={baggageOpen}
+  1144→          >
+  1145→            <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold flex items-center gap-2">
+  1146→              <span>📦</span> {t('tracking.baggage_info_toggle')}
+  1147→            </h2>
+  1148→            <ChevronDown className={`w-4 h-4 text-[#1a1a1a] transition-transform ${baggageOpen ? '' : '-rotate-90'}`} />
+  1149→          </button>
+  1150→
+  1151→          {baggageOpen && (
+  1152→            <div className="px-5 pb-5">
+  1153→              {/* Reference */}
+  1154→              <DashedEncart>
+  1155→                <div className="flex items-center gap-3">
+  1156→                  <span className="text-xl">🏷️</span>
+  1157→                  <div>
+  1158→                    <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('whatsapp.reference').replace(' :', '')}</p>
+  1159→                    <p className="text-base font-bold text-[#1a1a1a] font-mono tracking-widest">{baggage.reference}</p>
+  1160→                  </div>
+  1161→                </div>
+  1162→              </DashedEncart>
+  1163→
+  1164→              {/* Traveler Name */}
+  1165→              <DashedEncart>
+  1166→                <div className="flex items-center gap-3">
+  1167→                  <span className="text-xl">👤</span>
+  1168→                  <div>
+  1169→                    <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('finder.fullName')}</p>
+  1170→                    <p className="text-base font-bold text-[#1a1a1a]">{baggage.travelerName || t('finder.notSet')}</p>
+  1171→                  </div>
+  1172→                </div>
+  1173→              </DashedEncart>
+  1174→
+  1175→              {/* TRANSPORT-FEATURE: Conditional transport info with real PNG images */}
+  1176→              {(() => {
+  1177→                const mode = safeTransportMode(baggage.transportMode) as TransportMode;
+  1178→                const transportImg = getTransportImage(mode);
+  1179→
+  1180→                if (mode === 'flight' && (baggage.airlineName || baggage.flightNumber)) {
+  1181→                  return (
+  1182→                    <DashedEncart>
+  1183→                      <div className="flex items-center justify-between">
+  1184→                        <div className="flex-1">
+  1185→                          {baggage.airlineName && (
+  1186→                            <div className="mb-1">
+  1187→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.airline')}</p>
+  1188→                              <p className="text-base font-bold text-[#1a1a1a]">{baggage.airlineName}</p>
+  1189→                            </div>
+  1190→                          )}
+  1191→                          {baggage.flightNumber && (
+  1192→                            <div>
+  1193→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.flight_number')}</p>
+  1194→                              <p className="text-xl font-bold text-[#1a1a1a] font-mono tracking-widest">{baggage.flightNumber}</p>
+  1195→                            </div>
+  1196→                          )}
+  1197→                        </div>
+  1198→                        <div className="h-12 w-12 rounded-full bg-[#fcd616]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+  1199→                          <Image src={transportImg} alt="flight" width={28} height={28} className="mix-blend-multiply" />
+  1200→                        </div>
+  1201→                      </div>
+  1202→                    </DashedEncart>
+  1203→                  );
+  1204→                }
+  1205→                if (mode === 'train' && (baggage.trainCompany || baggage.trainNumber)) {
+  1206→                  return (
+  1207→                    <DashedEncart>
+  1208→                      <div className="flex items-center justify-between">
+  1209→                        <div className="flex-1">
+  1210→                          {baggage.trainCompany && (
+  1211→                            <div className="mb-1">
+  1212→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.train_company')}</p>
+  1213→                              <p className="text-base font-bold text-[#1a1a1a]">{baggage.trainCompany}</p>
+  1214→                            </div>
+  1215→                          )}
+  1216→                          {baggage.trainNumber && (
+  1217→                            <div>
+  1218→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.train_number')}</p>
+  1219→                              <p className="text-xl font-bold text-[#1a1a1a] font-mono tracking-widest">{baggage.trainNumber}</p>
+  1220→                            </div>
+  1221→                          )}
+  1222→                        </div>
+  1223→                        <div className="h-12 w-12 rounded-full bg-[#fcd616]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+  1224→                          <Image src={transportImg} alt="train" width={28} height={28} className="mix-blend-multiply" />
+  1225→                        </div>
+  1226→                      </div>
+  1227→                    </DashedEncart>
+  1228→                  );
+  1229→                }
+  1230→                if (mode === 'boat' && (baggage.shipName || baggage.shipCabin)) {
+  1231→                  return (
+  1232→                    <DashedEncart>
+  1233→                      <div className="flex items-center justify-between">
+  1234→                        <div className="flex-1">
+  1235→                          {baggage.shipName && (
+  1236→                            <div className="mb-1">
+  1237→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.ship_name')}</p>
+  1238→                              <p className="text-base font-bold text-[#1a1a1a]">{baggage.shipName}</p>
+  1239→                            </div>
+  1240→                          )}
+  1241→                          {baggage.shipCabin && (
+  1242→                            <div>
+  1243→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.ship_cabin')}</p>
+  1244→                              <p className="text-base font-bold text-[#1a1a1a]">{baggage.shipCabin}</p>
+  1245→                            </div>
+  1246→                          )}
+  1247→                        </div>
+  1248→                        <div className="h-12 w-12 rounded-full bg-[#fcd616]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+  1249→                          <Image src={transportImg} alt="boat" width={28} height={28} className="mix-blend-multiply" />
+  1250→                        </div>
+  1251→                      </div>
+  1252→                    </DashedEncart>
+  1253→                  );
+  1254→                }
+  1255→                if (mode === 'bus' && (baggage.busCompany || baggage.busLineNumber)) {
+  1256→                  return (
+  1257→                    <DashedEncart>
+  1258→                      <div className="flex items-center justify-between">
+  1259→                        <div className="flex-1">
+  1260→                          {baggage.busCompany && (
+  1261→                            <div className="mb-1">
+  1262→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.bus_company')}</p>
+  1263→                              <p className="text-base font-bold text-[#1a1a1a]">{baggage.busCompany}</p>
+  1264→                            </div>
+  1265→                          )}
+  1266→                          {baggage.busLineNumber && (
+  1267→                            <div>
+  1268→                              <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.bus_line')}</p>
+  1269→                              <p className="text-base font-bold text-[#1a1a1a]">{baggage.busLineNumber}</p>
+  1270→                            </div>
+  1271→                          )}
+  1272→                        </div>
+  1273→                        <div className="h-12 w-12 rounded-full bg-[#fcd616]/20 border border-[#1a1a1a]/20 flex items-center justify-center ml-4 flex-shrink-0">
+  1274→                          <Image src={transportImg} alt="bus" width={28} height={28} className="mix-blend-multiply" />
+  1275→                        </div>
+  1276→                      </div>
+  1277→                    </DashedEncart>
+  1278→                  );
+  1279→                }
+  1280→                return null;
+  1281→              })()}
+  1282→
+  1283→              {/* Destination */}
+  1284→              {baggage.destination && (
+  1285→                <DashedEncart>
+  1286→                  <div className="flex items-center gap-3">
+  1287→                    <span className="text-xl">📍</span>
+  1288→                    <div>
+  1289→                      <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.common_destination')}</p>
+  1290→                      <p className="text-base font-bold text-[#1a1a1a]">{baggage.destination}</p>
+  1291→                    </div>
+  1292→                  </div>
+  1293→                </DashedEncart>
+  1294→              )}
+  1295→
+  1296→              {/* Departure Date */}
+  1297→              {(baggage.departureDate || baggage.createdAt) && (
+  1298→                <DashedEncart className="mb-0">
+  1299→                  <div className="flex items-center gap-3">
+  1300→                    <span className="text-xl">📅</span>
+  1301→                    <div>
+  1302→                      <p className="text-xs text-[#1a1a1a]/60 font-medium">{t('transport.common_departure_date')}</p>
+  1303→                      <p className="text-base font-bold text-[#1a1a1a]">
+  1304→                        {formatDate(baggage.departureDate || baggage.createdAt)}{baggage.departureTime ? ` — ${baggage.departureTime}` : ''}
+  1305→                      </p>
+  1306→                    </div>
+  1307→                  </div>
+  1308→                </DashedEncart>
+  1309→              )}
+  1310→            </div>
+  1311→          )}
+  1312→        </div>
+  1313→
+  1314→        {/* ═══ SUPPORT MAILTO ═══ */}
+  1315→        <div className="text-center py-2">
+  1316→          <a
+  1317→            href={supportHref}
+  1318→            className="text-sm text-[#fcd616] underline hover:text-[#1a1a1a] transition-colors"
+  1319→          >
+  1320→            {t('tracking.support_cta')}
+  1321→          </a>
+  1322→        </div>
+  1323→
+  1324→        {/* ═══ LAISSER UN AVIS (jaune plein + texte noir) ═══ */}
+  1325→        {data.scans.length > 0 && (
+  1326→          <button
+  1327→            onClick={() => setShowReviewModal(true)}
+  1328→            className="w-full flex items-center justify-center gap-2 bg-[#fcd616] hover:bg-[#1a1a1a] text-[#1a1a1a] hover:text-[#fcd616] border-2 border-[#1a1a1a] py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px]"
+  1329→          >
+  1330→            <Star className="w-5 h-5" />
+  1331→            {lang === 'ar' ? 'تقييم تجربتك' : lang === 'en' ? 'Rate your experience' : 'Laisser un avis'}
+  1332→          </button>
+  1333→        )}
+  1334→
+  1335→        {/* ═══ PWA INSTALL BUTTON (jaune plein + texte noir) ═══ */}
+  1336→        {showInstallButton && (
+  1337→          <div className="text-center">
+  1338→            <button
+  1339→              onClick={() => {
+  1340→                if (isIOS) {
+  1341→                  setShowIOSModal(true);
+  1342→                } else {
+  1343→                  handleInstall();
+  1344→                }
+  1345→              }}
+  1346→              className="inline-flex items-center gap-2 bg-[#fcd616] hover:bg-[#1a1a1a] text-[#1a1a1a] hover:text-[#fcd616] border-2 border-[#1a1a1a] py-2.5 px-5 rounded-lg text-sm font-bold transition-colors min-h-[44px]"
+  1347→            >
+  1348→              <span>{isIOS ? '📱' : '⬇️'}</span>
+  1349→              <span>{isIOS ? t('tracking.install_app_ios') : t('tracking.install_app')}</span>
+  1350→            </button>
+  1351→          </div>
+  1352→        )}
+  1353→
+  1354→        {/* ═══ BOUTON DÉCLARER PERDU (rouge fond + texte blanc) ═══ */}
+  1355→        {!isDeclaredLost && (
+  1356→          <button
+  1357→            onClick={() => handleStatusToggle('mark-lost')}
+  1358→            disabled={isTogglingStatus}
+  1359→            className="w-full flex items-center justify-center gap-2 bg-[#EF4444] hover:bg-[#DC2626] text-white py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px] disabled:opacity-50"
+  1360→          >
+  1361→            {isTogglingStatus ? (
+  1362→              <RefreshCw className="w-5 h-5 animate-spin" />
+  1363→            ) : (
+  1364→              <AlertTriangle className="w-5 h-5" />
+  1365→            )}
+  1366→            {t('tracking.declare_lost_btn')}
+  1367→          </button>
+  1368→        )}
+  1369→
+  1370→        {/* ─── Trust Note (footer discret) ─── */}
+  1371→        <div className="text-center text-xs text-white/70 tracking-wide flex items-center justify-center gap-1.5 pt-2">
+  1372→          <Shield className="w-4 h-4 inline" />
+  1373→          <span>{t('tracking.trust_note')}</span>
+  1374→        </div>
+  1375→      </div>
+  1376→
+  1377→      {/* ═══ STICKY BOTTOM BAR (Appeler + WhatsApp) — only if finder phone AND NOT in lost mode ═══ */}
+  1378→      {hasFinderPhone && !isDeclaredLost && (
+  1379→        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-[#1a1a1a] p-3 sm:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+  1380→          <div className="max-w-md mx-auto flex gap-3">
+  1381→            <button
+  1382→              onClick={handlePhoneCall}
+  1383→              className="flex-1 bg-[#1a1a1a] hover:bg-black text-[#fcd616] py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[48px]"
+  1384→              aria-label={t('tracking.by_phone')}
+  1385→            >
+  1386→              <Phone className="w-5 h-5" />
+  1387→              <span>📞 {t('tracking.by_phone')}</span>
+  1388→            </button>
+  1389→            <button
+  1390→              onClick={handleWhatsApp}
+  1391→              className="flex-1 bg-[#25D366] hover:bg-[#1ebe57] text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[48px]"
+  1392→              aria-label={t('tracking.by_whatsapp')}
+  1393→            >
+  1394→              <MessageCircle className="w-5 h-5" />
+  1395→              <span>💬 {t('tracking.by_whatsapp')}</span>
+  1396→            </button>
+  1397→          </div>
+  1398→        </div>
+  1399→      )}
+  1400→
+  1401→      {/* ═══ iOS Install Instructions Modal ═══ */}
+  1402→      <IOSInstallModal show={showIOSModal} onClose={() => setShowIOSModal(false)} t={t} />
+  1403→
+  1404→      {/* ═══ Review Modal ═══ */}
+  1405→      <ReviewModal
+  1406→        show={showReviewModal}
+  1407→        onClose={() => setShowReviewModal(false)}
+  1408→        reference={reference}
+  1409→        lang={lang}
+  1410→      />
+  1411→    </main>
+  1412→  );
+  1413→}
+  1414→

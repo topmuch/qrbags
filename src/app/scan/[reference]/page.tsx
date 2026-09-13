@@ -614,7 +614,6 @@ export default function ScanPage() {
                 <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
                   <span>📸</span> {t('scan.photo_section')}
                 </h2>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={baggage.photoUrl}
                   alt={t('scan.photo_section')}

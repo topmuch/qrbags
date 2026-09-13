@@ -103,6 +103,9 @@ interface BaggageInfo {
   declaredLostAt: string | null;
   foundAt: string | null;
   expiresAt: string | null;
+  // PHOTO-REWARD: Photo de la valise + récompense promise
+  photoUrl: string | null;
+  reward: string | null;
 }
 
 interface SuiviData {
@@ -554,6 +557,8 @@ export default function SuiviPage() {
         busCompany: data.baggage.busCompany || undefined,
         busLineNumber: data.baggage.busLineNumber || undefined,
         destination: data.baggage.destination || undefined,
+        // PHOTO-REWARD: récompense promise — renforce la motivation du trouveur
+        reward: data.baggage?.reward || undefined,
       },
       scanData: {
         city: data.lastPosition?.address || data.baggage?.lastLocation || '',
@@ -951,6 +956,33 @@ export default function SuiviPage() {
             </p>
           )}
         </div>
+
+        {/* ═══ 📸 PHOTO DE LA VALISE + 🎁 RÉCOMPENSE PROMISE (PHOTO-REWARD) ═══ */}
+        {(baggage?.photoUrl || baggage?.reward) && (
+          <div className="bg-white border-2 border-dashed border-[#1a1a1a] rounded-2xl p-5 shadow-sm">
+            {baggage.photoUrl && (
+              <>
+                <h2 className="text-xs uppercase tracking-widest text-[#1a1a1a] font-bold mb-3 flex items-center gap-2">
+                  <span>📸</span> {t('tracking.baggage_photo')}
+                </h2>
+                <img
+                  src={baggage.photoUrl}
+                  alt={t('tracking.baggage_photo')}
+                  className="w-full max-h-72 object-cover rounded-xl border-2 border-[#1a1a1a]"
+                />
+              </>
+            )}
+
+            {baggage.reward && (
+              <div className={`bg-[#fcd616] border-2 border-solid border-[#1a1a1a] rounded-xl p-4 ${baggage.photoUrl ? 'mt-4' : ''}`}>
+                <p className="text-[#1a1a1a] text-xs font-bold uppercase tracking-widest mb-1">
+                  🎁 {t('tracking.reward_promise')}
+                </p>
+                <p className="text-xl md:text-2xl font-extrabold text-[#1a1a1a]">{baggage.reward}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ═══ PANNEAU URGENCE (mode perdu uniquement) ═══ */}
         {isDeclaredLost && (

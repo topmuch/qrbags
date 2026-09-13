@@ -254,7 +254,9 @@
     "audio_alert_enabled": "Alerts enabled",
     "audio_alert_disabled": "Alerts disabled",
     "audio_alert_toggle_aria": "Toggle sound alerts on or off",
-    "audio_alert_scanning": "Active monitoring…"
+    "audio_alert_scanning": "Active monitoring…",
+    "baggage_photo": "Luggage photo",
+    "reward_promise": "Reward offered"
   },
   "scan": {
     "success": "Scan successful! ✓",

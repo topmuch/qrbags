@@ -209,3 +209,22 @@ Work Log:
 Stage Summary:
 - Le voyageur ajoute photo + récompense à l'activation ; le trouveur voit la photo du bagage (confirmation visuelle) et la récompense proposée (motivation) sur /scan
 - Fichiers : schema.prisma, api/baggage-photo/{upload,[reference]}/route.ts, api/activate/route.ts, api/scan/[reference]/route.ts, inscrire/page.tsx, scan/[reference]/page.tsx, locales fr/en/ar
+
+---
+Task ID: 7
+Agent: Main Agent (session photo/suivi + WhatsApp)
+Task: Photo du bagage sur /suivi + WhatsApp propriétaire ; récompense dans le message WhatsApp du trouveur (validation utilisateur : 2× « OUI »)
+
+Work Log:
+- API /api/suivi/[reference]/route.ts : réponse enrichie photoUrl=/api/baggage-photo/{ref} (si photoPath) + reward
+- src/lib/whatsapp-message.ts : +reward?: string sur baggage ; ligne « 🎁 Récompense promise : … » insérée après le lien de suivi du message pré-rempli propriétaire→trouveur (i18n REWARD_LABELS fr/en/ar, sanitize + cap 60 chars) ; smartTruncate : 🎁 protégée après 👤 (ordre de retrait signature → CTA → 📱 → 👤 → 🎁) pour « renforcer la motivation »
+- /suivi/[reference]/page.tsx : interface BaggageInfo +photoUrl/+reward ; NOUVELLE carte « 📸 Photo du bagage » + badge récompense or #fcd616 affichée sous l'en-tête de statut (visible, non repliée, style cohérent avec /scan) ; handleWhatsApp passe reward au message pré-rempli
+- API /api/scan/notify/route.ts : alerte WhatsApp propriétaire enrichie « 📸 Photo du bagage : {APP_URL}/api/baggage-photo/{ref} » (après infos trouveur, si photoPath) ; variable Wakit photo_url ajoutée (template-compatible, '' si pas de photo)
+- i18n : +2 clés tracking.baggage_photo / tracking.reward_promise dans fr.json, en.json, ar.json (scripts/add-suivi-photo-i18n.py)
+- Tests : eslint src → 0 erreur / 0 warning (nettoyage au passage de 3 directives eslint-disable devenues inutiles dans /inscrire, /scan, /suivi) ; E2E scripts/test-suivi-photo-reward.ts 17/17 ✅ — suivi API expose photoUrl+reward, image servie 200 image/png, notify renvoie messageContent avec 📸 lien photo + infos trouveur, generatePreFilledMessage avec ligne récompense 327 chars / sans reward 291 / troncature forcée 398 ≤ 400 (récompense conservée), page /suivi 200 sans erreur ; smoke / /suivi /inscrire /scan → 200
+- Serveur relancé en un seul appel bash (setsid nohup .zscripts/dev.sh) conformément au piège reaper
+
+Stage Summary:
+- Le propriétaire voit la photo de sa valise + la récompense promise sur /suivi ; l'alerte WhatsApp qu'il reçoit contient le lien photo (confirmation visuelle) ; le message WhatsApp pré-rempli envoyé au trouveur mentionne désormais la récompense (motivation renforcée)
+- Fichiers : api/suivi/[reference]/route.ts, lib/whatsapp-message.ts, suivi/[reference]/page.tsx, api/scan/notify/route.ts, locales fr/en/ar
+- Scripts : scripts/test-suivi-photo-reward.ts (réutilisable), scripts/add-suivi-photo-i18n.py
