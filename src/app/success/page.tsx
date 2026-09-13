@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { CheckCircle, Luggage, Calendar, Backpack } from 'lucide-react';
+import { CheckCircle, Luggage, Calendar, Backpack, QrCode } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import SuccessOverlay from '@/components/ui/SuccessOverlay';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -23,6 +23,9 @@ interface ActivationData {
   type: string;
   activatedAt: string;
   expiresAt?: string;
+  // Activation groupée : nombre et références des QR activés automatiquement avec celui-ci
+  activatedCount?: number;
+  activatedReferences?: string[];
   // TRANSPORT-FEATURE: Transport mode + conditional fields (conservés pour sessionStorage, non affichés)
   transportMode?: string;
   trainNumber?: string;
@@ -193,10 +196,23 @@ function SuccessContent() {
           <div className="flex items-center gap-3">
             <Luggage className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
             <p className="font-medium text-sm" style={{ color: INK }}>
-              🧳 1 bagage activé •{' '}
+              🧳 {activationData.activatedCount && activationData.activatedCount > 1
+                ? `${activationData.activatedCount} bagages activés`
+                : '1 bagage activé'} •{' '}
               <span style={{ color: INK, opacity: 0.7 }}>Protection active</span>
             </p>
           </div>
+          {activationData.activatedCount && activationData.activatedCount > 1 && activationData.activatedReferences && (
+            <div className="flex items-start gap-3">
+              <QrCode className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
+              <p className="text-sm" style={{ color: INK }}>
+                ✅ Tous vos QR codes sont actifs :{' '}
+                <span className="font-mono text-xs break-all" style={{ opacity: 0.75 }}>
+                  {activationData.activatedReferences.join(' · ')}
+                </span>
+              </p>
+            </div>
+          )}
           <div className="flex items-center gap-3">
             <Calendar className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
             <p className="font-medium text-sm" style={{ color: INK }}>

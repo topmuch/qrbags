@@ -197,6 +197,8 @@ function InscrireContent() {
             type: 'voyageur',
             activatedAt: new Date().toISOString(),
             expiresAt: data.baggage?.expiresAt,
+            activatedCount: data.activatedCount || 1,
+            activatedReferences: data.activatedReferences || [formData.reference],
           })
         );
         router.push('/success?type=voyageur');

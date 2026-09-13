@@ -80,19 +80,20 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // If this is part of a group (Hajj has 3 bags), activate all related baggages
-    if (baggage.type === 'hajj' && baggage.agencyId) {
-      // Find all baggages with same agency and same reference prefix (first 6 chars)
-      const prefix = baggage.reference.substring(0, 6);
+    // ─── Activation groupée (Hajj & Voyageur) ───
+    // Un voyageur peut posséder plusieurs QR codes générés ensemble (même `setId`).
+    // Dès qu'un QR est activé, tous les autres QR du même set en attente
+    // d'activation sont activés automatiquement avec les mêmes informations.
+    let activatedReferences: string[] = [updatedBaggage.reference];
+
+    if (baggage.setId) {
       const relatedBaggages = await db.baggage.findMany({
         where: {
-          reference: { startsWith: prefix },
-          agencyId: baggage.agencyId,
+          setId: baggage.setId,
           status: 'pending_activation'
         }
       });
 
-      // Activate all related baggages
       for (const related of relatedBaggages) {
         if (related.id !== baggage.id) {
           await db.baggage.update({
@@ -106,19 +107,24 @@ export async function POST(request: NextRequest) {
               airlineName: validatedData.airlineName || null,
               flightNumber: validatedData.flightNumber || null,
               destination: validatedData.destination || null,
-              // TRANSPORT-FEATURE: Force flight for hajj group, null out non-flight fields
-              transportMode: 'flight',
-              trainCompany: null,
-              trainNumber: null,
-              shipName: null,
-              shipCabin: null,
-              busCompany: null,
-              busLineNumber: null,
+              // Même mode de transport que le QR activé (même voyageur, même voyage)
+              transportMode: validatedData.transportMode || 'flight',
+              trainCompany: validatedData.trainCompany || null,
+              trainNumber: validatedData.trainNumber || null,
+              shipName: validatedData.shipName || null,
+              shipCabin: validatedData.shipCabin || null,
+              busCompany: validatedData.busCompany || null,
+              busLineNumber: validatedData.busLineNumber || null,
               status: 'active',
               expiresAt,
             }
           });
+          activatedReferences.push(related.reference);
         }
+      }
+
+      if (activatedReferences.length > 1) {
+        console.log(`[ACTIVATE] Activation groupée (${baggage.type}) du set ${baggage.setId}: ${activatedReferences.join(', ')}`);
       }
     }
 
@@ -130,7 +136,11 @@ export async function POST(request: NextRequest) {
         type: updatedBaggage.type,
         status: updatedBaggage.status,
         expiresAt: updatedBaggage.expiresAt,
-      }
+        setId: updatedBaggage.setId,
+      },
+      // Nombre total de QR activés (principal + liés) pour feedback UI
+      activatedCount: activatedReferences.length,
+      activatedReferences,
     });
 
   } catch (error) {

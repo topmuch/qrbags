@@ -118,3 +118,22 @@ Stage Summary:
 - Application QRBag (Next.js 16.1.3 Turbopack + Prisma SQLite + Tailwind 4) opérationnelle en dev sur le port 3000
 - Mini-service WebSocket tracking-ws (port 3005) prêt pour le suivi temps réel
 - Base de données pré-remplie du repo (prisma/qrbag.db) synchronisée avec le schéma
+
+---
+Task ID: 2
+Agent: Main Agent (session activation groupée)
+Task: Comprendre la génération QR + implémenter l'activation groupée (1 activation → tous les QR du voyageur actifs)
+
+Work Log:
+- Parcours du code : modèle Baggage (reference HAJJ26-/VOL26- unique, setId = clé de groupement par voyageur, status pending_activation→active)
+- Génération : individuel = QR déjà "active" avec setId ; agence = QR "pending_activation" avec setId (Hajj 3 QR/voyageur, Voyageur 1-2)
+- Bug corrigé dans /api/activate : l'ancienne activation groupée Hajj matchait par préfixe de référence (HAJJ26 = TOUS les hajj de l'année !) + agencyId → risque d'activer les QR d'autres pèlerins de la même agence ; et le type voyageur n'était jamais groupé
+- Nouvelle logique unifiée : groupement par setId (les QR liés en pending_activation reçoivent infos voyageur + transport + expiresAt + status active), réponse enrichie (activatedCount, activatedReferences)
+- UI : /hajj/activate + /inscrire stockent activatedCount/activatedReferences ; /success affiche "N bagages activés" + liste des références du set
+- Test runtime (scripts/test-group-activation.ts) : set voyageur 2 QR → activatedCount=2 ; set hajj 3 QR → activatedCount=3 ; tous actifs en base, infos copiées ; nettoyage OK
+- Lint OK ; pages /success /hajj/activate /inscrire → 200
+
+Stage Summary:
+- Activation groupée fonctionnelle pour Hajj ET Voyageur, clé fiable = setId (plus de risque d'activation croisée inter-voyageurs)
+- Fichiers modifiés : src/app/api/activate/route.ts, src/app/hajj/activate/page.tsx, src/app/inscrire/page.tsx, src/app/success/page.tsx
+- Script de test réutilisable : scripts/test-group-activation.ts

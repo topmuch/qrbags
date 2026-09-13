@@ -70,6 +70,8 @@ function HajjActivateContent() {
           type: 'hajj',
           activatedAt: new Date().toISOString(),
           expiresAt: data.baggage?.expiresAt,
+          activatedCount: data.activatedCount || 1,
+          activatedReferences: data.activatedReferences || [formData.reference.toUpperCase()],
         }));
         router.push('/success?type=hajj');
       } else {
