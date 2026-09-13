@@ -176,8 +176,9 @@
     "photo_uploading": "جارٍ الإرسال...",
     "photo_error": "فشل إرسال الصورة",
     "reward_label": "مكافأة عند الفقدان",
-    "reward_hint": "اعرض مكافأة لتحفيز إعادة حقيبتك بسرعة",
-    "reward_placeholder": "مثال: 50,000 فرنك"
+    "reward_hint": "اختياري — اعرض مكافأة لتحفيز إعادة حقيبتك بسرعة",
+    "reward_optional": "اختياري",
+    "reward_placeholder": "اكتب المبلغ الذي تريده"
   },
   "tracking": {
     "page_title": "تتبع الأمتعة",

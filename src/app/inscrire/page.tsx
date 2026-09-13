@@ -24,9 +24,6 @@ import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
 const NAVY = '#16234e'; // fond de la zone haute (en-tête + accueil) — écriture blanche
 const GOLD = '#be9a5e'; // fond de la page (zone basse / contenu)
 
-// REWARD-FEATURE: suggestions de récompense (boutons rapides)
-const REWARD_SUGGESTIONS = ['10 000', '25 000', '50 000', '100 000'];
-
 // ─── Language Selector Component ───
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -381,6 +378,64 @@ function InscrireContent() {
                 </div>
               </DashedEncart>
 
+              {/* Destination — Dashed Encart + dropdown pays par régions */}
+              <DashedEncart>
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">📍</span>
+                  <div className="flex-1">
+                    <p className="text-sm text-black/80 font-medium mb-1.5">
+                      {t('inscrire.destination_label')}
+                    </p>
+                    <CountryRegionSelect
+                      value={formData.destination}
+                      onChange={(v) => setFormData({ ...formData, destination: v })}
+                      placeholder="Sélectionnez votre destination"
+                    />
+                  </div>
+                </div>
+              </DashedEncart>
+
+              {/* Departure Date & Time — Dashed Encart */}
+              <DashedEncart>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-xl">📅</span>
+                  <p className="text-sm text-black/80 font-medium">{t('transport.common_departure_date')}</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="date"
+                    value={formData.departureDate}
+                    onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
+                    className="w-full bg-white border-2 border-black text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+                  />
+                  <input
+                    type="time"
+                    value={formData.departureTime}
+                    onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
+                    className="w-full bg-white border-2 border-black text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+                  />
+                </div>
+              </DashedEncart>
+
+              {/* WhatsApp — Dashed Encart */}
+              <DashedEncart className="mb-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">📱</span>
+                  <div className="flex-1">
+                    <PhoneInput
+                      countryCode={phoneCountry}
+                      onCountryChange={setPhoneCountry}
+                      value={formData.whatsapp}
+                      onChange={(fullNumber) => setFormData({ ...formData, whatsapp: fullNumber })}
+                      placeholder="6 12 34 56 78"
+                      required
+                      label={t('inscrire.whatsapp_label')}
+                      hint={t('inscrire.whatsapp_hint')}
+                    />
+                  </div>
+                </div>
+              </DashedEncart>
+
               {/* PHOTO DE LA VALISE — caméra ou téléchargement */}
               <DashedEncart>
                 <div className="flex items-center gap-3 mb-2">
@@ -467,34 +522,19 @@ function InscrireContent() {
                 />
               </DashedEncart>
 
-              {/* RÉCOMPENSE EN CAS DE PERTE */}
+              {/* RÉCOMPENSE EN CAS DE PERTE — optionnelle, montant libre */}
               <DashedEncart>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-xl">🎁</span>
                   <div className="flex-1">
-                    <p className="text-sm text-black/80 font-medium">{t('inscrire.reward_label')}</p>
+                    <p className="text-sm text-black/80 font-medium flex items-center gap-2 flex-wrap">
+                      {t('inscrire.reward_label')}
+                      <span className="px-2 py-0.5 rounded-full border border-black/30 text-[10px] font-bold uppercase tracking-wide text-black/60">
+                        {t('inscrire.reward_optional')}
+                      </span>
+                    </p>
                     <p className="text-xs text-black/50">{t('inscrire.reward_hint')}</p>
                   </div>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 mb-2.5">
-                  {REWARD_SUGGESTIONS.map((amount) => {
-                    const value = `${amount} FCFA`;
-                    return (
-                      <button
-                        key={amount}
-                        type="button"
-                        onClick={() => setReward(value)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-colors min-h-[32px] ${
-                          reward === value
-                            ? 'bg-black text-white border-black'
-                            : 'bg-white text-black border-black hover:bg-black/5'
-                        }`}
-                      >
-                        {value}
-                      </button>
-                    );
-                  })}
                 </div>
 
                 <input
@@ -504,64 +544,6 @@ function InscrireContent() {
                   onChange={(e) => setReward(e.target.value)}
                   className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
                 />
-              </DashedEncart>
-
-              {/* Destination — Dashed Encart + dropdown pays par régions */}
-              <DashedEncart>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">📍</span>
-                  <div className="flex-1">
-                    <p className="text-sm text-black/80 font-medium mb-1.5">
-                      {t('inscrire.destination_label')}
-                    </p>
-                    <CountryRegionSelect
-                      value={formData.destination}
-                      onChange={(v) => setFormData({ ...formData, destination: v })}
-                      placeholder="Sélectionnez votre destination"
-                    />
-                  </div>
-                </div>
-              </DashedEncart>
-
-              {/* Departure Date & Time — Dashed Encart */}
-              <DashedEncart>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xl">📅</span>
-                  <p className="text-sm text-black/80 font-medium">{t('transport.common_departure_date')}</p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input
-                    type="date"
-                    value={formData.departureDate}
-                    onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
-                    className="w-full bg-white border-2 border-black text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
-                  />
-                  <input
-                    type="time"
-                    value={formData.departureTime}
-                    onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
-                    className="w-full bg-white border-2 border-black text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
-                  />
-                </div>
-              </DashedEncart>
-
-              {/* WhatsApp — Dashed Encart */}
-              <DashedEncart className="mb-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">📱</span>
-                  <div className="flex-1">
-                    <PhoneInput
-                      countryCode={phoneCountry}
-                      onCountryChange={setPhoneCountry}
-                      value={formData.whatsapp}
-                      onChange={(fullNumber) => setFormData({ ...formData, whatsapp: fullNumber })}
-                      placeholder="6 12 34 56 78"
-                      required
-                      label={t('inscrire.whatsapp_label')}
-                      hint={t('inscrire.whatsapp_hint')}
-                    />
-                  </div>
-                </div>
               </DashedEncart>
 
               {/* ═══ BOUTON SUBMIT ═══ */}

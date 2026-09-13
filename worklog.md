@@ -249,3 +249,21 @@ Stage Summary:
 - Flux complet VALIDÉ de bout en bout avec une vraie photo : /inscrire (upload+récompense) → activation groupée 2 QR → /scan trouveur (photo+récompense) → WhatsApp propriétaire (« Bonne nouvelle » avec 📸 lien photo) → /suivi (photo + récompense promise + trouveur) → étiquette 7×10 cm imprimable scannable
 - Livrables download/ : valise-demo.png, etiquette-voyageur-VOL26-FLUX01.png, 4 captures mobiles
 - Le correctif POST /api/scan/[reference] complète la Tâche 7 : le message WhatsApp réel du trouveur→propriétaire contient désormais aussi le lien photo
+
+---
+Task ID: 8
+Agent: Super Z (main)
+Task: /inscrire — déplacer photo+récompense sous les infos + récompense 100% libre/optionnelle
+
+Work Log:
+- Réordonnancement des blocs step 2 : Prénom/Nom → 📍 Destination → 📅 Date/Heure → 📱 WhatsApp → 📸 Photo → 🎁 Récompense → Submit (photo+récompense désormais EN DESSOUS des infos)
+- Suppression de la constante REWARD_SUGGESTIONS et des 4 boutons de montants suggérés (10 000/25 000/50 000/100 000 FCFA)
+- Ajout badge « OPTIONNEL » sur l'encart récompense (clé i18n reward_optional)
+- Mise à jour locales fr/en/ar : reward_hint préfixé « Optionnel — », reward_placeholder neutre « Tapez le montant de votre choix » (aucun montant suggéré)
+- ESLint : 0 erreur 0 warning ; JSON validés ; smoke tests /, /inscrire, /scan, /suivi tous 200
+- Vérification navigateur headless (agent-browser) : ordre DOM confirmé, 0 montant suggéré restant, badge OPTIONNEL visible, screenshot download/inscrire-nouvel-ordre.png
+
+Stage Summary:
+- La récompense est désormais un champ libre optionnel (le backend acceptait déjà reward: undefined)
+- Photo et récompense regroupées en fin de formulaire, juste avant le bouton « Activer mon bagage »
+- Aucune modification backend nécessaire (API /api/activate accepte déjà champ optionnel)

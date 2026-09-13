@@ -1,0 +1,622 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import { useState, useEffect, useRef, Suspense } from 'react';
+     4→     4→import Link from 'next/link';
+     5→     5→import { useRouter, useSearchParams } from 'next/navigation';
+     6→     6→import {
+     7→     7→  ArrowLeft,
+     8→     8→  ArrowRight,
+     9→     9→  CheckCircle,
+    10→    10→  Sparkles,
+    11→    11→  Globe,
+    12→    12→  AlertCircle,
+    13→    13→  Camera,
+    14→    14→  Upload,
+    15→    15→  X,
+    16→    16→} from 'lucide-react';
+    17→    17→import PhoneInput from '@/components/ui/PhoneInput';
+    18→    18→import CountryRegionSelect from '@/components/inscrire/CountryRegionSelect';
+    19→    19→
+    20→    20→import { useTranslation } from '@/hooks/useTranslation';
+    21→    21→import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
+    22→    22→
+    23→    23→// ─── Brand constants (palette étiquette QRBag : bleu nuit #16234e + or #be9a5e) ───
+    24→    24→const NAVY = '#16234e'; // fond de la zone haute (en-tête + accueil) — écriture blanche
+    25→    25→const GOLD = '#be9a5e'; // fond de la page (zone basse / contenu)
+    26→    26→
+    27→    27→// REWARD-FEATURE: suggestions de récompense (boutons rapides)
+    28→    28→const REWARD_SUGGESTIONS = ['10 000', '25 000', '50 000', '100 000'];
+    29→    29→
+    30→    30→// ─── Language Selector Component ───
+    31→    31→function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
+    32→    32→  const [isOpen, setIsOpen] = useState(false);
+    33→    33→
+    34→    34→  return (
+    35→    35→    <div className="relative">
+    36→    36→      <button
+    37→    37→        onClick={() => setIsOpen(!isOpen)}
+    38→    38→        aria-expanded={isOpen}
+    39→    39→        aria-haspopup="listbox"
+    40→    40→        className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border-2 border-black rounded-full text-black hover:bg-black/5 transition-colors text-xs sm:text-sm md:text-base font-medium shadow-sm min-h-[36px] sm:min-h-[40px] md:min-h-[44px]"
+    41→    41→      >
+    42→    42→        <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
+    43→    43→        <span>{LANGUAGE_NAMES[lang]}</span>
+    44→    44→      </button>
+    45→    45→
+    46→    46→      {isOpen && (
+    47→    47→        <div
+    48→    48→          role="listbox"
+    49→    49→          aria-label="Language"
+    50→    50→          className="absolute top-full right-0 mt-1 sm:mt-2 bg-white border-2 border-black rounded-xl shadow-lg overflow-hidden z-50 min-w-[140px] sm:min-w-[160px]"
+    51→    51→        >
+    52→    52→          {(['fr', 'en', 'ar'] as Language[]).map((l) => (
+    53→    53→            <button
+    54→    54→              key={l}
+    55→    55→              role="option"
+    56→    56→              aria-selected={lang === l}
+    57→    57→              onClick={() => {
+    58→    58→                setLang(l);
+    59→    59→                setIsOpen(false);
+    60→    60→              }}
+    61→    61→              className={`w-full px-4 py-2.5 sm:px-5 sm:py-3 text-left text-xs sm:text-sm md:text-base font-medium transition-colors ${
+    62→    62→                lang === l ? 'text-black' : 'text-black hover:bg-black/5'
+    63→    63→              }`}
+    64→    64→              style={lang === l ? { backgroundColor: GOLD } : undefined}
+    65→    65→            >
+    66→    66→              {LANGUAGE_NAMES[l]}
+    67→    67→            </button>
+    68→    68→          ))}
+    69→    69→        </div>
+    70→    70→      )}
+    71→    71→    </div>
+    72→    72→  );
+    73→    73→}
+    74→    74→
+    75→    75→// ─── Dashed Encart Helper (bordure noire pointillée) ───
+    76→    76→function DashedEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+    77→    77→  return (
+    78→    78→    <div className={`border-2 border-dashed border-black rounded-xl p-4 mb-3 last:mb-0 bg-white ${className}`}>
+    79→    79→      {children}
+    80→    80→    </div>
+    81→    81→  );
+    82→    82→}
+    83→    83→
+    84→    84→function InscrireContent() {
+    85→    85→  const router = useRouter();
+    86→    86→  const searchParams = useSearchParams();
+    87→    87→  const qrFromUrl = searchParams.get('qr') || '';
+    88→    88→
+    89→    89→  const { t, lang, setLang, dir, countryCode } = useTranslation();
+    90→    90→  const [step, setStep] = useState(1);
+    91→    91→
+    92→    92→  const [loading, setLoading] = useState(false);
+    93→    93→  const [phoneCountry, setPhoneCountry] = useState(countryCode);
+    94→    94→  const [formData, setFormData] = useState({
+    95→    95→    reference: qrFromUrl.toUpperCase(), // caché UI, conservé pour l'API
+    96→    96→    firstName: '',
+    97→    97→    lastName: '',
+    98→    98→    destination: '',
+    99→    99→    departureDate: '',
+   100→   100→    departureTime: '',
+   101→   101→    whatsapp: '',
+   102→   102→  });
+   103→   103→
+   104→   104→  // PHOTO-FEATURE: photo de la valise (caméra ou téléchargement) + aperçu
+   105→   105→  const cameraInputRef = useRef<HTMLInputElement>(null);
+   106→   106→  const fileInputRef = useRef<HTMLInputElement>(null);
+   107→   107→  const [photoPath, setPhotoPath] = useState('');
+   108→   108→  const [photoPreview, setPhotoPreview] = useState('');
+   109→   109→  const [photoUploading, setPhotoUploading] = useState(false);
+   110→   110→  const [photoError, setPhotoError] = useState('');
+   111→   111→
+   112→   112→  // REWARD-FEATURE: récompense proposée en cas de perte
+   113→   113→  const [reward, setReward] = useState('');
+   114→   114→
+   115→   115→  // Sync phoneCountry when countryCode is detected
+   116→   116→  useEffect(() => {
+   117→   117→    if ((countryCode && countryCode !== 'FR') || !phoneCountry) {
+   118→   118→      setPhoneCountry(countryCode);
+   119→   119→    }
+   120→   120→  }, [countryCode]);
+   121→   121→
+   122→   122→  // 🔒 Référence absente → activation impossible
+   123→   123→  const missingReference = !formData.reference;
+   124→   124→
+   125→   125→  // PHOTO-FEATURE: compression client (max 1200px, JPEG 80%) puis upload vers /api/baggage-photo/upload
+   126→   126→  const compressAndUpload = async (file: File) => {
+   127→   127→    setPhotoError('');
+   128→   128→    setPhotoUploading(true);
+   129→   129→    try {
+   130→   130→      const dataUrl = await new Promise<string>((resolve, reject) => {
+   131→   131→        const reader = new FileReader();
+   132→   132→        reader.onload = () => resolve(reader.result as string);
+   133→   133→        reader.onerror = reject;
+   134→   134→        reader.readAsDataURL(file);
+   135→   135→      });
+   136→   136→
+   137→   137→      const img = new window.Image();
+   138→   138→      await new Promise<void>((resolve, reject) => {
+   139→   139→        img.onload = () => resolve();
+   140→   140→        img.onerror = () => reject(new Error('image'));
+   141→   141→        img.src = dataUrl;
+   142→   142→      });
+   143→   143→
+   144→   144→      const maxDim = 1200;
+   145→   145→      let { width, height } = img;
+   146→   146→      if (width > maxDim || height > maxDim) {
+   147→   147→        const ratio = Math.min(maxDim / width, maxDim / height);
+   148→   148→        width = Math.round(width * ratio);
+   149→   149→        height = Math.round(height * ratio);
+   150→   150→      }
+   151→   151→      const canvas = document.createElement('canvas');
+   152→   152→      canvas.width = width;
+   153→   153→      canvas.height = height;
+   154→   154→      const ctx = canvas.getContext('2d');
+   155→   155→      if (!ctx) throw new Error('canvas');
+   156→   156→      ctx.drawImage(img, 0, 0, width, height);
+   157→   157→
+   158→   158→      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+   159→   159→      const compressed = blob ?? file;
+   160→   160→
+   161→   161→      const fd = new FormData();
+   162→   162→      fd.append('file', compressed, 'photo-valise.jpg');
+   163→   163→      const res = await fetch('/api/baggage-photo/upload', { method: 'POST', body: fd });
+   164→   164→      if (!res.ok) throw new Error('upload');
+   165→   165→      const data = await res.json();
+   166→   166→
+   167→   167→      setPhotoPath(data.photoPath || '');
+   168→   168→      setPhotoPreview(canvas.toDataURL('image/jpeg', 0.6));
+   169→   169→    } catch {
+   170→   170→      setPhotoError(t('inscrire.photo_error'));
+   171→   171→    } finally {
+   172→   172→      setPhotoUploading(false);
+   173→   173→    }
+   174→   174→  };
+   175→   175→
+   176→   176→  const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+   177→   177→    const file = e.target.files?.[0];
+   178→   178→    e.target.value = ''; // permet de re-sélectionner le même fichier
+   179→   179→    if (file) compressAndUpload(file);
+   180→   180→  };
+   181→   181→
+   182→   182→  const doSubmit = async () => {
+   183→   183→    if (missingReference) return;
+   184→   184→    setLoading(true);
+   185→   185→
+   186→   186→    try {
+   187→   187→      const response = await fetch('/api/activate', {
+   188→   188→        method: 'POST',
+   189→   189→        headers: { 'Content-Type': 'application/json' },
+   190→   190→        body: JSON.stringify({
+   191→   191→          reference: formData.reference,
+   192→   192→          travelerFirstName: formData.firstName,
+   193→   193→          travelerLastName: formData.lastName,
+   194→   194→          whatsappOwner: formData.whatsapp,
+   195→   195→          // Plus de sélection de transport côté UI — l'API applique son défaut ('flight',
+   196→   196→          // cohérent avec les références voyageur VOL26-)
+   197→   197→          transportMode: 'flight',
+   198→   198→          destination: formData.destination,
+   199→   199→          departureDate: formData.departureDate || undefined,
+   200→   200→          departureTime: formData.departureTime || undefined,
+   201→   201→          // PHOTO + REWARD FEATURE
+   202→   202→          photoPath: photoPath || undefined,
+   203→   203→          reward: reward.trim() || undefined,
+   204→   204→        }),
+   205→   205→      });
+   206→   206→
+   207→   207→      if (response.ok) {
+   208→   208→        const data = await response.json();
+   209→   209→        sessionStorage.setItem(
+   210→   210→          'activationData',
+   211→   211→          JSON.stringify({
+   212→   212→            reference: formData.reference,
+   213→   213→            firstName: formData.firstName,
+   214→   214→            lastName: formData.lastName,
+   215→   215→            whatsapp: formData.whatsapp,
+   216→   216→            destination: formData.destination,
+   217→   217→            transportMode: 'flight',
+   218→   218→            reward: reward.trim(),
+   219→   219→            type: 'voyageur',
+   220→   220→            activatedAt: new Date().toISOString(),
+   221→   221→            expiresAt: data.baggage?.expiresAt,
+   222→   222→            activatedCount: data.activatedCount || 1,
+   223→   223→            activatedReferences: data.activatedReferences || [formData.reference],
+   224→   224→          })
+   225→   225→        );
+   226→   226→        router.push('/success?type=voyageur');
+   227→   227→      } else {
+   228→   228→        const error = await response.json();
+   229→   229→        alert(error.message || t('inscrire.error_activation'));
+   230→   230→      }
+   231→   231→    } catch (error) {
+   232→   232→      console.error('Activation error:', error);
+   233→   233→      alert(t('inscrire.error_activation'));
+   234→   234→    } finally {
+   235→   235→      setLoading(false);
+   236→   236→    }
+   237→   237→  };
+   238→   238→
+   239→   239→  return (
+   240→   240→    <main
+   241→   241→      className="min-h-[100dvh] min-h-screen flex flex-col pb-[env(safe-area-inset-bottom,0px)]"
+   242→   242→      style={{ backgroundColor: GOLD }}
+   243→   243→      dir={dir}
+   244→   244→    >
+   245→   245→      {/* ═══ ZONE HAUTE — bleu nuit #16234e, écriture blanche ═══ */}
+   246→   246→      <div
+   247→   247→        className="px-4 sm:px-5 md:px-8 pt-[env(safe-area-inset-top,0px)] pb-14 rounded-b-[2rem] shadow-lg"
+   248→   248→        style={{ backgroundColor: NAVY }}
+   249→   249→      >
+   250→   250→        {/* ─── Header ─── */}
+   251→   251→        <header className="flex items-center justify-between py-2 sm:py-3">
+   252→   252→          <Link
+   253→   253→            href="/"
+   254→   254→            className="flex items-center gap-2 text-white hover:text-white/80 transition-colors min-h-[44px]"
+   255→   255→          >
+   256→   256→            <ArrowLeft className="w-5 h-5" />
+   257→   257→            <span className="text-sm md:text-base font-medium">{t('inscrire.back')}</span>
+   258→   258→          </Link>
+   259→   259→          <div className="flex items-center gap-2">
+   260→   260→            <img src="/logo.png" alt="QRBag" className="h-16 w-auto object-contain" />
+   261→   261→          </div>
+   262→   262→          <LanguageSelector lang={lang} setLang={setLang} />
+   263→   263→        </header>
+   264→   264→
+   265→   265→        {/* ─── Bienvenue ! + Protégez vos bagages pour votre voyage ─── */}
+   266→   266→        <div className="mt-4 sm:mt-6 text-center max-w-md mx-auto">
+   267→   267→          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+   268→   268→            {t('common.welcome')}
+   269→   269→          </h1>
+   270→   270→          <p className="mt-3 text-white/90 text-base md:text-lg leading-relaxed">
+   271→   271→            {t('inscrire.subtitle')}
+   272→   272→          </p>
+   273→   273→
+   274→   274→          {/* Indicateur d'étape (uniquement à l'étape 2) */}
+   275→   275→          {step === 2 && (
+   276→   276→            <div className="mt-4 flex items-center justify-center gap-2">
+   277→   277→              <span className="w-2 h-2 rounded-full animate-pulse bg-white" />
+   278→   278→              <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+   279→   279→                {t('inscrire.step_2_subtitle')}
+   280→   280→              </span>
+   281→   281→            </div>
+   282→   282→          )}
+   283→   283→        </div>
+   284→   284→      </div>
+   285→   285→
+   286→   286→      {/* ═══ ZONE BASSE — fond or #be9a5e, carte blanche ═══ */}
+   287→   287→      <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-4 sm:px-5 -mt-8 pb-6">
+   288→   288→        <div className="w-full rounded-2xl p-5 md:p-6 shadow-xl bg-white">
+   289→   289→          {/* ─── Étape 1 : Bienvenue + Continuer ─── */}
+   290→   290→          {step === 1 && (
+   291→   291→            <div>
+   292→   292→              {qrFromUrl && (
+   293→   293→                <div
+   294→   294→                  className="flex items-center justify-center gap-2 mb-4 text-sm font-semibold"
+   295→   295→                  style={{ color: NAVY }}
+   296→   296→                >
+   297→   297→                  <CheckCircle className="w-4 h-4" />
+   298→   298→                  {t('inscrire.reference_detected')}
+   299→   299→                </div>
+   300→   300→              )}
+   301→   301→              <button
+   302→   302→                type="button"
+   303→   303→                onClick={() => setStep(2)}
+   304→   304→                className="w-full py-4 px-6 text-white rounded-xl font-bold text-lg transition-all hover:opacity-90 flex items-center justify-center gap-2 min-h-[56px] shadow-lg"
+   305→   305→                style={{ backgroundColor: NAVY }}
+   306→   306→              >
+   307→   307→                {t('inscrire.next_step')}
+   308→   308→                <ArrowRight className="w-5 h-5" />
+   309→   309→              </button>
+   310→   310→            </div>
+   311→   311→          )}
+   312→   312→
+   313→   313→          {/* ─── Étape 2 : Formulaire d'activation ─── */}
+   314→   314→          {step === 2 && (
+   315→   315→            <div className="space-y-4">
+   316→   316→              {/* Back button */}
+   317→   317→              <button
+   318→   318→                type="button"
+   319→   319→                onClick={() => setStep(1)}
+   320→   320→                className="flex items-center gap-1.5 text-black/70 hover:text-black transition-colors text-sm mb-2"
+   321→   321→              >
+   322→   322→                <ArrowLeft className="w-4 h-4" />
+   323→   323→                {t('inscrire.back_step')}
+   324→   324→              </button>
+   325→   325→
+   326→   326→              <h2
+   327→   327→                className="text-xs uppercase tracking-widest font-bold flex items-center gap-2"
+   328→   328→                style={{ color: NAVY }}
+   329→   329→              >
+   330→   330→                <Sparkles className="w-4 h-4" />
+   331→   331→                {t('transport.traveler_info')}
+   332→   332→              </h2>
+   333→   333→
+   334→   334→              {/* 🔒 Référence absente — warning */}
+   335→   335→              {missingReference && (
+   336→   336→                <div className="border-2 border-dashed border-black bg-white rounded-xl p-4 mb-3 flex items-start gap-3">
+   337→   337→                  <AlertCircle className="w-5 h-5 text-black flex-shrink-0 mt-0.5" />
+   338→   338→                  <div className="text-sm text-black">
+   339→   339→                    <p className="font-bold mb-1">⚠️ Aucun code QR détecté</p>
+   340→   340→                    <p className="text-black/70">
+   341→   341→                      Scannez le QR code collé sur votre bagage pour activer votre protection. Si vous
+   342→   342→                      n&apos;avez pas encore de QR,{' '}
+   343→   343→                      <Link href="/#pricing" className="underline font-bold text-black">
+   344→   344→                        commandez un autocollant
+   345→   345→                      </Link>
+   346→   346→                      .
+   347→   347→                    </p>
+   348→   348→                  </div>
+   349→   349→                </div>
+   350→   350→              )}
+   351→   351→
+   352→   352→              {/* Name Fields — Dashed Encart */}
+   353→   353→              <DashedEncart>
+   354→   354→                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   355→   355→                  <div>
+   356→   356→                    <p className="text-sm text-black/80 font-medium mb-1.5">
+   357→   357→                      {t('inscrire.first_name_label')}
+   358→   358→                    </p>
+   359→   359→                    <input
+   360→   360→                      type="text"
+   361→   361→                      placeholder={t('inscrire.first_name_placeholder')}
+   362→   362→                      value={formData.firstName}
+   363→   363→                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+   364→   364→                      className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+   365→   365→                      required
+   366→   366→                    />
+   367→   367→                  </div>
+   368→   368→                  <div>
+   369→   369→                    <p className="text-sm text-black/80 font-medium mb-1.5">
+   370→   370→                      {t('inscrire.last_name_label')}
+   371→   371→                    </p>
+   372→   372→                    <input
+   373→   373→                      type="text"
+   374→   374→                      placeholder={t('inscrire.last_name_placeholder')}
+   375→   375→                      value={formData.lastName}
+   376→   376→                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+   377→   377→                      className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+   378→   378→                      required
+   379→   379→                    />
+   380→   380→                  </div>
+   381→   381→                </div>
+   382→   382→              </DashedEncart>
+   383→   383→
+   384→   384→              {/* PHOTO DE LA VALISE — caméra ou téléchargement */}
+   385→   385→              <DashedEncart>
+   386→   386→                <div className="flex items-center gap-3 mb-2">
+   387→   387→                  <span className="text-xl">📸</span>
+   388→   388→                  <div className="flex-1">
+   389→   389→                    <p className="text-sm text-black/80 font-medium">{t('inscrire.photo_label')}</p>
+   390→   390→                    <p className="text-xs text-black/50">{t('inscrire.photo_hint')}</p>
+   391→   391→                  </div>
+   392→   392→                </div>
+   393→   393→
+   394→   394→                {photoPreview ? (
+   395→   395→                  <div>
+   396→   396→                    <div className="relative">
+   397→   397→                      <img
+   398→   398→                        src={photoPreview}
+   399→   399→                        alt={t('inscrire.photo_label')}
+   400→   400→                        className="w-full max-h-56 object-cover rounded-lg border-2 border-black"
+   401→   401→                      />
+   402→   402→                      <button
+   403→   403→                        type="button"
+   404→   404→                        onClick={() => { setPhotoPreview(''); setPhotoPath(''); }}
+   405→   405→                        aria-label={t('inscrire.photo_remove')}
+   406→   406→                        className="absolute top-2 right-2 w-8 h-8 bg-black/70 hover:bg-black text-white rounded-full flex items-center justify-center shadow-md"
+   407→   407→                      >
+   408→   408→                        <X className="w-4 h-4" />
+   409→   409→                      </button>
+   410→   410→                    </div>
+   411→   411→                    <button
+   412→   412→                      type="button"
+   413→   413→                      onClick={() => cameraInputRef.current?.click()}
+   414→   414→                      disabled={photoUploading}
+   415→   415→                      className="mt-2 w-full py-2.5 bg-white border-2 border-black text-black rounded-lg font-semibold text-sm flex items-center justify-center gap-2 min-h-[44px] disabled:opacity-50"
+   416→   416→                    >
+   417→   417→                      <Camera className="w-4 h-4" />
+   418→   418→                      {t('inscrire.photo_change')}
+   419→   419→                    </button>
+   420→   420→                  </div>
+   421→   421→                ) : (
+   422→   422→                  <div className="grid grid-cols-2 gap-2">
+   423→   423→                    <button
+   424→   424→                      type="button"
+   425→   425→                      onClick={() => cameraInputRef.current?.click()}
+   426→   426→                      disabled={photoUploading}
+   427→   427→                      className="py-3 px-3 bg-black hover:bg-black/80 text-white rounded-lg font-semibold text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] disabled:opacity-50 transition-colors"
+   428→   428→                    >
+   429→   429→                      <Camera className="w-5 h-5" />
+   430→   430→                      <span className="text-xs">{t('inscrire.photo_camera')}</span>
+   431→   431→                    </button>
+   432→   432→                    <button
+   433→   433→                      type="button"
+   434→   434→                      onClick={() => fileInputRef.current?.click()}
+   435→   435→                      disabled={photoUploading}
+   436→   436→                      className="py-3 px-3 bg-white border-2 border-black text-black rounded-lg font-semibold text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] disabled:opacity-50 transition-colors"
+   437→   437→                    >
+   438→   438→                      <Upload className="w-5 h-5" />
+   439→   439→                      <span className="text-xs">{t('inscrire.photo_upload')}</span>
+   440→   440→                    </button>
+   441→   441→                  </div>
+   442→   442→                )}
+   443→   443→
+   444→   444→                {photoUploading && (
+   445→   445→                  <p className="text-xs text-black/60 mt-2 flex items-center gap-1.5">
+   446→   446→                    <span className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin inline-block" />
+   447→   447→                    {t('inscrire.photo_uploading')}
+   448→   448→                  </p>
+   449→   449→                )}
+   450→   450→                {photoError && <p className="text-xs text-red-600 mt-2 font-medium">{photoError}</p>}
+   451→   451→
+   452→   452→                {/* Inputs cachés : caméra (capture) + galerie/téléchargement */}
+   453→   453→                <input
+   454→   454→                  ref={cameraInputRef}
+   455→   455→                  type="file"
+   456→   456→                  accept="image/*"
+   457→   457→                  capture="environment"
+   458→   458→                  className="hidden"
+   459→   459→                  onChange={handlePhotoFile}
+   460→   460→                />
+   461→   461→                <input
+   462→   462→                  ref={fileInputRef}
+   463→   463→                  type="file"
+   464→   464→                  accept="image/*"
+   465→   465→                  className="hidden"
+   466→   466→                  onChange={handlePhotoFile}
+   467→   467→                />
+   468→   468→              </DashedEncart>
+   469→   469→
+   470→   470→              {/* RÉCOMPENSE EN CAS DE PERTE */}
+   471→   471→              <DashedEncart>
+   472→   472→                <div className="flex items-center gap-3 mb-2">
+   473→   473→                  <span className="text-xl">🎁</span>
+   474→   474→                  <div className="flex-1">
+   475→   475→                    <p className="text-sm text-black/80 font-medium">{t('inscrire.reward_label')}</p>
+   476→   476→                    <p className="text-xs text-black/50">{t('inscrire.reward_hint')}</p>
+   477→   477→                  </div>
+   478→   478→                </div>
+   479→   479→
+   480→   480→                <div className="flex flex-wrap gap-1.5 mb-2.5">
+   481→   481→                  {REWARD_SUGGESTIONS.map((amount) => {
+   482→   482→                    const value = `${amount} FCFA`;
+   483→   483→                    return (
+   484→   484→                      <button
+   485→   485→                        key={amount}
+   486→   486→                        type="button"
+   487→   487→                        onClick={() => setReward(value)}
+   488→   488→                        className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-colors min-h-[32px] ${
+   489→   489→                          reward === value
+   490→   490→                            ? 'bg-black text-white border-black'
+   491→   491→                            : 'bg-white text-black border-black hover:bg-black/5'
+   492→   492→                        }`}
+   493→   493→                      >
+   494→   494→                        {value}
+   495→   495→                      </button>
+   496→   496→                    );
+   497→   497→                  })}
+   498→   498→                </div>
+   499→   499→
+   500→   500→                <input
+   501→   501→                  type="text"
+   502→   502→                  placeholder={t('inscrire.reward_placeholder')}
+   503→   503→                  value={reward}
+   504→   504→                  onChange={(e) => setReward(e.target.value)}
+   505→   505→                  className="w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+   506→   506→                />
+   507→   507→              </DashedEncart>
+   508→   508→
+   509→   509→              {/* Destination — Dashed Encart + dropdown pays par régions */}
+   510→   510→              <DashedEncart>
+   511→   511→                <div className="flex items-center gap-3">
+   512→   512→                  <span className="text-xl">📍</span>
+   513→   513→                  <div className="flex-1">
+   514→   514→                    <p className="text-sm text-black/80 font-medium mb-1.5">
+   515→   515→                      {t('inscrire.destination_label')}
+   516→   516→                    </p>
+   517→   517→                    <CountryRegionSelect
+   518→   518→                      value={formData.destination}
+   519→   519→                      onChange={(v) => setFormData({ ...formData, destination: v })}
+   520→   520→                      placeholder="Sélectionnez votre destination"
+   521→   521→                    />
+   522→   522→                  </div>
+   523→   523→                </div>
+   524→   524→              </DashedEncart>
+   525→   525→
+   526→   526→              {/* Departure Date & Time — Dashed Encart */}
+   527→   527→              <DashedEncart>
+   528→   528→                <div className="flex items-center gap-3 mb-3">
+   529→   529→                  <span className="text-xl">📅</span>
+   530→   530→                  <p className="text-sm text-black/80 font-medium">{t('transport.common_departure_date')}</p>
+   531→   531→                </div>
+   532→   532→                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   533→   533→                  <input
+   534→   534→                    type="date"
+   535→   535→                    value={formData.departureDate}
+   536→   536→                    onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
+   537→   537→                    className="w-full bg-white border-2 border-black text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+   538→   538→                  />
+   539→   539→                  <input
+   540→   540→                    type="time"
+   541→   541→                    value={formData.departureTime}
+   542→   542→                    onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
+   543→   543→                    className="w-full bg-white border-2 border-black text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-black rounded-lg px-3 py-2.5 text-base min-h-[48px]"
+   544→   544→                  />
+   545→   545→                </div>
+   546→   546→              </DashedEncart>
+   547→   547→
+   548→   548→              {/* WhatsApp — Dashed Encart */}
+   549→   549→              <DashedEncart className="mb-0">
+   550→   550→                <div className="flex items-center gap-3">
+   551→   551→                  <span className="text-xl">📱</span>
+   552→   552→                  <div className="flex-1">
+   553→   553→                    <PhoneInput
+   554→   554→                      countryCode={phoneCountry}
+   555→   555→                      onCountryChange={setPhoneCountry}
+   556→   556→                      value={formData.whatsapp}
+   557→   557→                      onChange={(fullNumber) => setFormData({ ...formData, whatsapp: fullNumber })}
+   558→   558→                      placeholder="6 12 34 56 78"
+   559→   559→                      required
+   560→   560→                      label={t('inscrire.whatsapp_label')}
+   561→   561→                      hint={t('inscrire.whatsapp_hint')}
+   562→   562→                    />
+   563→   563→                  </div>
+   564→   564→                </div>
+   565→   565→              </DashedEncart>
+   566→   566→
+   567→   567→              {/* ═══ BOUTON SUBMIT ═══ */}
+   568→   568→              <button
+   569→   569→                onClick={doSubmit}
+   570→   570→                disabled={loading || missingReference}
+   571→   571→                className="w-full py-4 px-6 active:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 min-h-[56px] flex items-center justify-center gap-2"
+   572→   572→                style={{ backgroundColor: NAVY }}
+   573→   573→              >
+   574→   574→                {loading ? (
+   575→   575→                  <span className="flex items-center justify-center gap-2">
+   576→   576→                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+   577→   577→                    {t('inscrire.submit_loading')}
+   578→   578→                  </span>
+   579→   579→                ) : (
+   580→   580→                  <span className="flex items-center justify-center gap-2">
+   581→   581→                    <Sparkles className="w-5 h-5" />
+   582→   582→                    {t('inscrire.submit')}
+   583→   583→                  </span>
+   584→   584→                )}
+   585→   585→              </button>
+   586→   586→            </div>
+   587→   587→          )}
+   588→   588→        </div>
+   589→   589→
+   590→   590→        {/* ─── Help Section ─── */}
+   591→   591→        <div className="text-center pt-5">
+   592→   592→          <p className="text-sm" style={{ color: NAVY }}>
+   593→   593→            {t('inscrire.no_qr')}{' '}
+   594→   594→            <Link href="/#pricing" className="font-bold underline" style={{ color: NAVY }}>
+   595→   595→              {t('inscrire.order_sticker')}
+   596→   596→            </Link>
+   597→   597→          </p>
+   598→   598→        </div>
+   599→   599→      </div>
+   600→   600→    </main>
+   601→   601→  );
+   602→   602→}
+   603→   603→
+   604→   604→export default function InscrirePage() {
+   605→   605→  const { t } = useTranslation();
+   606→   606→
+   607→   607→  return (
+   608→   608→    <Suspense
+   609→   609→      fallback={
+   610→   610→        <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: NAVY }}>
+   611→   611→          <div className="text-center">
+   612→   612→            <div className="animate-spin w-12 h-12 border-4 border-white/20 border-t-white rounded-full mx-auto mb-4" />
+   613→   613→            <p className="text-lg text-white">{t('common.loading')}</p>
+   614→   614→          </div>
+   615→   615→        </main>
+   616→   616→      }
+   617→   617→    >
+   618→   618→      <InscrireContent />
+   619→   619→    </Suspense>
+   620→   620→  );
+   621→   621→}
+   622→   622→

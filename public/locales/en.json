@@ -176,8 +176,9 @@
     "photo_uploading": "Uploading...",
     "photo_error": "Photo upload failed",
     "reward_label": "Lost & found reward",
-    "reward_hint": "Offer a reward to motivate a quick return of your luggage",
-    "reward_placeholder": "E.g.: 50,000 FCFA"
+    "reward_hint": "Optional — offer a reward to motivate a quick return of your luggage",
+    "reward_optional": "Optional",
+    "reward_placeholder": "Type any amount you want"
   },
   "tracking": {
     "page_title": "Baggage Tracking",
