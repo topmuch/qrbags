@@ -44,7 +44,8 @@ else
 fi
 
 # 3. Push si nécessaire : DB committée cette passe OU commits locaux non poussés
-AHEAD=$(git rev-parse --count origin/main..HEAD 2>/dev/null || echo 0)
+AHEAD=$(git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
+case "${AHEAD:-0}" in ''|*[!0-9]*) AHEAD=0 ;; esac
 if [ "$did_commit" = "1" ] || [ "${AHEAD:-0}" -gt 0 ]; then
   if [ -f "$TOKEN_FILE" ]; then
     TOKEN=$(tr -d '[:space:]' < "$TOKEN_FILE")
