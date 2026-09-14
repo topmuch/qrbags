@@ -414,3 +414,23 @@ Stage Summary:
 - Chaque QR généré (unitaire ou masse) est désormais livré avec le design officiel QRBag intégré : étiquette 7×10 cm prête à imprimer en PNG (DPI physiques) et PDF (page exacte)
 - 3 points d'accès : téléchargement individuel PNG/PDF (nouvelle API), panneau de génération avec aperçu, export ZIP agences
 - Poids maîtrisé : 461 Ko/étiquette PNG, 321 Ko/étiquette PDF (vs 1.9 Mo brut)
+
+---
+Task ID: push-and-verify
+Agent: Z.ai Code (main)
+Task: 使用用户提供的 GitHub token 推送积压 commit，并对已实现的 7×10cm QR 标签设计功能做端到端浏览器自检
+
+Work Log:
+- 使用用户新 token 通过一次性 URL 推送 10 个本地 commit 到 github.com/topmuch/qrbags main（33ff1e2..ceb0927）
+- agent-browser 登录 admin@qrbag.com → /admin/generer
+- 切换到"Voyageur individuel"模式，填写 Test/Voyageur/+221770001122，生成成功（参考号 VOL26-3UZRED）
+- 确认 UI 显示：成功提示、"étiquette 7 × 10 cm prête à imprimer" 说明、设计标签真实预览、PNG/PDF 单独下载按钮、ZIP 导出按钮
+- curl 验证 GET /api/admin/baggages/label/VOL26-3UZRED?format=png → 1049×1499 px @ 381 DPI，物理尺寸 6.99×9.99 cm（≈7×10cm）
+- pdf-lib 验证 format=pdf → 页面精确 198.43×283.46 pt = 7.00×10.00 cm
+- POST /api/admin/baggages/export-zip {agencyId:"__all__",type:"voyageur"} → HTTP 200，ZIP 按旅客分文件夹（ETIQUETTE-7x10cm-*.png + README + _MANIFEST）
+- 临时安装 jsqr 验证 ZIP 内标签 QR 可解码 → 解码为 http://localhost:3000/scan/VOL26-3UZRED，验证后移除 jsqr（不保留测试依赖）
+
+Stage Summary:
+- 推送完成：远程 main = ceb0927，包含 P2022 修复、交通选择器移除、Passeport 导航、7×10cm 标签设计
+- 7×10cm 设计标签功能全链路验证通过：生成 → 预览 → PNG（381DPI 物理尺寸嵌入）→ PDF（精确 7×10cm）→ ZIP（按旅客组织+打印说明）
+- 待办提醒用户：GitHub 推送后需在 Coolify 重新部署才能在生产生效
