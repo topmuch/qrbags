@@ -56,19 +56,30 @@ export default function TrackingWidget() {
 
   return (
     <section
+      id="suivi"
       dir={dir}
-      className="w-full bg-blue-600 py-10 sm:py-14"
+      className="relative w-full bg-[#16234e] py-14 sm:py-20 px-5 overflow-hidden scroll-mt-20"
     >
-      <div className="max-w-lg mx-auto px-4">
-        <div className="bg-blue-700 border border-blue-500/30 rounded-2xl p-6 sm:p-8 shadow-xl shadow-blue-900/20">
-          {/* Label */}
+      {/* Fond carte du monde en pointillés + halo signature */}
+      <div className="absolute inset-0 dotted-map-light opacity-40" aria-hidden />
+      <div className="absolute -top-24 left-1/4 w-96 h-96 bg-[#8b17c9]/20 rounded-full blur-[110px]" aria-hidden />
+      <div className="absolute -bottom-24 right-1/4 w-96 h-96 bg-[#f8921f]/15 rounded-full blur-[110px]" aria-hidden />
+
+      <div className="max-w-xl mx-auto relative z-10">
+        <div className="bg-white rounded-3xl p-7 sm:p-9 shadow-2xl shadow-[#0e1834]/40 border border-white/10">
+          {/* Titre avec accent dégradé */}
           <label
             htmlFor={inputId}
-            className="flex items-center gap-2 text-white font-bold text-lg sm:text-xl mb-5"
+            className="flex items-center gap-2.5 font-black text-xl sm:text-2xl mb-2 text-[#16234e]"
           >
-            <Search className="w-5 h-5 text-blue-200" />
+            <span className="w-10 h-10 rounded-xl bg-gradient-qrbag flex items-center justify-center shrink-0 shadow-lg shadow-[#e6216e]/25">
+              <Search className="w-5 h-5 text-white" />
+            </span>
             {t('home.tracking_label')}
           </label>
+          <p className="text-sm text-slate-500 mb-6 ml-12">
+            Saisissez la référence inscrite sur votre étiquette QRBag.
+          </p>
 
           {/* Input + Button */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -87,12 +98,12 @@ export default function TrackingWidget() {
               maxLength={15}
               className={`
                 flex-1 w-full sm:w-auto px-5 py-4 rounded-xl text-base font-mono tracking-wider
-                bg-white/10 border text-white placeholder:text-white/40
+                bg-[#f6f9ff] border text-[#16234e] placeholder:text-slate-400 uppercase
                 transition-all duration-200 outline-none
-                focus:ring-2 focus:ring-white/30
+                focus:ring-2 focus:ring-[#2f9bff]/40 focus:bg-white
                 ${error
-                  ? 'border-red-300/60 focus:border-red-300'
-                  : 'border-white/15 focus:border-white/40'
+                  ? 'border-red-300 focus:border-red-400'
+                  : 'border-slate-200 focus:border-[#2f9bff]'
                 }
               `}
             />
@@ -101,9 +112,8 @@ export default function TrackingWidget() {
               onClick={handleSubmit}
               className="
                 flex items-center justify-center gap-2 px-7 py-4 rounded-xl
-                bg-white hover:bg-blue-50 active:bg-blue-100
-                text-blue-700 font-bold text-base
-                shadow-lg shadow-blue-900/30 hover:shadow-blue-900/40
+                bg-gradient-qrbag text-white font-bold text-base
+                shadow-lg shadow-[#e6216e]/30 hover:shadow-[#e6216e]/50
                 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                 min-h-[52px]
               "
@@ -119,9 +129,9 @@ export default function TrackingWidget() {
               id={errorId}
               role="alert"
               aria-live="polite"
-              className="text-red-200 text-sm mt-3 flex items-center gap-1.5 font-medium"
+              className="text-[#e6216e] text-sm mt-3 flex items-center gap-1.5 font-medium"
             >
-              <span className="inline-block w-1.5 h-1.5 bg-red-300 rounded-full flex-shrink-0" />
+              <span className="inline-block w-1.5 h-1.5 bg-[#e6216e] rounded-full flex-shrink-0" />
               {error}
             </p>
           )}

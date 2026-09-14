@@ -434,3 +434,39 @@ Stage Summary:
 - 推送完成：远程 main = ceb0927，包含 P2022 修复、交通选择器移除、Passeport 导航、7×10cm 标签设计
 - 7×10cm 设计标签功能全链路验证通过：生成 → 预览 → PNG（381DPI 物理尺寸嵌入）→ PDF（精确 7×10cm）→ ZIP（按旅客组织+打印说明）
 - 待办提醒用户：GitHub 推送后需在 Coolify 重新部署才能在生产生效
+
+---
+Task ID: landing-ultrapremium
+Agent: Z.ai Code (main)
+Task: Refonte de la page d'accueil en version ULTRA PREMIUM basée sur la palette de l'étiquette QR officielle (ori2.png)
+
+Work Log:
+- Extraction palette depuis l'étiquette : Navy #16234e · Azure #2f9bff · Orange #f8921f · Rouge #ef4036 · Magenta #e6216e · Violet #8b17c9 + dégradé signature
+- globals.css : ajout utilitaires marque (.bg-gradient-qrbag, .text-gradient-qrbag, .dotted-map, .dotted-map-light, .font-script, .animate-marquee, .gradient-ring)
+- src/app/page.tsx réécrit (~1090 lignes) :
+  - Nav : liseré dégradé signature, CTA "Commander mes QR" en dégradé
+  - Hero : police manuscrite Caveat ("Voyagez l'esprit tranquille"), titre "Scannez pour retrouver vos bagages" + dégradé, fond carte du monde en pointillés, blobs dégradés, slider 3 photos avec coins viewfinder QR (orange/violet/magenta), cartes flottantes, stats + étoiles
+  - MarqueeStrip : bandeau marine défilant (6 promesses)
+  - ChecklistCTASection : conservé, restylé (badge dégradé, PDF mockup marine, étiquette officielle en arrière-plan, badge 100% GRATUIT)
+  - TrackingWidget : conservé (recherche référence), restylé marine/carte blanche/bouton dégradé, id="suivi" pour ancre
+  - QRBagEnAction : étiquette QR officielle affichée avec coins viewfinder + 4 features aux 4 couleurs marque
+  - StatsSection : bande marine + compteurs animés + vague SVG
+  - HowItWorks : 4 étapes numérotées aux 4 couleurs (azure/violet/magenta/orange) + ligne dégradée
+  - WhyQRBag / Solutions (dégradés orange-rouge, azure-navy, violet-magenta) / Testimonials / Pricing (plan populaire en gradient-ring)
+  - FinalCTA : marine + dégradé + avion animé + accent manuscrit
+  - Footer : marine premium, toutes les pages conservées (À propos /a-propos, Contact, Légal, Suivi ancre #suivi)
+  - SUPPRIMÉ : TransportModesSection (avion/train/bateau/bus) conformément à la demande
+- TrackingWidget.tsx : restylé (marine + carte blanche + bouton dégradé + placeholder uppercase)
+
+Vérifications navigateur (agent-browser) :
+- Desktop 1440px : toutes les sections scrollées et validées visuellement
+- Formulaire suivi : "INVALID" → erreur magenta affichée ; "VOL26-FLUX01" → navigation /suivi/VOL26-FLUX01 OK (données chargées scans=3)
+- Mobile 390px : menu burger OK, slider OK, footer colle au bas
+- Console : 0 erreur (2 warnings LCP normaux carrousel)
+- ESLint : 0 erreur
+
+Stage Summary:
+- Landing page ultra-premium alignée 100% sur l'identité visuelle de l'étiquette QR officielle
+- Checklist + formulaire de recherche conservés, section transports supprimée
+- Toutes les pages existantes toujours accessibles (nav + footer)
+- Fichiers modifiés : src/app/page.tsx, src/components/home/TrackingWidget.tsx, src/app/globals.css

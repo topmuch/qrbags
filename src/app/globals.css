@@ -657,3 +657,75 @@ body * {
     transform: translateX(0);
   }
 }
+
+/* ============================================
+   🎨 QRBAG BRAND — Palette étiquette QR officielle
+   Navy #16234e · Azure #2f9bff · Orange #f8921f
+   Rouge #ef4036 · Magenta #e6216e · Violet #8b17c9
+   ============================================ */
+
+/* Dégradé signature QRBag (bandeau "pour contacter le propriétaire") */
+.bg-gradient-qrbag {
+  background: linear-gradient(95deg, #f8921f 0%, #ef4036 30%, #e6216e 62%, #8b17c9 100%);
+}
+.bg-gradient-qrbag-soft {
+  background: linear-gradient(95deg, #f9a63a 0%, #e6216e 55%, #8b17c9 100%);
+}
+.text-gradient-qrbag {
+  background: linear-gradient(95deg, #f8921f 0%, #ef4036 30%, #e6216e 62%, #8b17c9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-azure-navy {
+  background: linear-gradient(95deg, #2f9bff 0%, #16234e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Fond "carte du monde en pointillés" de l'étiquette */
+.dotted-map {
+  background-image: radial-gradient(circle, rgba(22, 35, 78, 0.10) 1.3px, transparent 1.3px);
+  background-size: 24px 24px;
+}
+.dotted-map-light {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.13) 1.3px, transparent 1.3px);
+  background-size: 26px 26px;
+}
+
+/* Police manuscrite (accent "Merci beaucoup !") */
+.font-script {
+  font-family: var(--font-caveat), 'Segoe Script', cursive;
+}
+
+/* Bandeau défilant marquee */
+@keyframes qrbag-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: qrbag-marquee 32s linear infinite;
+}
+
+/* Anneau dégradé animé (cartes premium) */
+.gradient-ring {
+  position: relative;
+}
+.gradient-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(95deg, #f8921f, #ef4036, #e6216e, #8b17c9);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.gradient-ring:hover::before {
+  opacity: 1;
+}
