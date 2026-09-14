@@ -151,3 +151,89 @@ Work Log:
 
 Stage Summary:
 - Production build prouvé conforme (2 screenshots) → l'utilisateur doit redéployer MAINTENANT + vider le cache navigateur (Ctrl+Shift+R) ; si toujours ancien, le bouton deploy pointe sur une autre source que le workspace/main
+
+---
+Task ID: 1
+Agent: Z.ai Code (main orchestrator)
+Task: Cloner github.com/topmuch/qrbags, installer les dépendances et lancer le dev server
+
+Work Log:
+- Vérifié l'accessibilité du repo GitHub (main @ 74685fd) et cloné dans /tmp pour inspection
+- Analysé la structure : Next.js 16 (App Router) + Prisma/SQLite + NextAuth + next-intl + PWA + mini-service tracking-ws
+- Arrêté l'ancien dev server du scaffold (PID 1162) et remplacé le contenu de /home/z/my-project par le repo qrbags (.git inclus)
+- Créé .env local : DATABASE_URL=file:/home/z/my-project/db/custom.db, NEXTAUTH_SECRET + ENCRYPTION_KEY générés (openssl), URLs localhost:3000
+- bun install : 948 packages installés en ~4s
+- Copié prisma/qrbag.db (DB pré-remplie du repo) vers db/custom.db, puis `prisma db push` (schéma synchronisé) + `prisma generate` (client v6.19.2)
+- Exécuté prisma/seed.ts : settings, agence démo "Ashraf Voyages", utilisateurs et QR codes de test (VOL26-FLUX01, VOL25-DEMO01, HAJJ25-ACTIVE, HAJJ25-LOST01)
+- Démarré le dev server via le gestionnaire du sandbox (.zscripts/dev.sh) : Next.js 16.1.3 (Turbopack) prêt sur port 3000, mini-service tracking-ws démarré sur port 3005
+- Vérification Agent Browser : page d'accueil rendue (desktop 1280px + mobile 390px), page /suivi/VOL26-FLUX01 affiche "BAGAGE PROTÉGÉ", login admin /admin/connexion avec admin@qrbag.com/admin123 → redirection vers /admin/tableau-de-bord avec données réelles (7 QR codes, 4 utilisateurs, 1 agence)
+- APIs vérifiées en 200 : /api/notifications/unread, /api/messages/unread-count, /api/admin/dashboard
+- Seule anomalie : warning d'hydratation mineur (détection de locale/thème, préexistant dans le repo, non bloquant)
+
+Stage Summary:
+- Projet QRBag opérationnel sur port 3000 (preview) : clone main @ 74685fd, dépendances installées, DB seedée
+- Identifiants démo : SuperAdmin admin@qrbag.com / admin123 — Agence agency@qrbag.com / agency123
+- QR codes de test scannables : VOL26-FLUX01 (passeport voyageur Dakar, Air Sénégal SN209), VOL25-DEMO01, HAJJ25-ACTIVE, HAJJ25-LOST01
+- Dev server géré par .zscripts/dev.sh (ne pas tuer ; relancer via `setsid nohup bash .zscripts/dev.sh &` si besoin)
+- Mini-service tracking-ws (WebSocket) sur port 3005, accessible via /?XTransformPort=3005
+
+---
+Task ID: 2
+Agent: Z.ai Code (main orchestrator)
+Task: Redesign des 4 pages voyageur (inscription, confirmation, trouveur, profil) — palette bleu foncé + beige or
+
+Work Log:
+- Lu et analysé les 4 pages cibles : /inscrire (642 l.), /success (278 l.), /scan/[reference] (971 l.), /passeport/[reference] (508 l.) + composants partagés (SuccessOverlay, PhoneInput, CountryRegionSelect, TransportModeSelector)
+- Défini la palette commune « bleu foncé + beige or » : NAVY #16234e (en-têtes, boutons, bordures/focus des champs), BEIGE #f3ecdc (fonds de page), GOLD_SOFT #e9dcc0 (encarts/sur), GOLD #b8975a (accents), encarts beige clair #faf6ec
+- /inscrire : fond de page or saturé → beige ; encarts pointillés noirs → bleu foncé + fond beige ; TOUS les champs de formulaire (prénom, nom, compagnie, vol, date, heure, récompense) → bordures + focus + textes bleu foncé ; labels bleu foncé ; boutons camera/upload/navy + hover #0f1838 ; accent or sous le titre
+- /success : fond #0047d6 → bleu foncé #16234e ; cartes jaunes #fcd616 → beige or ; QR fgColor navy ; boutons d'action navy (hover beige or) ; encart checklist beige avec bouton or ; empty state refait
+- /scan (trouveur) : fond bleu vif → bleu foncé ; cartes blanches bordures navy pointillées + encarts beige ; encart finder #fcd616 → beige or bordure navy ; champs du formulaire trouveur navy ; CTA + bouton Appeler navy ; bouton WhatsApp gardé vert #25D366 (reconnaissance) ; écrans chargement/erreur/activation réalignés ; sélecteur transport beige or
+- /passeport (profil) : fond or saturé → beige ; pastilles perforation → beige ; encart récompense jaune → beige or bordure navy ; labels + valeurs → bleu foncé ; bande basse or #b8975a conservée avec QR navy ; boutons navy
+- Composants partagés alignés : PhoneInput (bordures/focus/dropdown bleu foncé), CountryRegionSelect (select + chevron SVG navy), TransportModeSelector (cartes beige or, sélection navy)
+- Supprimé la constante INK devenue inutilisée sur /passeport ; bun run lint ✅ sans erreur
+- Vérification Agent Browser (desktop 1280px + mobile 390px) : /inscrire étapes 1-2 (champs, photo, récompense, submit), /success avec sessionStorage (overlay + carte QR + boutons + checklist), /scan (détails propriétaire/vol, formulaire trouveur complet, WhatsApp/Phone), /passeport (carte complète, badge or, bande QR, boutons) — tout rendu en 200, aucune erreur navigateur
+
+Stage Summary:
+- Design system unifié « bleu foncé + beige or » sur les 4 pages voyageur + 3 composants de formulaire partagés
+- Palette : #16234e (bleu foncé) · #f3ecdc (beige or) · #e9dcc0 (beige or doux) · #b8975a (or) · encarts #faf6ec
+- WhatsApp reste vert pour la reconnaissance de marque ; boutons primaires navy avec hovers beige or
+- Aucune régression fonctionnelle : mêmes flux, mêmes APIs, lint propre
+
+---
+Task ID: 3
+Agent: Z.ai Code (main orchestrator)
+Task: Recoloration de la page suivi (/suivi/[reference]) — palette bleu foncé + beige or
+
+Work Log:
+- Lu les 1413 lignes de src/app/suivi/[reference]/page.tsx : palette obsolète bleu vif #0047d6 + jaune #fcd616 + noir #1a1a1a (123 occurrences codées en dur, constantes BRAND/ACCENT/INK/CREAM mortes supprimées)
+- Palette appliquée (identique aux 4 pages voyageur déjà refaites) : NAVY #16234e (header, boutons, bordures, textes) · BEIGE #f3ecdc (fond de page) · GOLD_SOFT #e9dcc0 (encarts/cards accent) · GOLD #b8975a (accents, badge trouvé, hover) · encart clair #faf6ec
+- Détail des conversions : fond de page bleu → beige ; header + loading screen → navy (contrôles header passés en blanc/or : back, toggles audio/refresh, sélecteur langue) ; cartes blanches bordures navy dashed ; DashedEncart → pointillés navy/50 + fond #faf6ec ; checklist CTA + bannière alertes sonores + bouton avis + PWA → beige or avec boutons navy hover #0f1838 ; badge BAGAGE PROTÉGÉ → navy texte #e9dcc0 ; badge trouvé/localisé → or #b8975a texte blanc ; toggles carte (dernière position/trajectoire) → navy actif / beige inactif ; cercles numéros + icônes transport → beige or ; lien support → or #b8975a ; toasts → navy texte or
+- Sémantique conservée : urgence rouge #EF4444 (panneau perdu, bouton déclarer), succès vert + WhatsApp #25D366, badges de contexte (CONTEXT_COLORS)
+- Fixes annexes (libellés bruts préexistants) : ajouté tracking.trajectory_map (TRAJECTOIRE COMPLÈTE / FULL TRAJECTORY / المسار الكامل) et finder.reference (Référence / Reference / المرجع) aux 3 locales fr/en/ar ; code passé de t('whatsapp.reference') à t('finder.reference')
+- Données de démo ajoutées pour tester tous les états : 3 ScanLog sur VOL26-FLUX01 (trajectoire Dakar 14.67/-17.07 → Casablanca 33.37/-7.59 → Paris 49.01/2.55 avec trouveurs nommés) + declaredLostAt défini sur HAJJ25-LOST01
+- Vérification Agent Browser : desktop 1280px (état protégé + bas de page), mobile 390px (layout + barre sticky Appeler navy/WhatsApp vert), page avec scans (carte Leaflet marker or, toggles, historique avec badges contexte, carte trouveur encarts beige), mode trajectoire (3 marqueurs, titre corrigé), accordion infos bagage (labels navy, cercle icône beige), écran d'erreur (beige + carte navy dashed), mode perdu (badge rouge pulsant, panneau urgence textes navy, bouton retrouvé vert)
+- bun run lint ✅ sans erreur ; dev.log sans erreur runtime (seules alertes detect-country préexistantes, IP API externe bloquée en sandbox)
+
+Stage Summary:
+- Page /suivi/[reference] entièrement recolorée en « bleu foncé + beige or », cohérente avec /inscrire, /success, /scan, /passeport
+- ~60 remplacements de couleurs appliqués (spécifiques d'abord, génériques ensuite), zéro occurrence restante de #0047d6/#fcd616/#1a1a1a
+- 2 clés de traduction manquantes corrigées (fr/en/ar)
+- État complet de la page vérifié visuellement sur tous les parcours (protégé, scanné, perdu, erreur, desktop, mobile)
+- Screenshots : download/suivi-recolor-*.png (8 captures)
+
+---
+Task ID: 4
+Agent: Z.ai Code (main orchestrator)
+Task: Push du code vers GitHub (topmuch/qrbags) avec PAT fourni
+
+Work Log:
+- Diagnostic : local main en avance de 3 commits auto-générés (messages UUID) contenant le code utile + des indésirables (14 screenshots download/, 4 dumps tool-results/, scripts .zscripts/, worklog.md) — exclusions .git/info/exclude perdues lors du clonage (Task 1)
+- Sécurité vérifiée : aucun .env/.db/token dans les commits en attente ; scan des .zscripts trackés préexistants → aucun secret
+- Nettoyage : restauré .git/info/exclude (.zscripts/, uploads/, db/*.db, tool-results/, logs/, download/, worklog.md, dev.log) ; git reset --soft origin/main ; déstagé les indésirables
+- Reforgé 1 commit propre f88314a : 11 fichiers (5 pages recolorées + 3 composants + 3 locales), message descriptif
+- Push réussi : 74685fd..f88314a main -> main (PAT utilisé en URL one-shot, non stocké dans la config/remote)
+
+Stage Summary:
+- GitHub topmuch/qrbags main = f88314a « Design: recoloration bleu foncé + beige or des 5 pages voyageur »
+- working tree clean côté code ; worklog.md reste local (non poussé dans ce commit)
+- Recommandation : révoquer/rotater le PAT partagé dans le chat
