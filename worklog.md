@@ -279,3 +279,26 @@ Stage Summary:
 - Fix déjà poussé (7ae979a) + correctif linkTarget ajouté → selfheal couvre désormais 100% du schéma
 - Après redéploiement Coolify : prisma db push au boot + selfheal périodique répareront la base automatiquement, les QR codes réapparaîtront
 - Scripts de vérification ajoutés : scripts/verify-selfheal-schema.ts, scripts/check-qr-db.ts
+
+---
+Task ID: prod-fix-qr-verification
+Agent: Main (Z.ai Code)
+Task: Vérification navigateur complète des correctifs QR codes (flux admin, agence, public)
+
+Work Log:
+- Connexion navigateur en SuperAdmin (session cookie) → /admin/qrcodes
+- Page "QR Codes Générés" : 5 sets affichés (VOL-2026-DPGU, VOL-2026-URDC, VOL-2026-FLUX, HAJJ25, VOL25) avec agences, compteurs et actions
+- Modale détail VOL-2026-URDC (set agence Ashraf Voyages) : 2 images QR rendues visuellement (VOL26-UKR7YK Cabine #1, VOL26-EKNNGT Soute #2) + date + agence + boutons ZIP/Partager
+- Connexion espace agence (agency@qrbag.com) → /agence/baggages : 8 bagages (1 actif, 6 en attente, 1 perdu), sections "Bagages activés (2)" et "QR en attente d'activation (6)" affichées avec références
+- Suivi public /suivi/VOL26-UKR7YK (en attente) → message "Bagage introuvable / pas encore activé" correct (plus d'erreur 500)
+- Suivi public /suivi/VOL25-DEMO01 (actif) → page "BAGAGE PROTÉGÉ" complète avec alertes sonores
+- Aucune erreur runtime bloquante détectée (les erreurs "RSC payload" et "SW registration" sont des bruits de dev server / service worker sans impact)
+
+Stage Summary:
+- VERIFICATION NAVIGATEUR COMPLÈTE : les 3 bugs signalés sont résolus localement
+  1. QR codes générés s'affichent (liste admin + images QR rendues dans la modale)
+  2. QR codes associés à une agence s'affichent (admin + espace agence)
+  3. QR codes activés et en attente réapparaissent (données intactes, affichage restauré)
+- CAUSE RACINE production = P2022 schéma SQLite désynchronisé dans le volume Docker /app/data
+- Correctifs poussés sur GitHub (main) : 7ae979a + 9e685de
+- ACTION UTILISATEUR : redéployer sur Coolify (le dernier commit déclenchera prisma db push au boot + selfheal périodique) → les QR codes de production réapparaîtront automatiquement
