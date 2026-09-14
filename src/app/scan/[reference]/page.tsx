@@ -61,6 +61,7 @@ interface BaggageData {
     baggageIndex: number;
     baggageType: string;
     status: string;
+    hasPhoto?: boolean;
     airlineName?: string;
     flightNumber?: string;
     destination?: string;
@@ -637,6 +638,38 @@ export default function ScanPage() {
                 </div>
               </div>
             </DashedEncart>
+          </div>
+        )}
+
+        {/* ═══ 🟦 PHOTO DE LA VALISE (aide le trouveur à identifier le bagage) ═══ */}
+        {baggage?.hasPhoto && (
+          <div className="w-full bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-5 md:p-6 mb-4">
+            <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
+              <span>📸</span> {t('finder.baggage_photo')}
+            </h2>
+            <a
+              href={`/api/baggage-photo/${baggage.reference}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block w-full aspect-[4/3] overflow-hidden rounded-xl border-2 border-[#16234e]/30 bg-[#faf6ec]"
+              title={t('finder.baggage_photo_open')}
+              aria-label={`${t('finder.baggage_photo')} — ${t('finder.baggage_photo_open')}`}
+            >
+              <Image
+                src={`/api/baggage-photo/${baggage.reference}`}
+                alt={t('finder.baggage_photo')}
+                fill
+                sizes="(max-width: 768px) 100vw, 448px"
+                className="object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+                unoptimized
+              />
+              <span className="absolute bottom-2 right-2 bg-[#16234e]/80 text-white text-[10px] md:text-xs px-2.5 py-1 rounded-full opacity-90 group-hover:opacity-100 transition-opacity">
+                🔍 {t('finder.baggage_photo_open')}
+              </span>
+            </a>
+            <p className="mt-2.5 text-xs text-[#16234e]/60 text-center">
+              {t('finder.baggage_photo_help')}
+            </p>
           </div>
         )}
 

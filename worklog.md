@@ -323,3 +323,24 @@ Stage Summary:
 - Nouveau flux d'activation : scan QR → Bienvenue → /inscrire?qr=REF → formulaire → activation (transportMode 'flight' appliqué par l'API)
 - Le composant src/components/inscrire/TransportModeSelector.tsx n'est plus référencé nulle part (fichier conservé pour référence)
 - Vérifié visuellement sur desktop : plus aucune étape de choix avion/train/bus/bateau
+
+---
+Task ID: finder-photo-display
+Agent: Main (Z.ai Code)
+Task: Afficher la photo de la valise sur la page du trouveur (/scan/[reference])
+
+Work Log:
+- Diagnostic : l'upload (/api/baggage-photo/upload) et le service de la photo (/api/baggage-photo/[reference]) existaient, mais AUCUNE page n'affichait la photo — l'affichage n'avait jamais été implémenté côté trouveur
+- API /api/scan/[reference] : ajout de hasPhoto (booléen, le chemin interne n'est jamais exposé)
+- Page /scan/[reference] (vue trouveur) : ajout du bloc "📸 PHOTO DE LA VALISE" entre le bloc Propriétaire et Détails du voyage
+  - Image next/image fill, object-contain, cadre 4/3 aux couleurs de la marque (navy/beige)
+  - Clic ouvre la photo pleine résolution dans un nouvel onglet (href /api/baggage-photo/REF, target _blank)
+  - Badge "🔍 Cliquez pour agrandir" + note "Comparez avec le bagage que vous avez trouvé"
+  - Rendu conditionnel : bloc masqué si le bagage n'a pas de photo
+- Traductions ajoutées dans public/locales/{fr,en,ar}.json : finder.baggage_photo, finder.baggage_photo_help, finder.baggage_photo_open
+- Test de bout en bout local : photo JPEG de test assignée à VOL25-DEMO01 → GET /api/baggage-photo/VOL25-DEMO01 = HTTP 200 image/jpeg → GET /api/scan = hasPhoto:true → page trouveur affiche le bloc photo (vérifié par capture d'écran)
+- ESLint : 0 erreur
+
+Stage Summary:
+- La photo de la valise téléchargée à l'inscription s'affiche désormais sur la page du trouveur
+- RAPPEL DÉPLOIEMENT : monter un volume Coolify persistant sur /app/uploads (photos) en plus de /app/data (SQLite) — sinon les fichiers uploadés sont perdus à chaque redéploiement (la DB garderait photoPath mais le fichier serait absent → 404)

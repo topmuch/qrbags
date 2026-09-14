@@ -29,6 +29,9 @@
   },
   "finder": {
     "success_badge": "تم العثور على الأمتعة",
+    "baggage_photo": "صورة الحقيبة",
+    "baggage_photo_help": "قارن مع الحقيبة التي وجدتها",
+    "baggage_photo_open": "انقر للتكبير",
     "owner_info": "هوية المالك",
     "travel_details": "تفاصيل الرحلة",
     "share_gps": "مشاركة موقعي GPS",

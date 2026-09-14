@@ -29,6 +29,9 @@
   },
   "finder": {
     "success_badge": "BAGGAGE FOUND",
+    "baggage_photo": "SUITCASE PHOTO",
+    "baggage_photo_help": "Compare with the baggage you found",
+    "baggage_photo_open": "Click to enlarge",
     "owner_info": "OWNER IDENTITY",
     "travel_details": "TRAVEL DETAILS",
     "share_gps": "SHARE MY GPS LOCATION",

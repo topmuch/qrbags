@@ -29,6 +29,9 @@
   },
   "finder": {
     "success_badge": "BAGAGE TROUVÉ",
+    "baggage_photo": "PHOTO DE LA VALISE",
+    "baggage_photo_help": "Comparez avec le bagage que vous avez trouvé",
+    "baggage_photo_open": "Cliquez pour agrandir",
     "owner_info": "IDENTITÉ PROPRIÉTAIRE",
     "travel_details": "DÉTAILS DU VOYAGE",
     "share_gps": "PARTAGER MA POSITION GPS",
