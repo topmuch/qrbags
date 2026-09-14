@@ -61,6 +61,7 @@ export default function QRCodesPage() {
     voyageurSets: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   
@@ -92,6 +93,8 @@ export default function QRCodesPage() {
 
   const fetchSets = async () => {
     try {
+      setLoading(true);
+      setLoadError(null);
       const params = new URLSearchParams();
       if (typeFilter !== 'all') params.set('type', typeFilter);
       if (search) params.set('search', search);
@@ -99,10 +102,25 @@ export default function QRCodesPage() {
       const response = await fetch(`/api/qrcodes?${params}`);
       const data = await response.json();
 
-      setSets(data.sets);
-      setStats(data.stats);
+      if (!response.ok || !data.sets) {
+        // API en erreur (ex: schéma base obsolète) → message clair au lieu d'une liste vide
+        setLoadError(
+          data.error ||
+            `Erreur serveur (${response.status}) lors du chargement des QR codes`
+        );
+        setSets([]);
+        setStats({ totalSets: 0, totalQr: 0, hajjSets: 0, voyageurSets: 0 });
+        return;
+      }
+
+      setSets(Array.isArray(data.sets) ? data.sets : []);
+      setStats(
+        data.stats || { totalSets: 0, totalQr: 0, hajjSets: 0, voyageurSets: 0 }
+      );
     } catch (error) {
       console.error('Error fetching QR sets:', error);
+      setLoadError('Impossible de contacter le serveur. Vérifiez votre connexion.');
+      setSets([]);
     } finally {
       setLoading(false);
     }
@@ -480,6 +498,29 @@ export default function QRCodesPage() {
             ))}
           </div>
         </div>
+
+        {/* Error Banner */}
+        {loadError && (
+          <div className="mb-6 px-5 py-4 bg-[#7a1e1e]/20 border border-[#7a1e1e]/50 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-white font-medium">Erreur de chargement des QR codes</p>
+                <p className="text-[#a0a8b8] text-sm mt-1">{loadError}</p>
+                <p className="text-[#a0a8b8] text-xs mt-1">
+                  Si le problème persiste après redéploiement, le schéma de la base sera
+                  réparé automatiquement au démarrage du serveur (selfheal).
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={fetchSets}
+              className="px-4 py-2 bg-[#b8860b] text-white rounded-lg text-sm font-medium hover:bg-[#a0760a] transition-colors shrink-0"
+            >
+              Réessayer
+            </button>
+          </div>
+        )}
 
         {/* QR Sets List */}
         <div className="space-y-3">
