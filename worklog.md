@@ -237,3 +237,24 @@ Stage Summary:
 - GitHub topmuch/qrbags main = f88314a « Design: recoloration bleu foncé + beige or des 5 pages voyageur »
 - working tree clean côté code ; worklog.md reste local (non poussé dans ce commit)
 - Recommandation : révoquer/rotater le PAT partagé dans le chat
+
+---
+Task ID: 5
+Agent: Z.ai Code (main orchestrator)
+Task: Fix production « les QR codes ne s'affichent plus » — selfheal schéma SQLite + gestion d'erreur frontend
+
+Work Log:
+- Diagnostic production (qrbags.com) : GET /api/qrcodes → 500, GET /api/agency/baggages → 500, GET /api/suivi/[ref] → 500, GET /api/admin/voyageurs → 500 ALORS QUE GET /api/admin/dashboard → 200 avec totalQR=6840 (les données EXISTENT)
+- Cause racine : la base SQLite de production a été créée par une version antérieure du schéma Prisma (le volume /app/data persiste mais `prisma db push` n'a jamais tourné — image déployée antérieure au fix Dockerfile 74685fd). Toute requête Prisma lisant toutes les colonnes de Baggage échoue avec P2022 (« The column X does not exist ») → pages admin QR codes et espace agence vides/en erreur
+- Vérifié que l'affichage local est sain (admin /admin/qrcodes liste + modale QRCodeSVG + espace agence /agence/baggages) via Agent Browser : le code UI n'est pas en cause
+- Créé src/lib/db-selfheal.ts : réparation automatique 100 % additive sans perte de données — (1) tables manquantes → CREATE TABLE IF NOT EXISTS (schéma miroir des 27 modèles, sans FK/index), (2) colonnes manquantes → PRAGMA table_info + ALTER TABLE ADD COLUMN (types Prisma SQLite : TEXT/DATETIME/INTEGER/REAL/BOOLEAN/JSONB), (3) réconciliation `npx prisma db push --skip-generate` si CLI dispo (non bloquant). Boot +5 s puis toutes les 5 min (DB_SELFHEAL_INTERVAL_MS), idempotent, rapport exporté
+- Créé src/instrumentation.ts : register() → startDbSelfheal() au boot du serveur (dev + prod standalone Docker)
+- Créé GET /api/system/health (public, aucune donnée sensible) : connectivité DB + intégrité schéma (tables/colonnes manquantes) + test lecture réelle baggage.findFirst + déclenche la réparation si schéma incomplet + rapport selfheal. Permet de vérifier la réparation production après redéploiement
+- Corrigé src/app/admin/qrcodes/page.tsx : fetchSets ne fait plus setSets(undefined) sur erreur API (crash render) → état loadError + bannière rouge « Erreur de chargement des QR codes » avec bouton Réessayer ; garde-fous Array.isArray/|| défauts
+- Testé la réparation par simulation (scripts/test-selfheal.ts) : copie de la DB, DROP COLUMN photoPath/reward/transportMode/declaredLostAt + DROP TABLE Review → lecture Prisma complète échoue (reproduction production) → runSchemaRepair() → 4 colonnes + table Review restaurées, données intactes (9/9), findMany+include agency OK, 2e passage idempotent (0 modif)
+- Vérifié serveur dev relancé : logs [db-selfheal] actif (boot +5s) + [db-selfheal] schéma OK ; /api/system/health → status ok, schema ok, baggageReadOk ; pages admin/agence revérifiées au navigateur (4 sets / 9 QR dont set agence « Ashraf Voyages », modale QR affichée) ; bun run lint ✅
+
+Stage Summary:
+- ROOT CAUSE production identifiée : schéma SQLite périmé (P2022) sur les lectures complètes de Baggage — les 6840 QR codes existent mais plus aucune liste ne s'affichait
+- FIX livré : selfheal runtime (instrumentation + db-selfheal) répare automatiquement la base au démarrage du serveur, endpoint /api/system/health pour vérifier, frontend /admin/qrcodes ne crash plus sur erreur API
+- ACTION UTILISATEUR : redéployer main sur Coolify → au boot, selfheal + start.sh (prisma db push) réparent le schéma ; vérifier https://qrbags.com/api/system/health → attendu {"status":"ok"} ; les QR codes (6840) réapparaissent dans /admin/qrcodes et /agence/baggages
