@@ -252,6 +252,24 @@ function SuccessContent() {
           </button>
         </div>
 
+        {/* ═══ 4bis. Bouton Passeport QRBags (carte numérique du bagage) ═══ */}
+        <a
+          href={`/passeport/${reference}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Voir mon Passeport QRBags dans un nouvel onglet"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2 mb-4"
+          style={{ backgroundColor: GOLD, color: NAVY, borderColor: NAVY }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = GOLD_SOFT;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = GOLD;
+          }}
+        >
+          🛂 Mon Passeport QRBags
+        </a>
+
         {/* ═══ 5. Encart Checklist (fond beige or + bordure dashed bleu foncé) ═══ */}
         <div
           className="border-2 border-dashed rounded-2xl p-5 text-center"

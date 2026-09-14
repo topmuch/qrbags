@@ -217,7 +217,11 @@
     "not_found_hint": "Ce passeport n'existe pas ou le lien est incorrect.",
     "pending": "Ce bagage n'est pas encore activé — le passeport sera disponible après activation.",
     "go_home": "Retour à l'accueil",
-    "open_tracking": "Ouvrir le suivi du bagage"
+    "open_tracking": "Ouvrir le suivi du bagage",
+    "cta_title": "Votre Passeport QRBags",
+    "cta_desc": "La carte numérique officielle de votre bagage : à imprimer ou garder sur votre téléphone.",
+    "cta_button": "Voir mon passeport",
+    "cta_new": "NOUVEAU"
   },
   "tracking": {
     "page_title": "Suivi de bagage",

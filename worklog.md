@@ -364,3 +364,22 @@ Work Log:
 Stage Summary:
 - La récompense promise s'affiche désormais en évidence sur la page du trouveur, sous le titre, pour motiver le retour du bagage
 - Photo (tâche précédente) + Récompense : les deux incitations du trouveur sont désormais complètes sur /scan/[reference]
+
+---
+Task ID: passeport-navigation-links
+Agent: Main (Z.ai Code)
+Task: Rendre le Passeport QRBags (/passeport/[reference]) accessible depuis l'interface
+
+Work Log:
+- Constat : la page Passeport (/passeport/[reference]) existait déjà (carte style carte d'embarquement, export PNG, partage, QR de vérification) mais n'était liée nulle part dans l'UI — inaccessible pour l'utilisateur
+- Traductions : ajout des clés passport.cta_title, cta_desc, cta_button, cta_new dans public/locales/{fr,en,ar}.json
+- Page suivi /suivi/[reference] : ajout d'un encart CTA « Votre Passeport QRBags » avec badge NOUVEAU (or #b8975a) + bouton « Voir mon passeport », juste sous l'encart Checklist (page沾 rendue uniquement si bagage activé car early-return sur pending_activation/not_found)
+- Page succès /success (post-activation) : ajout d'un bouton pleine largeur « 🛂 Mon Passeport QRBags » (fond or, hover beige) entre les boutons d'action et l'encart checklist
+- Vérification navigateur (agent-browser) :
+  - /suivi/VOL26-FLUX01 : encart CTA présent (snapshot), clic → navigation vers /passeport/VOL26-FLUX01 OK
+  - /passeport/VOL26-FLUX01 : carte complète rendue (Fatou Ndiaye, Dakar, Air Sénégal SN209, badge PROTÉGÉ, QR de vérification), export PNG cliqué sans erreur console
+- dev.log : aucune erreur ; ESLint : 0 erreur
+
+Stage Summary:
+- Le Passeport QRBags est désormais accessible en 1 clic depuis la page de suivi ET depuis l'écran de confirmation d'activation
+- Parcours complet vérifié : activation → succès → passeport ; suivi → passeport

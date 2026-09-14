@@ -217,7 +217,11 @@
     "not_found_hint": "This passport does not exist or the link is incorrect.",
     "pending": "This baggage is not activated yet — the passport will be available after activation.",
     "go_home": "Back to home",
-    "open_tracking": "Open baggage tracking"
+    "open_tracking": "Open baggage tracking",
+    "cta_title": "Your QRBags Passport",
+    "cta_desc": "Your baggage's official digital card: print it or keep it on your phone.",
+    "cta_button": "View my passport",
+    "cta_new": "NEW"
   },
   "tracking": {
     "page_title": "Baggage Tracking",

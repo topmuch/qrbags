@@ -1065,6 +1065,24 @@ export default function SuiviPage() {
           </a>
         </div>
 
+        {/* ═══ CTA PASSEPORT QRBAGS (carte numérique du bagage) ═══ */}
+        <div className="bg-[#f3ecdc] border-2 border-dashed border-[#16234e] rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="text-lg" aria-hidden="true">🛂</span>
+            <h3 className="text-base font-bold text-[#16234e]">{t('passport.cta_title')}</h3>
+            <span className="px-2 py-0.5 rounded-full bg-[#b8975a] text-white text-[10px] font-extrabold uppercase tracking-wide">
+              {t('passport.cta_new')}
+            </span>
+          </div>
+          <p className="text-sm text-[#16234e]/80 mb-3 leading-relaxed">{t('passport.cta_desc')}</p>
+          <a
+            href={`/passeport/${reference}`}
+            className="block w-full text-center py-3 px-4 bg-[#b8975a] hover:bg-[#a5834a] text-white rounded-xl font-bold transition-colors min-h-[44px]"
+          >
+            {t('passport.cta_button')}
+          </a>
+        </div>
+
         {/* ═══ HISTORIQUE (ACCORDION) ═══ */}
         {data.scans.length > 0 && (
           <div className="bg-white border-2 border-dashed border-[#16234e] rounded-2xl shadow-sm overflow-hidden">
