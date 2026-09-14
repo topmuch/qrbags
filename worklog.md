@@ -258,3 +258,24 @@ Stage Summary:
 - ROOT CAUSE production identifiée : schéma SQLite périmé (P2022) sur les lectures complètes de Baggage — les 6840 QR codes existent mais plus aucune liste ne s'affichait
 - FIX livré : selfheal runtime (instrumentation + db-selfheal) répare automatiquement la base au démarrage du serveur, endpoint /api/system/health pour vérifier, frontend /admin/qrcodes ne crash plus sur erreur API
 - ACTION UTILISATEUR : redéployer main sur Coolify → au boot, selfheal + start.sh (prisma db push) réparent le schéma ; vérifier https://qrbags.com/api/system/health → attendu {"status":"ok"} ; les QR codes (6840) réapparaissent dans /admin/qrcodes et /agence/baggages
+
+---
+Task ID: prod-fix-qr
+Agent: Main (Z.ai Code)
+Task: Résolution bug production "QR codes ne s'affichent plus" + push GitHub avec token utilisateur
+
+Work Log:
+- Poussé 3 commits en attente vers github.com/topmuch/qrbags (f88314a..ead82a1) avec le token fourni
+- Diagnostiqué la cause racine du bug production : base SQLite du volume Docker créée par un ancien schéma Prisma → toutes les lectures complètes échouent en P2022 ("column does not exist") → GET /api/qrcodes, /api/agency/baggages, /api/suivi/[ref], /api/admin/voyageurs retournaient 500 → listes vides alors que les données existent toujours (vérifié : 9 QR codes en base locale, API OK)
+- Vérifié la chaîne de réparation existante : docker/start.sh (prisma db push au boot), src/instrumentation.ts (selfheal au boot + toutes les 5 min), /api/system/health (diagnostic)
+- Créé scripts/verify-selfheal-schema.ts : comparaison automatique colonne par colonne entre prisma/schema.prisma et src/lib/db-selfheal.ts (parser ligne par ligne, robuste aux commentaires avec accolades et aux DEFAULT avec guillemets échappés)
+- Détecté 1 vraie dérive : colonne "linkTarget" (Advertisement) manquante dans EXPECTED_SCHEMA du selfheal → corrigée
+- Re-vérifié : schéma selfheal 100% aligné (27 modèles, 0 erreur)
+- Testé de bout en bout localement avec session admin : GET /api/qrcodes OK (retourne les sets), GET /api/agency/baggages?agencyId=demo-agency-1 OK, POST /api/admin/baggages/generate OK (génère VOL26-WKLTNT)
+- ESLint : aucune erreur
+
+Stage Summary:
+- Cause racine production = P2022 (schéma désynchronisé), PAS une perte de données
+- Fix déjà poussé (7ae979a) + correctif linkTarget ajouté → selfheal couvre désormais 100% du schéma
+- Après redéploiement Coolify : prisma db push au boot + selfheal périodique répareront la base automatiquement, les QR codes réapparaîtront
+- Scripts de vérification ajoutés : scripts/verify-selfheal-schema.ts, scripts/check-qr-db.ts

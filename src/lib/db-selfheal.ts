@@ -304,6 +304,7 @@ export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
     C('"description" TEXT'),
     C('"imageUrl" TEXT NOT NULL'),
     C('"linkUrl" TEXT'),
+    C('"linkTarget" TEXT NOT NULL DEFAULT \'_blank\''),
     C('"position" TEXT NOT NULL DEFAULT \'footer\''),
     C('"targetScope" TEXT NOT NULL DEFAULT \'all\''),
     C('"agencyId" TEXT'),
