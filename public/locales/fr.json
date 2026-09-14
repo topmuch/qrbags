@@ -92,7 +92,8 @@
     "finder_form_help": "Remplissez vos coordonnées pour prévenir le propriétaire.",
     "contact_choice": "Choisissez comment contacter le propriétaire",
     "owner_section": "PROPRIÉTAIRE",
-    "travel_section": "VOYAGE"
+    "travel_section": "VOYAGE",
+    "reference": "Référence"
   },
   "whatsapp": {
     "found_message": "🎉 Bonne nouvelle {firstName} !\n\nQuelqu'un a trouvé ton bagage {type} à {location} !\n📍 Il est actuellement à {address}\n👤 La personne qui l'a trouvé s'appelle {name}\n📞 Appelle-le vite au {phone}\n💬 Ou écris-lui sur WhatsApp\nTu peux aussi voir tous les détails ici :\n👉 {url}\nNe panique pas, tout va bien se passer ! 💪\nL'équipe QRBag",
@@ -290,7 +291,8 @@
     "audio_alert_toggle_aria": "Activer ou désactiver les alertes sonores",
     "audio_alert_scanning": "Surveillance active…",
     "baggage_photo": "Photo du bagage",
-    "reward_promise": "Récompense promise"
+    "reward_promise": "Récompense promise",
+    "trajectory_map": "TRAJECTOIRE COMPLÈTE"
   },
   "scan": {
     "success": "Scan réussi ! ✓",

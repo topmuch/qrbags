@@ -92,7 +92,8 @@
     "finder_form_help": "املأ بياناتك لإبلاغ المالك.",
     "contact_choice": "اختر كيفية الاتصال بالمالك",
     "owner_section": "المالك",
-    "travel_section": "الرحلة"
+    "travel_section": "الرحلة",
+    "reference": "المرجع"
   },
   "whatsapp": {
     "found_message": "🎉 أخبار سارة {firstName}!\n\nشخص ما وجد أمتعتك {type} في {location}!\n📍 هي حالياً في {address}\n👤 الشخص الذي وجدها اسمه {name}\n📞 اتصل به بسرعة على {phone}\n💬 أو راسله على واتساب\nيمكنك أيضاً رؤية جميع التفاصيل هنا:\n👉 {url}\nلا تقلق، كل شيء سيكون على ما يرام! 💪\nفريق QRBag",
@@ -290,7 +291,8 @@
     "audio_alert_toggle_aria": "تفعيل أو إيقاف التنبيهات الصوتية",
     "audio_alert_scanning": "مراقبة نشطة…",
     "baggage_photo": "صورة الحقيبة",
-    "reward_promise": "مكافأة معروضة"
+    "reward_promise": "مكافأة معروضة",
+    "trajectory_map": "المسار الكامل"
   },
   "scan": {
     "success": "تم المسح بنجاح! ✓",

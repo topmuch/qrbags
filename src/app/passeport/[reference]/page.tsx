@@ -16,12 +16,13 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
-// ─── Brand constants (palette étiquette QRBag : bleu nuit #16234e + or #be9a5e) ───
-const NAVY = '#16234e'; // en-tête de la carte + boutons — écriture blanche
-const GOLD = '#be9a5e'; // fond de page + bande basse de la carte
+// ─── Brand constants — Refonte « bleu foncé + beige or » ───
+const NAVY = '#16234e';      // bleu foncé — en-tête de la carte, boutons, textes forts
+const BEIGE = '#f3ecdc';     // beige or clair — fond de page + pastilles de perforation
+const GOLD = '#b8975a';      // or — bande basse de la carte, badge protégé
+const GOLD_SOFT = '#e9dcc0'; // beige or — encart récompense
 
 // Couleurs hex inline sur la carte (compatibilité export PNG via html-to-image)
-const INK = '#1a1a1a';
 const WHITE = '#ffffff';
 const RED = '#c0392b';
 const GRAY = '#6b7280';
@@ -165,7 +166,7 @@ function PassportContent() {
   return (
     <main
       className="min-h-[100dvh] min-h-screen flex flex-col"
-      style={{ backgroundColor: GOLD }}
+      style={{ backgroundColor: BEIGE }}
       dir={dir}
     >
       {/* ═══ En-tête — bleu nuit, écriture blanche ═══ */}
@@ -197,7 +198,7 @@ function PassportContent() {
       <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-4 sm:px-5 -mt-6 pb-10">
         {loading && (
           <div className="flex items-center justify-center py-16">
-            <div className="w-10 h-10 border-4 border-white/40 border-t-white rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-[#16234e]/20 border-t-[#16234e] rounded-full animate-spin" />
           </div>
         )}
 
@@ -205,10 +206,10 @@ function PassportContent() {
         {!loading && data && !data.baggage && (
           <div className="bg-white rounded-2xl p-6 shadow-xl text-center">
             <AlertCircle className="w-12 h-12 mx-auto mb-3" style={{ color: RED }} />
-            <h2 className="text-lg font-bold mb-1" style={{ color: INK }}>
+            <h2 className="text-lg font-bold mb-1" style={{ color: NAVY }}>
               {data.status === 'pending_activation' ? t('passport.title') : t('passport.not_found')}
             </h2>
-            <p className="text-sm mb-5" style={{ color: INK, opacity: 0.7 }}>
+            <p className="text-sm mb-5" style={{ color: NAVY, opacity: 0.7 }}>
               {data.status === 'pending_activation'
                 ? t('passport.pending')
                 : t('passport.not_found_hint')}
@@ -263,12 +264,12 @@ function PassportContent() {
               <div className="relative" style={{ borderTop: '2px dashed rgba(22,35,78,0.30)' }}>
                 <span
                   className="absolute -left-3 -top-3 w-6 h-6 rounded-full"
-                  style={{ backgroundColor: GOLD }}
+                  style={{ backgroundColor: BEIGE }}
                   aria-hidden="true"
                 />
                 <span
                   className="absolute -right-3 -top-3 w-6 h-6 rounded-full"
-                  style={{ backgroundColor: GOLD }}
+                  style={{ backgroundColor: BEIGE }}
                   aria-hidden="true"
                 />
               </div>
@@ -280,7 +281,7 @@ function PassportContent() {
                   <div className="min-w-0">
                     <p
                       className="text-[10px] uppercase tracking-widest font-bold"
-                      style={{ color: 'rgba(26,26,26,0.55)' }}
+                      style={{ color: 'rgba(22,35,78,0.60)' }}
                     >
                       {t('passport.traveler')}
                     </p>
@@ -304,33 +305,33 @@ function PassportContent() {
                   <div className="min-w-0">
                     <p
                       className="text-[10px] uppercase tracking-widest font-bold"
-                      style={{ color: 'rgba(26,26,26,0.55)' }}
+                      style={{ color: 'rgba(22,35,78,0.60)' }}
                     >
                       📍 {t('passport.destination')}
                     </p>
-                    <p className="text-sm font-bold truncate" style={{ color: INK }}>
+                    <p className="text-sm font-bold truncate" style={{ color: NAVY }}>
                       {data.baggage.destination || t('passport.not_specified')}
                     </p>
                   </div>
                   <div className="min-w-0">
                     <p
                       className="text-[10px] uppercase tracking-widest font-bold"
-                      style={{ color: 'rgba(26,26,26,0.55)' }}
+                      style={{ color: 'rgba(22,35,78,0.60)' }}
                     >
                       ✈️ {t('passport.airline')}
                     </p>
-                    <p className="text-sm font-bold truncate" style={{ color: INK }}>
+                    <p className="text-sm font-bold truncate" style={{ color: NAVY }}>
                       {data.baggage.airlineName || t('passport.not_specified')}
                     </p>
                   </div>
                   <div className="min-w-0">
                     <p
                       className="text-[10px] uppercase tracking-widest font-bold"
-                      style={{ color: 'rgba(26,26,26,0.55)' }}
+                      style={{ color: 'rgba(22,35,78,0.60)' }}
                     >
                       🎫 {t('passport.flight_number')}
                     </p>
-                    <p className="text-sm font-bold font-mono truncate" style={{ color: INK }}>
+                    <p className="text-sm font-bold font-mono truncate" style={{ color: NAVY }}>
                       {data.baggage.flightNumber || t('passport.not_specified')}
                     </p>
                   </div>
@@ -341,11 +342,11 @@ function PassportContent() {
                   <div>
                     <p
                       className="text-[10px] uppercase tracking-widest font-bold"
-                      style={{ color: 'rgba(26,26,26,0.55)' }}
+                      style={{ color: 'rgba(22,35,78,0.60)' }}
                     >
                       📅 {t('passport.departure')}
                     </p>
-                    <p className="text-sm font-bold" style={{ color: INK }}>
+                    <p className="text-sm font-bold" style={{ color: NAVY }}>
                       {formatDate(data.baggage.departureDate)}
                       {data.baggage.departureTime ? ` · ${data.baggage.departureTime}` : ''}
                     </p>
@@ -353,11 +354,11 @@ function PassportContent() {
                   <div>
                     <p
                       className="text-[10px] uppercase tracking-widest font-bold"
-                      style={{ color: 'rgba(26,26,26,0.55)' }}
+                      style={{ color: 'rgba(22,35,78,0.60)' }}
                     >
                       ⏳ {t('passport.valid_until')}
                     </p>
-                    <p className="text-sm font-bold" style={{ color: INK }}>
+                    <p className="text-sm font-bold" style={{ color: NAVY }}>
                       {data.baggage.expiresAt
                         ? formatDate(data.baggage.expiresAt)
                         : t('passport.not_specified')}
@@ -379,15 +380,15 @@ function PassportContent() {
                     {data.baggage.reward && (
                       <div
                         className="flex-1 px-3 py-2 rounded-lg border-2 border-dashed"
-                        style={{ borderColor: INK, backgroundColor: '#fcd616' }}
+                        style={{ borderColor: NAVY, backgroundColor: GOLD_SOFT }}
                       >
                         <p
                           className="text-[10px] font-bold uppercase tracking-wide"
-                          style={{ color: INK }}
+                          style={{ color: NAVY }}
                         >
                           🎁 {t('passport.reward_promised')}
                         </p>
-                        <p className="text-sm font-extrabold" style={{ color: INK }}>
+                        <p className="text-sm font-extrabold" style={{ color: NAVY }}>
                           {data.baggage.reward}
                         </p>
                       </div>
@@ -400,12 +401,12 @@ function PassportContent() {
               <div className="relative" style={{ borderTop: '2px dashed rgba(22,35,78,0.30)' }}>
                 <span
                   className="absolute -left-3 -top-3 w-6 h-6 rounded-full"
-                  style={{ backgroundColor: GOLD }}
+                  style={{ backgroundColor: BEIGE }}
                   aria-hidden="true"
                 />
                 <span
                   className="absolute -right-3 -top-3 w-6 h-6 rounded-full"
-                  style={{ backgroundColor: GOLD }}
+                  style={{ backgroundColor: BEIGE }}
                   aria-hidden="true"
                 />
               </div>
@@ -428,10 +429,10 @@ function PassportContent() {
                   <p className="text-xs font-extrabold" style={{ color: NAVY }}>
                     {t('passport.verify_hint')}
                   </p>
-                  <p className="text-[10px] mt-1" style={{ color: 'rgba(26,26,26,0.75)' }}>
+                  <p className="text-[10px] mt-1" style={{ color: 'rgba(22,35,78,0.75)' }}>
                     {t('passport.personal_doc')}
                   </p>
-                  <p className="text-[10px]" style={{ color: 'rgba(26,26,26,0.75)' }}>
+                  <p className="text-[10px]" style={{ color: 'rgba(22,35,78,0.75)' }}>
                     {t('passport.issued_on')} {formatDate(data.baggage.createdAt)}
                   </p>
                 </div>
@@ -478,7 +479,7 @@ function PassportContent() {
               {showHomeHint && (
                 <div
                   className="bg-white rounded-xl px-4 py-3 text-xs leading-relaxed border-2 border-dashed"
-                  style={{ borderColor: NAVY, color: INK }}
+                  style={{ borderColor: NAVY, color: NAVY }}
                 >
                   {platform === 'ios'
                     ? t('passport.add_home_ios')

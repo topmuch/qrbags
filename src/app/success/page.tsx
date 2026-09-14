@@ -8,10 +8,13 @@ import SuccessOverlay from '@/components/ui/SuccessOverlay';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from '@/hooks/use-toast';
 
-// ─── Brand constants (QRBag palette: blue #0047d6 + yellow #fcd616) ───
-const BRAND = '#0047d6'; // bleu vif — fonds, boutons primaires
-const ACCENT = '#fcd616'; // jaune vif — cards, accents
-const INK = '#1a1a1a'; // noir — texte sur jaune, bordures dashed
+// ─── Brand constants — Refonte « bleu foncé + beige or » ───
+const NAVY = '#16234e';      // bleu foncé — fond de page, boutons primaires
+const NAVY_HOVER = '#0f1838';
+const BEIGE = '#f3ecdc';     // beige or clair — cartes, encarts
+const GOLD = '#b8975a';      // or — accents
+const GOLD_SOFT = '#e9dcc0'; // beige or — survols / badges
+const INK = '#1a1a1a';       // texte principal
 
 interface ActivationData {
   reference: string;
@@ -110,22 +113,22 @@ function SuccessContent() {
   // ─── Empty state : pas d'activation data ───
   if (!activationData) {
     return (
-      <main className="min-h-screen bg-[#0047d6] flex items-center justify-center p-4">
+      <main className="min-h-screen bg-[#16234e] flex items-center justify-center p-4">
         <div className="max-w-md w-full">
-          <div className="bg-[#fcd616] border-2 border-dashed border-[#1a1a1a] rounded-2xl p-8 text-center">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[#1a1a1a]">
-              <CheckCircle className="w-8 h-8" style={{ color: INK }} />
+          <div className="bg-[#f3ecdc] border-2 border-dashed border-[#16234e] rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[#16234e]">
+              <CheckCircle className="w-8 h-8" style={{ color: NAVY }} />
             </div>
-            <h1 className="text-2xl font-bold mb-2" style={{ color: INK }}>
+            <h1 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>
               ✅ Activation réussie !
             </h1>
-            <p className="mb-6" style={{ color: INK, opacity: 0.7 }}>
+            <p className="mb-6" style={{ color: NAVY, opacity: 0.7 }}>
               Votre bagage est maintenant protégé
             </p>
             <Link
               href="/inscrire"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-colors min-h-[48px]"
-              style={{ backgroundColor: INK, color: ACCENT }}
+              style={{ backgroundColor: NAVY, color: '#ffffff' }}
             >
               ← Revenir à l&apos;inscription
             </Link>
@@ -136,7 +139,7 @@ function SuccessContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0047d6] flex items-center justify-center p-4">
+    <main className="min-h-screen bg-[#16234e] flex items-center justify-center p-4">
       {/* SuccessOverlay — feedback premium d'activation (indépendant du thème) */}
       <SuccessOverlay show={activationConfirmed} messageKey="activation.success" t={t} />
 
@@ -146,13 +149,13 @@ function SuccessContent() {
           <div className="relative inline-block mb-3">
             <div
               className="w-20 h-20 bg-white rounded-full flex items-center justify-center border-2"
-              style={{ borderColor: INK }}
+              style={{ borderColor: NAVY }}
             >
-              <CheckCircle className="w-10 h-10" style={{ color: INK }} />
+              <CheckCircle className="w-10 h-10" style={{ color: NAVY }} />
             </div>
             <div
               className="absolute inset-0 w-20 h-20 rounded-full animate-ping"
-              style={{ backgroundColor: ACCENT, opacity: 0.3 }}
+              style={{ backgroundColor: GOLD, opacity: 0.35 }}
             />
           </div>
           <h1 className="text-2xl font-bold mb-1 text-white">
@@ -161,10 +164,10 @@ function SuccessContent() {
           <p className="text-white/80">Votre bagage est maintenant protégé</p>
         </div>
 
-        {/* ═══ 2. Carte QR Code (fond jaune QRBag + bordure dashed noire) ═══ */}
+        {/* ═══ 2. Carte QR Code (fond beige or + bordure dashed bleu foncé) ═══ */}
         <div
           className="border-2 border-dashed rounded-2xl p-5 mb-4 text-center"
-          style={{ backgroundColor: ACCENT, borderColor: INK }}
+          style={{ backgroundColor: BEIGE, borderColor: NAVY }}
         >
           {/* QR Code sur fond blanc pour scan optimal */}
           <div className="bg-white rounded-xl p-3 inline-block mb-3">
@@ -174,34 +177,34 @@ function SuccessContent() {
               level="H"
               includeMargin={true}
               bgColor="#ffffff"
-              fgColor={INK}
+              fgColor={NAVY}
             />
           </div>
-          <p className="font-mono font-bold text-lg break-all" style={{ color: INK }}>
+          <p className="font-mono font-bold text-lg break-all" style={{ color: NAVY }}>
             {reference}
           </p>
-          <p className="text-sm" style={{ color: INK, opacity: 0.7 }}>
+          <p className="text-sm" style={{ color: NAVY, opacity: 0.7 }}>
             {activationData.firstName} {activationData.lastName}
           </p>
         </div>
 
-        {/* ═══ 3. Résumé Activité (bloc blanc épuré + bordure dashed noire) ═══ */}
+        {/* ═══ 3. Résumé Activité (bloc blanc épuré + bordure dashed bleu foncé) ═══ */}
         <div
           className="bg-white border-2 border-dashed rounded-2xl p-4 mb-4 space-y-3"
-          style={{ borderColor: INK }}
+          style={{ borderColor: NAVY }}
         >
           <div className="flex items-center gap-3">
-            <Luggage className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
+            <Luggage className="w-5 h-5 flex-shrink-0" style={{ color: NAVY }} />
             <p className="font-medium text-sm" style={{ color: INK }}>
               🧳 1 bagage activé •{' '}
-              <span style={{ color: INK, opacity: 0.7 }}>Protection active</span>
+              <span style={{ color: NAVY, opacity: 0.7 }}>Protection active</span>
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 flex-shrink-0" style={{ color: INK }} />
+            <Calendar className="w-5 h-5 flex-shrink-0" style={{ color: NAVY }} />
             <p className="font-medium text-sm" style={{ color: INK }}>
               ⏰ Expire le {formatExpiration(activationData.expiresAt)} •{' '}
-              <span style={{ color: INK, opacity: 0.7 }}>
+              <span style={{ color: NAVY, opacity: 0.7 }}>
                 Activé le {formatDate(activationData.activatedAt)}
               </span>
             </p>
@@ -217,14 +220,14 @@ function SuccessContent() {
             rel="noopener noreferrer"
             aria-label="Suivre mon bagage dans un nouvel onglet"
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2"
-            style={{ backgroundColor: INK, color: ACCENT, borderColor: INK }}
+            style={{ backgroundColor: NAVY, color: '#ffffff', borderColor: NAVY }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = ACCENT;
-              e.currentTarget.style.color = INK;
+              e.currentTarget.style.backgroundColor = GOLD_SOFT;
+              e.currentTarget.style.color = NAVY;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = INK;
-              e.currentTarget.style.color = ACCENT;
+              e.currentTarget.style.backgroundColor = NAVY;
+              e.currentTarget.style.color = '#ffffff';
             }}
           >
             📍 Suivre mon bagage
@@ -235,35 +238,35 @@ function SuccessContent() {
             onClick={handleShare}
             aria-label="Partager le lien de suivi"
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-colors min-h-[52px] border-2 cursor-pointer"
-            style={{ backgroundColor: INK, color: ACCENT, borderColor: INK }}
+            style={{ backgroundColor: NAVY, color: '#ffffff', borderColor: NAVY }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = ACCENT;
-              e.currentTarget.style.color = INK;
+              e.currentTarget.style.backgroundColor = GOLD_SOFT;
+              e.currentTarget.style.color = NAVY;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = INK;
-              e.currentTarget.style.color = ACCENT;
+              e.currentTarget.style.backgroundColor = NAVY;
+              e.currentTarget.style.color = '#ffffff';
             }}
           >
             📤 Partager
           </button>
         </div>
 
-        {/* ═══ 5. Encart Checklist (fond jaune QRBag + bordure dashed noire) ═══ */}
+        {/* ═══ 5. Encart Checklist (fond beige or + bordure dashed bleu foncé) ═══ */}
         <div
           className="border-2 border-dashed rounded-2xl p-5 text-center"
-          style={{ backgroundColor: ACCENT, borderColor: INK }}
+          style={{ backgroundColor: BEIGE, borderColor: NAVY }}
         >
           <div className="flex items-center justify-center gap-2 mb-3">
-            <Backpack className="w-5 h-5" style={{ color: INK }} />
-            <h2 className="font-bold text-base" style={{ color: INK }}>
+            <Backpack className="w-5 h-5" style={{ color: NAVY }} />
+            <h2 className="font-bold text-base" style={{ color: NAVY }}>
               🎒 Préparez votre voyage sereinement
             </h2>
           </div>
           <Link
             href="/checklist"
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold transition-colors min-h-[48px]"
-            style={{ backgroundColor: INK, color: ACCENT }}
+            style={{ backgroundColor: GOLD, color: NAVY }}
           >
             Créer ma checklist gratuite →
           </Link>

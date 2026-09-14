@@ -118,16 +118,16 @@ export default function PhoneInput({
     }
   }, [isOpen]);
 
-  const textColor = dark ? 'text-white' : 'text-blue-900';
+  const textColor = dark ? 'text-white' : 'text-[#16234e]';
   const bgColor = dark ? 'bg-white/10' : 'bg-white';
-  const borderColor = dark ? 'border-white/20' : 'border-blue-200';
-  const placeholderColor = dark ? 'placeholder:text-white/40' : 'placeholder:text-blue-900/40';
-  const focusRing = 'focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent';
+  const borderColor = dark ? 'border-white/20' : 'border-[#16234e]/50';
+  const placeholderColor = dark ? 'placeholder:text-white/40' : 'placeholder:text-[#16234e]/40';
+  const focusRing = 'focus:outline-none focus:ring-2 focus:ring-[#16234e]/50 focus:border-[#16234e]/50';
 
   return (
     <div className={`w-full min-w-0 ${className}`}>
       {label && (
-        <p className={`text-sm font-medium mb-1.5 ${dark ? 'text-white/80' : 'text-blue-700'}`}>
+        <p className={`text-sm font-medium mb-1.5 ${dark ? 'text-white/80' : 'text-[#16234e]'}`}>
           {label}
         </p>
       )}
@@ -146,9 +146,9 @@ export default function PhoneInput({
 
           {/* Dropdown */}
           {isOpen && (
-            <div className={`absolute top-full left-0 mt-1 w-64 sm:w-72 max-h-72 overflow-hidden rounded-xl shadow-2xl z-50 border-2 ${dark ? 'border-white/20 bg-[#0A192F]' : 'border-blue-200 bg-white'}`}>
+            <div className={`absolute top-full left-0 mt-1 w-64 sm:w-72 max-h-72 overflow-hidden rounded-xl shadow-2xl z-50 border-2 ${dark ? 'border-white/20 bg-[#0A192F]' : 'border-[#16234e]/50 bg-white'}`}>
               {/* Search */}
-              <div className={`p-2 border-b ${dark ? 'border-white/10' : 'border-blue-100'}`}>
+              <div className={`p-2 border-b ${dark ? 'border-white/10' : 'border-[#16234e]/20'}`}>
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/10">
                   <Search className="w-4 h-4 opacity-50" />
                   <input
@@ -157,14 +157,14 @@ export default function PhoneInput({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Rechercher un pays..."
-                    className={`w-full bg-transparent text-sm ${dark ? 'text-white placeholder:text-white/40' : 'text-blue-900 placeholder:text-blue-900/40'} focus:outline-none`}
+                    className={`w-full bg-transparent text-sm ${dark ? 'text-white placeholder:text-white/40' : 'text-[#16234e] placeholder:text-[#16234e]/40'} focus:outline-none`}
                   />
                 </div>
               </div>
               {/* Country list */}
               <div className="overflow-y-auto max-h-56">
                 {filtered.length === 0 ? (
-                  <div className={`px-4 py-3 text-sm ${dark ? 'text-white/50' : 'text-blue-900/50'}`}>
+                  <div className={`px-4 py-3 text-sm ${dark ? 'text-white/50' : 'text-[#16234e]/50'}`}>
                     Aucun pays trouvé
                   </div>
                 ) : (
@@ -175,13 +175,13 @@ export default function PhoneInput({
                       onClick={() => handleCountrySelect(c)}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                         c.code === selected.code
-                          ? (dark ? 'bg-blue-500/20 text-blue-600' : 'bg-blue-50 text-blue-700')
-                          : (dark ? 'text-white/80 hover:bg-white/10' : 'text-blue-900 hover:bg-blue-50')
+                          ? (dark ? 'bg-blue-500/20 text-blue-600' : 'bg-[#e9dcc0] text-[#16234e] font-bold')
+                          : (dark ? 'text-white/80 hover:bg-white/10' : 'text-[#16234e] hover:bg-[#f3ecdc]')
                       }`}
                     >
                       <span className="text-lg">{c.flag}</span>
                       <span className="flex-1 text-sm font-medium truncate">{c.name}</span>
-                      <span className={`text-sm font-mono ${dark ? 'text-white/50' : 'text-blue-900/50'}`}>
+                      <span className={`text-sm font-mono ${dark ? 'text-white/50' : 'text-[#16234e]/50'}`}>
                         {c.dial}
                       </span>
                     </button>
@@ -203,7 +203,7 @@ export default function PhoneInput({
         />
       </div>
       {hint && (
-        <p className={`text-xs mt-1.5 ${dark ? 'text-white/50' : 'text-blue-900/50'}`}>
+        <p className={`text-xs mt-1.5 ${dark ? 'text-white/50' : 'text-[#16234e]/50'}`}>
           {hint}
         </p>
       )}

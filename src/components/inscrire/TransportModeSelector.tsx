@@ -67,11 +67,11 @@ export default function TransportModeSelector({
               relative flex flex-col items-center justify-center
               rounded-xl p-3 sm:p-4 min-h-[140px] sm:min-h-[160px]
               border-2 transition-all duration-200 overflow-hidden
-              focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2
+              focus:outline-none focus:ring-2 focus:ring-[#16234e]/60 focus:ring-offset-2
               ${
                 isSelected
-                  ? 'border-black border-solid bg-[#fcd616] shadow-lg shadow-black/20 scale-[1.02]'
-                  : 'border-black border-dashed bg-[#fcd616] hover:bg-[#fcd616]/80'
+                  ? 'border-[#16234e] border-solid bg-[#e9dcc0] shadow-lg shadow-[#16234e]/20 scale-[1.02]'
+                  : 'border-[#16234e]/50 border-dashed bg-[#f3ecdc] hover:bg-[#e9dcc0]'
               }
             `}
           >
@@ -89,19 +89,19 @@ export default function TransportModeSelector({
             </div>
 
             {/* Label */}
-            <span className="text-sm sm:text-base font-bold text-black transition-colors">
+            <span className="text-sm sm:text-base font-bold text-[#16234e] transition-colors">
               {label}
             </span>
 
             {/* Description */}
-            <span className="text-[10px] sm:text-xs mt-0.5 leading-tight text-center text-black/70">
+            <span className="text-[10px] sm:text-xs mt-0.5 leading-tight text-center text-[#16234e]/70">
               {description}
             </span>
 
-            {/* Selected indicator — pastille noire avec checkmark jaune QRBag */}
+            {/* Selected indicator — pastille bleu foncé avec checkmark or */}
             {isSelected && (
-              <div className="absolute top-2 right-2 w-5 h-5 bg-black rounded-full flex items-center justify-center ring-2 ring-white">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#fcd616" strokeWidth={3}>
+              <div className="absolute top-2 right-2 w-5 h-5 bg-[#16234e] rounded-full flex items-center justify-center ring-2 ring-white">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#e9dcc0" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>

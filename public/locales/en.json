@@ -92,7 +92,8 @@
     "finder_form_help": "Fill in your details to notify the owner.",
     "contact_choice": "Choose how to contact the owner",
     "owner_section": "OWNER",
-    "travel_section": "TRAVEL"
+    "travel_section": "TRAVEL",
+    "reference": "Reference"
   },
   "whatsapp": {
     "found_message": "🎉 Good news {firstName}!\n\nSomeone found your {type} baggage at {location}!\n📍 It is currently at {address}\n👤 The person who found it is {name}\n📞 Call them quickly at {phone}\n💬 Or message them on WhatsApp\nYou can also see all the details here:\n👉 {url}\nDon't panic, everything will be fine! 💪\nThe QRBag Team",
@@ -290,7 +291,8 @@
     "audio_alert_toggle_aria": "Toggle sound alerts on or off",
     "audio_alert_scanning": "Active monitoring…",
     "baggage_photo": "Luggage photo",
-    "reward_promise": "Reward offered"
+    "reward_promise": "Reward offered",
+    "trajectory_map": "FULL TRAJECTORY"
   },
   "scan": {
     "success": "Scan successful! ✓",
