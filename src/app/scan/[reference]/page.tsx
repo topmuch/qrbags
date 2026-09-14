@@ -24,14 +24,14 @@ import PhoneInput from '@/components/ui/PhoneInput';
 import { toast } from '@/hooks/use-toast';
 
 // TRANSPORT-FEATURE: Multi-transport support (real images, emojis as fallback)
+// (conservé pour le bloc "Détails du voyage" du suivi — le sélecteur de mode
+// a été retiré de l'écran d'activation : le mode par défaut est appliqué par l'API)
 import {
   safeTransportMode,
   getTransportImage,
   getTransportBlockHeader,
-  TRANSPORT_ICONS,
 } from '@/lib/transport';
 import type { TransportMode } from '@/lib/transport';
-import TransportModeSelector from '@/components/inscrire/TransportModeSelector';
 
 // AI-FEATURE: Lazy-load ChatbotWidget (Feature #1) — doesn't block page render
 const ChatbotWidget = dynamic(() => import('@/components/finder/ChatbotWidget'), {
@@ -125,7 +125,9 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
 }
 
 // ─── Activation Redirect Component (recolored with brand) ───
-// ACTIVATION-FLOW: User selects transport mode BEFORE being redirected to /inscrire?qr=REF&mode=XXX.
+// ACTIVATION-FLOW: redirection directe vers /inscrire?qr=REF — le sélecteur de
+// mode de transport (avion/train/bus/bateau) a été supprimé ; l'API applique
+// son mode par défaut ('flight') à l'activation.
 function ActivationRedirect({ type, reference, t, lang, setLang }: {
   type: string;
   reference: string;
@@ -134,14 +136,13 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   setLang: (l: Language) => void;
 }) {
   const router = useRouter();
-  const [selectedMode, setSelectedMode] = useState<TransportMode | ''>('');
 
   const isHajj = type === 'hajj';
 
   const handleContinue = () => {
     const url = isHajj
       ? `/hajj/activate?qr=${reference}`
-      : `/inscrire?qr=${reference}${selectedMode ? `&mode=${selectedMode}` : ''}`;
+      : `/inscrire?qr=${reference}`;
     router.push(url);
   };
 
@@ -154,17 +155,7 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
 
         <div className="relative inline-block mb-5 mt-6">
           <div className="w-16 h-16 bg-white border-2 border-[#16234e] rounded-full flex items-center justify-center">
-            {selectedMode ? (
-              <Image
-                src={getTransportImage(selectedMode)}
-                alt={selectedMode}
-                width={36}
-                height={36}
-                className="mix-blend-multiply"
-              />
-            ) : (
-              <Luggage className="w-8 h-8 text-[#16234e]" />
-            )}
+            <Luggage className="w-8 h-8 text-[#16234e]" />
           </div>
           <div className="absolute -top-1 -right-1 w-7 h-7 bg-[#b8975a] rounded-full flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5 text-white" />
@@ -205,22 +196,9 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
               </Badge>
             </div>
 
-            <div className="text-left mb-5">
-              <p className="text-[#16234e] font-semibold text-sm mb-3 text-center">
-                {t('transport.select_mode')}
-              </p>
-              <TransportModeSelector
-                selectedMode={selectedMode}
-                onSelect={setSelectedMode}
-                t={t}
-                lang={lang}
-              />
-            </div>
-
             <button
-              className="w-full py-4 px-6 bg-[#16234e] hover:bg-[#0f1838] disabled:bg-[#16234e]/30 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
+              className="w-full py-4 px-6 bg-[#16234e] hover:bg-[#0f1838] text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
               onClick={handleContinue}
-              disabled={!selectedMode}
             >
               {t('common.start_activation')}
               <ArrowRight className="w-5 h-5" />

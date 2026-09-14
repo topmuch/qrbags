@@ -302,3 +302,24 @@ Stage Summary:
 - CAUSE RACINE production = P2022 schéma SQLite désynchronisé dans le volume Docker /app/data
 - Correctifs poussés sur GitHub (main) : 7ae979a + 9e685de
 - ACTION UTILISATEUR : redéployer sur Coolify (le dernier commit déclenchera prisma db push au boot + selfheal périodique) → les QR codes de production réapparaîtront automatiquement
+
+---
+Task ID: remove-transport-selector
+Agent: Main (Z.ai Code)
+Task: Supprimer le sélecteur de mode de transport (avion/train/bus/bateau) de l'écran d'activation/inscription
+
+Work Log:
+- Confirmé que /inscrire n'avait déjà plus de sélecteur (transportMode 'flight' par défaut côté API)
+- Localisé le sélecteur restant : src/app/scan/[reference]/page.tsx → composant ActivationRedirect (page vue par le voyageur au premier scan de son QR)
+- Supprimé l'import TransportModeSelector et TRANSPORT_ICONS (inutilisé)
+- Supprimé l'état selectedMode et le paramètre &mode= de l'URL de redirection
+- Supprimé le bloc sélecteur + le texte "transport.select_mode" + le disabled conditionnel du bouton
+- Icône d'en-tête fixée sur Luggage (valise) au lieu de l'image transport dynamique
+- Conservé safeTransportMode/getTransportImage/getTransportBlockHeader pour le bloc "Détails du voyage" du suivi public
+- ESLint : 0 erreur
+- Vérification navigateur : /scan/VOL26-UKR7YK → écran "Bienvenue !" avec bouton "Commencer l'activation" directement actif → redirection /inscrire?qr=VOL26-UKR7YK → formulaire 2/2 (Prénom/Nom, Destination, Date, WhatsApp, Photo, Récompense) sans aucun sélecteur de transport
+
+Stage Summary:
+- Nouveau flux d'activation : scan QR → Bienvenue → /inscrire?qr=REF → formulaire → activation (transportMode 'flight' appliqué par l'API)
+- Le composant src/components/inscrire/TransportModeSelector.tsx n'est plus référencé nulle part (fichier conservé pour référence)
+- Vérifié visuellement sur desktop : plus aucune étape de choix avion/train/bus/bateau
