@@ -3,9 +3,9 @@ import { ZipArchive } from 'archiver';
 import { Readable } from 'stream';
 import { db } from '@/lib/db';
 import {
-  generateQRCodeImage,
   formatPassengerFolderName,
 } from '@/lib/qr-server';
+import { generateQrLabelPng } from '@/lib/qr-label';
 
 /**
  * POST /api/admin/baggages/export-zip
@@ -157,19 +157,19 @@ export async function POST(request: NextRequest) {
               travelerInfo?.lastName,
             );
 
-            // Generate QR images for each baggage in this set
+            // Generate PRINT-READY LABELS (design QRBag + QR intégré, 7×10 cm)
+            // for each baggage in this set
             for (const baggage of setBaggages) {
               try {
-                const image = await generateQRCodeImage({
+                const labelPng = await generateQrLabelPng({
                   reference: baggage.reference,
-                  type: baggage.type as 'hajj' | 'voyageur',
-                  baggageIndex: baggage.baggageIndex,
-                  baggageType: baggage.baggageType,
-                  baseUrl,
+                  scanUrl: `${baseUrl}/scan/${baggage.reference}`,
                 });
-                archive.append(image.buffer, { name: `${folderName}/${image.filename}` });
+                archive.append(labelPng, {
+                  name: `${folderName}/ETIQUETTE-7x10cm-${baggage.reference}.png`,
+                });
               } catch (qrError) {
-                console.error(`[EXPORT-ZIP] Error generating QR for ${baggage.reference}:`, qrError);
+                console.error(`[EXPORT-ZIP] Error generating label for ${baggage.reference}:`, qrError);
               }
             }
 
@@ -258,10 +258,12 @@ function generatePassengerReadme(
   lines.push('');
   lines.push('--- Instructions ---');
   lines.push('');
-  lines.push('1. Imprimez chaque QR code sur une etiquette.');
-  lines.push('2. Collez chaque etiquette sur le bagage correspondant.');
-  lines.push('3. Le voyageur active ses QR codes sur qrbags.com/activate');
-  lines.push('4. Si un bagage est perdu, le trouveur scanne le QR code');
+  lines.push('1. Chaque image ETIQUETTE-7x10cm-*.png est une etiquette PRETE A IMPRIMER');
+  lines.push('   (design QRBag + QR code integre, format exact 7 x 10 cm, ~381 DPI).');
+  lines.push('2. Imprimez sans redimensionner (l\'image contient ses dimensions physiques).');
+  lines.push('3. Collez chaque etiquette sur le bagage correspondant.');
+  lines.push('4. Le voyageur active ses QR codes sur qrbags.com/activate');
+  lines.push('5. Si un bagage est perdu, le trouveur scanne le QR code');
   lines.push('   et le proprietaire recoit une notification WhatsApp.');
   lines.push('');
   lines.push('QRBag - Protegez vos bagages, en toute serenite.');

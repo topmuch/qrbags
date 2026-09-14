@@ -383,3 +383,34 @@ Work Log:
 Stage Summary:
 - Le Passeport QRBags est désormais accessible en 1 clic depuis la page de suivi ET depuis l'écran de confirmation d'activation
 - Parcours complet vérifié : activation → succès → passeport ; suivi → passeport
+
+---
+Task ID: qr-label-design-7x10
+Agent: Main (Z.ai Code)
+Task: Intégrer le design officiel dans le générateur de QR codes — chaque QR généré est une étiquette 7×10 cm prête à imprimer
+
+Work Log:
+- Design fourni (upload/ori2.png, 1049×1499) copié vers public/design/etiquette-qrbag-7x10.png
+- Analyse pixel du design (sharp) pour localiser le carré blanc du QR : x:233-820, y:695-1240, coins décoratifs viewfinder à éviter (bras y:715-740/1195-1220, x:250-275/774-799)
+- Nouvelle lib src/lib/qr-label.ts :
+  - QR 420px centré à (317,758) — marges ≥17px des coins décoratifs, quiet zone préservée
+  - QR navy #16234e, error correction Q, URL {baseUrl}/scan/{reference}
+  - PNG print-ready : alpha aplati sur blanc (1.9 Mo → 461 Ko, lossless), métadonnées pHYs density ≈380.9 DPI → taille physique exacte 7×10 cm à l'impression
+  - PDF print-ready : page de EXACTEMENT 198.42×283.46 pt (7×10 cm), image JPEG q92 incorporée (~321 Ko)
+- Ajout de 'sharp' dans serverExternalPackages (next.config.ts)
+- Nouvelle API GET /api/admin/baggages/label/[reference]?format=png|pdf&preview=1 (téléchargement inline/attachment)
+- Export ZIP (/api/admin/baggages/export-zip) : les QR nus 400px sont remplacés par les étiquettes designées ETIQUETTE-7x10cm-{ref}.png ; README mis à jour (instructions impression 7×10 cm sans redimensionner)
+- UI /admin/generer : panneau succès enrichi — aperçu RÉEL de l'étiquette générée, liste des références avec boutons PNG/PDF par ref (scroll max-h), bouton ZIP renommé "étiquettes", message info 7×10 cm ; timeout panneau 10s → 120s
+- Tests rigoureux :
+  - Décodage QR (jsqr) sur étiquette composée : https://qrbags.com/scan/TEST-DEMO01 ✓
+  - QR du ZIP (URL réelle headers) : http://localhost:3000/scan/VOL26-X6CJZA ✓
+  - Taille physique PNG vérifiée : 6.99×9.99 cm (précision <0.1 mm) ; PDF mathématiquement exact
+  - API label : PNG HTTP 200 (474 Ko), PDF HTTP 200 (329 Ko, PDF 1.7 valide)
+  - Export ZIP : contient Passager-001-Awa-Ndiaye/ETIQUETTE-7x10cm-VOL26-X6CJZA.png (451 Ko) ✓
+  - Navigateur : génération individuel → panneau avec aperçu + téléchargements OK, console sans erreur
+- ESLint : 0 erreur
+
+Stage Summary:
+- Chaque QR généré (unitaire ou masse) est désormais livré avec le design officiel QRBag intégré : étiquette 7×10 cm prête à imprimer en PNG (DPI physiques) et PDF (page exacte)
+- 3 points d'accès : téléchargement individuel PNG/PDF (nouvelle API), panneau de génération avec aperçu, export ZIP agences
+- Poids maîtrisé : 461 Ko/étiquette PNG, 321 Ko/étiquette PDF (vs 1.9 Mo brut)

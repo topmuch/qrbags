@@ -22,7 +22,10 @@ import {
   AlertCircle,
   Shield,
   Archive,
-  Loader2
+  Loader2,
+  Download,
+  FileText,
+  Printer
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -263,7 +266,7 @@ export default function GenererQRPage() {
       const data = await response.json();
       
       if (response.ok) {
-        setSuccessMessage(`${data.generated} codes QR générés avec succès !`);
+        setSuccessMessage(`${data.generated} étiquette${data.generated > 1 ? 's' : ''} QR générée${data.generated > 1 ? 's' : ''} avec succès !`);
         setLastGeneratedRefs(data.references || []);
         // Reset individual form
         if (context === 'individual') {
@@ -278,7 +281,7 @@ export default function GenererQRPage() {
         setTimeout(() => {
           setSuccessMessage('');
           setLastGeneratedRefs([]);
-        }, 10000);
+        }, 120000);
       } else {
         setErrorMessage(data.error || 'Erreur lors de la génération');
       }
@@ -298,15 +301,65 @@ export default function GenererQRPage() {
         <p className="text-slate-500 dark:text-slate-400 mt-1">Créez des QR codes anti-fraude pour vos voyageurs</p>
       </div>
 
-      {/* Success Message */}
+      {/* Success Message + Label Downloads */}
       {successMessage && (
         <div className="mb-6 bg-emerald-50 dark:bg-emerald-600/10 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 px-4 py-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-1">
             <CheckCircle className="w-5 h-5" />
             <span className="font-medium">{successMessage}</span>
           </div>
           {lastGeneratedRefs.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
+            <>
+              <p className="text-xs text-emerald-700/90 dark:text-emerald-400/90 mb-3">
+                <Printer className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
+                Chaque QR est fourni sur le design officiel QRBag — étiquette <strong>7 × 10 cm</strong> prête à imprimer (haute résolution, dimensions physiques intégrées).
+              </p>
+
+              <div className="flex flex-col md:flex-row gap-4 bg-white dark:bg-slate-900/60 rounded-xl p-4 border border-emerald-200/60 dark:border-emerald-800/60">
+                {/* Aperçu étiquette (vraie étiquette générée avec QR) */}
+                <div className="flex-shrink-0 text-center">
+                  <img
+                    src={`/api/admin/baggages/label/${lastGeneratedRefs[0]}?preview=1`}
+                    alt={`Aperçu de l'étiquette QRBag 7×10 cm pour ${lastGeneratedRefs[0]}`}
+                    className="h-56 w-auto rounded-lg shadow-md mx-auto"
+                  />
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-medium uppercase tracking-wide">
+                    Aperçu — 7 × 10 cm
+                  </p>
+                </div>
+
+                {/* Liste des références + téléchargements */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide mb-2">
+                    Télécharger les étiquettes ({lastGeneratedRefs.length})
+                  </p>
+                  <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1">
+                    {lastGeneratedRefs.map((ref) => (
+                      <div key={ref} className="flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800/70 rounded-lg px-3 py-2">
+                        <span className="font-mono text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{ref}</span>
+                        <span className="flex items-center gap-1.5 flex-shrink-0">
+                          <a
+                            href={`/api/admin/baggages/label/${ref}?format=png`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#16234e] text-white rounded-md hover:bg-[#0f1838] transition-colors text-xs font-semibold"
+                            title="Télécharger l'étiquette PNG (impression 7×10 cm, ~381 DPI)"
+                          >
+                            <Download className="w-3.5 h-3.5" /> PNG
+                          </a>
+                          <a
+                            href={`/api/admin/baggages/label/${ref}?format=pdf`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#b8975a] text-white rounded-md hover:bg-[#a5834a] transition-colors text-xs font-semibold"
+                            title="Télécharger l'étiquette PDF (page exacte 7×10 cm)"
+                          >
+                            <FileText className="w-3.5 h-3.5" /> PDF
+                          </a>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-3">
               <button
                 onClick={handleExportGenerated}
                 disabled={isExporting}
@@ -320,7 +373,7 @@ export default function GenererQRPage() {
                 ) : (
                   <>
                     <Archive className="w-4 h-4" />
-                    Exporter en ZIP ({lastGeneratedRefs.length} QR)
+                    Exporter en ZIP ({lastGeneratedRefs.length} étiquettes)
                   </>
                 )}
               </button>
@@ -331,7 +384,8 @@ export default function GenererQRPage() {
                 <QrCode className="w-4 h-4" />
                 Voir tous les QR codes
               </a>
-            </div>
+              </div>
+            </>
           )}
         </div>
       )}
