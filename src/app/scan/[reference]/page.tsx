@@ -62,6 +62,7 @@ interface BaggageData {
     baggageType: string;
     status: string;
     hasPhoto?: boolean;
+    reward?: string | null;
     airlineName?: string;
     flightNumber?: string;
     destination?: string;
@@ -606,6 +607,25 @@ export default function ScanPage() {
               : t('finder.bagage_trouve_desc')}
           </p>
         </div>
+
+        {/* ═══ 🟨 RÉCOMPENSE PROMISE (incitation forte pour le trouveur) ═══ */}
+        {baggage?.reward && (
+          <div
+            className="w-full border-2 border-dashed border-[#b8975a] rounded-2xl p-5 md:p-6 mb-4 text-center bg-gradient-to-b from-[#e9dcc0] to-[#f3ecdc]"
+            role="status"
+            aria-label={t('finder.reward_title')}
+          >
+            <p className="text-xs uppercase tracking-widest text-[#16234e]/70 font-bold mb-1.5 flex items-center justify-center gap-2">
+              <span aria-hidden="true">🎁</span> {t('finder.reward_title')}
+            </p>
+            <p className="text-2xl md:text-3xl font-black text-[#16234e] leading-tight break-words">
+              {baggage.reward}
+            </p>
+            <p className="mt-1.5 text-xs md:text-sm text-[#16234e]/60">
+              {t('finder.reward_help')}
+            </p>
+          </div>
+        )}
 
         {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (white + dashed black) ═══ */}
         {baggage && (

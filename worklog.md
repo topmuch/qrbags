@@ -344,3 +344,23 @@ Work Log:
 Stage Summary:
 - La photo de la valise téléchargée à l'inscription s'affiche désormais sur la page du trouveur
 - RAPPEL DÉPLOIEMENT : monter un volume Coolify persistant sur /app/uploads (photos) en plus de /app/data (SQLite) — sinon les fichiers uploadés sont perdus à chaque redéploiement (la DB garderait photoPath mais le fichier serait absent → 404)
+
+---
+Task ID: finder-reward-display
+Agent: Main (Z.ai Code)
+Task: Afficher la récompense promise sur la page du trouveur (/scan/[reference])
+
+Work Log:
+- Diagnostic (même pattern que la photo) : le champ reward existe en base (ex: VOL26-FLUX01 → "50 000 FCFA"), mais l'API /api/scan/[reference] ne le renvoyait pas et la page trouveur ne l'affichait pas
+- API /api/scan/[reference] : ajout de reward (string | null) dans le payload baggage
+- Page /scan/[reference] (vue trouveur) : ajout du bloc "🎁 RÉCOMPENSE PROMISE" juste sous le titre BAGAGE TROUVÉ, AVANT le bloc Propriétaire (incitation vue immédiatement par le trouveur)
+  - Carte or/beige (dégradé #e9dcc0 → #f3ecdc) avec bordure pointillée or #b8975a, cohérente avec la marque
+  - Montant en très gros (text-2xl/3xl font-black), texte d'aide explicite
+  - role="status" + aria-label pour l'accessibilité ; rendu conditionnel si pas de récompense
+- Traductions ajoutées dans public/locales/{fr,en,ar}.json : finder.reward_title, finder.reward_help
+- Test bout en bout : GET /api/scan/VOL26-FLUX01 → reward:"50 000 FCFA" → page trouveur affiche le bloc (capture d'écran)
+- ESLint : 0 erreur
+
+Stage Summary:
+- La récompense promise s'affiche désormais en évidence sur la page du trouveur, sous le titre, pour motiver le retour du bagage
+- Photo (tâche précédente) + Récompense : les deux incitations du trouveur sont désormais complètes sur /scan/[reference]

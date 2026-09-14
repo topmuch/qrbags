@@ -104,6 +104,8 @@ export async function GET(
         // PHOTO-FEATURE: booléen uniquement (le chemin interne n'est jamais exposé ;
         // la photo est servie via /api/baggage-photo/[reference], la référence fait office de jeton)
         hasPhoto: Boolean(baggage.photoPath),
+        // REWARD-FEATURE: récompense promise par le propriétaire (incitation trouveur)
+        reward: baggage.reward || null,
         transportMode: baggage.transportMode || 'flight',
         airlineName: baggage.airlineName,
         flightNumber: baggage.flightNumber,
