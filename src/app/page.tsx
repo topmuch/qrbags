@@ -548,7 +548,7 @@ function ChecklistCTASection() {
             <div className="relative">
               {/* Étiquette QR officielle en arrière-plan */}
               <div className="absolute -top-10 -right-4 sm:-right-8 w-32 sm:w-40 rotate-12 rounded-2xl overflow-hidden shadow-2xl shadow-[#16234e]/25 border-4 border-white z-0">
-                <Image src="/design/etiquette-qrbag-7x10.png" alt="Étiquette QR officielle QRBag" width={400} height={572} className="w-full h-auto" />
+                <Image src="/design/etiquette-qrbag-preview.png" alt="Étiquette QR officielle QRBag" width={400} height={572} className="w-full h-auto" />
               </div>
 
               {/* Mockup PDF */}
@@ -631,7 +631,7 @@ function QRBagEnActionSection() {
               <div className="absolute -inset-8 bg-[conic-gradient(from_90deg,#f8921f22,#e6216e18,#8b17c922,#2f9bff18,#f8921f22)] rounded-[3rem] blur-[60px]" aria-hidden />
               <CornerBrackets inset="-12px" size="w-12 h-12" border="border-[5px]" />
               <div className="relative w-64 sm:w-72 rounded-3xl overflow-hidden shadow-2xl shadow-[#16234e]/25 border-[6px] border-white -rotate-2 hover:rotate-0 transition-transform duration-500">
-                <Image src="/design/etiquette-qrbag-7x10.png" alt="Étiquette QR officielle QRBag 7×10 cm" width={600} height={858} className="w-full h-auto" />
+                <Image src="/design/etiquette-qrbag-preview.png" alt="Étiquette QR officielle QRBag 7×10 cm" width={600} height={858} className="w-full h-auto" />
               </div>
               <motion.div
                 className="absolute -bottom-5 -left-2 sm:left-4 bg-white text-[#16234e] px-5 py-3 rounded-2xl shadow-xl shadow-[#16234e]/15 border border-slate-100 font-bold text-sm flex items-center gap-2.5"

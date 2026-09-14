@@ -15,7 +15,7 @@ import path from 'path';
  *   décoratifs, avec zone de silence (quiet zone) suffisante pour le scan
  */
 
-// ─── Géométrie du design (mesurée précisément sur etiquette-qrbag-7x10.png) ───
+// ─── Géométrie du design officiel 2025 (mesurée précisément sur l'artwork ori.png) ───
 const DESIGN_WIDTH = 1049;
 const DESIGN_HEIGHT = 1499;
 
@@ -23,15 +23,18 @@ const DESIGN_HEIGHT = 1499;
 // 1049 px / (70 mm / 25.4) = 380.87 DPI → imprime exactement 7 × 10 cm
 const DESIGN_DPI = DESIGN_WIDTH / (70 / 25.4); // ≈ 380.87
 
-// Zone QR mesurée : carré blanc x:233-820, y:695-1240 (centre 526.5, 967.5)
-// Coins décoratifs (viewfinder) à ne pas recouvrir :
-//   bras horizontaux y:715-740 (haut) / y:1195-1220 (bas)
-//   bras verticaux  x:250-275 (gauche) / x:774-799 (droite)
-// QR 420 px centré → x:317-737, y:758-1178 (marges ≥ 17 px de tous les coins)
-const QR_RECT = { left: 317, top: 758, size: 420 };
+// Zone QR mesurée : encadré blanc intérieur aux 4 coins décoratifs (viewfinder)
+//   bracket TL : coin (248,650), bras → x:398 / y:750, épaisseur ~26 px
+//   bracket TR : coin (775,650), bras → x:663 / y:801
+//   bracket BL : coin (248,1155), bras → y:1010
+//   bracket BR : coin (799,1155), bras → x:647 / y:1011
+// Zone sûre intérieure : x:275-770, y:680-1150 (495 × 470 px)
+// QR 420 px centré (522, 915) → x:312-732, y:705-1125 (marges ≥ 25 px +
+//   quiet zone du générateur ≈ 1 module → ~3 modules de silence au total)
+const QR_RECT = { left: 312, top: 705, size: 420 };
 
-// Couleur QR : navy de la marque, contraste ~13:1 sur blanc → scan optimal
-const QR_DARK_COLOR = '#16234e';
+// Couleur QR : noir pur (comme l'artwork officiel), contraste maximal → scan optimal
+const QR_DARK_COLOR = '#000000';
 
 // Format PDF : 7 cm × 10 cm en points PDF (1 pt = 1/72 pouce)
 const PDF_WIDTH_PT = 70 / 25.4 * 72;  // 198.42 pt

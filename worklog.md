@@ -470,3 +470,24 @@ Stage Summary:
 - Checklist + formulaire de recherche conservés, section transports supprimée
 - Toutes les pages existantes toujours accessibles (nav + footer)
 - Fichiers modifiés : src/app/page.tsx, src/components/home/TrackingWidget.tsx, src/app/globals.css
+
+---
+Task ID: qr-image-replace
+Agent: Main Orchestrator
+Task: Remplacer l'image QR du design d'étiquette par la version officielle fournie (ori.png)
+
+Work Log:
+- Analysé upload/ori.png (1049×1499 RGB) : nouvelle official artwork « Scannez pour contacter le propriétaire » avec QRBag logo, bannière bas dégradée, brackets violets/orange
+- Découvert que le QR intégré dans ori.png est un pseudo-QR décoratif NON décodable (jsQR échoue) → doit être remplacé par un QR dynamique
+- Mesuré la géométrie précise par scans de lignes : QR placeholder bbox x:307-745, y:694-1130 ; brackets intérieurs zone sûre x:275-770, y:680-1150 ; centre optimal (522, 915)
+- Régénéré public/design/etiquette-qrbag-7x10.png = ori.png avec le pseudo-QR effacé (rect blanc x:295,y:684,463×459), brackets intacts
+- Créé public/design/etiquette-qrbag-preview.png = même design avec un VRAI QR scannable (https://qrbags.com) composé à x:312,y:705 (420px)
+- Mis à jour src/lib/qr-label.ts : QR_RECT {left:312, top:705, size:420}, QR_DARK_COLOR #000000 (noir pur comme l'official artwork), commentaires géométrie réécrits
+- Mis à jour src/app/page.tsx (2 emplacements) : les visuels homepage utilisent etiquette-qrbag-preview.png (QR réel visible)
+- jsqr@1.4.0 installé temporairement pour vérification puis retiré
+
+Stage Summary:
+- Vérifications bout en bout : PNG étiquette 1049×1499 @ 381 DPI → 6.99×9.99 cm EXACT ; QR décodé = scan URL correct ; PDF page 198.43×283.46 pt = 7.00×10.00 cm EXACT ; preview QR décode https://qrbags.com
+- API HTTP validée : /api/admin/baggages/label/VOL26-3UZRED?format=png|pdf → 200, fichiers conformes (452 Ko / 304 Ko)
+- Browser check : les 2 emplacements homepage (section checklist + Comment ça marche) affichent le nouveau design officiel ; responsive mobile OK ; lint 0 erreur
+- L'étiquette imprimée générée est visuellement IDENTIQUE à l'artwork fourni avec un QR réellement scannable
