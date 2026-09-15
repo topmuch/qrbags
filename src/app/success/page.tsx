@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import Link from 'next/link';
 import {
   Luggage,
@@ -10,7 +11,9 @@ import {
   Sticker,
   Plane,
   Copy,
-  Home,
+  Mail,
+  Loader2,
+  CheckCircle2,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion } from 'framer-motion';
@@ -21,6 +24,8 @@ import {
   brandBtnGradient,
   brandBtnNavy,
   brandBtnOutline,
+  brandInput,
+  brandLabel,
   BrandShell,
   BrandCard,
   BrandIconRing,
@@ -87,6 +92,7 @@ interface ActivationData {
   firstName: string;
   lastName: string;
   whatsapp: string;
+  travelerEmail?: string;
   flightNumber?: string;
   destination?: string;
   type: string;
@@ -101,6 +107,8 @@ interface ActivationData {
 
 function SuccessContent() {
   const [activationData, setActivationData] = useState<ActivationData | null>(null);
+  const [emailValue, setEmailValue] = useState('');
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const { t } = useTranslation();
 
   // Lecture unique de sessionStorage au mount — pattern légitime (storage externe non disponible au SSR)
@@ -108,8 +116,11 @@ function SuccessContent() {
     const storedData = sessionStorage.getItem('activationData');
     if (storedData) {
       try {
+        const parsed: ActivationData = JSON.parse(storedData);
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setActivationData(JSON.parse(storedData));
+        setActivationData(parsed);
+        // Pré-remplissage du champ email (saisi à l'inscription si présent)
+        setEmailValue(parsed.travelerEmail || '');
       } catch (e) {
         console.error('Error parsing activation data:', e);
       }
@@ -188,6 +199,36 @@ function SuccessContent() {
     } catch (err) {
       toast({
         title: t('success.copy_fail_title'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Email — recevoir le Passeport bagage + le lien de suivi
+  const handleSendDocs = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!reference || !emailValue.trim()) return;
+    setEmailStatus('sending');
+    try {
+      const res = await fetch('/api/success/send-docs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reference, email: emailValue.trim() }),
+      });
+      if (res.ok) {
+        setEmailStatus('sent');
+        toast({ title: t('success.email_docs_sent') });
+      } else {
+        setEmailStatus('error');
+        toast({
+          title: t('success.email_docs_error'),
+          variant: 'destructive',
+        });
+      }
+    } catch {
+      setEmailStatus('error');
+      toast({
+        title: t('success.email_docs_error'),
         variant: 'destructive',
       });
     }
@@ -443,18 +484,74 @@ function SuccessContent() {
             >
               {t('success.passport')}
             </a>
-
-            {/* Retour à l'accueil */}
-            <Link
-              href="/"
-              className={`${brandBtnOutline} w-full inline-flex items-center justify-center gap-2 px-4 py-3 min-h-[48px]`}
-            >
-              <Home className="w-4 h-4" aria-hidden />
-              {t('common.back_home')}
-            </Link>
           </motion.div>
 
-          {/* ═══ 5. Encart Checklist ═══ */}
+          {/* ═══ 5. Email — recevoir le Passeport + le lien de suivi ═══ */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.5, ease: 'easeOut' }}
+          >
+            <BrandCard className="p-5 mb-4">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="w-9 h-9 rounded-xl bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center flex-shrink-0" aria-hidden>
+                  <Mail className="w-[18px] h-[18px] text-[#2f9bff]" />
+                </span>
+                <h2 className="text-[#16234e] font-bold text-base">
+                  {t('success.email_docs_title')}
+                </h2>
+              </div>
+              <p className="text-sm text-[#16234e]/70 leading-relaxed mb-4">
+                {t('success.email_docs_desc')}
+              </p>
+
+              {emailStatus === 'sent' ? (
+                <div className="flex items-center gap-2.5 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm font-bold text-emerald-700">
+                  <CheckCircle2 className="w-5 h-5 flex-shrink-0" aria-hidden />
+                  {t('success.email_docs_sent')}
+                </div>
+              ) : (
+                <form onSubmit={handleSendDocs} className="space-y-2.5">
+                  <label htmlFor="success-email" className={brandLabel}>
+                    {t('success.email_docs_label')}
+                  </label>
+                  <input
+                    id="success-email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    inputMode="email"
+                    placeholder={t('success.email_docs_placeholder')}
+                    value={emailValue}
+                    onChange={(e) => {
+                      setEmailValue(e.target.value);
+                      if (emailStatus === 'error') setEmailStatus('idle');
+                    }}
+                    className={brandInput}
+                  />
+                  <button
+                    type="submit"
+                    disabled={emailStatus === 'sending' || !emailValue.trim()}
+                    className={`${brandBtnGradient} w-full inline-flex items-center justify-center gap-2 px-4 py-3 min-h-[48px]`}
+                  >
+                    {emailStatus === 'sending' ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+                        {t('success.email_docs_sending')}
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-4 h-4" aria-hidden />
+                        {t('success.email_docs_cta')}
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </BrandCard>
+          </motion.div>
+
+          {/* ═══ 6. Encart Checklist ═══ */}
           <BrandCard className="p-5 text-center">
             <div className="flex items-center justify-center gap-2 mb-3">
               <Backpack className="w-5 h-5 text-[#e6216e]" aria-hidden />

@@ -931,3 +931,90 @@ qrbags.com
 
   return { html, text };
 }
+
+/* ─── Template « Documents bagage » — passeport + lien de suivi ───
+   Envoyé depuis la page de confirmation d'inscription (/success)
+   quand le voyageur saisit son email pour recevoir ses documents. */
+
+export function getDocsEmailTemplate(data: {
+  reference: string;
+  travelerName?: string;
+  passportUrl: string;
+  trackingUrl: string;
+  expiresLabel?: string;
+}): { html: string; text: string } {
+  const { reference, passportUrl, trackingUrl } = data;
+  const greetingName = data.travelerName?.trim() || 'Bonjour';
+  const expiresLine = data.expiresLabel
+    ? `<tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Protection active jusqu'au</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #333; border-bottom: 1px solid #eee;">${data.expiresLabel}</td>
+            </tr>`
+    : '';
+
+  const html = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h1 style="color: #16234e; margin: 0; letter-spacing: 2px;">QR<span style="color:#f97316;">BAG</span></h1>
+  </div>
+  <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 28px;">
+    <h2 style="color: #16234e; margin-top: 0;">🧳 Votre bagage est protégé !</h2>
+    <p style="color: #333; font-size: 15px; line-height: 1.6;">
+      ${greetingName}, voici vos documents pour le bagage <strong style="color:#16234e;">${reference}</strong>.
+      Conservez cet email : il contient votre Passeport bagage et le lien de suivi en temps réel.
+    </p>
+
+    <table style="width: 100%; border-collapse: collapse; margin: 18px 0;">
+      <tr>
+        <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Référence</td>
+        <td style="padding: 8px 0; font-weight: bold; color: #16234e; border-bottom: 1px solid #eee; font-family: 'Courier New', monospace; letter-spacing: 1px;">${reference}</td>
+      </tr>
+      ${expiresLine}
+    </table>
+
+    <!-- CTA Passeport -->
+    <p style="margin: 26px 0 10px 0; text-align: center;">
+      <a href="${passportUrl}" style="display: inline-block; background: linear-gradient(90deg, #f8921f, #e6216e, #8b17c9); color: #ffffff; text-decoration: none; font-weight: bold; font-size: 15px; padding: 14px 28px; border-radius: 12px;">🛂 Voir mon Passeport bagage</a>
+    </p>
+    <p style="text-align: center; color: #666; font-size: 12px; margin: 0 0 18px 0; word-break: break-all;">
+      ${passportUrl}
+    </p>
+
+    <!-- CTA Suivi -->
+    <p style="margin: 10px 0; text-align: center;">
+      <a href="${trackingUrl}" style="display: inline-block; background: #16234e; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 15px; padding: 14px 28px; border-radius: 12px;">📍 Suivre mon bagage</a>
+    </p>
+    <p style="text-align: center; color: #666; font-size: 12px; margin: 0 0 18px 0; word-break: break-all;">
+      ${trackingUrl}
+    </p>
+
+    <div style="background: #f0f7ff; border: 1px solid #2f9bff55; border-radius: 10px; padding: 14px 18px; margin-top: 20px;">
+      <p style="color: #16234e; font-size: 13px; margin: 0; line-height: 1.6;">
+        💡 <strong>Astuce :</strong> dès que quelqu'un scanne l'étiquette QR de votre bagage, vous recevez une notification avec sa position. Vérifiez que votre numéro WhatsApp est correct dans votre Passeport.
+      </p>
+    </div>
+  </div>
+  <div style="text-align: center; color: #999; font-size: 11px; margin-top: 18px;">
+    QRBag — Protection intelligente des bagages • qrbags.com
+  </div>
+</div>
+  `.trim();
+
+  const text = `🧳 QRBag — Vos documents pour le bagage ${reference}
+
+${greetingName}, voici vos documents QRBag. Conservez cet email.
+
+🛂 PASSEPORT BAGAGE
+${passportUrl}
+
+📍 SUIVI DU BAGAGE (temps réel)
+${trackingUrl}${data.expiresLabel ? `\n\nProtection active jusqu'au : ${data.expiresLabel}` : ''}
+
+Astuce : dès que quelqu'un scanne l'étiquette QR, vous recevez une notification avec sa position.
+
+— L'équipe QRBag
+qrbags.com
+`.trim();
+
+  return { html, text };
+}

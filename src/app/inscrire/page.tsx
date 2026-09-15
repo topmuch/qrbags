@@ -254,6 +254,7 @@ function InscrireContent() {
             firstName: formData.firstName,
             lastName: formData.lastName,
             whatsapp: formData.whatsapp,
+            travelerEmail: formData.travelerEmail.trim(),
             destination: formData.destination,
             airlineName: formData.airlineName.trim(),
             flightNumber: formData.flightNumber.trim(),
