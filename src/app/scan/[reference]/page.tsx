@@ -172,7 +172,7 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
           <BrandCard corners className="p-6 md:p-8 text-center">
             <div className="relative inline-block mb-5">
               <BrandIconRing size="w-16 h-16" glow="#2f9bff">
-                <Luggage className="w-8 h-8 text-[#16234e]" />
+                <img src="/logo.png" alt="Logo QRBag" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
               </BrandIconRing>
               <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-qrbag rounded-full flex items-center justify-center shadow-md shadow-[#e6216e]/30">
                 <Sparkles className="w-3.5 h-3.5 text-white" />
