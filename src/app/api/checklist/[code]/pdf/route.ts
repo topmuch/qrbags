@@ -14,6 +14,36 @@ import { rateLimit } from '@/lib/rate-limit';
  *   Content-Disposition: inline; filename="QRBag-attestation-{code}.pdf"
  *   Cache-Control: no-store
  */
+/**
+ * Branded HTML error page — this route is always opened in a browser tab
+ * (window.open / direct link), so errors must be human-friendly HTML,
+ * never raw JSON.
+ */
+function pdfErrorPage(title: string, message: string, showCta: boolean) {
+  return `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:linear-gradient(135deg,#16234e 0%,#1d2f6b 100%);color:#fff;padding:1.25rem}
+.box{background:#fff;color:#16234e;border-radius:24px;padding:2.5rem 2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.badge{display:inline-flex;align-items:center;gap:.5rem;background:#16234e;color:#ffd200;font-weight:800;font-size:.8rem;letter-spacing:.12em;padding:.45rem 1rem;border-radius:999px;margin-bottom:1.25rem}
+.icon{font-size:3rem;margin-bottom:.75rem}
+h2{margin:0 0 .5rem;font-size:1.3rem;font-weight:800}
+p{margin:0 0 1.25rem;font-size:.92rem;color:#475569;line-height:1.5}
+a.btn{display:inline-block;background:linear-gradient(90deg,#2f9bff,#8b17c9);color:#fff;text-decoration:none;font-weight:700;font-size:.95rem;padding:.85rem 1.6rem;border-radius:999px;box-shadow:0 8px 20px rgba(47,155,255,.35)}
+.hint{margin-top:1rem;font-size:.75rem;color:#94a3b8}
+</style></head>
+<body><div class="box">
+<div class="badge">QR·BAG</div>
+<div class="icon">🧳</div>
+<h2>${title}</h2>
+<p>${message}</p>
+${showCta ? '<a class="btn" href="/checklist">Créer une nouvelle checklist</a>' : '<a class="btn" href="/checklist">Retour à la checklist</a>'}
+<p class="hint">Besoin d'aide ? contact@qrbags.com</p>
+</div></body></html>`;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
@@ -24,7 +54,10 @@ export async function GET(
     const providedKey = url.searchParams.get('key')?.trim();
 
     if (!providedKey) {
-      return NextResponse.json({ error: 'Clé de vérification requise' }, { status: 401 });
+      return new NextResponse(
+        pdfErrorPage('Clé de vérification requise', "La clé de vérification est manquante. Utilisez le lien complet reçu par email ou affiché à la création de votre checklist.", false),
+        { status: 401, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+      );
     }
 
     // ─── Rate limit PDF downloads: 20 / hour / IP ───
@@ -33,9 +66,9 @@ export async function GET(
       request.headers.get('x-real-ip')?.trim() ||
       'unknown';
     if (rateLimit(`checklist-pdf:${code}:${clientIp}`, { windowMs: 60 * 60 * 1000, maxRequests: 20 })) {
-      return NextResponse.json(
-        { error: 'Trop de téléchargements. Réessayez plus tard.' },
-        { status: 429 }
+      return new NextResponse(
+        pdfErrorPage('Trop de téléchargements', 'Vous avez atteint la limite de téléchargements horaires. Réessayez dans une heure.', false),
+        { status: 429, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
       );
     }
 
@@ -44,11 +77,17 @@ export async function GET(
     });
 
     if (!checklist) {
-      return NextResponse.json({ error: 'Attestation introuvable' }, { status: 404 });
+      return new NextResponse(
+        pdfErrorPage('Attestation introuvable', `Aucune checklist n\u2019existe pour le code « ${code.toUpperCase().replace(/</g, '&lt;')} ». Elle a peut-\u00eatre \u00e9t\u00e9 supprim\u00e9e lors d\u2019une maintenance. Cr\u00e9ez une nouvelle checklist en moins d\u2019une minute.`, true),
+        { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+      );
     }
 
     if (providedKey !== checklist.verificationKey) {
-      return NextResponse.json({ error: 'Clé de vérification incorrecte' }, { status: 403 });
+      return new NextResponse(
+        pdfErrorPage('Clé de vérification incorrecte', "La clé fournie ne correspond pas à cette attestation. Vérifiez le lien ou la clé reçue par email.", false),
+        { status: 403, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+      );
     }
 
     // ─── Parse items ───
@@ -104,24 +143,9 @@ export async function GET(
     console.error('[checklist/[code]/pdf] GET error:', fullStack || error);
     const msg = error instanceof Error ? error.message : 'Erreur inconnue';
 
-    const html = `<!DOCTYPE html>
-  <html><head><meta charset="utf-8"><title>Erreur PDF</title>
-  <style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f8fafc;color:#1e293b}
-  .box{text-align:center;padding:2rem;max-width:400px}
-  .icon{font-size:3rem;margin-bottom:1rem}
-  h2{margin:0 0 0.5rem;font-size:1.2rem;color:#dc2626}
-  p{margin:0 0 1rem;font-size:0.9rem;color:#64748b}
-  a{color:#8b17c9;text-decoration:underline}</style></head>
-  <body><div class="box">
-  <div class="icon">⚠️</div>
-  <h2>Erreur de génération du PDF</h2>
-  <p>La génération du document a échoué. Veuillez réessayer.</p>
-  <p style="font-size:0.75rem;color:#94a3b8">${msg.replace(/</g, '&lt;')}</p>
-  </div></body></html>`;
-
-    return new NextResponse(html, {
-      status: 500,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
-    });
+    return new NextResponse(
+      pdfErrorPage('Erreur de génération du PDF', `La génération du document a échoué : ${msg.replace(/</g, '&lt;')}. Veuillez réessayer.`, false),
+      { status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+    );
   }
 }
