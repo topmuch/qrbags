@@ -22,8 +22,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from '@/hooks/use-toast';
 import {
   brandBtnGradient,
-  brandBtnNavy,
-  brandBtnOutline,
   brandInput,
   brandLabel,
   BrandShell,
@@ -132,7 +130,6 @@ function SuccessContent() {
 
   const reference = activationData?.reference || '';
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const trackingUrl = `${origin}/suivi/${reference}`;
   const qrUrl = `${origin}/scan/${reference}`;
 
   // Format date (avec heure)
@@ -154,37 +151,6 @@ function SuccessContent() {
       month: 'long',
       year: 'numeric',
     });
-  };
-
-  // Web Share API + fallback clipboard
-  const handleShare = async () => {
-    if (!reference) return;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Mon bagage QRBag',
-          text: 'Suivez mon bagage en temps réel avec QRBag.',
-          url: trackingUrl,
-        });
-      } catch (err) {
-        // Annulation utilisateur ou erreur — silencieux
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(trackingUrl);
-        toast({
-          title: 'Lien copié !',
-          description: 'Le lien de suivi a été copié dans le presse-papiers.',
-        });
-      } catch (err) {
-        toast({
-          title: 'Impossible de copier le lien',
-          description: 'Votre navigateur ne supporte pas le copier-coller automatique.',
-          variant: 'destructive',
-        });
-      }
-    }
   };
 
   // Référence copiable — presse-papiers + toast (infra toast déjà présente)
@@ -450,40 +416,6 @@ function SuccessContent() {
               <ScanLine className="w-5 h-5" aria-hidden />
               {t('success.test_qr')}
             </Link>
-
-            {/* Actions secondaires (flex-col mobile, flex-row md) */}
-            <div className="flex flex-col md:flex-row gap-3">
-              {/* Bouton A : Suivre mon bagage (target _blank) */}
-              <a
-                href={`/suivi/${reference}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Suivre mon bagage dans un nouvel onglet"
-                className={`${brandBtnNavy} flex-1 inline-flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px]`}
-              >
-                {t('success.track_baggage')}
-              </a>
-
-              {/* Bouton B : Partager (Web Share API + fallback clipboard) */}
-              <button
-                onClick={handleShare}
-                aria-label="Partager le lien de suivi"
-                className={`${brandBtnNavy} flex-1 inline-flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] cursor-pointer`}
-              >
-                {t('success.share')}
-              </button>
-            </div>
-
-            {/* Bouton Passeport QRBags (carte numérique du bagage) */}
-            <a
-              href={`/passeport/${reference}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Voir mon Passeport QRBags dans un nouvel onglet"
-              className={`${brandBtnOutline} w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px]`}
-            >
-              {t('success.passport')}
-            </a>
           </motion.div>
 
           {/* ═══ 5. Email — recevoir le Passeport + le lien de suivi ═══ */}
