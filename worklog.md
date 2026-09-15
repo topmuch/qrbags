@@ -1262,3 +1262,21 @@ Stage Summary:
 - Page confirmation épurée : seul CTA principal restant « Voir mon QR » + card email « Recevez vos documents » + checklist
 - Les clés locales success.track_baggage/share/passport conservées dans les JSON (inoffensives, réutilisables si besoin)
 - Redéploiement Coolify toujours requis pour la prod (commits en attente)
+
+---
+Task ID: activate-autosend-docs
+Agent: Z.ai Code (main)
+Task: Envoi automatique des documents (Passeport + lien suivi) à l'activation quand l'email voyageur est renseigné à l'inscription
+
+Work Log:
+- Répondu à la question utilisateur : comportement antérieur = email seulement pré-rempli sur /success (pas d'envoi auto) ; saisie sur /success si pas d'email (déjà fonctionnel)
+- Édité src/app/api/activate/route.ts : après l'activation (incluant groupée), si travelerEmail renseigné → envoi auto des documents via getDocsEmailTemplate + sendEmail (type success_docs)
+- Fire-and-forget (void + .then/.catch) : n'bloque ni ne fait échouer l'activation si SMTP indisponible
+- URLs construites côté serveur depuis headers (x-forwarded-proto/host) — anti-phishing, email normalisé lowercase
+- Test e2e : activation HAJJ26-8U6PRB (set de 3, activation groupée) → log "[ACTIVATE] 📧 Documents auto-envoyés" + EmailLog status sent + travelerEmail persisté sur les 3 QR
+- Nettoyage données test (3 Baggages + 1 EmailLog), commit 58fa6b5 poussé
+
+Stage Summary:
+- Nouveau flux : email renseigné à l'inscription → documents reçus automatiquement, SANS clic sur /success
+- La card email de /success reste un filet de sécurité : re-envoi + point d'entrée pour les passagers SANS email à l'inscription
+- Redéploiement Coolify requis (commits en attente dont 58fa6b5)
