@@ -36,60 +36,169 @@ export interface ChecklistCategory {
   emoji: string;
   items: string[];
   /** Optional: map item name → image slug for product photos.
-   *  Image URL is `/items/${id}/${slug}.png`.
+   *  Image URL is `/items/${id}/${slug}.png` for plain slugs,
+   *  or the value verbatim when it starts with '/' (cross-category reuse).
    *  If absent, the UI falls back to a colored tile with the emoji. */
   itemImageSlugs?: Record<string, string>;
 }
 
 // ═══════════════════════════════════════════════════════
-//  DEFAULT CHECKLIST CATALOG — 7 categories, 76 items
-//  Every item has a real AI-generated product photo.
+//  DEFAULT CHECKLIST CATALOG — 9 catégories
+//  Femmes · Hommes · Enfant · Accessoires électroniques
+//  + Chaussures · Toilette · Santé · Accessoires · Divers
+//  Les photos IA existantes (public/items/…) sont réutilisées
+//  via des chemins complets (« /items/clothing/robes.png »).
 // ═══════════════════════════════════════════════════════
 
 export const DEFAULT_CHECKLIST_CATEGORIES: ChecklistCategory[] = [
   {
-    id: 'clothing',
-    emoji: '👕',
-    label: { fr: 'Vêtements', en: 'Clothing', ar: 'ملابس' },
+    id: 'women',
+    emoji: '👗',
+    label: { fr: 'Femmes', en: 'Women', ar: 'نسائية' },
     items: [
-      'T-shirts',
-      'Chemises',
-      'Polos',
+      'Robes',
+      'Jupes',
+      'Blouses',
+      'Tops',
       'Pulls',
       'Vestes',
       'Manteaux',
       'Pantalons',
       'Jeans',
       'Shorts',
-      'Jupes',
-      'Robes',
+      'Maillots de bain',
+      'Sous-vêtements',
+      'Chaussettes',
+      'Pyjamas',
+      'Foulards & voiles',
+      'Bas & collants',
+    ],
+    itemImageSlugs: {
+      'Robes': '/items/clothing/robes.png',
+      'Jupes': '/items/clothing/jupes.png',
+      'Blouses': '/items/clothing/chemises.png',
+      'Tops': '/items/clothing/t-shirts.png',
+      'Pulls': '/items/clothing/pulls.png',
+      'Vestes': '/items/clothing/vestes.png',
+      'Manteaux': '/items/clothing/manteaux.png',
+      'Pantalons': '/items/clothing/pantalons.png',
+      'Jeans': '/items/clothing/jeans.png',
+      'Shorts': '/items/clothing/shorts.png',
+      'Maillots de bain': '/items/clothing/maillots-de-bain.png',
+      'Sous-vêtements': '/items/clothing/sous-vetements.png',
+      'Chaussettes': '/items/clothing/chaussettes.png',
+      'Pyjamas': '/items/clothing/pyjamas.png',
+    },
+  },
+  {
+    id: 'men',
+    emoji: '👔',
+    label: { fr: 'Hommes', en: 'Men', ar: 'رجالية' },
+    items: [
+      'Chemises',
+      'Polos',
+      'T-shirts',
       'Costumes',
       'Cravates',
-      'Ceintures',
+      'Vestes',
+      'Manteaux',
+      'Pantalons',
+      'Jeans',
+      'Shorts',
+      'Pulls',
       'Sous-vêtements',
       'Chaussettes',
       'Pyjamas',
       'Maillots de bain',
+      'Ceintures',
     ],
     itemImageSlugs: {
-      'T-shirts': 't-shirts',
-      'Chemises': 'chemises',
-      'Polos': 'polos',
-      'Pulls': 'pulls',
-      'Vestes': 'vestes',
-      'Manteaux': 'manteaux',
-      'Pantalons': 'pantalons',
-      'Jeans': 'jeans',
-      'Shorts': 'shorts',
-      'Jupes': 'jupes',
-      'Robes': 'robes',
-      'Costumes': 'costumes',
-      'Cravates': 'cravates',
-      'Ceintures': 'ceintures',
-      'Sous-vêtements': 'sous-vetements',
-      'Chaussettes': 'chaussettes',
-      'Pyjamas': 'pyjamas',
-      'Maillots de bain': 'maillots-de-bain',
+      'Chemises': '/items/clothing/chemises.png',
+      'Polos': '/items/clothing/polos.png',
+      'T-shirts': '/items/clothing/t-shirts.png',
+      'Costumes': '/items/clothing/costumes.png',
+      'Cravates': '/items/clothing/cravates.png',
+      'Vestes': '/items/clothing/vestes.png',
+      'Manteaux': '/items/clothing/manteaux.png',
+      'Pantalons': '/items/clothing/pantalons.png',
+      'Jeans': '/items/clothing/jeans.png',
+      'Shorts': '/items/clothing/shorts.png',
+      'Pulls': '/items/clothing/pulls.png',
+      'Sous-vêtements': '/items/clothing/sous-vetements.png',
+      'Chaussettes': '/items/clothing/chaussettes.png',
+      'Pyjamas': '/items/clothing/pyjamas.png',
+      'Maillots de bain': '/items/clothing/maillots-de-bain.png',
+      'Ceintures': '/items/clothing/ceintures.png',
+    },
+  },
+  {
+    id: 'children',
+    emoji: '🧒',
+    label: { fr: 'Enfant', en: 'Children', ar: 'أطفال' },
+    items: [
+      'T-shirts enfant',
+      'Pantalons enfant',
+      'Jeans enfant',
+      'Pulls enfant',
+      'Vestes enfant',
+      'Manteaux enfant',
+      'Robes enfant',
+      'Pyjamas enfant',
+      'Sous-vêtements enfant',
+      'Chaussettes enfant',
+      'Maillots de bain enfant',
+      'Tenues de sport',
+      'Bavoirs',
+      'Doudou / peluche',
+    ],
+    itemImageSlugs: {
+      'T-shirts enfant': '/items/clothing/t-shirts.png',
+      'Pantalons enfant': '/items/clothing/pantalons.png',
+      'Jeans enfant': '/items/clothing/jeans.png',
+      'Pulls enfant': '/items/clothing/pulls.png',
+      'Vestes enfant': '/items/clothing/vestes.png',
+      'Manteaux enfant': '/items/clothing/manteaux.png',
+      'Robes enfant': '/items/clothing/robes.png',
+      'Pyjamas enfant': '/items/clothing/pyjamas.png',
+      'Sous-vêtements enfant': '/items/clothing/sous-vetements.png',
+      'Chaussettes enfant': '/items/clothing/chaussettes.png',
+      'Maillots de bain enfant': '/items/clothing/maillots-de-bain.png',
+      'Doudou / peluche': '/items/misc/jouets-enfants.png',
+    },
+  },
+  {
+    id: 'electronics',
+    emoji: '📱',
+    label: { fr: 'Accessoires électroniques', en: 'Electronic accessories', ar: 'إلكترونيات' },
+    items: [
+      'Téléphone',
+      'Chargeur',
+      'Câbles USB',
+      'Batterie externe',
+      'Tablette',
+      'Ordinateur portable',
+      'Chargeur PC',
+      'Appareil photo',
+      'Carte mémoire',
+      'Casque audio',
+      'Écouteurs',
+      'Montre connectée',
+      'Adaptateur de voyage',
+      'Multiprise USB',
+    ],
+    itemImageSlugs: {
+      'Téléphone': 'telephone',
+      'Chargeur': 'chargeur',
+      'Câbles USB': 'cables-usb',
+      'Batterie externe': 'batterie-externe',
+      'Tablette': 'tablette',
+      'Ordinateur portable': 'ordinateur-portable',
+      'Chargeur PC': 'chargeur-pc',
+      'Appareil photo': 'appareil-photo',
+      'Carte mémoire': 'carte-memoire',
+      'Casque audio': 'casque-audio',
+      'Écouteurs': 'ecouteurs',
+      'Montre connectée': 'montre-connectee',
     },
   },
   {
@@ -172,41 +281,8 @@ export const DEFAULT_CHECKLIST_CATEGORIES: ChecklistCategory[] = [
     },
   },
   {
-    id: 'electronics',
-    emoji: '📱',
-    label: { fr: 'Électronique', en: 'Electronics', ar: 'إلكترونيات' },
-    items: [
-      'Téléphone',
-      'Chargeur',
-      'Câbles USB',
-      'Batterie externe',
-      'Tablette',
-      'Ordinateur portable',
-      'Chargeur PC',
-      'Appareil photo',
-      'Carte mémoire',
-      'Casque audio',
-      'Écouteurs',
-      'Montre connectée',
-    ],
-    itemImageSlugs: {
-      'Téléphone': 'telephone',
-      'Chargeur': 'chargeur',
-      'Câbles USB': 'cables-usb',
-      'Batterie externe': 'batterie-externe',
-      'Tablette': 'tablette',
-      'Ordinateur portable': 'ordinateur-portable',
-      'Chargeur PC': 'chargeur-pc',
-      'Appareil photo': 'appareil-photo',
-      'Carte mémoire': 'carte-memoire',
-      'Casque audio': 'casque-audio',
-      'Écouteurs': 'ecouteurs',
-      'Montre connectée': 'montre-connectee',
-    },
-  },
-  {
     id: 'accessories',
-    emoji: '💼',
+    emoji: '👜',
     label: { fr: 'Accessoires', en: 'Accessories', ar: 'ملحقات' },
     items: [
       'Sac à main',
@@ -272,13 +348,16 @@ export const DEFAULT_CHECKLIST_CATEGORIES: ChecklistCategory[] = [
  * Returns the absolute image URL for a given category/item, or null if no
  * real product photo is available (caller should fall back to emoji tile).
  *
- * Example: getItemImageUrl('clothing', 'T-shirts') → '/items/clothing/t-shirts.png'
+ * Plain slug  : getItemImageUrl('electronics', 'Téléphone') → '/items/electronics/telephone.png'
+ * Full path   : itemImageSlugs value starting with '/' is used verbatim
+ *               (cross-category photo reuse, e.g. women → /items/clothing/robes.png)
  */
 export function getItemImageUrl(categoryId: string, itemName: string): string | null {
   const cat = DEFAULT_CHECKLIST_CATEGORIES.find((c) => c.id === categoryId);
   if (!cat || !cat.itemImageSlugs) return null;
   const slug = cat.itemImageSlugs[itemName];
   if (!slug) return null;
+  if (slug.startsWith('/')) return slug;
   return `/items/${categoryId}/${slug}.png`;
 }
 

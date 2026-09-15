@@ -742,10 +742,13 @@ export interface ChecklistEmailData {
   itemsCount: number;
   destination: string;
   departureDate: string;
+  flightNumber?: string | null;
+  airline?: string | null;
 }
 
 export function getChecklistEmailTemplate(data: ChecklistEmailData): { html: string; text: string } {
-  const { firstName, lastName, code, verificationKey, publicUrl, itemsCount, destination, departureDate } = data;
+  const { firstName, lastName, code, verificationKey, publicUrl, itemsCount, destination, departureDate, flightNumber, airline } = data;
+  const flightLine = [airline, flightNumber].filter(Boolean).join(' — ');
   const fullName = `${firstName} ${lastName}`.trim();
 
   const html = `
@@ -767,7 +770,7 @@ export function getChecklistEmailTemplate(data: ChecklistEmailData): { html: str
     <p style="color: #1a1a1a; line-height: 1.6; margin: 0 0 16px 0;">
       Votre attestation d'inventaire de voyage a été générée et certifiée électroniquement par QRBag.
       Elle contient <strong>${itemsCount} article${itemsCount > 1 ? 's' : ''}</strong> pour votre voyage vers
-      <strong>${destination}</strong> prévu le <strong>${departureDate}</strong>.
+      <strong>${destination}</strong> prévu le <strong>${departureDate}</strong>.${flightLine ? `<br/><span style="color:#666;font-size:12px;">✈️ Vol : <strong>${flightLine}</strong></span>` : ''}
     </p>
 
     <p style="color: #1a1a1a; line-height: 1.6; margin: 0 0 24px 0;">

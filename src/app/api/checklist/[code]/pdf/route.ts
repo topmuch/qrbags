@@ -81,6 +81,7 @@ export async function GET(
       departureDate: checklist.departureDate,
       destinationCountry: checklist.destinationCountry,
       airline: checklist.airline,
+      flightNumber: checklist.flightNumber,
       items: parsedItems,
       publicUrl,
       createdAt: checklist.createdAt,

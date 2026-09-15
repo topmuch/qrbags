@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { firstName, lastName, email, departureDate, destinationCountry, airline, items, photoPath, photoSizeBytes } = body;
+    const { firstName, lastName, email, departureDate, destinationCountry, airline, flightNumber, items, photoPath, photoSizeBytes } = body;
 
     // ─── Validation ───
     if (!firstName || typeof firstName !== 'string' || firstName.trim().length < 2) {
@@ -139,6 +139,8 @@ export async function POST(request: NextRequest) {
         name: String(it.name).slice(0, 100),
         qty: Number.isFinite(it.qty) && it.qty > 0 ? Math.min(Math.floor(it.qty), 99) : 1,
         checked: true,
+        ...(typeof it.color === 'string' && it.color.trim() ? { color: it.color.trim().slice(0, 40) } : {}),
+        ...(typeof it.brand === 'string' && it.brand.trim() ? { brand: it.brand.trim().slice(0, 60) } : {}),
       }));
 
     if (sanitizedItems.length === 0) {
@@ -174,6 +176,7 @@ export async function POST(request: NextRequest) {
         departureDate,
         destinationCountry: destinationCountry.trim().slice(0, 80),
         airline: airline?.trim()?.slice(0, 100) || null,
+        flightNumber: typeof flightNumber === 'string' && flightNumber.trim() ? flightNumber.trim().slice(0, 20) : null,
         items: JSON.stringify(sanitizedItems),
         itemsCount: sanitizedItems.length,
         photoPath: typeof photoPath === 'string' && photoPath.startsWith('uploads/') ? photoPath : null,
@@ -205,6 +208,7 @@ export async function POST(request: NextRequest) {
         departureDate: checklist.departureDate,
         destinationCountry: checklist.destinationCountry,
         airline: checklist.airline,
+        flightNumber: checklist.flightNumber,
         items: sanitizedItems,
         publicUrl,
         createdAt: checklist.createdAt,
@@ -230,6 +234,8 @@ export async function POST(request: NextRequest) {
       itemsCount: sanitizedItems.length,
       destination: checklist.destinationCountry,
       departureDate: checklist.departureDate,
+      airline: checklist.airline,
+      flightNumber: checklist.flightNumber,
     });
 
     const attachmentFilename = `QRBag-attestation-${code}.pdf`;

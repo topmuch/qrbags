@@ -460,7 +460,22 @@
     "step3_hint": "Quantités, couleurs, marques — et la photo de votre valise si vous voulez.",
     "next": "Continuer",
     "back": "Retour",
-    "success_download": "Télécharger mon attestation PDF"
+    "success_download": "Télécharger mon attestation PDF",
+    "flight_number": "Numéro de vol",
+    "flight_hint": "La compagnie et le n° de vol sont optionnels — ils figureront sur l’attestation.",
+    "view_verified": "Attestation vérifiée",
+    "view_flight": "N° de vol",
+    "view_seal": "Cachet officiel horodaté",
+    "view_fingerprint": "Empreinte SHA-256 infalsifiable",
+    "view_total": "Total",
+    "view_designation": "Désignation",
+    "view_category": "Catégorie",
+    "view_num": "N°",
+    "view_units": "{count} unités déclarées",
+    "view_photo_title": "Photo de la valise",
+    "view_protected": "Protégé par clé",
+    "view_doc_title": "Attestation d'inventaire de voyage",
+    "view_doc_subtitle": "Document officiel horodaté par QRBag"
   },
   "success": {
     "success_title": "✅ Activation réussie !",

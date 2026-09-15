@@ -460,7 +460,22 @@
     "step3_hint": "Quantities, colors, brands — and a photo of your bag if you like.",
     "next": "Continue",
     "back": "Back",
-    "success_download": "Download my PDF attestation"
+    "success_download": "Download my PDF attestation",
+    "flight_number": "Flight number",
+    "flight_hint": "Airline & flight number are optional — they appear on your attestation.",
+    "view_verified": "Attestation verified",
+    "view_flight": "Flight n°",
+    "view_seal": "Official timestamped seal",
+    "view_fingerprint": "Tamper-proof SHA-256 fingerprint",
+    "view_total": "Total",
+    "view_designation": "Item",
+    "view_category": "Category",
+    "view_num": "No.",
+    "view_units": "{count} units declared",
+    "view_photo_title": "Suitcase photo",
+    "view_protected": "Key-protected",
+    "view_doc_title": "Travel inventory attestation",
+    "view_doc_subtitle": "Official timestamped document by QRBag"
   },
   "success": {
     "success_title": "✅ Activation successful!",

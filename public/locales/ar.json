@@ -460,7 +460,22 @@
     "step3_hint": "الكميات والألوان والعلامات — وصورة حقيبتك إذا أردت.",
     "next": "متابعة",
     "back": "رجوع",
-    "success_download": "تحميل شهادة PDF"
+    "success_download": "تحميل شهادة PDF",
+    "flight_number": "رقم الرحلة",
+    "flight_hint": "الشركة ورقم الرحلة اختياريان — سيظهران على الإقرار.",
+    "view_verified": "تم التحقق من الإقرار",
+    "view_flight": "رقم الرحلة",
+    "view_seal": "خاتم رسمي موثق بالتاريخ",
+    "view_fingerprint": "بصمة SHA-256 غير قابلة للتزوير",
+    "view_total": "المجموع",
+    "view_designation": "البيان",
+    "view_category": "الفئة",
+    "view_num": "رقم",
+    "view_units": "{count} وحدة معلنة",
+    "view_photo_title": "صورة الحقيبة",
+    "view_protected": "محمي بمفتاح التحقق",
+    "view_doc_title": "إقرار جرد السفر",
+    "view_doc_subtitle": "وثيقة رسمية موثقة من QRBag"
   },
   "success": {
     "success_title": "✅ تم التفعيل بنجاح!",

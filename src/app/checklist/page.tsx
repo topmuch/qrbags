@@ -75,11 +75,13 @@ const YELLOW = '#ffd200';
 
 /* Couleur signature par catégorie (cycle de la palette QRBag) */
 const CATEGORY_COLORS: Record<string, { main: string; darkText: boolean }> = {
-  clothing: { main: AZURE, darkText: false },
-  shoes: { main: ORANGE, darkText: false },
-  toiletries: { main: MAGENTA, darkText: false },
+  women: { main: MAGENTA, darkText: false },
+  men: { main: AZURE, darkText: false },
+  children: { main: ORANGE, darkText: false },
+  electronics: { main: VIOLET, darkText: false },
+  shoes: { main: RED, darkText: false },
+  toiletries: { main: AZURE, darkText: false },
   health: { main: VIOLET, darkText: false },
-  electronics: { main: RED, darkText: false },
   accessories: { main: NAVY, darkText: false },
   misc: { main: YELLOW, darkText: true },
 };
@@ -200,6 +202,7 @@ function ChecklistPageContent() {
   const [departureDate, setDepartureDate] = useState('');
   const [destinationCountry, setDestinationCountry] = useState('');
   const [airline, setAirline] = useState('');
+  const [flightNumber, setFlightNumber] = useState('');
   const [selectedItems, setSelectedItems] = useState<Record<string, SelectedItem>>({});
   const [activeCategory, setActiveCategory] = useState<string>(DEFAULT_CHECKLIST_CATEGORIES[0].id);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -364,6 +367,7 @@ function ChecklistPageContent() {
           departureDate,
           destinationCountry: destinationCountry.trim(),
           airline: airline.trim() || null,
+          flightNumber: flightNumber.trim() || null,
           items: selectedList.map((it) => ({ ...it, checked: true } as ChecklistItem)),
           photoPath,
           photoSizeBytes,
@@ -386,7 +390,7 @@ function ChecklistPageContent() {
     } finally {
       setSubmitting(false);
     }
-  }, [firstName, lastName, email, departureDate, destinationCountry, airline, selectedList, selectedCount, photoFile, t]);
+  }, [firstName, lastName, email, departureDate, destinationCountry, airline, flightNumber, selectedList, selectedCount, photoFile, t]);
 
   /* ═══════════════ ÉCRAN SUCCÈS WAHOO ═══════════════ */
   if (success) {
@@ -515,6 +519,7 @@ function ChecklistPageContent() {
                   setDepartureDate('');
                   setDestinationCountry('');
                   setAirline('');
+                  setFlightNumber('');
                   setSelectedItems({});
                   setPhotoFile(null);
                   setPhotoPreview(null);
@@ -727,7 +732,7 @@ function ChecklistPageContent() {
                         placeholder="Ex: Paris, Tokyo..."
                       />
                     </div>
-                    <div className="sm:col-span-2">
+                    <div>
                       <label className={brandLabel}>
                         <Plane className="w-3 h-3 inline mr-1 -mt-0.5" /> {t('checklist.airline')}
                       </label>
@@ -739,7 +744,22 @@ function ChecklistPageContent() {
                         placeholder={t('checklist.airline_placeholder')}
                       />
                     </div>
+                    <div>
+                      <label className={brandLabel}>
+                        <Plane className="w-3 h-3 inline mr-1 -mt-0.5" /> {t('checklist.flight_number')}
+                      </label>
+                      <input
+                        type="text"
+                        value={flightNumber}
+                        onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
+                        className={`${brandInput} uppercase`}
+                        placeholder="AF 0723"
+                      />
+                    </div>
                   </div>
+                  <p className="text-[11px] text-[#16234e]/45 mt-3 flex items-center gap-1">
+                    <Plane className="w-3 h-3" /> {t('checklist.flight_hint')}
+                  </p>
                 </BrandCard>
               )}
 

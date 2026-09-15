@@ -1,20 +1,21 @@
 /**
  * Checklist library (SERVER-ONLY) — public travel inventory feature
  *
- * ⚠️ This module imports `pdf-lib` and `qrcode` (server-only).
+ * ⚠️ This module imports `pdf-lib`, `qrcode` and `node:crypto` (server-only).
  * Client components must NOT import this file — use `checklist-catalog.ts` instead
  * for the catalog constants and types.
  *
  * Provides:
  * - generateChecklistCode(): 6-char public code (base32, no I/O/0/1)
  * - generateVerificationKey(): 8-char verification key (mixed case + digits)
- * - generateChecklistPdf(): builds a timestamped PDF with stamp + QR code + items
+ * - generateChecklistPdf(): premium "invoice-style" attestation with round seal + QR
  *
  * Brand colors — palette signature QRBag (identique au site) :
  *   NAVY    #16234e   AZURE  #2f9bff   ORANGE  #f8921f
  *   RED     #ef4036   MAGENTA #e6216e  VIOLET  #8b17c9   YELLOW #ffd200
  */
 
+import { createHash } from 'node:crypto';
 import { generateRandomCode } from './qr';
 
 // Dynamic import caches (bypasses Turbopack bundling, works with serverExternalPackages)
@@ -75,7 +76,7 @@ export function generateVerificationKey(): string {
 }
 
 // ═══════════════════════════════════════════════════════
-//  PDF GENERATION — Design « Wahoo » QRBag
+//  PDF GENERATION — Design premium « facture certifiée » QRBag
 // ═══════════════════════════════════════════════════════
 
 export interface ChecklistPdfData {
@@ -87,6 +88,7 @@ export interface ChecklistPdfData {
   departureDate: string; // ISO date
   destinationCountry: string;
   airline?: string | null;
+  flightNumber?: string | null;
   items: ChecklistItem[];
   publicUrl: string; // absolute URL to /checklist/[code]
   createdAt?: Date;
@@ -113,21 +115,25 @@ const C = {
   yellow: hexToRgb('#ffd200'),
   white: { r: 1, g: 1, b: 1 },
   gray: hexToRgb('#5a6478'),
-  lightGray: hexToRgb('#c9cfdd'),
-  iceBlue: hexToRgb('#ecf4ff'),
-  softRed: hexToRgb('#fdf0f4'),
+  lightGray: hexToRgb('#d7dde9'),
+  iceBlue: hexToRgb('#eef5ff'),
+  zebra: hexToRgb('#f4f8fe'),
+  softRed: hexToRgb('#fdf1f3'),
 };
 
-/** Couleur signature par catégorie (cycle de la palette QRBag, comme le site) */
-const CATEGORY_PDF_COLORS: Array<{ hex: ReturnType<typeof hexToRgb>; darkText: boolean }> = [
-  { hex: C.azure, darkText: false },
-  { hex: C.orange, darkText: false },
-  { hex: C.magenta, darkText: false },
-  { hex: C.violet, darkText: false },
-  { hex: C.red, darkText: false },
-  { hex: C.navy, darkText: false },
-  { hex: C.yellow, darkText: true },
-];
+/** Couleur signature par catégorie (cohérente avec le site) */
+const CATEGORY_COLORS: Record<string, { hex: ReturnType<typeof hexToRgb>; darkText: boolean }> = {
+  women: { hex: C.magenta, darkText: false },
+  men: { hex: C.azure, darkText: false },
+  children: { hex: C.orange, darkText: false },
+  electronics: { hex: C.violet, darkText: false },
+  shoes: { hex: C.red, darkText: false },
+  toiletries: { hex: C.azure, darkText: false },
+  health: { hex: C.violet, darkText: false },
+  accessories: { hex: C.navy, darkText: false },
+  misc: { hex: C.yellow, darkText: true },
+};
+const OTHER_COLOR: { hex: ReturnType<typeof hexToRgb>; darkText: boolean } = { hex: C.gray, darkText: false };
 
 /** PRNG déterministe — même rendu à chaque génération (zéro aléatoire) */
 function seededRand(seed: number): number {
@@ -148,17 +154,73 @@ function formatDateFr(isoDate: string): string {
   }
 }
 
+/** "07/07/2026 à 14:32:05" — horodatage complet à la seconde */
 function formatTimestamp(date: Date): string {
   const d = new Date(date);
   const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   return `${dateStr} à ${timeStr}`;
 }
 
 /**
- * Charge le logo QRBag (public/logo.png) pour l'intégrer au PDF.
- * Retourne null si le fichier est indisponible (fallback texte).
+ * Numéro de série infalsifiable : SER-{code}-{AAMMJJ}
  */
+function buildSerial(code: string, createdAt: Date): string {
+  const d = new Date(createdAt);
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `SER-${code}-${yy}${mm}${dd}`;
+}
+
+/** Regroupe l'empreinte : "A1B2 C3D4 E5F6 0708" (16 premiers caractères) */
+function shortFingerprint(fp: string): string {
+  return (fp.slice(0, 16).match(/.{4}/g) || []).join(' ');
+}
+
+export interface ChecklistSecurityFields {
+  code: string;
+  verificationKey: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  departureDate: string;
+  destinationCountry: string;
+  airline?: string | null;
+  flightNumber?: string | null;
+  items: ChecklistItem[];
+  createdAt: Date;
+}
+
+/**
+ * Numéro de série + empreinte SHA-256 infalsifiable d'une attestation.
+ * Utilisée par le PDF ET l'API publique (affichage sur la page publique).
+ */
+export function computeChecklistSecurity(f: ChecklistSecurityFields): {
+  serial: string;
+  fingerprint: string;
+  fingerprintShort: string;
+} {
+  const serial = buildSerial(f.code, f.createdAt);
+  const payload = [
+    f.code,
+    f.verificationKey,
+    f.firstName,
+    f.lastName,
+    f.email,
+    f.departureDate,
+    f.destinationCountry,
+    f.airline || '',
+    f.flightNumber || '',
+    f.items.length,
+    f.items.map((i) => `${i.category}:${i.name}:${i.qty}`).join('|'),
+    f.createdAt.toISOString(),
+  ].join('#');
+  const fingerprint = createHash('sha256').update(payload).digest('hex').toUpperCase();
+  return { serial, fingerprint, fingerprintShort: shortFingerprint(fingerprint) };
+}
+
+/** Charge le logo QRBag (public/logo.png) — null si indisponible (fallback texte) */
 async function loadLogoPng(): Promise<Buffer | null> {
   try {
     const fs = await import('node:fs/promises');
@@ -172,15 +234,14 @@ async function loadLogoPng(): Promise<Buffer | null> {
 }
 
 /**
- * Build a « Wahoo » PDF checklist with the QRBag signature design:
- * - Navy header band with embedded QRBag LOGO + rainbow strip (5 brand colors)
- * - Deterministic confetti dots on the header (wahoo effect)
- * - BIG rotated timestamped certification stamp ("Cachet horodaté")
- * - Passenger info card (azure) + stamp side by side
- * - Categorized items list — each category wears a brand color band
- * - Navy QR card with scannable QR code (links to public URL)
- * - Dashed verification key block + orange "À CONSERVER" tag
- * - Navy footer with rainbow strip + generation timestamp
+ * Build the premium « facture certifiée » PDF attestation:
+ * - Navy header with ROUNDED logo plate + QR code plate (top of page 1)
+ * - Passenger & flight card (nom, prénom, compagnie, N° de vol, départ, destination)
+ * - Professional round certification seal (arc text + horodatage à la seconde
+ *   + numéro de série + empreinte SHA-256 infalsifiable)
+ * - INVOICE-STYLE items table (N° / Désignation / Catégorie / Qté, zebra rows, total)
+ * - Rounded dashed verification block with key + full fingerprint
+ * - Navy footer with rainbow strip on every page
  *
  * Multi-page safe: continuation pages get a compact header + footer.
  *
@@ -188,6 +249,19 @@ async function loadLogoPng(): Promise<Buffer | null> {
  */
 export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buffer> {
   const createdAt = data.createdAt || new Date();
+  const { serial, fingerprint } = computeChecklistSecurity({
+    code: data.code,
+    verificationKey: data.verificationKey,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    departureDate: data.departureDate,
+    destinationCountry: data.destinationCountry,
+    airline: data.airline,
+    flightNumber: data.flightNumber,
+    items: data.items,
+    createdAt,
+  });
 
   // ─── Load external packages (dynamic import, bypasses Turbopack bundling) ───
   let QRCode: any;
@@ -200,13 +274,13 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
   // ─── Generate QR code as PNG buffer (navy = couleur officielle étiquette) ───
   const qrBuffer = await QRCode.toBuffer(data.publicUrl || 'https://qrbags.com', {
     type: 'png',
-    width: 320,
-    margin: 1,
+    width: 360,
+    margin: 0,
     errorCorrectionLevel: 'M',
     color: { dark: '#16234e', light: '#ffffff' },
   });
 
-  // ─── Load pdf-lib (dynamic import, bypasses Turbopack bundling) ───
+  // ─── Load pdf-lib ───
   let pdfLib: any;
   try {
     pdfLib = await loadPdfLib();
@@ -219,7 +293,7 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
   const pdfDoc = await PDFDocument.create();
   pdfDoc.setTitle(`Attestation d'inventaire QRBag - ${data.firstName} ${data.lastName}`);
   pdfDoc.setAuthor('QRBag');
-  pdfDoc.setSubject(`Checklist ${data.code}`);
+  pdfDoc.setSubject(`Checklist ${data.code} — ${serial}`);
   pdfDoc.setCreationDate(createdAt);
 
   const A4: [number, number] = [595.28, 841.89];
@@ -235,6 +309,7 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
   const gray = rgbOf(C.gray);
   const lightGray = rgbOf(C.lightGray);
   const iceBlue = rgbOf(C.iceBlue);
+  const zebra = rgbOf(C.zebra);
   const softRed = rgbOf(C.softRed);
   const headerWhite = rgb(0.78, 0.82, 0.90); // texte blanc atténué sur navy
   const PALETTE = [yellow, orange, red, magenta, violet];
@@ -258,10 +333,10 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
       logoImage = null;
     }
   }
-  const LOGO_W = 106;
+  const LOGO_W = 104;
   const LOGO_H = logoImage ? (LOGO_W * logoImage.height) / logoImage.width : 40;
 
-  // ─── Briques de dessin ───
+  // ═══════════ Briques de dessin ═══════════
 
   /** Liseré arc-en-ciel signature (5 segments palette QRBag) */
   const drawRainbowStrip = (p: any, y: number, h: number) => {
@@ -271,336 +346,430 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
     });
   };
 
-  /** Confettis déterministes (effet wahoo, zéro aléatoire serveur/client) */
-  const drawConfetti = (p: any, yBase: number, h: number, count: number, seedBase: number) => {
-    for (let i = 0; i < count; i++) {
-      const x = seededRand(seedBase + i * 7) * pageWidth;
-      const y = yBase + seededRand(seedBase + i * 7 + 1) * h;
-      const r = 1 + seededRand(seedBase + i * 7 + 2) * 1.9;
-      p.drawCircle({
-        x,
-        y,
-        size: r,
-        color: PALETTE[i % PALETTE.length],
-        opacity: 0.5,
+  /** SVG path d'un rectangle arrondi (origine = coin haut-gauche, y vers le bas) */
+  const roundedRectPath = (w: number, h: number, r: number): string => {
+    const rr = Math.max(0, Math.min(r, w / 2, h / 2));
+    return (
+      `M ${rr},0 H ${w - rr} A ${rr},${rr} 0 0 1 ${w},${rr} V ${h - rr} ` +
+      `A ${rr},${rr} 0 0 1 ${w - rr},${h} H ${rr} A ${rr},${rr} 0 0 1 0,${h - rr} ` +
+      `V ${rr} A ${rr},${rr} 0 0 1 ${rr},0 Z`
+    );
+  };
+
+  /** Rectangle arrondi (coins doux — logo, QR, tags, blocs) */
+  const drawRoundedRect = (
+    p: any,
+    opts: {
+      x: number; y: number; w: number; h: number; r: number;
+      color?: any; borderColor?: any; borderWidth?: number;
+      opacity?: number; borderOpacity?: number; borderDashArray?: number[];
+    }
+  ) => {
+    p.drawSvgPath(roundedRectPath(opts.w, opts.h, opts.r), {
+      x: opts.x,
+      y: opts.y + opts.h, // origine SVG = coin haut-gauche (axe y inversé)
+      color: opts.color,
+      borderColor: opts.borderColor,
+      borderWidth: opts.borderWidth,
+      opacity: opts.opacity,
+      borderOpacity: opts.borderOpacity,
+      borderDashArray: opts.borderDashArray,
+    });
+  };
+
+  /** Texte arrondi dans une pastille (tag) */
+  const drawTag = (p: any, text: string, x: number, y: number, bg: any, fg: any, size = 7) => {
+    const w = fontBold.widthOfTextAtSize(text, size) + 16;
+    const h = size + 9;
+    drawRoundedRect(p, { x, y, w, h, r: h / 2, color: bg });
+    p.drawText(text, { x: x + 8, y: y + 5.5, size, font: fontBold, color: fg });
+    return w;
+  };
+
+  /** Texte courbé sur un cercle — style cachet officiel */
+  const drawArcText = (
+    p: any,
+    text: string,
+    cx: number, cy: number, radius: number,
+    size: number, font: any, color: any,
+    mode: 'top' | 'bottom',
+  ) => {
+    const letterSpacing = 0.5;
+    const chars = text.split('');
+    const widths = chars.map((ch) => font.widthOfTextAtSize(ch, size));
+    const totalW = widths.reduce((a, b) => a + b, 0) + letterSpacing * (chars.length - 1);
+    const halfSpanDeg = (totalW / 2 / radius) * (180 / Math.PI);
+    let cum = 0;
+    for (let i = 0; i < chars.length; i++) {
+      const w = widths[i];
+      const mid = cum + w / 2;
+      cum += w + letterSpacing;
+      const offsetDeg = ((mid - totalW / 2) / radius) * (180 / Math.PI);
+      let alphaDeg: number;
+      if (mode === 'top') {
+        alphaDeg = 90 + halfSpanDeg - offsetDeg; // lecture gauche→droite, sens horaire
+      } else {
+        alphaDeg = 270 - halfSpanDeg + offsetDeg; // lecture gauche→droite sous le cercle
+      }
+      const rad = (alphaDeg * Math.PI) / 180;
+      const px = cx + radius * Math.cos(rad);
+      const py = cy + radius * Math.sin(rad);
+      // direction de lecture (décalage pour centrer le caractère sur le cercle)
+      const flowX = mode === 'top' ? Math.sin(rad) : -Math.sin(rad);
+      const flowY = mode === 'top' ? -Math.cos(rad) : Math.cos(rad);
+      p.drawText(chars[i], {
+        x: px - (w / 2) * flowX,
+        y: py - (w / 2) * flowY,
+        size,
+        font,
+        color,
+        rotate: degrees(mode === 'top' ? alphaDeg - 90 : alphaDeg - 270),
       });
     }
   };
 
+  /** CACHET OFFICIEL ROND — horodatage à la seconde + série + empreinte SHA-256 */
+  const drawCertificationSeal = (
+    p: any,
+    cx: number, cy: number, R: number,
+    fp: string, serialNo: string,
+  ) => {
+    // Disque de fond
+    p.drawCircle({ x: cx, y: cy, size: R, color: white, borderColor: navy, borderWidth: 2.4 });
+    p.drawCircle({ x: cx, y: cy, size: R - 5, borderColor: magenta, borderWidth: 1.0 });
+    p.drawCircle({ x: cx, y: cy, size: R - 30, color: softRed, opacity: 0.55 });
+
+    // Textes courbés
+    drawArcText(p, '• PROTECTION INTELLIGENTE DES BAGAGES •', cx, cy, R - 13, 5.4, fontBold, navy, 'top');
+    drawArcText(p, 'qrbags.com  •  DOCUMENT CERTIFIÉ', cx, cy, R - 14, 5.4, fontBold, magenta, 'bottom');
+
+    // Séparateurs latéraux (radiaux)
+    for (const ang of [0, 180]) {
+      const rad = (ang * Math.PI) / 180;
+      p.drawLine({
+        start: { x: cx + (R - 24) * Math.cos(rad), y: cy + (R - 24) * Math.sin(rad) },
+        end: { x: cx + (R - 7) * Math.cos(rad), y: cy + (R - 7) * Math.sin(rad) },
+        thickness: 1, color: navy, lineCap: roundCap,
+      });
+    }
+
+    // Bloc central : CERTIFIÉ + horodatage + série + empreinte
+    p.drawText('CERTIFIÉ', { x: cx - fontBold.widthOfTextAtSize('CERTIFIÉ', 10) / 2, y: cy + 21, size: 10, font: fontBold, color: magenta });
+    p.drawText('QRBag', { x: cx - fontBold.widthOfTextAtSize('QRBag', 6.5) / 2, y: cy + 12, size: 6.5, font: fontBold, color: azure });
+    const tsLine1 = `Émis le ${new Date(createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+    const tsLine2 = `à ${new Date(createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+    p.drawText(tsLine1, { x: cx - fontBold.widthOfTextAtSize(tsLine1, 6.6) / 2, y: cy + 0.5, size: 6.6, font: fontBold, color: navy });
+    p.drawText(tsLine2, { x: cx - fontBold.widthOfTextAtSize(tsLine2, 6.6) / 2, y: cy - 7, size: 6.6, font: fontBold, color: navy });
+    p.drawText(`N° ${serialNo}`, { x: cx - fontMono.widthOfTextAtSize(`N° ${serialNo}`, 4.6) / 2, y: cy - 15.5, size: 4.6, font: fontMono, color: gray });
+    const fpShort = shortFingerprint(fp);
+    p.drawText(fpShort, { x: cx - fontMono.widthOfTextAtSize(fpShort, 5) / 2, y: cy - 24.5, size: 5, font: fontMono, color: navy });
+  };
+
   /** Pied de page navy + liseré arc-en-ciel (sur TOUTES les pages) */
   const drawFooter = (p: any, pageNum: number) => {
-    const footerH = 52;
+    const footerH = 50;
     drawRainbowStrip(p, footerH, 4);
     p.drawRectangle({ x: 0, y: 0, width: pageWidth, height: footerH, color: navy });
     p.drawText('QRBag — Protection intelligente des bagages', {
-      x: margin, y: footerH - 22, size: 9.5, font: fontBold, color: yellow,
+      x: margin, y: footerH - 20, size: 9, font: fontBold, color: yellow,
     });
     p.drawText(
-      `Document protégé par le protocole de certification QRBag • Généré le ${formatTimestamp(createdAt)} • qrbags.com`,
-      { x: margin, y: footerH - 36, size: 6.8, font: fontRegular, color: headerWhite }
+      `Généré le ${formatTimestamp(createdAt)} • Série ${serial} • qrbags.com`,
+      { x: margin, y: footerH - 33, size: 6.4, font: fontRegular, color: headerWhite }
     );
-    p.drawText(`Page ${pageNum}`, {
-      x: pageWidth - margin - 34, y: footerH - 22, size: 7.5, font: fontBold, color: headerWhite,
+    const pageTxt = `Page ${pageNum}`;
+    p.drawText(pageTxt, {
+      x: pageWidth - margin - fontBold.widthOfTextAtSize(pageTxt, 8),
+      y: footerH - 20, size: 8, font: fontBold, color: white,
+    });
+    p.drawText('qrbags.com', {
+      x: pageWidth - margin - fontRegular.widthOfTextAtSize('qrbags.com', 6.4),
+      y: footerH - 33, size: 6.4, font: fontRegular, color: headerWhite,
     });
   };
 
-  /** En-tête de continuation (pages 2+) */
-  const drawContinuationHeader = (p: any, pageNum: number) => {
-    p.drawRectangle({ x: 0, y: pageHeight - 42, width: pageWidth, height: 42, color: navy });
-    drawRainbowStrip(p, pageHeight - 47, 5);
-    p.drawText(`QRBag — Attestation d'inventaire`, {
-      x: margin, y: pageHeight - 27, size: 10.5, font: fontBold, color: white,
+  /** En-tête compact des pages de continuation (2+) */
+  const drawContinuationHeader = (p: any, _pageNum: number) => {
+    p.drawRectangle({ x: 0, y: pageHeight - 44, width: pageWidth, height: 44, color: navy });
+    drawRainbowStrip(p, pageHeight - 49, 5);
+    p.drawText(`QRBag — Attestation d'inventaire (suite)`, {
+      x: margin, y: pageHeight - 28, size: 10.5, font: fontBold, color: white,
     });
     const codeText = `Code : ${data.code}`;
     p.drawText(codeText, {
       x: pageWidth - margin - fontBold.widthOfTextAtSize(codeText, 10.5),
-      y: pageHeight - 27, size: 10.5, font: fontBold, color: yellow,
-    });
-    p.drawText('(suite)', {
-      x: margin, y: pageHeight - 39, size: 7, font: fontRegular, color: headerWhite,
+      y: pageHeight - 28, size: 10.5, font: fontBold, color: yellow,
     });
   };
 
-  /** Nouvelle page (continuation) avec en-tête + pied */
   const addContinuationPage = (pageNum: number) => {
     const p = pdfDoc.addPage(A4);
     drawContinuationHeader(p, pageNum);
     return p;
   };
 
-  // ═══════════ PAGE 1 ═══════════
+  // ═══════════════ PAGE 1 — EN-TÊTE PREMIUM ═══════════════
   let page = pdfDoc.addPage(A4);
   let pageNum = 1;
 
-  // ═══════════ HEADER (bande navy + logo + confettis + liseré arc-en-ciel) ═══════════
-  page.drawRectangle({ x: 0, y: pageHeight - 96, width: pageWidth, height: 96, color: navy });
-  drawConfetti(page, pageHeight - 92, 88, 24, 11);
-  drawRainbowStrip(page, pageHeight - 101, 5);
+  const HEADER_H = 138;
+  page.drawRectangle({ x: 0, y: pageHeight - HEADER_H, width: pageWidth, height: HEADER_H, color: navy });
+  // confettis discrets
+  for (let i = 0; i < 12; i++) {
+    const x = seededRand(i * 7 + 3) * pageWidth;
+    const y = pageHeight - HEADER_H + 4 + seededRand(i * 7 + 4) * (HEADER_H - 10);
+    page.drawCircle({ x, y, size: 0.8 + seededRand(i * 7 + 5) * 1.4, color: PALETTE[i % PALETTE.length], opacity: 0.35 });
+  }
+  drawRainbowStrip(page, pageHeight - HEADER_H - 5, 5);
 
-  // Plaque blanche arrondie pour le logo (contraste garanti sur navy)
+  // ─── PLAQUE LOGO ARRONDIE (blanche, coins doux) ───
   const plateX = margin;
-  const plateY = pageHeight - 80;
-  page.drawRectangle({ x: plateX, y: plateY, width: LOGO_W + 14, height: 62, color: white });
+  const plateW = LOGO_W + 28;
+  const plateH = 64;
+  const plateY = pageHeight - 26 - plateH;
+  drawRoundedRect(page, { x: plateX, y: plateY, w: plateW, h: plateH, r: 14, color: white });
   if (logoImage) {
     page.drawImage(logoImage, {
-      x: plateX + 7,
-      y: plateY + (62 - LOGO_H) / 2,
+      x: plateX + 14,
+      y: plateY + (plateH - LOGO_H) / 2,
       width: LOGO_W,
       height: LOGO_H,
     });
   } else {
-    page.drawText('QRBag', { x: plateX + 14, y: plateY + 22, size: 20, font: fontBold, color: navy });
+    page.drawText('QRBag', { x: plateX + 20, y: plateY + 22, size: 20, font: fontBold, color: navy });
   }
 
-  // Titre à droite du logo
-  const titleX = plateX + LOGO_W + 30;
-  page.drawText("ATTESTATION D'INVENTAIRE", { x: titleX, y: pageHeight - 42, size: 13.5, font: fontBold, color: white });
-  page.drawText('DE VOYAGE', { x: titleX, y: pageHeight - 59, size: 13.5, font: fontBold, color: white });
-  page.drawText('Document officiel QRBag • qrbags.com', { x: titleX, y: pageHeight - 74, size: 7.5, font: fontRegular, color: headerWhite });
-
-  // Code + date d'émission (haut droite)
-  const codeLabel = `Code : ${data.code}`;
-  page.drawText(codeLabel, {
-    x: pageWidth - margin - fontBold.widthOfTextAtSize(codeLabel, 12),
-    y: pageHeight - 34, size: 12, font: fontBold, color: yellow,
-  });
+  // ─── TITRES ───
+  const titleX = plateX + plateW + 22;
+  page.drawText("ATTESTATION D'INVENTAIRE", { x: titleX, y: pageHeight - 48, size: 14, font: fontBold, color: white });
+  page.drawText('DE VOYAGE', { x: titleX, y: pageHeight - 66, size: 14, font: fontBold, color: yellow });
+  page.drawText('Document officiel • qrbags.com', { x: titleX, y: pageHeight - 81, size: 7.5, font: fontRegular, color: headerWhite });
+  const codeLabel = `N° ${data.code}`;
+  page.drawText(codeLabel, { x: titleX, y: pageHeight - 102, size: 13, font: fontMono, color: white });
   const emittedLabel = `Émis le ${formatTimestamp(createdAt)}`;
-  page.drawText(emittedLabel, {
-    x: pageWidth - margin - fontRegular.widthOfTextAtSize(emittedLabel, 7.5),
-    y: pageHeight - 47, size: 7.5, font: fontRegular, color: headerWhite,
+  page.drawText(emittedLabel, { x: titleX, y: pageHeight - 116, size: 7.5, font: fontRegular, color: headerWhite });
+
+  // ─── PLAQUE QR ARRONDIE (HAUT DU DOCUMENT, 1ʳᵉ PAGE) ───
+  const QR_PLATE = 96;
+  const qrPlateX = pageWidth - margin - QR_PLATE;
+  const qrPlateY = pageHeight - 22 - QR_PLATE;
+  drawRoundedRect(page, { x: qrPlateX, y: qrPlateY, w: QR_PLATE, h: QR_PLATE, r: 12, color: white });
+  const qrImg = await pdfDoc.embedPng(qrBuffer);
+  const QR_INNER = QR_PLATE - 14;
+  page.drawImage(qrImg, { x: qrPlateX + 7, y: qrPlateY + 7, width: QR_INNER, height: QR_INNER });
+  const scanTxt = 'SCANNEZ POUR VÉRIFIER';
+  page.drawText(scanTxt, {
+    x: qrPlateX + (QR_PLATE - fontBold.widthOfTextAtSize(scanTxt, 5.6)) / 2,
+    y: qrPlateY - 11, size: 5.6, font: fontBold, color: yellow,
   });
 
-  // ═══════════ SOUS-TITRE ═══════════
-  let y = pageHeight - 122;
-  const subtitleText = 'Document généré et horodaté électroniquement par le protocole de certification QRBag.';
-  page.drawText(subtitleText, {
-    x: margin, y, size: 8.5, font: fontRegular, color: gray, maxWidth: contentW - 210, lineHeight: 11,
+  // ─── LIGNE MÉTA (sous le bandeau) ───
+  let y = pageHeight - HEADER_H - 34;
+  page.drawText(`Série : ${serial}`, { x: margin, y, size: 7.5, font: fontMono, color: gray });
+  const docTypeTxt = 'Inventaire de bagage certifié — usage déclaratif';
+  page.drawText(docTypeTxt, {
+    x: pageWidth - margin - fontRegular.widthOfTextAtSize(docTypeTxt, 7.5),
+    y, size: 7.5, font: fontRegular, color: gray,
   });
 
-  // Zone contenu (sous le sous-titre qui peut_wrap sur 2 lignes)
-  y = pageHeight - 164;
+  y -= 16;
 
-  // ═══════════ GROS CACHET HORODATÉ (pivoté, double bordure) ═══════════
-  const stampW = 190;
-  const stampH = 92;
-  const stampX = pageWidth - margin - stampW;
-  const stampY = y - stampH - 4;
-  const stampAngle = -8;
-  page.drawRectangle({
-    x: stampX, y: stampY, width: stampW, height: stampH,
-    borderColor: orange, borderWidth: 2.5, color: softRed, rotate: degrees(stampAngle),
-  });
-  page.drawRectangle({
-    x: stampX + 5, y: stampY + 5, width: stampW - 10, height: stampH - 10,
-    borderColor: magenta, borderWidth: 1.2, rotate: degrees(stampAngle),
-  });
-  page.drawText('CERTIFIÉ QRBag', {
-    x: stampX + 18, y: stampY + 62, size: 15, font: fontBold, color: magenta, rotate: degrees(stampAngle),
-  });
-  page.drawText(`Horodaté le ${formatTimestamp(createdAt)}`, {
-    x: stampX + 18, y: stampY + 45, size: 9, font: fontBold, color: navy, rotate: degrees(stampAngle),
-  });
-  page.drawText(`Réf : ${data.code}  •  Authentique`, {
-    x: stampX + 18, y: stampY + 31, size: 8, font: fontRegular, color: navy, rotate: degrees(stampAngle),
-  });
-  page.drawText('qrbags.com', {
-    x: stampX + 18, y: stampY + 16, size: 7.5, font: fontRegular, color: gray, rotate: degrees(stampAngle),
-  });
+  // ═══════════════ CARTE VOYAGEUR & VOL + CACHET ROND ═══════════════
+  const SEAL_ZONE = 158; // largeur réservée au cachet à droite
+  const cardW = contentW - SEAL_ZONE - 10;
+  const cardH = 158;
+  const cardY = y - cardH;
 
-  // ═══════════ CARTE INFOS PASSAGER (gauche, face au cachet) ═══════════
-  page.drawText('INFORMATIONS DU PASSAGER', {
-    x: margin, y, size: 11, font: fontBold, color: navy,
-  });
+  drawRoundedRect(page, { x: margin, y: cardY, w: cardW, h: cardH, r: 10, color: white, borderColor: lightGray, borderWidth: 1.1 });
+  // barres d'accent gauche (azure + magenta)
+  page.drawRectangle({ x: margin, y: cardY, width: 4.5, height: cardH, color: azure });
+  page.drawRectangle({ x: margin + 4.5, y: cardY, width: 2, height: cardH, color: magenta });
 
-  const infoY = y - 12;
-  const infoH = 96;
-  const infoW = contentW - stampW - 18;
-  page.drawRectangle({
-    x: margin, y: infoY - infoH, width: infoW, height: infoH,
-    borderColor: azure, borderWidth: 1.2, color: iceBlue,
-  });
-  // Barre d'accent gauche (azure → dégradé simulé par 3 segments)
-  page.drawRectangle({ x: margin, y: infoY - infoH, width: 4, height: infoH, color: azure });
-  page.drawRectangle({ x: margin + 4, y: infoY - infoH, width: 2, height: infoH, color: magenta });
+  page.drawText('INFORMATIONS VOYAGEUR & VOL', { x: margin + 18, y: y - 18, size: 10, font: fontBold, color: navy });
+  page.drawRectangle({ x: margin + 18, y: y - 23, width: 52, height: 2.5, color: orange });
 
-  const padX = 16;
-  const colW = (infoW - padX * 2) / 2;
-  const label = (txt: string, x: number, yy: number) =>
-    page.drawText(txt.toUpperCase(), { x, y: yy, size: 6.8, font: fontBold, color: gray });
-  const value = (txt: string, x: number, yy: number, size = 10) =>
-    page.drawText(txt || '—', { x, y: yy, size, font: fontBold, color: navy, maxWidth: colW - 6 });
+  const padX = 18;
+  const colW = (cardW - padX * 2 - 14) / 2;
+  const infoLabel = (txt: string, x: number, yy: number) =>
+    page.drawText(txt.toUpperCase(), { x, y: yy, size: 6, font: fontBold, color: gray });
+  const infoValue = (txt: string, x: number, yy: number, size = 9.5) =>
+    page.drawText(txt || '—', { x, y: yy, size, font: fontBold, color: navy, maxWidth: colW - 4 });
 
-  // Rangée 1
-  label('Nom complet', margin + padX, infoY - 16);
-  value(`${data.firstName} ${data.lastName}`.trim(), margin + padX, infoY - 30);
-  label('Pays de destination', margin + padX + colW, infoY - 16);
-  value(data.destinationCountry, margin + padX + colW, infoY - 30);
-  // Rangée 2
-  label('Date de départ', margin + padX, infoY - 50);
-  value(formatDateFr(data.departureDate), margin + padX, infoY - 64, 9.5);
-  label('Compagnie aérienne', margin + padX + colW, infoY - 50);
-  value(data.airline || '—', margin + padX + colW, infoY - 64, 9.5);
-  // Rangée 3 (email, pleine largeur)
-  label('Email', margin + padX, infoY - 78);
-  value(data.email, margin + padX, infoY - 90, 8.5);
+  // Colonne 1 : NOM / COMPAGNIE / DATE DE DÉPART
+  infoLabel('Nom', margin + padX, y - 36);
+  infoValue(data.lastName.toUpperCase(), margin + padX, y - 49);
+  infoLabel('Compagnie aérienne', margin + padX, y - 72);
+  infoValue(data.airline || '—', margin + padX, y - 85, 9);
+  infoLabel('Date de départ', margin + padX, y - 108);
+  infoValue(formatDateFr(data.departureDate), margin + padX, y - 121, 8.5);
 
-  y = infoY - infoH - 26;
+  // Colonne 2 : PRÉNOM / N° DE VOL / DESTINATION
+  const col2X = margin + padX + colW + 14;
+  infoLabel('Prénom', col2X, y - 36);
+  infoValue(data.firstName, col2X, y - 49);
+  infoLabel('N° de vol', col2X, y - 72);
+  infoValue(data.flightNumber || '—', col2X, y - 85, 9);
+  infoLabel('Destination', col2X, y - 108);
+  infoValue(data.destinationCountry, col2X, y - 121, 9);
 
-  // ═══════════ INVENTAIRE (bandes colorées par catégorie) ═══════════
-  const itemsTitle = `INVENTAIRE (${data.items.length} article${data.items.length > 1 ? 's' : ''})`;
-  page.drawText(itemsTitle, { x: margin, y, size: 12, font: fontBold, color: navy });
-  page.drawRectangle({ x: margin, y: y - 6, width: 58, height: 3, color: orange });
+  // Email (ligne pleine largeur, discret)
+  infoLabel('Email', margin + padX, y - 140);
+  page.drawText(data.email, { x: margin + padX, y: y - 150, size: 7, font: fontRegular, color: gray, maxWidth: cardW - padX * 2 });
 
-  y -= 24;
+  // Cachet rond à droite de la carte
+  drawCertificationSeal(page, margin + contentW - SEAL_ZONE / 2, y - cardH / 2, 68, fingerprint, serial);
 
-  // Grouper par catégorie
-  const byCategory: Record<string, ChecklistItem[]> = {};
-  for (const it of data.items) {
-    if (!byCategory[it.category]) byCategory[it.category] = [];
-    byCategory[it.category].push(it);
-  }
+  y = cardY - 30;
+
+  // ═══════════════ TABLEAU FACTURE — DÉTAIL DE L'INVENTAIRE ═══════════════
+  page.drawText("DÉTAIL DE L'INVENTAIRE", { x: margin, y, size: 12, font: fontBold, color: navy });
+  const countTxt = `${data.items.length} article${data.items.length > 1 ? 's' : ''}`;
+  const tagW = fontBold.widthOfTextAtSize(countTxt, 7) + 16;
+  drawTag(page, countTxt, pageWidth - margin - tagW, y - 6, orange, white, 7);
+  page.drawRectangle({ x: margin, y: y - 7, width: 64, height: 3, color: orange });
+
+  y -= 26;
+
+  // Colonnes : N° | DÉSIGNATION | CATÉGORIE | QTÉ
+  const colNoW = 30;
+  const colQtyW = 42;
+  const colCatW = 128;
+  const colNoX = margin;
+  const colDesX = margin + colNoW;
+  const colCatX = margin + contentW - colQtyW - colCatW;
+  const colQtyRightX = margin + contentW - 10;
 
   const catLabelFr: Record<string, string> = {};
   for (const cat of DEFAULT_CHECKLIST_CATEGORIES) catLabelFr[cat.id] = cat.label.fr;
 
-  let colorIndex = 0;
+  // Ordonner : catégories du catalogue d'abord, puis « Autres »
+  const known: ChecklistItem[] = [];
+  const unknown: ChecklistItem[] = [];
   for (const cat of DEFAULT_CHECKLIST_CATEGORIES) {
-    const catItems = byCategory[cat.id] || [];
-    if (catItems.length === 0) continue;
+    for (const it of data.items) if (it.category === cat.id) known.push(it);
+  }
+  const knownKeys = new Set(known.map((it) => `${it.category}__${it.name}`));
+  for (const it of data.items) if (!knownKeys.has(`${it.category}__${it.name}`)) unknown.push(it);
+  const orderedItems = [...known, ...unknown];
 
-    // Saut de page si nécessaire (réserve pied de page)
-    if (y - (28 + catItems.length * 18) < 170) {
+  const drawInvoiceHeaderRow = (p: any, topY: number) => {
+    p.drawRectangle({ x: margin, y: topY - 20, width: contentW, height: 20, color: navy });
+    p.drawText('N°', { x: colNoX + 8, y: topY - 14, size: 7.5, font: fontBold, color: white });
+    p.drawText('DÉSIGNATION', { x: colDesX + 8, y: topY - 14, size: 7.5, font: fontBold, color: white });
+    p.drawText('CATÉGORIE', { x: colCatX + 8, y: topY - 14, size: 7.5, font: fontBold, color: white });
+    const q = 'QTÉ';
+    p.drawText(q, { x: colQtyRightX - fontBold.widthOfTextAtSize(q, 7.5), y: topY - 14, size: 7.5, font: fontBold, color: white });
+    return topY - 20;
+  };
+
+  let rowTop = drawInvoiceHeaderRow(page, y);
+  let rowIndex = 0;
+  let totalUnits = 0;
+
+  for (const item of orderedItems) {
+    totalUnits += item.qty;
+
+    // Saut de page (réserve pied de page)
+    if (rowTop - 17 < 92) {
       page = addContinuationPage(++pageNum);
-      y = pageHeight - 80;
+      rowTop = drawInvoiceHeaderRow(page, pageHeight - 66);
     }
 
-    const band = CATEGORY_PDF_COLORS[colorIndex % CATEGORY_PDF_COLORS.length];
-    colorIndex++;
-    const bandColor = rgbOf(band.hex);
-    const bandText = band.darkText ? navy : white;
+    const isUnknown = !catLabelFr[item.category];
+    const catMeta = isUnknown ? OTHER_COLOR : (CATEGORY_COLORS[item.category] || OTHER_COLOR);
+    const catName = isUnknown ? 'Autres' : catLabelFr[item.category];
+    const bandColor = rgbOf(catMeta.hex);
+    const catTextColor = catMeta.darkText ? navy : bandColor;
 
-    // Bande catégorie colorée
-    page.drawRectangle({ x: margin, y: y - 20, width: contentW, height: 20, color: bandColor });
-    page.drawText(`${catLabelFr[cat.id]?.toUpperCase()}`, {
-      x: margin + 10, y: y - 14.5, size: 9.5, font: fontBold, color: bandText,
-    });
-    const countTxt = `${catItems.length} article${catItems.length > 1 ? 's' : ''}`;
-    page.drawText(countTxt, {
-      x: pageWidth - margin - 10 - fontRegular.widthOfTextAtSize(countTxt, 8),
-      y: y - 14.5, size: 8, font: fontRegular, color: bandText,
-    });
-    y -= 30;
-
-    // Articles
-    for (const item of catItems) {
-      if (y < 170) {
-        page = addContinuationPage(++pageNum);
-        y = pageHeight - 80;
-      }
-
-      // Case à cocher
-      page.drawRectangle({
-        x: margin + 5, y: y - 10, width: 12, height: 12,
-        borderColor: navy, borderWidth: 1.2, color: white,
-      });
-      // Coche dessinée (2 segments ronds — Helvetica n'a pas ✓)
-      if (item.checked !== false) {
-        page.drawLine({
-          start: { x: margin + 7.2, y: y - 4.6 },
-          end: { x: margin + 9.8, y: y - 7.8 },
-          thickness: 1.6, color: azure, lineCap: roundCap,
-        });
-        page.drawLine({
-          start: { x: margin + 9.8, y: y - 7.8 },
-          end: { x: margin + 14.6, y: y - 1.4 },
-          thickness: 1.6, color: azure, lineCap: roundCap,
-        });
-      }
-
-      // Nom (+ couleur / marque optionnelles)
-      let displayName = item.name;
-      if (item.color) displayName += ` — ${item.color}`;
-      if (item.brand) displayName += ` (${item.brand})`;
-      page.drawText(displayName, {
-        x: margin + 26, y: y - 8, size: 9, font: fontRegular, color: navy, maxWidth: 300,
-      });
-
-      // Quantité
-      if (item.qty > 1) {
-        const qtyText = `x${item.qty}`;
-        page.drawText(qtyText, {
-          x: pageWidth - margin - 40, y: y - 8, size: 9, font: fontBold, color: gray,
-        });
-      }
-
-      y -= 18;
+    // Zébrage
+    if (rowIndex % 2 === 1) {
+      page.drawRectangle({ x: margin, y: rowTop - 17, width: contentW, height: 17, color: zebra });
     }
-    y -= 6;
+    // Filet bas
+    page.drawLine({
+      start: { x: margin, y: rowTop - 17 },
+      end: { x: margin + contentW, y: rowTop - 17 },
+      thickness: 0.5, color: lightGray,
+    });
+
+    // N° (mono, centré dans sa colonne)
+    const noTxt = String(rowIndex + 1).padStart(2, '0');
+    page.drawText(noTxt, { x: colNoX + (colNoW - fontMono.widthOfTextAtSize(noTxt, 7.5)) / 2, y: rowTop - 12, size: 7.5, font: fontMono, color: gray });
+
+    // DÉSIGNATION (+ détails couleur/marque en fin de ligne si la place le permet)
+    let displayName = item.name;
+    const details: string[] = [];
+    if (item.color) details.push(item.color);
+    if (item.brand) details.push(item.brand);
+    const desMax = colCatX - colDesX - 26;
+    page.drawText(displayName, { x: colDesX + 8, y: rowTop - 11.5, size: 8.5, font: fontBold, color: navy, maxWidth: desMax });
+    if (details.length) {
+      const nameW = Math.min(fontBold.widthOfTextAtSize(displayName, 8.5), desMax);
+      let detTxt = `— ${details.join(' · ')}`;
+      const detMax = colCatX - (colDesX + 8 + nameW + 6) - 8;
+      while (detTxt.length > 3 && fontRegular.widthOfTextAtSize(detTxt, 6.8) > detMax) {
+        detTxt = detTxt.slice(0, -2) + '…';
+      }
+      if (detMax > 30) {
+        page.drawText(detTxt, { x: colDesX + 8 + nameW + 6, y: rowTop - 11.5, size: 6.8, font: fontRegular, color: gray, maxWidth: detMax });
+      }
+    }
+
+    // CATÉGORIE : pastille ronde colorée + libellé
+    page.drawCircle({ x: colCatX + 13, y: rowTop - 8.5, size: 2.6, color: bandColor });
+    page.drawText(catName, { x: colCatX + 20, y: rowTop - 11, size: 7.3, font: fontBold, color: catTextColor, maxWidth: colCatW - 26 });
+
+    // QTÉ (alignée à droite)
+    const qtyTxt = `×${item.qty}`;
+    page.drawText(qtyTxt, { x: colQtyRightX - fontBold.widthOfTextAtSize(qtyTxt, 8.5), y: rowTop - 11.5, size: 8.5, font: fontBold, color: navy });
+
+    rowTop -= 17;
+    rowIndex++;
   }
 
-  // ═══════════ CARTE QR NAVY (scan → page publique) ═══════════
-  if (y - 150 < 175) {
+  // Ligne TOTAL (navy)
+  if (rowTop - 22 < 92) {
     page = addContinuationPage(++pageNum);
-    y = pageHeight - 80;
+    rowTop = pageHeight - 66;
   }
-
-  const qrCardH = 132;
-  const qrCardY = y - qrCardH;
-  page.drawRectangle({ x: margin, y: qrCardY, width: contentW, height: qrCardH, color: navy });
-  drawConfetti(page, qrCardY + 4, qrCardH - 8, 10, 77);
-
-  // Plateau blanc + QR (navy officiel)
-  page.drawRectangle({ x: margin + 14, y: qrCardY + 11, width: 110, height: 110, color: white });
-  const qrImg = await pdfDoc.embedPng(qrBuffer);
-  page.drawImage(qrImg, { x: margin + 19, y: qrCardY + 16, width: 100, height: 100 });
-
-  // Textes à droite du QR
-  const qrTextX = margin + 142;
-  page.drawText("Scannez pour vérifier l'original", {
-    x: qrTextX, y: qrCardY + 92, size: 12, font: fontBold, color: white,
-  });
-  page.drawText('Ce QR code pointe vers la page publique de cette', {
-    x: qrTextX, y: qrCardY + 76, size: 7.8, font: fontRegular, color: headerWhite,
-  });
-  page.drawText('attestation. La clé de vérification est requise.', {
-    x: qrTextX, y: qrCardY + 66, size: 7.8, font: fontRegular, color: headerWhite,
-  });
-  page.drawText('URL publique :', {
-    x: qrTextX, y: qrCardY + 46, size: 8.5, font: fontBold, color: yellow,
-  });
-  const maxUrlLen = 48;
-  const displayUrl = data.publicUrl.length > maxUrlLen ? data.publicUrl.substring(0, maxUrlLen) + '...' : data.publicUrl;
-  page.drawText(displayUrl, {
-    x: qrTextX, y: qrCardY + 33, size: 7.5, font: fontMono, color: white,
-  });
-  page.drawText(`${data.items.length} article(s) horodaté(s)`, {
-    x: qrTextX, y: qrCardY + 16, size: 7.5, font: fontRegular, color: headerWhite,
+  page.drawRectangle({ x: margin, y: rowTop - 22, width: contentW, height: 22, color: navy });
+  page.drawText('TOTAL', { x: colDesX + 8, y: rowTop - 15, size: 8.5, font: fontBold, color: yellow });
+  const totalTxt = `${data.items.length} article${data.items.length > 1 ? 's' : ''} • ${totalUnits} unité${totalUnits > 1 ? 's' : ''} déclarée${totalUnits > 1 ? 's' : ''}`;
+  page.drawText(totalTxt, {
+    x: colQtyRightX - fontBold.widthOfTextAtSize(totalTxt, 7.5),
+    y: rowTop - 15, size: 7.5, font: fontBold, color: white,
   });
 
-  y = qrCardY - 22;
+  rowTop -= 36;
 
-  // ═══════════ CLÉ DE VÉRIFICATION (bordure pointillée + tag orange) ═══════════
-  const keyBoxH = 58;
-  page.drawRectangle({
-    x: margin, y: y - keyBoxH, width: contentW, height: keyBoxH,
-    borderColor: navy, borderWidth: 1.5, color: rgb(0.976, 0.98, 0.996),
-    dashArray: [4, 2],
+  // ═══════════════ BLOC VÉRIFICATION (arrondi, pointillé) ═══════════════
+  if (rowTop - 74 < 92) {
+    page = addContinuationPage(++pageNum);
+    rowTop = pageHeight - 66;
+  }
+  const keyBoxH = 74;
+  drawRoundedRect(page, {
+    x: margin, y: rowTop - keyBoxH, w: contentW, h: keyBoxH, r: 10,
+    color: rgb(0.976, 0.98, 0.996), borderColor: navy, borderWidth: 1.4, borderDashArray: [5, 3],
   });
-  page.drawText('Clé de vérification requise pour consulter le PDF en ligne :', {
-    x: margin + 12, y: y - 18, size: 8.5, font: fontBold, color: navy,
-  });
-  page.drawText(data.verificationKey, {
-    x: margin + 12, y: y - 42, size: 19, font: fontMono, color: magenta,
-  });
+  page.drawText('CLÉ DE VÉRIFICATION', { x: margin + 14, y: rowTop - 18, size: 8.5, font: fontBold, color: navy });
+  page.drawText('Requise pour consulter le document en ligne', { x: margin + 14, y: rowTop - 27, size: 6, font: fontRegular, color: gray });
+  page.drawText(data.verificationKey, { x: margin + 14, y: rowTop - 52, size: 19, font: fontMono, color: magenta });
+
+  // Empreinte complète (2 lignes de 32 + espaces)
+  const fpLine1 = (fingerprint.slice(0, 32).match(/.{4}/g) || []).join(' ');
+  const fpLine2 = (fingerprint.slice(32, 64).match(/.{4}/g) || []).join(' ');
+  const fpBlockX = pageWidth - margin - 224;
+  page.drawText('Empreinte SHA-256 — infalsifiable', { x: fpBlockX, y: rowTop - 18, size: 6.2, font: fontBold, color: gray });
+  page.drawText(fpLine1, { x: fpBlockX, y: rowTop - 32, size: 6.4, font: fontMono, color: navy });
+  page.drawText(fpLine2, { x: fpBlockX, y: rowTop - 42, size: 6.4, font: fontMono, color: navy });
+  page.drawText('Vérifiez cette empreinte sur qrbags.com', { x: fpBlockX, y: rowTop - 55, size: 5.8, font: fontRegular, color: gray });
+
   // Tag « À CONSERVER »
-  const tagW = 92;
-  page.drawRectangle({ x: pageWidth - margin - tagW - 12, y: y - keyBoxH + 20, width: tagW, height: 17, color: orange });
-  page.drawText('À CONSERVER', {
-    x: pageWidth - margin - tagW - 12 + (tagW - fontBold.widthOfTextAtSize('À CONSERVER', 7)) / 2,
-    y: y - keyBoxH + 25, size: 7, font: fontBold, color: white,
-  });
+  const keepW = drawTag(page, 'À CONSERVER', pageWidth - margin - 86, rowTop - keyBoxH - 2, orange, white, 7);
+  void keepW;
 
-  // ═══════════ PIED DE PAGE (toutes les pages) ═══════════
+  // ═══════════════ PIEDS DE PAGE ═══════════════
   const pages = pdfDoc.getPages();
   pages.forEach((p, idx) => drawFooter(p, idx + 1));
 

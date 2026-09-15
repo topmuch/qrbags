@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
+import { computeChecklistSecurity, type ChecklistItem } from '@/lib/checklist';
 
 /**
  * GET /api/checklist/[code]?key=XXX
@@ -47,6 +48,7 @@ export async function GET(
         departureDate: true,
         destinationCountry: true,
         airline: true,
+        flightNumber: true,
         items: true,
         itemsCount: true,
         photoPath: true,
@@ -101,12 +103,34 @@ export async function GET(
     }).catch(() => {});
 
     // ─── Return full content ───
-    let parsedItems: unknown = [];
+    let parsedItems: ChecklistItem[] = [];
     try {
-      parsedItems = JSON.parse(checklist.items);
+      const parsed = JSON.parse(checklist.items);
+      if (Array.isArray(parsed)) {
+        parsedItems = parsed.filter(
+          (it): it is ChecklistItem =>
+            typeof it === 'object' && it !== null &&
+            typeof it.category === 'string' && typeof it.name === 'string'
+        );
+      }
     } catch {
       parsedItems = [];
     }
+
+    // ─── Série + empreinte infalsifiable (affichées sur la page publique) ───
+    const security = computeChecklistSecurity({
+      code: checklist.code,
+      verificationKey: checklist.verificationKey,
+      firstName: checklist.firstName,
+      lastName: checklist.lastName,
+      email: checklist.email,
+      departureDate: checklist.departureDate,
+      destinationCountry: checklist.destinationCountry,
+      airline: checklist.airline,
+      flightNumber: checklist.flightNumber,
+      items: parsedItems,
+      createdAt: checklist.createdAt,
+    });
 
     return NextResponse.json({
       status: 'unlocked',
@@ -117,6 +141,7 @@ export async function GET(
       departureDate: checklist.departureDate,
       destinationCountry: checklist.destinationCountry,
       airline: checklist.airline,
+      flightNumber: checklist.flightNumber,
       items: parsedItems,
       itemsCount: checklist.itemsCount,
       hasPhoto: !!checklist.photoPath || (checklist.photoData != null && checklist.photoData.length > 0),
@@ -124,6 +149,11 @@ export async function GET(
       emailSent: checklist.emailSent,
       viewCount: checklist.viewCount,
       createdAt: checklist.createdAt.toISOString(),
+      security: {
+        serial: security.serial,
+        fingerprint: security.fingerprint,
+        fingerprintShort: security.fingerprintShort,
+      },
     });
   } catch (error) {
     console.error('[checklist/[code]] GET error:', error);
