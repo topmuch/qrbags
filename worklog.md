@@ -1317,3 +1317,24 @@ Stage Summary:
 - Site techniquement prêt pour l'indexation : sitemap, metadata par page, données structurées, ciblage mots-clés perte bagages
 - ⚠️ Actions propriétaire requises : redéploiement Coolify PUIS Google Search Console (propriété qrbags.com → soumettre sitemap.xml → demander indexation). Google peut mettre de 2 jours à plusieurs semaines
 - Fr/en/ar même URL : hreflang fr/x-default uniquement (pas d'URLs par langue)
+
+---
+Task ID: seo-audit-francophonie
+Agent: Z.ai Code (main)
+Task: Audit référencement Google francophone (France, Canada, Suisse, Luxembourg, Belgique, Afrique francophone) + ciblage requêtes « valise perdue / valise trouvée / objets trouvés / bagage aéroport »
+
+Work Log:
+- Audit src/app/layout.tsx : metadataBase, title/description avec mots-clés cibles, OG, Twitter, robots index/follow, hreflang fr + x-default (correct : i18n client-side sur une seule URL), JSON-LD Organization (areaServed 22 pays) + WebSite
+- Audit 23 layouts/pages : canonical + description + keywords présents sur 100% des pages publiques (fonctionnalites/*, etapes/*, commander, hajj-omra, voyageurs-standard, checklist, demo, contact, a-propos, devenir-partenaire, cgu, confidentialite, mentions-legales, agency/[slug])
+- Audit contenu : H1 « Scannez pour retrouver vos bagages », FAQ 6 questions avec FAQPage JSON-LD (requêtes cibles), 13 pays affichés, mots-clés « valise perdue/trouvée », « objets trouvés », « bagage aéroport » présents dans titles/descriptions
+- Audit robots.txt : bloqués admin/api/agence/dashboard/scan/suivi/passeport/success/login… ; /agency/[slug] (profil public partenaire) volontairement crawlable
+- CRÉÉ src/app/sitemap.ts dynamique (force-dynamic, fallback statique si DB KO) remplaçant public/sitemap.xml supprimé : 23 URLs dont pages agences /agency/{slug} actives (SEO local)
+- AJOUTÉ JSON-LD Product + AggregateOffer sur /commander (Sticker Solo 5€, Pack Famille 12€, Hajj & Omra 5€)
+- Vérifié en navigateur : home (title/H1 unique/FAQ 6 questions/0 erreur), /commander (JSON-LD Product présent), /sitemap.xml (23 URLs dont agency/test-agency), robots.txt servi
+- Lint OK ; commit 3ab16be poussé
+
+Stage Summary:
+- SEO on-page 100% conforme : metadata, canonicals, OG, hreflang, robots.txt, JSON-LD (Organization, WebSite, FAQPage, Product)
+- Sitemap désormais dynamique : nouvelles agences partenaires automatiquement référencées
+- ⚠️ Signalé à l'utilisateur : /agency/[slug] affiche prénom+nom complets des voyageurs publiquement (risque RGPD si indexé) → recommandé de masquer (ex. « Marie D. »)
+- ⚠️ Rappel : l'indexation Google réelle exige le domaine en prod + Google Search Console (soumission sitemap) — localhost non indexable
