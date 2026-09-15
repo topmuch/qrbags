@@ -24,7 +24,6 @@ import {
   Globe,
   Phone,
   MessageCircle,
-  PartyPopper,
   Gift,
   Handshake,
   Megaphone,
@@ -678,12 +677,12 @@ export default function ScanPage() {
               <motion.div
                 animate={{ rotate: [0, -6, 6, 0], scale: [1, 1.06, 1] }}
                 transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center"
+                className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
               >
                 {isDeclaredLost ? (
                   <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-[#8b17c9]" aria-hidden />
                 ) : (
-                  <PartyPopper className="w-8 h-8 sm:w-10 sm:h-10 text-[#e6216e]" aria-hidden />
+                  <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
                 )}
               </motion.div>
 

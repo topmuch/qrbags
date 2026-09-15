@@ -1147,3 +1147,20 @@ Stage Summary:
 - Si les données sont réellement parties (volume Coolify non monté) : vérifier Coolify → Persistent Storage → /app/data + /app/uploads montés ; les snapshots restent dans /app/data/backups.
 - Nouveaux artefacts : db-selfheal DMMF-dynamique ; /admin/securite → carte Sauvegardes (santé base + backup manuel + download) ; /api/cron/backup/download (superadmin, anti-traversal).
 - Action utilisateur : redéployer sur Coolify, puis ouvrir /admin/securite (badge « Base saine » attendu) et /api/system/health.
+
+---
+Task ID: fix-logo-card-trouveur
+Agent: Z.ai Code (main)
+Task: Page trouveur (/scan/[reference]) — remplacer l'icône PartyPopper par le logo QRBag sur la card « BAGAGE TROUVÉ ! »
+
+Work Log:
+- Identifié la card hero « BAGAGE TROUVÉ ! » (finder.hero_bravo_title) dans src/app/scan/[reference]/page.tsx
+- Remplacé l'icône PartyPopper par <img src="/logo.png"> (w-14 h-14 / sm:w-16 sm:h-16, object-contain) dans le cercle blanc animé
+- Ajout de overflow-hidden au cercle pour un rendu propre ; branche Shield conservée pour l'état « bagage déclaré perdu »
+- Supprimé l'import PartyPopper devenu inutilisé
+- Redémarré le serveur dev (port 3000 était down — ancien process = mini-service tracking-ws uniquement)
+- Vérifié lint OK + rendu mobile (390×844) et desktop (1280×800) via Agent Browser sur /scan/VOL26-R6EUQG
+
+Stage Summary:
+- Card « bagage trouvé » affiche désormais le logo QRBag au lieu de l'icône PartyPopper, mobile et desktop validés
+- Note : les anciennes refs de test (95UHPH, CCXEJN, 5PH4W4) n'existent plus dans la DB (19 bagages actuels : VOL26-* actifs, HAJJ26-* en attente) — confirme la perte de données antérieure
