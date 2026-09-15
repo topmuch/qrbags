@@ -1280,3 +1280,20 @@ Stage Summary:
 - Nouveau flux : email renseigné à l'inscription → documents reçus automatiquement, SANS clic sur /success
 - La card email de /success reste un filet de sécurité : re-envoi + point d'entrée pour les passagers SANS email à l'inscription
 - Redéploiement Coolify requis (commits en attente dont 58fa6b5)
+
+---
+Task ID: brand-rename-qrbags
+Agent: Z.ai Code (main)
+Task: Parcourir tout le site et remplacer « QRBag » par « QRBags »
+
+Work Log:
+- Inventaire : 693 occurrences dans 94 fichiers src + 51 dans les JSON publics + racine (README, package.json, prisma)
+- Remplacements : QRBag→QRBags (word boundary, 500+), qrbag.com→qrbags.com (emails contact@/admin@/noreply@/agency@/agence@/support@ + liens), réseaux sociaux /qrbag→/qrbags (facebook/instagram/twitter), titres uppercase (QRBAGS EN ACTION, POURQUOI QRBAGS), package.json name, prisma defaults (fromName/fromEmail)
+- PRÉSERVÉ (identifiants techniques, sinon casse) : classes CSS bg-gradient-qrbag/text-gradient-qrbag/qrbag-marquee, clés storage qrbag_lang/qrbag_session/qrbag_locale/qrbag_rgpd_consent/qrbag_audio_enabled, secret JWT, env QRBAG_URL/QRBAG_SUPPORT_PHONE, refs DEMO-QRBAG, chemins image, noms de composants internes
+- Vérif navigateur : titre « QRBags - Protection intelligente des bagages », 0 occurrence legacy visible, gradients CSS intacts, tableaux comparatifs OK, liens sociaux → /qrbags
+- Lint OK, commit 4350fe9 poussé (95 fichiers)
+
+Stage Summary:
+- Marque unifiée « QRBags » sur tout le site (fr/en/ar), alignée sur le logo et le domaine qrbags.com
+- ⚠️ À vérifier par le propriétaire : les adresses email (contact@qrbags.com etc.) et les comptes sociaux @qrbags doivent exister réellement — sinon corriger les valeurs
+- Redéploiement Coolify requis
