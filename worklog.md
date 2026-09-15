@@ -1125,3 +1125,25 @@ Stage Summary:
 - PAGE SCAN : bouton Appeler (tel: normalisé) + langue auto par Accept-Language du trouveur (race detect-country corrigée, priorité à la préférence explicite).
 - /inscrire : email optionnel + sélecteurs heure 24h déterministes ; /checklist : upsell post-succès vers activation/commande.
 - ⚠️ Rappels production : 1) ajouter CRON_SECRET dans les variables Coolify ; 2) redéploiement Coolify manuel requis après push ; 3) configurer les crons externes vers /api/cron/cleanup et /api/cron/backup si pas déjà fait.
+
+---
+Task ID: 6 (hotfix)
+Agent: Z.ai Code (session continue)
+Task: « les bagages ont disparut » — diagnostic production + fix P2022 récidive + UI sauvegardes admin
+
+Work Log:
+- Vérifié données locales INTACTES : 19 Baggage, 4 Checklist, 1 Agency ; /agence/baggages (14), /admin/qrcodes (19), /admin/tableau-de-bord, /admin/voyageurs, /admin/etiquettes, /admin/hajj tous OK via agent-browser.
+- Exclu les suspects locaux : cron cleanup (ne touche que EmailToken/EmailLog), backup.ts (rotation fichiers uniquement), seed (DEMO-QRBAG only), schema diff 823695e purement additif (travelerEmail nullable).
+- Racine identifiée : symptôme EXACT documenté dans db-selfheal.ts (dashboard montre les counts mais les LISTES 500/vides = P2022 « column does not exist »). Le volume /app/data production persiste avec un schéma SQLite ANTÉRIEUR ; si `prisma db push` ne tourne pas au boot (image sans start.sh / déploiement Coolify non-standard), le selfheal était censé réparer — MAIS son miroir statique EXPECTED_SCHEMA avait OUBLIÉ `Baggage.travelerEmail` (ajouté au schéma en 823695e) → Prisma SELECT * → P2022 → /api/agency/baggages + /api/qrcodes 500 → « les bagages ont disparu » (données toujours en base !).
+- FIX durable (src/lib/db-selfheal.ts) : le schéma attendu est désormais dérivé DYNAMIQUEMENT du DMMF du client Prisma généré (buildSchemaFromDmmf + buildMergedSchema : mapping types Prisma→SQLite, defaults @now→CURRENT_TIMESTAMP, skip relations/unsupported) fusionné au miroir statique (secours, travelerEmail + Checklist.flightNumber ajoutés). Plus JAMAIS d'oubli de colonne possible lors d'une future migration.
+- Simulation production E2E (bun + prisma/qrbag.db = vieux schéma) : avant → findMany P2022 ✅ reproduit ; runSchemaRepair → 25 colonnes ajoutées + 4 tables créées (Checklist/Review/LossAlert/SystemLog), 0 erreur ; après → findMany + create + read OK ✅. DB courante : 0 colonne ajoutée (aucune régression).
+- Vérifié `npx prisma db push --skip-generate` sur le vieux volume = purement additif (travelerEmail, transportMode, photoData… ajoutés, données conservées).
+- UI Sauvegardes admin (/admin/securite) : carte « Sauvegardes de la base » = badge santé base (fetch /api/system/health : status/schema.ok/baggageReadOk), bouton « Backup maintenant » (POST /api/cron/backup → ✅ Backup créé : qrbag-backup-2026-09-15T18-58-37.db testé), tableau scrollable des 14 snapshots (fichier/date/taille) + téléchargement .db.
+- Nouveau endpoint /api/cron/backup/download?file=… (superadmin uniquement) : 200 avec session superadmin (466 944 octets), 401 anonyme, 400 path-traversal (regex ^qrbag-backup-[0-9T-]+\.db$ + resolve + startsWith).
+- lint 0 erreur ; dev.log sans erreur runtime.
+
+Stage Summary:
+- Diagnostic : les bagages de PRODUCTION n'ont probablement PAS disparu — la liste échouait en 500 (P2022, colonne travelerEmail manquante dans le selfheal statique) pendant que les counts s'affichaient. Le fix DMMF rend le selfheal auto-couvrant ; après redéploiement les listes doivent réapparaître avec leurs données (aucune perte).
+- Si les données sont réellement parties (volume Coolify non monté) : vérifier Coolify → Persistent Storage → /app/data + /app/uploads montés ; les snapshots restent dans /app/data/backups.
+- Nouveaux artefacts : db-selfheal DMMF-dynamique ; /admin/securite → carte Sauvegardes (santé base + backup manuel + download) ; /api/cron/backup/download (superadmin, anti-traversal).
+- Action utilisateur : redéployer sur Coolify, puis ouvrir /admin/securite (badge « Base saine » attendu) et /api/system/health.

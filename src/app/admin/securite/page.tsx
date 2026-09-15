@@ -14,6 +14,9 @@ import {
   RefreshCw,
   AlertTriangle,
   Activity,
+  DatabaseBackup,
+  Download,
+  HeartPulse,
 } from 'lucide-react';
 
 interface LoginLog {
@@ -43,11 +46,30 @@ interface ActiveSession {
   };
 }
 
+interface BackupInfo {
+  filename: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
+interface HealthInfo {
+  status: string;
+  schema: { ok: boolean; missingTables: number; missingColumns: number };
+  baggageReadOk: boolean;
+}
+
 export default function SecurityAuditPage() {
   const [loginLogs, setLoginLogs] = useState<LoginLog[]>([]);
   const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // 💾 Sauvegardes
+  const [backups, setBackups] = useState<BackupInfo[]>([]);
+  const [backupLoading, setBackupLoading] = useState(true);
+  const [creatingBackup, setCreatingBackup] = useState(false);
+  const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const [health, setHealth] = useState<HealthInfo | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -73,7 +95,57 @@ export default function SecurityAuditPage() {
 
   useEffect(() => {
     fetchData();
+    fetchBackups();
+    fetchHealth();
   }, []);
+
+  const fetchBackups = async () => {
+    setBackupLoading(true);
+    try {
+      const res = await fetch('/api/cron/backup');
+      if (res.ok) {
+        const data = await res.json();
+        setBackups(data.backups || []);
+      }
+    } catch {
+      // non bloquant
+    } finally {
+      setBackupLoading(false);
+    }
+  };
+
+  const fetchHealth = async () => {
+    try {
+      const res = await fetch('/api/system/health');
+      if (res.ok) setHealth(await res.json());
+    } catch {
+      // non bloquant
+    }
+  };
+
+  const createBackupNow = async () => {
+    setCreatingBackup(true);
+    setBackupMessage(null);
+    try {
+      const res = await fetch('/api/cron/backup', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setBackupMessage(`✅ ${data.message || 'Backup créé'}`);
+        await fetchBackups();
+      } else {
+        setBackupMessage(`❌ ${data.error || 'Échec de la création'}`);
+      }
+    } catch {
+      setBackupMessage('❌ Erreur de connexion');
+    } finally {
+      setCreatingBackup(false);
+    }
+  };
+
+  const formatSize = (bytes: number) => {
+    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+    return `${(bytes / 1024).toFixed(0)} Ko`;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('fr-FR', {
@@ -209,6 +281,94 @@ export default function SecurityAuditPage() {
           <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
+
+      {/* 💾 Sauvegardes de la base */}
+      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+        <CardHeader>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <CardTitle className="flex items-center gap-2">
+              <DatabaseBackup className="w-5 h-5 text-[#8b17c9]" />
+              Sauvegardes de la base
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {health && (
+                <Badge
+                  variant={health.status === 'ok' ? 'default' : 'destructive'}
+                  className="gap-1"
+                  title={`schema.ok: ${health.schema?.ok} — baggageReadOk: ${health.baggageReadOk}`}
+                >
+                  <HeartPulse className="w-3 h-3" />
+                  {health.status === 'ok'
+                    ? 'Base saine'
+                    : `Base dégradée (${health.schema?.missingColumns ?? '?'} colonne(s) manquante(s))`}
+                </Badge>
+              )}
+              <button
+                onClick={createBackupNow}
+                disabled={creatingBackup}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#8b17c9] text-white text-sm font-medium hover:bg-[#7a13b0] disabled:opacity-50 transition-colors"
+              >
+                <DatabaseBackup className={`w-4 h-4 ${creatingBackup ? 'animate-pulse' : ''}`} />
+                {creatingBackup ? 'Création…' : 'Backup maintenant'}
+              </button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+            Snapshot quotidien automatique (au démarrage du serveur + cron). Rétention : 14 snapshots.
+            Téléchargez régulièrement le dernier backup et conservez-le hors du serveur.
+          </p>
+          {backupMessage && (
+            <div className="mb-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200">
+              {backupMessage}
+            </div>
+          )}
+          {backupLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <RefreshCw className="w-6 h-6 animate-spin text-slate-400" />
+            </div>
+          ) : backups.length === 0 ? (
+            <p className="text-center text-slate-500 dark:text-slate-400 py-6 text-sm">
+              Aucun backup pour le moment — cliquez sur « Backup maintenant »
+            </p>
+          ) : (
+            <div className="max-h-96 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 dark:bg-slate-800/60 sticky top-0">
+                  <tr>
+                    <th className="text-left px-4 py-2.5 font-medium text-slate-600 dark:text-slate-300">Fichier</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-slate-600 dark:text-slate-300">Date</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-slate-600 dark:text-slate-300">Taille</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-slate-600 dark:text-slate-300">Télécharger</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {backups.map((b) => (
+                    <tr
+                      key={b.filename}
+                      className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    >
+                      <td className="px-4 py-2.5 font-mono text-xs text-slate-700 dark:text-slate-200">{b.filename}</td>
+                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-xs">{formatDate(b.createdAt)}</td>
+                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-xs">{formatSize(b.sizeBytes)}</td>
+                      <td className="px-4 py-2.5 text-right">
+                        <a
+                          href={`/api/cron/backup/download?file=${encodeURIComponent(b.filename)}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          .db
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Active Sessions */}
       <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">

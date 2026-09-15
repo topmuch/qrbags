@@ -12,8 +12,15 @@
  *   - GET /api/admin/voyageurs  → 500
  * alors que les agrégats (count) fonctionnent → le dashboard affiche
  * encore "6840 QR codes" mais plus aucune liste ne s'affiche.
+ *   ⚠️ Symptôme utilisateur : « les bagages ont disparu » — les QR existent
+ *   toujours en base, seule la LISTE échoue (les counts restent OK).
  *
  * SOLUTION (100 % additive, sans perte de données) :
+ * 0. Schéma attendu dérivé DYNAMIQUEMENT du DMMF du client Prisma généré
+ *    (@prisma/client) — impossible d'oublier une colonne lors d'une future
+ *    migration (ex: travelerEmail oublié en sept. 2026 → P2022 récidive).
+ *    Le miroir statique ci-dessous reste en secours si le DMMF est
+ *    indisponible. Fusion statique + dynamique.
  * 1. Tables manquantes   → CREATE TABLE IF NOT EXISTS (définitions alignées
  *    sur prisma/schema.prisma, sans FK/index — les requêtes Prisma
  *    fonctionnent sans ; `prisma db push` les réconcilie ensuite)
@@ -49,8 +56,128 @@ const C = (ddl: string): ColumnDef => ({
 const CREATED_AT = C('"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP');
 const UPDATED_AT = C('"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP');
 
-/** Schéma attendu — miroir de prisma/schema.prisma (types SQLite Prisma). */
-export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
+/**
+ * Mapping type Prisma → type SQLite (aligné sur ce que `prisma db push`
+ * crée pour SQLite, à l'exception de Json → TEXT, plus sûr en ALTER).
+ */
+function prismaTypeToSqlite(type: string): string | null {
+  switch (type) {
+    case 'String': return 'TEXT';
+    case 'Boolean': return 'BOOLEAN';
+    case 'Int': return 'INTEGER';
+    case 'BigInt': return 'INTEGER';
+    case 'Float': return 'REAL';
+    case 'Decimal': return 'DECIMAL';
+    case 'DateTime': return 'DATETIME';
+    case 'Json': return 'TEXT';
+    case 'Bytes': return 'BLOB';
+    default: return null; // Unsupported / enums sans mapping → ignoré
+  }
+}
+
+/**
+ * Construit le schéma attendu depuis le DMMF du client Prisma généré.
+ * Retourne null si le DMMF est indisponible (fallback sur le miroir statique).
+ */
+export function buildSchemaFromDmmf(): Record<string, ColumnDef[]> | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Prisma } = require('@prisma/client') as typeof import('@prisma/client');
+    if (!Prisma?.dmmf?.datamodel?.models?.length) return null;
+
+    const result: Record<string, ColumnDef[]> = {};
+    for (const model of Prisma.dmmf.datamodel.models) {
+      const columns: ColumnDef[] = [];
+      for (const field of model.fields) {
+        if (field.kind !== 'scalar') continue; // relations / objets ignorés
+        const sqliteType = prismaTypeToSqlite(field.type);
+        if (!sqliteType) continue;
+
+        const isId = field.isId;
+        const required = field.isRequired;
+
+        // Colonnes NOT NULL sans DEFAULT : uniquement créables à la création
+        // de table (ALTER impossible sur table non vide) — en ALTER on les
+        // ajoute NULLABLE pour ne jamais bloquer.
+        if (isId) {
+          columns.push(C(`"${field.name}" TEXT NOT NULL PRIMARY KEY`));
+          continue;
+        }
+
+        let ddl = `"${field.name}" ${sqliteType}`;
+        if (required) {
+          const def = field.default;
+          if (def === undefined || def === null) {
+            // required sans default → nullable en ALTER, NOT NULL en création
+            // est géré par la définition statique / prisma db push.
+            columns.push({ name: field.name, ddl });
+            continue;
+          }
+          const sqlDefault = formatPrismaDefault(def);
+          if (sqlDefault === null) {
+            columns.push({ name: field.name, ddl });
+            continue;
+          }
+          ddl += ` NOT NULL DEFAULT ${sqlDefault}`;
+        }
+        columns.push(C(ddl));
+      }
+      if (columns.length > 0) result[model.name] = columns;
+    }
+    return Object.keys(result).length > 0 ? result : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Convertit la valeur @default du DMMF en fragment SQL SQLite (ou null). */
+function formatPrismaDefault(def: unknown): string | null {
+  if (typeof def === 'string') return `'${def.replace(/'/g, "''")}'`;
+  if (typeof def === 'number') return String(def);
+  if (typeof def === 'boolean') return def ? 'true' : 'false';
+  if (typeof def === 'object' && def !== null) {
+    const name = (def as { name?: string }).name;
+    if (name === 'now') return 'CURRENT_TIMESTAMP';
+    // autoincrement / cuid / uuid / dbgenerated → pas de DEFAULT SQL exploitable
+    return null;
+  }
+  return null;
+}
+
+/**
+ * Schéma attendu FINAL = miroir statique (secours) fusionné avec le schéma
+ * dynamique dérivé du DMMF (source de vérité, toujours à jour).
+ */
+export function buildMergedSchema(): Record<string, ColumnDef[]> {
+  const merged: Record<string, ColumnDef[]> = {};
+
+  // 1) Base statique (secours — couvre les cas où le DMMF est indisponible)
+  for (const [tableName, columns] of Object.entries(STATIC_FALLBACK_SCHEMA)) {
+    merged[tableName] = [...columns];
+  }
+
+  // 2) Fusion dynamique — complète/corrige avec le vrai schéma Prisma
+  const dynamic = buildSchemaFromDmmf();
+  if (dynamic) {
+    for (const [tableName, columns] of Object.entries(dynamic)) {
+      if (!merged[tableName]) {
+        merged[tableName] = columns;
+        continue;
+      }
+      const seen = new Set(merged[tableName].map((c) => c.name));
+      for (const col of columns) {
+        if (!seen.has(col.name)) merged[tableName].push(col);
+      }
+    }
+  }
+
+  return merged;
+}
+
+/** Schéma attendu — miroir statique de prisma/schema.prisma (SECOURS).
+ *  ⚠️ Ne plus ajouter manuellement ici : le DMMF dérive tout automatiquement.
+ *  Conservé uniquement si @prisma/client ne peut pas fournir son DMMF. */
+const STATIC_FALLBACK_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
   table('User', [
     C('"id" TEXT NOT NULL PRIMARY KEY'),
     C('"email" TEXT NOT NULL'),
@@ -100,6 +227,7 @@ export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
     C('"agencyId" TEXT'),
     C('"travelerFirstName" TEXT'),
     C('"travelerLastName" TEXT'),
+    C('"travelerEmail" TEXT'),
     C('"whatsappOwner" TEXT'),
     C('"baggageIndex" INTEGER NOT NULL DEFAULT 1'),
     C('"baggageType" TEXT NOT NULL DEFAULT \'cabine\''),
@@ -373,6 +501,7 @@ export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
     C('"departureDate" TEXT NOT NULL'),
     C('"destinationCountry" TEXT NOT NULL'),
     C('"airline" TEXT'),
+    C('"flightNumber" TEXT'),
     C('"items" TEXT NOT NULL'),
     C('"itemsCount" INTEGER NOT NULL DEFAULT 0'),
     C('"photoPath" TEXT'),
@@ -414,6 +543,13 @@ export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
     CREATED_AT,
   ]),
 ]);
+
+/**
+ * Schéma attendu FINAL (fusion statique de secours + DMMF dynamique).
+ * Source de vérité = prisma/schema.prisma via le client généré — toute
+ * colonne ajoutée au schéma est automatiquement couverte au prochain boot.
+ */
+export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = buildMergedSchema();
 
 export interface RepairReport {
   checked: boolean;
