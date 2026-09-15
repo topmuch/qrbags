@@ -1078,3 +1078,22 @@ Stage Summary:
 - Désormais, tout code invalide/expiré affiche une page d'erreur premium avec CTA au lieu d'un JSON brut.
 - Artefacts de test laissés en DB sandbox : 95UHPH/xGxuqmMc (wizard complet), CCXEJN/ddyF3vya (curl), 5PH4W4/T4iuzZ64.
 - Rappel : redéploiement Coolify manuel requis (push main déjà fait) — la DB de prod sera migrée au démarrage du conteneur.
+
+---
+Task ID: 5-qr (durée QR 30 jours + fix générateur Hajj)
+Agent: Z.ai Code (main)
+Task: « actuellement la durée du qrcode activé est 5 jours, augmenter la date de 30 jours » + « le générateur de qrcode haaj ne marche pas »
+
+Work Log:
+- Audit des durées : calculateExpirationDate (src/lib/qr.ts) — hajj +60j, voyageur sticker +7j, tag +1an ; UI admin affichait « 5 jours » (désynchronisé).
+- Fix durée : voyageur sticker 7j → 30j dans src/lib/qr.ts (hajj 60j et tag 1an inchangés).
+- Diagnostic générateur Hajj : l'UI admin envoie count=3 pour Hajj (3 bagages/pèlerin) mais le schéma Zod de POST /api/admin/baggages/generate limitait count à max(2) → 400 Validation error. Reproduit par curl, corrigé (max(3)).
+- Harmonisation libellés 7j→30j : admin/generer/page.tsx (SelectItem '7d'→'30d' + labels + reset form), expired/page.tsx, voyageurs-standard/page.tsx (3 endroits), chatbots IA scan/chat + landing/chat (« Formule Essentiel : 4€ pour 30 jours »). Types '7d'|'1y' → '30d'|'1y' (qr.ts + route).
+- Vérifications : curl — Hajj agency count:3 → 3 QR générés (payload UI exact) ; individual 30d → expire 2026-10-15 (J+30) ; individual 1y → 2027-09-15 ; activation /api/activate voyageur → expiresAt J+30 (VOL26-R6EUQG).
+- Test UI admin de bout en bout (login admin@qrbag.com) : mode Agence + type Hajj + Agence Test Hajj → « 3 étiquettes QR générées avec succès ! » + bandeau Export ZIP ; mode individuel → « 30 jours de validité ».
+- Lint clean, commit bc3f560 poussé sur main.
+
+Stage Summary:
+- QR activé (voyageur/autocollant) : durée désormais 30 jours (avant 5-7 jours selon les endroits). Hajj : 60 jours. Tag premium : 1 an.
+- Générateur Hajj admin réparé : la cause était la validation Zod (count=3 rejeté). Testé OK via API et UI.
+- Rappel : redéploiement Coolify requis (push déjà effectué).
