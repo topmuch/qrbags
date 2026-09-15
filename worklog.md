@@ -1228,3 +1228,19 @@ Stage Summary:
 - La page de confirmation permet maintenant de recevoir par email le Passeport bagage + le lien de suivi, sans passer par l'accueil
 - L'email voyageur saisi sur /success active aussi les futures notifications « bagage scanné »
 - Artifacts : commit e6f453c ; redéploiement Coolify requis (production SMTP via EmailSettings admin)
+
+---
+Task ID: scan-welcome-logo
+Agent: Z.ai Code (main)
+Task: Remplacer l'icône de la card « Bienvenue ! / Protégez vos bagages pour votre voyage » par le logo QRBag
+
+Work Log:
+- Texte identifié : /scan/[reference] → composant ActivationRedirect (vue QR non activé, redirige vers /inscrire ou /hajj/activate)
+- Icône Luggage du BrandIconRing remplacée par <img src="/logo.png"> arrondi (w-11 h-11 rounded-xl, pattern identique aux autres cards)
+- Luggage conservé à la ligne 696 (petite icône inline) → import intact
+- Vérifié agent-browser mobile 390x844 sur /scan/HAJJ26-8U6PRB : logo affiché dans l'anneau dégradé, badge Sparkles décoratif conservé, aucune erreur console
+- Lint OK ; commit 3aef10d poussé sur main
+
+Stage Summary:
+- Toutes les cards du parcours inscription (scan → inscrire → hajj/activate → success → commander) affichent désormais le logo QRBag
+- Artifacts : commit 3aef10d ; redéploiement Coolify requis
