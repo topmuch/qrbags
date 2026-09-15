@@ -1297,3 +1297,23 @@ Stage Summary:
 - Marque unifiée « QRBags » sur tout le site (fr/en/ar), alignée sur le logo et le domaine qrbags.com
 - ⚠️ À vérifier par le propriétaire : les adresses email (contact@qrbags.com etc.) et les comptes sociaux @qrbags doivent exister réellement — sinon corriger les valeurs
 - Redéploiement Coolify requis
+
+---
+Task ID: seo-francophonie
+Agent: Z.ai Code (main)
+Task: SEO — référencement Google de toutes les pages, ciblage francophonie (France, Canada, Suisse, Luxembourg, Belgique, Afrique francophone) + mots-clés valise perdue / objets trouvés / bagage aéroport
+
+Work Log:
+- Audit : 0 sitemap, robots sans Sitemap, 1 seule page indexée Google (web-search), pages 'use client' sans metadata → titre unique pour tout le site
+- Créé public/sitemap.xml (22 pages publiques) + public/robots.txt (Sitemap + Disallow admin/api/agence/scan/suivi/passeport...)
+- Layout racine : titre/description riches en mots-clés cibles, 27 keywords, hreflang fr + x-default, googleBot max-image-preview, JSON-LD Organization (areaServed 22 pays) + WebSite
+- 17 layout.tsx serveur par route (hajj-omra, voyageurs-standard, fonctionnalites×5, etapes×4, contact, a-propos, checklist, commander, inscrire, demo) avec titres/descriptions ciblés
+- Accueil : section FAQ (6 questions ciblant « valise perdue aéroport », « objets trouvés », etc.) + JSON-LD FAQPage + chips pays francophones ; fix typographique nbsp + apostrophes JSX
+- agency/[slug] : generateMetadata dynamique (SEO local agences, champs name/address seulement)
+- Lint OK ; vérifié navigateur : titres par page, @graph Organization/WebSite + FAQPage, robots.txt/sitemap.xml servis, rendu FAQ propre
+- Commit 9cb8114 poussé (23 fichiers)
+
+Stage Summary:
+- Site techniquement prêt pour l'indexation : sitemap, metadata par page, données structurées, ciblage mots-clés perte bagages
+- ⚠️ Actions propriétaire requises : redéploiement Coolify PUIS Google Search Console (propriété qrbags.com → soumettre sitemap.xml → demander indexation). Google peut mettre de 2 jours à plusieurs semaines
+- Fr/en/ar même URL : hreflang fr/x-default uniquement (pas d'URLs par langue)
