@@ -492,14 +492,31 @@ export default function ScanPage() {
         baggageData?.baggage?.travelerName || '',
         baggageData?.baggage?.type || 'voyageur'
       );
-      const ownerNumber = baggageData?.baggage?.whatsappOwner?.replace(/\D/g, '') || FALLBACK_PHONE;
-      // Use api.whatsapp.com directly instead of wa.me — wa.me corrupts 4-byte UTF-8 emojis (🎉📍👤📞💬👉💪)
-      // during its redirect to api.whatsapp.com (replaces them with U+FFFD replacement character).
-      const url = `https://api.whatsapp.com/send/?phone=${ownerNumber}&text=${message}`;
 
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      // ─── Normalisation robuste du numéro propriétaire ───
+      // Certains anciens enregistrements contiennent « +221 … », « 00221… » ou
+      // des espaces. Un numéro mal formé est LA cause n°1 de la page
+      // « Télécharger l'application » de WhatsApp (numéro introuvable).
+      const rawOwner = baggageData?.baggage?.whatsappOwner || '';
+      let ownerNumber = rawOwner.replace(/\D/g, '');
+      if (ownerNumber.startsWith('00')) ownerNumber = ownerNumber.slice(2); // préfixe international 00
+      if (!/^[1-9]\d{7,14}$/.test(ownerNumber)) {
+        // Numéro absent ou invalide → fallback support QRBag
+        ownerNumber = FALLBACK_PHONE;
+      }
 
-      if (isIOS) {
+      // Lien canonique WhatsApp (SANS slash final — format officiel de la doc).
+      // Le texte est déjà passé dans encodeURIComponent (emojis 4 octets sûrs).
+      const url = `https://api.whatsapp.com/send?phone=${ownerNumber}&text=${message}`;
+
+      // ─── Navigation : même onglet sur mobile, nouvel onglet sur desktop ───
+      // Sur mobile, window.open(..., '_blank') ouvre un onglet en arrière-plan où
+      // Chrome peut bloquer la redirection intent:// → l'utilisateur atterrit sur
+      // la page « Télécharger l'application » au lieu du chat. La navigation dans
+      // le même onglet déclenche le lien universel → ouverture directe de l'app.
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
         window.location.href = url;
       } else {
         const newWindow = window.open(url, '_blank');

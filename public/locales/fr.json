@@ -450,7 +450,17 @@
     "item_color": "Couleur",
     "item_brand": "Marque",
     "item_qty": "Qté",
-    "items_in_category": "{count} articles"
+    "items_in_category": "{count} articles",
+    "wizard_step": "Étape {current} sur {total}",
+    "step1_title": "Qui voyage ?",
+    "step1_hint": "Parlez-nous de votre voyage — 30 secondes suffisent !",
+    "step2_title": "Composez votre valise",
+    "step2_hint": "Touchez les articles à emporter — c'est ludique et gratuit !",
+    "step3_title": "Personnalisez",
+    "step3_hint": "Quantités, couleurs, marques — et la photo de votre valise si vous voulez.",
+    "next": "Continuer",
+    "back": "Retour",
+    "success_download": "Télécharger mon attestation PDF"
   },
   "success": {
     "success_title": "✅ Activation réussie !",

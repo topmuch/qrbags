@@ -450,7 +450,17 @@
     "item_color": "Color",
     "item_brand": "Brand",
     "item_qty": "Qty",
-    "items_in_category": "{count} items"
+    "items_in_category": "{count} items",
+    "wizard_step": "Step {current} of {total}",
+    "step1_title": "Who's travelling?",
+    "step1_hint": "Tell us about your trip — it only takes 30 seconds!",
+    "step2_title": "Pack your suitcase",
+    "step2_hint": "Tap the items you're bringing — fun and free!",
+    "step3_title": "Personalize",
+    "step3_hint": "Quantities, colors, brands — and a photo of your bag if you like.",
+    "next": "Continue",
+    "back": "Back",
+    "success_download": "Download my PDF attestation"
   },
   "success": {
     "success_title": "✅ Activation successful!",

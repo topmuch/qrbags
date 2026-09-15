@@ -450,7 +450,17 @@
     "item_color": "اللون",
     "item_brand": "العلامة التجارية",
     "item_qty": "الكمية",
-    "items_in_category": "{count} عناصر"
+    "items_in_category": "{count} عناصر",
+    "wizard_step": "الخطوة {current} من {total}",
+    "step1_title": "من المسافر؟",
+    "step1_hint": "أخبرنا عن رحلتك — لا يستغرق سوى 30 ثانية!",
+    "step2_title": "جهّز حقيبتك",
+    "step2_hint": "المس العناصر التي ستحملها — ممتع ومجاني!",
+    "step3_title": "تخصيص",
+    "step3_hint": "الكميات والألوان والعلامات — وصورة حقيبتك إذا أردت.",
+    "next": "متابعة",
+    "back": "رجوع",
+    "success_download": "تحميل شهادة PDF"
   },
   "success": {
     "success_title": "✅ تم التفعيل بنجاح!",
