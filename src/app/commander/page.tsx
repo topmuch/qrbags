@@ -1,7 +1,7 @@
 'use client';
 
 /* ══════════════════════════════════════════════════════════════
-   /commander — Parcours de commande produit QRBag (page publique)
+   /commander — Parcours de commande produit QRBags (page publique)
    La commande part dans l'onglet Messages du superadmin via
    POST /api/messages (type « commande »).
    Palette stricte : navy #16234e · azure #2f9bff · orange #f8921f ·
@@ -296,11 +296,11 @@ function CommanderContent() {
                     transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
                     className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
                   >
-                    <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
+                    <img src="/logo.png" alt="Logo QRBags" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
                   </motion.div>
 
                   <h1 className="relative text-2xl md:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
-                    Commandez vos étiquettes QRBag
+                    Commandez vos étiquettes QRBags
                   </h1>
                   <p className="relative mt-3 text-sm md:text-base text-white/90 leading-relaxed max-w-xl mx-auto font-medium">
                     Livraison suivie sous 3 à 5 jours, activation en 30 secondes.
@@ -358,7 +358,7 @@ function CommanderContent() {
               </h2>
               <p className="text-sm text-[#16234e]/60 mb-5">Touchez une carte pour la sélectionner.</p>
 
-              <div role="radiogroup" aria-label="Offres QRBag" className="grid sm:grid-cols-3 gap-4">
+              <div role="radiogroup" aria-label="Offres QRBags" className="grid sm:grid-cols-3 gap-4">
                 {OFFRES.map((o) => {
                   const selected = o.id === offreId;
                   return (
@@ -685,7 +685,7 @@ function CommanderContent() {
       <footer className="mt-auto relative bg-white border-t border-[#16234e]/10">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-qrbag" aria-hidden />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#16234e]/55">
-          <p>© {new Date().getFullYear()} QRBag — Vos bagages, toujours joignables.</p>
+          <p>© {new Date().getFullYear()} QRBags — Vos bagages, toujours joignables.</p>
           <Link href="/contact" className="inline-flex items-center min-h-[44px] font-bold text-[#2f9bff] hover:underline">
             Une question ? Contactez-nous
           </Link>
@@ -723,7 +723,7 @@ function SuccessScreen({ offre, quantite, total }: { offre: Offre; quantite: num
 
       <BrandCard corners className="p-8 sm:p-12 text-center overflow-hidden">
         <BrandIconRing size="w-24 h-24" glow="#f8921f">
-          <img src="/logo.png" alt="Logo QRBag" className="w-16 h-16 object-contain rounded-2xl" aria-hidden />
+          <img src="/logo.png" alt="Logo QRBags" className="w-16 h-16 object-contain rounded-2xl" aria-hidden />
         </BrandIconRing>
 
         <h2 className="mt-7 text-3xl sm:text-4xl font-black text-[#16234e] tracking-tight">

@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 
 /**
- * QRBag — Middleware de sécurité global (runtime Node.js)
+ * QRBags — Middleware de sécurité global (runtime Node.js)
  *
  * SÉCURITÉ OBLIGATOIRE : toute API admin/agence exige une session serveur valide
  * (cookie httpOnly `qrbag_session` → ligne `Session` en base + utilisateur actif).

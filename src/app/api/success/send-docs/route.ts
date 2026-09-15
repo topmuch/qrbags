@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     const emailResult = await sendEmail({
       to: normalizedEmail,
-      subject: `🧳 Vos documents QRBag — bagage ${baggage.reference}`,
+      subject: `🧳 Vos documents QRBags — bagage ${baggage.reference}`,
       html: template.html,
       text: template.text,
       type: 'success_docs',

@@ -238,10 +238,10 @@ export async function POST(request: NextRequest) {
       flightNumber: checklist.flightNumber,
     });
 
-    const attachmentFilename = `QRBag-attestation-${code}.pdf`;
+    const attachmentFilename = `QRBags-attestation-${code}.pdf`;
     const emailResult = await sendEmail({
       to: checklist.email,
-      subject: `🎒 Votre attestation d'inventaire QRBag (${code})`,
+      subject: `🎒 Votre attestation d'inventaire QRBags (${code})`,
       html: template.html,
       text: template.text,
       type: 'checklist',

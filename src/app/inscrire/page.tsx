@@ -295,7 +295,7 @@ function InscrireContent() {
             <ArrowLeft className="w-5 h-5" />
             <span className="text-sm md:text-base">{t('inscrire.back')}</span>
           </Link>
-          <img src="/logo.png" alt="QRBag" className="h-12 sm:h-14 w-auto object-contain" />
+          <img src="/logo.png" alt="QRBags" className="h-12 sm:h-14 w-auto object-contain" />
           <LanguageSelector lang={lang} setLang={setLang} />
         </header>
 
@@ -324,7 +324,7 @@ function InscrireContent() {
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                   className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
                 >
-                  <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
+                  <img src="/logo.png" alt="Logo QRBags" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
                 </motion.div>
 
                 {/* Badge pilule — activation gratuite */}

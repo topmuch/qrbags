@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
 
       void sendEmail({
         to: autoDocsEmail,
-        subject: `🧳 Vos documents QRBag — bagage ${updatedBaggage.reference}`,
+        subject: `🧳 Vos documents QRBags — bagage ${updatedBaggage.reference}`,
         html: docsTemplate.html,
         text: docsTemplate.text,
         type: 'success_docs',

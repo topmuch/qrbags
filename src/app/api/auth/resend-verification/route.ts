@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     
     await sendEmail({
       to: email,
-      subject: 'QRBag - Vérification de votre email',
+      subject: 'QRBags - Vérification de votre email',
       html: template.html,
       text: template.text,
       type: 'verification',

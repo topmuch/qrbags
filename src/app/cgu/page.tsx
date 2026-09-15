@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Conditions Générales d\'Utilisation',
-  description: 'CGU de QRBag - Conditions d\'utilisation de nos services de protection des bagages.',
+  description: 'CGU de QRBags - Conditions d\'utilisation de nos services de protection des bagages.',
 };
 
 export default function CGU() {
@@ -17,17 +17,17 @@ export default function CGU() {
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">1. Objet</h2>
               <p className="mb-4">
-                Les présentes Conditions Générales d&apos;Utilisation (CGU) ont pour objet de définir les modalités et conditions d&apos;utilisation des services proposés par QRBag, ainsi que de définir les droits et obligations des parties dans ce cadre.
+                Les présentes Conditions Générales d&apos;Utilisation (CGU) ont pour objet de définir les modalités et conditions d&apos;utilisation des services proposés par QRBags, ainsi que de définir les droits et obligations des parties dans ce cadre.
               </p>
               <p>
-                En utilisant les services QRBag, vous acceptez sans réserve les présentes CGU. Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser nos services.
+                En utilisant les services QRBags, vous acceptez sans réserve les présentes CGU. Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser nos services.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">2. Description des services</h2>
               <p className="mb-4">
-                QRBag propose un service de protection des bagages basé sur la technologie QR Code. Les services incluent :
+                QRBags propose un service de protection des bagages basé sur la technologie QR Code. Les services incluent :
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Fourniture d&apos;autocollants QR Code à apposer sur les bagages</li>
@@ -50,7 +50,7 @@ export default function CGU() {
                 <li>Ne pas créer plusieurs comptes pour une même personne</li>
               </ul>
               <p>
-                QRBag se réserve le droit de suspendre ou supprimer un compte en cas de non-respect des présentes CGU.
+                QRBags se réserve le droit de suspendre ou supprimer un compte en cas de non-respect des présentes CGU.
               </p>
             </section>
 
@@ -61,21 +61,21 @@ export default function CGU() {
                 <li>Utiliser les services uniquement à des fins licites</li>
                 <li>Ne pas tenter de contourner les mesures de sécurité</li>
                 <li>Ne pas utiliser les services pour nuire à autrui</li>
-                <li>Respecter les droits de propriété intellectuelle de QRBag</li>
+                <li>Respecter les droits de propriété intellectuelle de QRBags</li>
                 <li>Signaler tout contenu ou comportement inapproprié</li>
               </ul>
               <p>
-                L&apos;utilisation des services QRBag à des fins frauduleuses ou malveillantes est strictement interdite et pourra faire l&apos;objet de poursuites judiciaires.
+                L&apos;utilisation des services QRBags à des fins frauduleuses ou malveillantes est strictement interdite et pourra faire l&apos;objet de poursuites judiciaires.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">5. Activation et validité des QR codes</h2>
               <p className="mb-4">
-                Chaque autocollant QRBag comporte un QR Code unique qui doit être activé pour être fonctionnel. Les conditions d&apos;activation sont les suivantes :
+                Chaque autocollant QRBags comporte un QR Code unique qui doit être activé pour être fonctionnel. Les conditions d&apos;activation sont les suivantes :
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li>L&apos;activation se fait via le site web QRBag en scannant le QR Code ou en saisissant la référence</li>
+                <li>L&apos;activation se fait via le site web QRBags en scannant le QR Code ou en saisissant la référence</li>
                 <li>Un QR Code actif est valide pour une durée déterminée selon le forfait choisi</li>
                 <li>La validité peut être prolongée en souscrivant à une extension</li>
                 <li>Un QR Code non activé n&apos;est pas fonctionnel</li>
@@ -88,23 +88,23 @@ export default function CGU() {
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">6. Signalement et restitution</h2>
               <p className="mb-4">
-                En cas de perte ou de trouvaille d&apos;un bagage équipé d&apos;un QR Code QRBag :
+                En cas de perte ou de trouvaille d&apos;un bagage équipé d&apos;un QR Code QRBags :
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li>Le scan du QR Code déclenche une notification au propriétaire du bagage</li>
                 <li>Une messagerie sécurisée permet la communication entre les parties</li>
-                <li>QRBag facilite la mise en relation mais n&apos;assure pas le transport du bagage</li>
+                <li>QRBags facilite la mise en relation mais n&apos;assure pas le transport du bagage</li>
                 <li>Les informations personnelles restent protégées jusqu&apos;à consentement explicite</li>
               </ul>
               <p>
-                QRBag ne peut être tenu responsable en cas d&apos;impossibilité de restitution du bagage.
+                QRBags ne peut être tenu responsable en cas d&apos;impossibilité de restitution du bagage.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">7. Tarifs et paiement</h2>
               <p className="mb-4">
-                Les tarifs des services QRBag sont affichés sur le site et peuvent être modifiés à tout moment. Les conditions de paiement sont les suivantes :
+                Les tarifs des services QRBags sont affichés sur le site et peuvent être modifiés à tout moment. Les conditions de paiement sont les suivantes :
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Le paiement s&apos;effectue en ligne par carte bancaire ou autre moyen proposé</li>
@@ -117,7 +117,7 @@ export default function CGU() {
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">8. Responsabilité</h2>
               <p className="mb-4">
-                QRBag s&apos;engage à mettre en œuvre tous les moyens nécessaires pour assurer le bon fonctionnement de ses services. Toutefois, QRBag ne pourra être tenu responsable :
+                QRBags s&apos;engage à mettre en œuvre tous les moyens nécessaires pour assurer le bon fonctionnement de ses services. Toutefois, QRBags ne pourra être tenu responsable :
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li>Des dommages résultant d&apos;une utilisation non conforme aux services</li>
@@ -126,14 +126,14 @@ export default function CGU() {
                 <li>Des retards ou défauts de livraison des autocollants imputables aux transporteurs</li>
               </ul>
               <p>
-                La responsabilité de QRBag est limitée au montant des sommes versées par l&apos;utilisateur.
+                La responsabilité de QRBags est limitée au montant des sommes versées par l&apos;utilisateur.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">9. Propriété intellectuelle</h2>
               <p className="mb-4">
-                L&apos;ensemble des éléments constituant le site QRBag (textes, images, logos, icônes, logiciels, QR Codes, etc.) est protégé par le droit de la propriété intellectuelle.
+                L&apos;ensemble des éléments constituant le site QRBags (textes, images, logos, icônes, logiciels, QR Codes, etc.) est protégé par le droit de la propriété intellectuelle.
               </p>
               <p>
                 Toute reproduction, représentation ou utilisation non autorisée de ces éléments est strictement interdite et pourra faire l&apos;objet de poursuites judiciaires.
@@ -143,17 +143,17 @@ export default function CGU() {
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">10. Protection des données</h2>
               <p className="mb-4">
-                Les données personnelles collectées par QRBag sont traitées conformément à notre <a href="/confidentialite" className="text-[#e07c0a] hover:underline">Politique de confidentialité</a> et dans le respect du Règlement Général sur la Protection des Données (RGPD).
+                Les données personnelles collectées par QRBags sont traitées conformément à notre <a href="/confidentialite" className="text-[#e07c0a] hover:underline">Politique de confidentialité</a> et dans le respect du Règlement Général sur la Protection des Données (RGPD).
               </p>
               <p>
-                Pour toute question relative à vos données personnelles, contactez-nous à : contact@qrbag.com
+                Pour toute question relative à vos données personnelles, contactez-nous à : contact@qrbags.com
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">11. Modification des CGU</h2>
               <p>
-                QRBag se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés de toute modification substantielle par notification sur le site ou par email. L&apos;utilisation continue des services après modification vaut acceptation des nouvelles CGU.
+                QRBags se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés de toute modification substantielle par notification sur le site ou par email. L&apos;utilisation continue des services après modification vaut acceptation des nouvelles CGU.
               </p>
             </section>
 
@@ -182,7 +182,7 @@ export default function CGU() {
                 Pour toute question relative aux présentes CGU, vous pouvez nous contacter :
               </p>
               <p>
-                <strong>Email :</strong> <a href="mailto:contact@qrbag.com" className="text-[#e07c0a] hover:underline">contact@qrbag.com</a><br />
+                <strong>Email :</strong> <a href="mailto:contact@qrbags.com" className="text-[#e07c0a] hover:underline">contact@qrbags.com</a><br />
                 <strong>Adresse :</strong> Poissy, France
               </p>
             </section>

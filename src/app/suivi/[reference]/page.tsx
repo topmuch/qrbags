@@ -51,7 +51,7 @@ import {
   brandBtnOutline,
 } from '@/components/brand/BrandShell';
 
-// ─── Constantes page suivi (design system officiel QRBag — voir src/components/brand/BrandShell.tsx) ───
+// ─── Constantes page suivi (design system officiel QRBags — voir src/components/brand/BrandShell.tsx) ───
 // Palette : Navy #16234e · Azure #2f9bff · Orange #f8921f · Rouge #ef4036 · Magenta #e6216e · Violet #8b17c9
 // Sémantique conservée : urgence rouge #ef4036 · succès/WhatsApp #25D366 (seule exception verte)
 const QRBAG_SUPPORT_PHONE = '+33745349339';
@@ -188,7 +188,7 @@ function usePWAInstallPrompt() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  LANGUAGE SELECTOR (pilule blanche — design system QRBag)
+//  LANGUAGE SELECTOR (pilule blanche — design system QRBags)
 // ═══════════════════════════════════════════════════════
 
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
@@ -233,7 +233,7 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
 }
 
 // ═══════════════════════════════════════════════════════
-//  SOFT ENCART (fond azure doux + bordure navy discrète — design system QRBag)
+//  SOFT ENCART (fond azure doux + bordure navy discrète — design system QRBags)
 // ═══════════════════════════════════════════════════════
 
 function SoftEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -260,7 +260,7 @@ function MapSkeleton() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  LOADING SCREEN (BrandShell blanc — design system QRBag)
+//  LOADING SCREEN (BrandShell blanc — design system QRBags)
 // ═══════════════════════════════════════════════════════
 
 function LoadingScreen({ t }: { t: (key: string) => string }) {
@@ -277,7 +277,7 @@ function LoadingScreen({ t }: { t: (key: string) => string }) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  ERROR SCREEN (BrandCard corners + BrandIconRing — design system QRBag)
+//  ERROR SCREEN (BrandCard corners + BrandIconRing — design system QRBags)
 // ═══════════════════════════════════════════════════════
 
 function ErrorScreen({
@@ -347,7 +347,7 @@ function ErrorScreen({
 }
 
 // ═══════════════════════════════════════════════════════
-//  GOOGLE MAPS IFRAME (fallback repliable — design system QRBag)
+//  GOOGLE MAPS IFRAME (fallback repliable — design system QRBags)
 // ═══════════════════════════════════════════════════════
 
 function MapEmbed({
@@ -759,7 +759,7 @@ export default function SuiviPage() {
         className="relative min-h-screen flex flex-col"
         dir={dir}
       >
-      {/* ─── Sticky Header (blanc translucide — design system QRBag) ─── */}
+      {/* ─── Sticky Header (blanc translucide — design system QRBags) ─── */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-[#16234e]/10 pt-[env(safe-area-inset-top,0px)] px-4 sm:px-5 md:px-8 py-2 sm:py-3">
         <div className="max-w-md mx-auto flex items-center justify-between gap-2">
           <BrandLogo className="h-8 sm:h-9 w-auto" />
@@ -1359,7 +1359,7 @@ export default function SuiviPage() {
           </a>
         </div>
 
-        {/* ═══ LAISSER UN AVIS (pilule outline — design system QRBag) ═══ */}
+        {/* ═══ LAISSER UN AVIS (pilule outline — design system QRBags) ═══ */}
         {data.scans.length > 0 && (
           <button
             onClick={() => setShowReviewModal(true)}
@@ -1370,7 +1370,7 @@ export default function SuiviPage() {
           </button>
         )}
 
-        {/* ═══ PWA INSTALL BUTTON (pilule outline — design system QRBag) ═══ */}
+        {/* ═══ PWA INSTALL BUTTON (pilule outline — design system QRBags) ═══ */}
         {showInstallButton && (
           <div className="text-center">
             <button

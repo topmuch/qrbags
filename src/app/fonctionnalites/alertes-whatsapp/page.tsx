@@ -66,7 +66,7 @@ export default function AlertesWhatsAppPage() {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100">
                   <Image
                     src="/images/landing-v2/features/alertes-whatsapp.jpg"
-                    alt="Alertes WhatsApp - QRBag"
+                    alt="Alertes WhatsApp - QRBags"
                     width={600}
                     height={800}
                     className="w-full h-auto object-cover"
@@ -145,7 +145,7 @@ export default function AlertesWhatsAppPage() {
             <div className="max-w-md mx-auto bg-[#e5ddd5] rounded-2xl p-4 shadow-xl border border-slate-200/60">
               <div className="bg-[#dcf8c6] rounded-xl p-4 shadow-sm max-w-[90%] ml-auto">
                 <p className="text-sm font-semibold text-slate-800 mb-2">🔔 Bagage retrouvé !</p>
-                <p className="text-sm text-slate-700 mb-3">Quelqu&apos;un vient de scanner votre QR code QRBag.</p>
+                <p className="text-sm text-slate-700 mb-3">Quelqu&apos;un vient de scanner votre QR code QRBags.</p>
                 <div className="bg-white/60 rounded-lg p-3 mb-3">
                   <p className="text-xs font-bold text-slate-700 mb-1">📍 Localisation :</p>
                   <p className="text-xs text-slate-600 mb-2">Aéroport Paris-Charles de Gaulle, Terminal 4</p>

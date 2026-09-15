@@ -101,7 +101,7 @@ export default function AgencyBlogPage() {
             <span className="text-2xl">📰</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Blog QRBag</h1>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Blog QRBags</h1>
             <p className="text-slate-500 dark:text-slate-400">Actualités, conseils et mises à jour</p>
           </div>
         </div>

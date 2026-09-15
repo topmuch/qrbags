@@ -7,7 +7,7 @@ export async function GET() {
   try {
     // Check if superadmin exists
     const existingAdmin = await prisma.user.findUnique({
-      where: { email: 'admin@qrbag.com' }
+      where: { email: 'admin@qrbags.com' }
     });
 
     if (!existingAdmin) {
@@ -18,7 +18,7 @@ export async function GET() {
       // Create superadmin user
       await prisma.user.create({
         data: {
-          email: 'admin@qrbag.com',
+          email: 'admin@qrbags.com',
           name: 'Super Admin',
           password: adminPassword,
           role: 'superadmin',
@@ -40,7 +40,7 @@ export async function GET() {
       // Create demo agency user
       await prisma.user.create({
         data: {
-          email: 'agence@qrbag.com',
+          email: 'agence@qrbags.com',
           name: 'FRANCINE MAKELA',
           password: agencyPassword,
           role: 'agency',
@@ -52,8 +52,8 @@ export async function GET() {
         success: true,
         message: 'Demo users created successfully',
         users: [
-          { email: 'admin@qrbag.com', password: 'admin123', role: 'superadmin' },
-          { email: 'agence@qrbag.com', password: 'agence123', role: 'agency' }
+          { email: 'admin@qrbags.com', password: 'admin123', role: 'superadmin' },
+          { email: 'agence@qrbags.com', password: 'agence123', role: 'agency' }
         ]
       });
     }
@@ -62,8 +62,8 @@ export async function GET() {
       success: true,
       message: 'Demo users already exist',
       users: [
-        { email: 'admin@qrbag.com', password: 'admin123', role: 'superadmin' },
-        { email: 'agence@qrbag.com', password: 'agence123', role: 'agency' }
+        { email: 'admin@qrbags.com', password: 'admin123', role: 'superadmin' },
+        { email: 'agence@qrbags.com', password: 'agence123', role: 'agency' }
       ]
     });
   } catch (error) {

@@ -54,8 +54,8 @@ export async function getEmailSettings(): Promise<EmailConfig | null> {
       // Return default console provider settings
       return {
         provider: 'console',
-        fromEmail: 'noreply@qrbag.com',
-        fromName: 'QRBag',
+        fromEmail: 'noreply@qrbags.com',
+        fromName: 'QRBags',
         smtpEncryption: 'tls',
       };
     }
@@ -111,8 +111,8 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
       const created = await prisma.emailSettings.create({
         data: {
           provider: config.provider || 'console',
-          fromEmail: config.fromEmail || 'noreply@qrbag.com',
-          fromName: config.fromName || 'QRBag',
+          fromEmail: config.fromEmail || 'noreply@qrbags.com',
+          fromName: config.fromName || 'QRBags',
           recipientEmail: config.recipientEmail || null,
           smtpHost: config.smtpHost,
           smtpPort: config.smtpPort,
@@ -307,12 +307,12 @@ export function getVerificationEmailTemplate(name: string, verificationUrl: stri
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Vérification de votre email</h2>
           <p style="color: #666;">Bonjour ${name},</p>
-          <p style="color: #666;">Merci de vous être inscrit sur QRBag. Vérifiez votre adresse email en utilisant le code ci-dessous :</p>
+          <p style="color: #666;">Merci de vous être inscrit sur QRBags. Vérifiez votre adresse email en utilisant le code ci-dessous :</p>
           <div style="text-align: center; margin: 30px 0;">
             <div style="background: #fff; border: 2px solid #8b17c9; border-radius: 10px; padding: 20px; display: inline-block;">
               <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #8b17c9;">${code}</span>
@@ -325,11 +325,11 @@ export function getVerificationEmailTemplate(name: string, verificationUrl: stri
           <p style="color: #999; font-size: 12px; text-align: center;">Ce code expire dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
         </div>
         <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `QRBag - Vérification de votre email\n\nBonjour ${name},\n\nMerci de vous être inscrit sur QRBag.\n\nVotre code de vérification : ${code}\n\nOu utilisez ce lien : ${verificationUrl}\n\nCe code expire dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.\n\n© QRBag`,
+    text: `QRBags - Vérification de votre email\n\nBonjour ${name},\n\nMerci de vous être inscrit sur QRBags.\n\nVotre code de vérification : ${code}\n\nOu utilisez ce lien : ${verificationUrl}\n\nCe code expire dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.\n\n© QRBags`,
   };
 }
 
@@ -338,7 +338,7 @@ export function getPasswordResetEmailTemplate(name: string, resetUrl: string, co
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Réinitialisation de votre mot de passe</h2>
@@ -356,11 +356,11 @@ export function getPasswordResetEmailTemplate(name: string, resetUrl: string, co
           <p style="color: #999; font-size: 12px; text-align: center;">Ce code expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.</p>
         </div>
         <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `QRBag - Réinitialisation de votre mot de passe\n\nBonjour ${name},\n\nVous avez demandé la réinitialisation de votre mot de passe.\n\nVotre code : ${code}\n\nOu utilisez ce lien : ${resetUrl}\n\nCe code expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.\n\n© QRBag`,
+    text: `QRBags - Réinitialisation de votre mot de passe\n\nBonjour ${name},\n\nVous avez demandé la réinitialisation de votre mot de passe.\n\nVotre code : ${code}\n\nOu utilisez ce lien : ${resetUrl}\n\nCe code expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.\n\n© QRBags`,
   };
 }
 
@@ -370,11 +370,11 @@ export function getTestEmailTemplate(): { html: string; text: string } {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Email de test</h2>
-          <p style="color: #666;">Ceci est un email de test envoyé depuis le panneau d'administration QRBag.</p>
+          <p style="color: #666;">Ceci est un email de test envoyé depuis le panneau d'administration QRBags.</p>
           <p style="color: #666;">Si vous recevez cet email, votre configuration email fonctionne correctement !</p>
           <div style="background: #e8f5e9; border-radius: 5px; padding: 15px; margin-top: 20px;">
             <p style="color: #2e7d32; margin: 0; font-weight: bold;">✓ Configuration email valide</p>
@@ -382,11 +382,11 @@ export function getTestEmailTemplate(): { html: string; text: string } {
           </div>
         </div>
         <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `QRBag - Email de test\n\nCeci est un email de test envoyé depuis le panneau d'administration QRBag.\n\nSi vous recevez cet email, votre configuration email fonctionne correctement !\n\n✓ Configuration email valide\nEnvoyé le ${now}\n\n© QRBag`,
+    text: `QRBags - Email de test\n\nCeci est un email de test envoyé depuis le panneau d'administration QRBags.\n\nSi vous recevez cet email, votre configuration email fonctionne correctement !\n\n✓ Configuration email valide\nEnvoyé le ${now}\n\n© QRBags`,
   };
 }
 
@@ -456,7 +456,7 @@ export function getBaggageLostEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #fff3f3; border: 2px solid #e74c3c; border-radius: 10px; padding: 30px;">
           <h2 style="color: #e74c3c; margin-top: 0;">🚨 Bagage déclaré comme perdu</h2>
@@ -492,13 +492,13 @@ export function getBaggageLostEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBag — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBags — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `🚨 QRBag - Bagage déclaré comme perdu\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\nVol: ${data.flightNumber || 'Non renseigné'}\nDestination: ${data.destination || 'Non renseignée'}\n\nNotification automatique QRBag — ${now}\n© QRBag`,
+    text: `🚨 QRBags - Bagage déclaré comme perdu\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\nVol: ${data.flightNumber || 'Non renseigné'}\nDestination: ${data.destination || 'Non renseignée'}\n\nNotification automatique QRBags — ${now}\n© QRBags`,
   };
 }
 
@@ -574,13 +574,13 @@ export function getScanAlertEmailTemplate(data: {
           </div>
           <p style="color: #666; font-size: 13px; margin-top: 20px;">💡 <strong>Conseil :</strong> contacte rapidement le trouveur pour organiser la restitution. Reste vigilant : ne verse aucune avance d'argent sans avoir vérifié la personne.</p>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBag — ${data.scannedAt}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBags — ${data.scannedAt}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRBag — Protection intelligente des bagages</p>
+          <p>© QRBags — Protection intelligente des bagages</p>
         </div>
       </div>
     `,
-    text: `🔔 QRBag — Ton bagage vient d'être scanné !\n\n${travelerDisplay}, quelqu'un a scanné le QR code de ton bagage.\n\nRéférence : ${data.reference}\nLieu : ${place}\nPosition : ${data.mapUrl || data.location || 'non précisée'}\nTrouveur : ${data.finderName || 'non précisé'}${data.finderPhone ? ` — ${data.finderPhone}` : ''}\nHeure : ${data.scannedAt}\n\nSuivre en direct : ${data.trackingUrl}\n\n💡 Contacte rapidement le trouveur. Ne verse aucune avance d'argent sans vérification.\n\nL'équipe QRBag`,
+    text: `🔔 QRBags — Ton bagage vient d'être scanné !\n\n${travelerDisplay}, quelqu'un a scanné le QR code de ton bagage.\n\nRéférence : ${data.reference}\nLieu : ${place}\nPosition : ${data.mapUrl || data.location || 'non précisée'}\nTrouveur : ${data.finderName || 'non précisé'}${data.finderPhone ? ` — ${data.finderPhone}` : ''}\nHeure : ${data.scannedAt}\n\nSuivre en direct : ${data.trackingUrl}\n\n💡 Contacte rapidement le trouveur. Ne verse aucune avance d'argent sans vérification.\n\nL'équipe QRBags`,
   };
 }
 
@@ -596,7 +596,7 @@ export function getBaggageFoundEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #e8f5e9; border: 2px solid #27ae60; border-radius: 10px; padding: 30px;">
           <h2 style="color: #27ae60; margin-top: 0;">✅ Bagage retrouvé !</h2>
@@ -622,13 +622,13 @@ export function getBaggageFoundEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBag — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBags — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `✅ QRBag - Bagage retrouvé !\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\n\nNotification automatique QRBag — ${now}\n© QRBag`,
+    text: `✅ QRBags - Bagage retrouvé !\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\n\nNotification automatique QRBags — ${now}\n© QRBags`,
   };
 }
 
@@ -643,7 +643,7 @@ export function getNewAgencyEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 30px;">
           <h2 style="color: #4f46e5; margin-top: 0;">🏢 Nouvelle agence créée</h2>
@@ -670,13 +670,13 @@ export function getNewAgencyEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBag — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBags — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `🏢 QRBag - Nouvelle agence créée\n\nNom: ${data.name}\nEmail: ${data.email || 'Non renseigné'}\nTéléphone: ${data.phone || 'Non renseigné'}\nAdresse: ${data.address || 'Non renseignée'}\n\nNotification automatique QRBag — ${now}\n© QRBag`,
+    text: `🏢 QRBags - Nouvelle agence créée\n\nNom: ${data.name}\nEmail: ${data.email || 'Non renseigné'}\nTéléphone: ${data.phone || 'Non renseigné'}\nAdresse: ${data.address || 'Non renseignée'}\n\nNotification automatique QRBags — ${now}\n© QRBags`,
   };
 }
 
@@ -697,7 +697,7 @@ export function getAgencyMessageEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 10px; padding: 30px;">
           <h2 style="color: #d97706; margin-top: 0;">💬 Nouveau message d'une agence</h2>
@@ -722,13 +722,13 @@ export function getAgencyMessageEmailTemplate(data: {
             <p style="color: #333; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${data.message}</p>
           </div>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBag — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBags — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `💬 QRBag - Nouveau message d'une agence\n\nAgence: ${data.agencyName}\n${data.subject ? `Sujet: ${data.subject}\n` : ''}${data.senderEmail ? `Email: ${data.senderEmail}\n` : ''}${data.priority ? `Priorité: ${data.priority}\n` : ''}\nMessage:\n${data.message}\n\nNotification automatique QRBag — ${now}\n© QRBag`,
+    text: `💬 QRBags - Nouveau message d'une agence\n\nAgence: ${data.agencyName}\n${data.subject ? `Sujet: ${data.subject}\n` : ''}${data.senderEmail ? `Email: ${data.senderEmail}\n` : ''}${data.priority ? `Priorité: ${data.priority}\n` : ''}\nMessage:\n${data.message}\n\nNotification automatique QRBags — ${now}\n© QRBags`,
   };
 }
 
@@ -745,7 +745,7 @@ export function getNewLeadEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBags</h1>
         </div>
         <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px; padding: 30px;">
           <h2 style="color: #8b17c9; margin-top: 0;">🆕 Nouveau lead CRM</h2>
@@ -777,13 +777,13 @@ export function getNewLeadEmailTemplate(data: {
           </table>
           ${data.notes ? `<div style="background: #fff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin-top: 20px;"><p style="color: #666; font-size: 14px;"><strong>Notes :</strong> ${data.notes}</p></div>` : ''}
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBag — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBags — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRBag - Tous droits réservés</p>
+          <p>© QRBags - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `🆕 QRBag - Nouveau lead CRM\n\nNom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || 'Non renseigné'}\nEntreprise: ${data.company || 'Non renseignée'}\nSource: ${data.source || 'Non renseignée'}\n${data.notes ? `Notes: ${data.notes}\n` : ''}\nNotification automatique QRBag — ${now}\n© QRBag`,
+    text: `🆕 QRBags - Nouveau lead CRM\n\nNom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || 'Non renseigné'}\nEntreprise: ${data.company || 'Non renseignée'}\nSource: ${data.source || 'Non renseignée'}\n${data.notes ? `Notes: ${data.notes}\n` : ''}\nNotification automatique QRBags — ${now}\n© QRBags`,
   };
 }
 
@@ -836,12 +836,12 @@ export function getChecklistEmailTemplate(data: ChecklistEmailData): { html: str
   const html = `
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><title>Attestation d'inventaire QRBag</title></head>
+<head><meta charset="UTF-8"><title>Attestation d'inventaire QRBags</title></head>
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FDFBF7;">
 
   <!-- Header band -->
   <div style="background: #c5a643; padding: 20px 24px; border-radius: 12px 12px 0 0; border: 2px solid #1a1a1a; border-bottom: none;">
-    <div style="font-size: 22px; font-weight: bold; color: #1a1a1a;">🎒 QRBag</div>
+    <div style="font-size: 22px; font-weight: bold; color: #1a1a1a;">🎒 QRBags</div>
     <div style="font-size: 12px; color: #1a1a1a; opacity: 0.75;">Attestation d'inventaire de voyage</div>
   </div>
 
@@ -850,7 +850,7 @@ export function getChecklistEmailTemplate(data: ChecklistEmailData): { html: str
     <h1 style="color: #1a1a1a; font-size: 22px; margin: 0 0 16px 0;">Bonjour ${firstName},</h1>
 
     <p style="color: #1a1a1a; line-height: 1.6; margin: 0 0 16px 0;">
-      Votre attestation d'inventaire de voyage a été générée et certifiée électroniquement par QRBag.
+      Votre attestation d'inventaire de voyage a été générée et certifiée électroniquement par QRBags.
       Elle contient <strong>${itemsCount} article${itemsCount > 1 ? 's' : ''}</strong> pour votre voyage vers
       <strong>${destination}</strong> prévu le <strong>${departureDate}</strong>.${flightLine ? `<br/><span style="color:#666;font-size:12px;">✈️ Vol : <strong>${flightLine}</strong></span>` : ''}
     </p>
@@ -890,19 +890,19 @@ export function getChecklistEmailTemplate(data: ChecklistEmailData): { html: str
 
   <!-- Footer -->
   <div style="background: #1a1a1a; padding: 16px 24px; border-radius: 0 0 12px 12px; border: 2px solid #1a1a1a; border-top: none;">
-    <div style="color: #c5a643; font-size: 12px; font-weight: bold;">QRBag — Protection intelligente des bagages</div>
-    <div style="color: #999; font-size: 11px; margin-top: 4px;">qrbags.com • Document protégé par le protocole de certification QRBag</div>
+    <div style="color: #c5a643; font-size: 12px; font-weight: bold;">QRBags — Protection intelligente des bagages</div>
+    <div style="color: #999; font-size: 11px; margin-top: 4px;">qrbags.com • Document protégé par le protocole de certification QRBags</div>
   </div>
 
 </body>
 </html>
   `.trim();
 
-  const text = `🎒 QRBag — Attestation d'inventaire de voyage
+  const text = `🎒 QRBags — Attestation d'inventaire de voyage
 
 Bonjour ${fullName},
 
-Votre attestation d'inventaire de voyage a été générée et certifiée électroniquement par QRBag.
+Votre attestation d'inventaire de voyage a été générée et certifiée électroniquement par QRBags.
 Elle contient ${itemsCount} article${itemsCount > 1 ? 's' : ''} pour votre voyage vers ${destination} prévu le ${departureDate}.
 
 Le PDF horodaté est joint à cet email.
@@ -925,7 +925,7 @@ Comment utiliser votre attestation :
 
 Conservez précieusement cet email. Il constitue votre preuve d'inventaire en cas de litige.
 
-— L'équipe QRBag
+— L'équipe QRBags
 qrbags.com
 `.trim();
 
@@ -995,14 +995,14 @@ export function getDocsEmailTemplate(data: {
     </div>
   </div>
   <div style="text-align: center; color: #999; font-size: 11px; margin-top: 18px;">
-    QRBag — Protection intelligente des bagages • qrbags.com
+    QRBags — Protection intelligente des bagages • qrbags.com
   </div>
 </div>
   `.trim();
 
-  const text = `🧳 QRBag — Vos documents pour le bagage ${reference}
+  const text = `🧳 QRBags — Vos documents pour le bagage ${reference}
 
-${greetingName}, voici vos documents QRBag. Conservez cet email.
+${greetingName}, voici vos documents QRBags. Conservez cet email.
 
 🛂 PASSEPORT BAGAGE
 ${passportUrl}
@@ -1012,7 +1012,7 @@ ${trackingUrl}${data.expiresLabel ? `\n\nProtection active jusqu'au : ${data.exp
 
 Astuce : dès que quelqu'un scanne l'étiquette QR, vous recevez une notification avec sa position.
 
-— L'équipe QRBag
+— L'équipe QRBags
 qrbags.com
 `.trim();
 

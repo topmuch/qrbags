@@ -64,7 +64,7 @@ export default function SoyezNotifiePage() {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100 aspect-[3/4]">
                   <Image
                     src="/images/landing-v2/step-notify.jpg"
-                    alt="Soyez notifié instantanément - QRBag"
+                    alt="Soyez notifié instantanément - QRBags"
                     fill
                     className="object-cover"
                   />
@@ -92,14 +92,14 @@ export default function SoyezNotifiePage() {
                     <Bell className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-800">QRBag Alertes</p>
+                    <p className="text-sm font-bold text-slate-800">QRBags Alertes</p>
                     <p className="text-[10px] text-slate-500">en ligne</p>
                   </div>
                 </div>
                 {/* Message */}
                 <div className="bg-[#dcf8c6] rounded-xl p-4 shadow-sm max-w-[90%] ml-auto">
                   <p className="text-sm font-semibold text-slate-800 mb-2">🔔 Bagage retrouvé !</p>
-                  <p className="text-sm text-slate-700 mb-3">Quelqu&apos;un vient de scanner votre QR code QRBag.</p>
+                  <p className="text-sm text-slate-700 mb-3">Quelqu&apos;un vient de scanner votre QR code QRBags.</p>
                   <div className="bg-white/60 rounded-lg p-3 mb-3">
                     <p className="text-xs font-bold text-slate-700 mb-1">📍 Localisation :</p>
                     <p className="text-xs text-slate-600 mb-2">Aéroport Paris-Charles de Gaulle, Terminal 4</p>
@@ -156,7 +156,7 @@ export default function SoyezNotifiePage() {
           <div className="grid sm:grid-cols-3 gap-8">
             {[
               { value: '< 5s', label: 'Temps de notification', description: 'Entre le scan du QR code et la réception de l\'alerte WhatsApp sur votre téléphone.' },
-              { value: '98%', label: 'Taux de récupération', description: 'Des bagages protégés par QRBag sont récupérés par leur propriétaire.' },
+              { value: '98%', label: 'Taux de récupération', description: 'Des bagages protégés par QRBags sont récupérés par leur propriétaire.' },
               { value: '2h', label: 'Temps moyen', description: 'Temps moyen entre l\'alerte et la récupération effective du bagage.' },
             ].map((item, i) => (
               <FadeIn key={item.label} delay={i * 0.1}>
@@ -178,7 +178,7 @@ export default function SoyezNotifiePage() {
           <FadeIn>
             <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-white/60 mb-4">Vous êtes prêt !</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Commencez à protéger vos bagages</h2>
-            <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">4 étapes, 30 secondes d&apos;activation, une protection illimitée. Rejoignez les milliers de voyageurs qui font confiance à QRBag.</p>
+            <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">4 étapes, 30 secondes d&apos;activation, une protection illimitée. Rejoignez les milliers de voyageurs qui font confiance à QRBags.</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-orange-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Commander mes QR codes <ChevronRight className="w-4 h-4" />

@@ -65,7 +65,7 @@ export default function GeolocalisationPage() {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100">
                   <Image
                     src="/images/landing-v2/features/geolocalisation.jpg"
-                    alt="Géolocalisation - QRBag"
+                    alt="Géolocalisation - QRBags"
                     width={600}
                     height={800}
                     className="w-full h-auto object-cover"
@@ -104,7 +104,7 @@ export default function GeolocalisationPage() {
                 step: '01',
                 icon: Smartphone,
                 title: 'Scan du QR code',
-                description: 'La personne qui trouve votre bagage scanne le QR code avec son téléphone. L\'appareil photo ouvre la page QRBag automatiquement, sans application à installer.',
+                description: 'La personne qui trouve votre bagage scanne le QR code avec son téléphone. L\'appareil photo ouvre la page QRBags automatiquement, sans application à installer.',
                 color: 'from-emerald-500 to-teal-600',
               },
               {
@@ -148,7 +148,7 @@ export default function GeolocalisationPage() {
           <div className="grid sm:grid-cols-2 gap-6">
             {[
               { icon: Clock, title: 'Notification instantanée', description: 'Dès le scan, vous êtes alerté en moins de 5 secondes. Pas de délai, pas d\'attente. Vous savez immédiatement où se trouve votre bagage et pouvez agir tout de suite.' },
-              { icon: Globe, title: 'Couverture mondiale', description: 'La géolocalisation QRBag fonctionne dans tous les pays du monde. Partout où un smartphone peut se connecter à Internet, votre bagage peut être localisé. Aucune limite géographique.' },
+              { icon: Globe, title: 'Couverture mondiale', description: 'La géolocalisation QRBags fonctionne dans tous les pays du monde. Partout où un smartphone peut se connecter à Internet, votre bagage peut être localisé. Aucune limite géographique.' },
               { icon: Shield, title: 'Respect de la vie privée', description: 'La position n\'est partagée qu\'avec votre consentement explicite. Aucune donnée de localisation n\'est stockée en permanence. Tout est effacé automatiquement après résolution.' },
               { icon: Wifi, title: 'Précision GPS', description: 'La localisation utilise le GPS du smartphone du trouveur, offrant une précision de 3 à 10 mètres en extérieur. Vous recevez les coordonnées exactes, pas une approximation.' },
             ].map((item, i) => (

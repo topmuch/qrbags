@@ -46,7 +46,7 @@ export default function VoyagezSereinPage() {
                 <span className="bg-gradient-to-r from-emerald-500 to-emerald-700 bg-clip-text text-transparent">serein</span>
               </h1>
               <p className="text-lg text-slate-500 leading-relaxed mb-8 max-w-lg">
-                Votre QR code est activé, votre bagage est protégé. Collez simplement l&apos;autocollant bien visible sur chaque valise et profitez de votre voyage en toute tranquillité. Si votre bagage est égaré, QRBag s&apos;occupe de tout.
+                Votre QR code est activé, votre bagage est protégé. Collez simplement l&apos;autocollant bien visible sur chaque valise et profitez de votre voyage en toute tranquillité. Si votre bagage est égaré, QRBags s&apos;occupe de tout.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold text-sm shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all duration-300 hover:scale-105">
@@ -64,7 +64,7 @@ export default function VoyagezSereinPage() {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100 aspect-[3/4]">
                   <Image
                     src="/images/landing-v2/step-travel.jpg"
-                    alt="Voyagez serein - QRBag"
+                    alt="Voyagez serein - QRBags"
                     fill
                     className="object-cover"
                   />
@@ -87,7 +87,7 @@ export default function VoyagezSereinPage() {
             {[
               { title: 'Face supérieure de la valise', description: 'La position idéale. Quand votre valise est sur le tapis roulant, le QR code est immédiatement visible par n\'importe qui la manipule.', recommended: true },
               { title: 'Côté plat de la valise', description: 'Si la face supérieure n\'est pas disponible, collez-le sur le côté le plus plat et le plus visible. Évitez les zones près des roulettes ou de la poignée.' },
-              { title: 'Sac cabine ou sac à main', description: 'Pour les sacs qui ne sont pas en soute, collez le QR code sur une surface rigide si possible, ou utilisez le porte-clé QRBag fourni avec certaines formules.' },
+              { title: 'Sac cabine ou sac à main', description: 'Pour les sacs qui ne sont pas en soute, collez le QR code sur une surface rigide si possible, ou utilisez le porte-clé QRBags fourni avec certaines formules.' },
             ].map((item, i) => (
               <FadeIn key={item.title} delay={i * 0.1}>
                 <div className={`rounded-2xl p-7 h-full ${item.recommended ? 'bg-emerald-50 border-2 border-emerald-200' : 'bg-white border border-slate-200/60'}`}>
@@ -110,12 +110,12 @@ export default function VoyagezSereinPage() {
         <div className="max-w-6xl mx-auto">
           <FadeIn className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-[-0.02em]">Que se passe-t-il si votre bagage est perdu ?</h2>
-            <p className="text-lg text-slate-500 max-w-2xl mx-auto">Vous n&apos;avez rien à faire — QRBag s&apos;occupe de tout automatiquement</p>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto">Vous n&apos;avez rien à faire — QRBags s&apos;occupe de tout automatiquement</p>
           </FadeIn>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
-              { icon: Eye, title: 'Quelqu\'un trouve votre bagage', description: 'Un agent de l\'aéroport, un passager ou un membre du personnel trouve votre valise et remarque l\'autocollant QRBag.' },
+              { icon: Eye, title: 'Quelqu\'un trouve votre bagage', description: 'Un agent de l\'aéroport, un passager ou un membre du personnel trouve votre valise et remarque l\'autocollant QRBags.' },
               { icon: QrCode, title: 'Il scanne le QR code', description: 'La personne utilise l\'appareil photo de son téléphone pour scanner le QR code. La page de signalement s\'ouvre instantanément, sans application.' },
               { icon: MapPin, title: 'Vous recevez la localisation', description: 'Dès le scan, vous recevez une alerte WhatsApp avec la position GPS exacte de votre bagage et les coordonnées du trouveur.' },
               { icon: Shield, title: 'Vous récupérez votre bagage', description: 'Avec la localisation et les informations du trouveur, vous pouvez organiser la récupération rapidement, où que vous soyez dans le monde.' },
@@ -143,7 +143,7 @@ export default function VoyagezSereinPage() {
           <FadeIn>
             <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-white/60 mb-4">Étape suivante</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Découvrez comment vous êtes notifié</h2>
-            <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">L&apos;alerte WhatsApp instantanée est le coeur de la protection QRBag. Découvrez comment ça fonctionne.</p>
+            <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">L&apos;alerte WhatsApp instantanée est le coeur de la protection QRBags. Découvrez comment ça fonctionne.</p>
             <Link href="/etapes/soyez-notifie" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-emerald-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
               Voir l'étape suivante <ChevronRight className="w-4 h-4" />
             </Link>

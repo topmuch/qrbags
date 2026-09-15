@@ -21,7 +21,7 @@ import {
 } from '@/components/brand/BrandShell';
 import { useAgency } from '../layout';
 
-// Carte blanche style BrandCard (design system « étiquette » QRBag)
+// Carte blanche style BrandCard (design system « étiquette » QRBags)
 const cardCls =
   'bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 p-6';
 
@@ -105,7 +105,7 @@ export default function ProfilPage() {
         <div className={cardCls}>
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#8b17c9]/10">
-              <img src="/logo.png" alt="Logo QRBag" className="w-7 h-7 object-contain rounded-lg" aria-hidden />
+              <img src="/logo.png" alt="Logo QRBags" className="w-7 h-7 object-contain rounded-lg" aria-hidden />
             </div>
             <div>
               <h2 className="text-lg font-bold text-[#16234e]">Informations de l&apos;agence</h2>
@@ -196,7 +196,7 @@ export default function ProfilPage() {
         <div className={cardCls}>
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#2f9bff]/10">
-              <img src="/logo.png" alt="Logo QRBag" className="w-7 h-7 object-contain rounded-lg" aria-hidden />
+              <img src="/logo.png" alt="Logo QRBags" className="w-7 h-7 object-contain rounded-lg" aria-hidden />
             </div>
             <div>
               <h2 className="text-lg font-bold text-[#16234e]">Changer le mot de passe</h2>

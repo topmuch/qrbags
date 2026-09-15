@@ -52,7 +52,7 @@ export default function OfflinePage() {
 
           {/* Info */}
           <p className="mt-8 text-[#16234e]/50 text-sm">
-            QRBag fonctionne également hors ligne pour les fonctions de base.
+            QRBags fonctionne également hors ligne pour les fonctions de base.
           </p>
         </BrandCard>
       </main>

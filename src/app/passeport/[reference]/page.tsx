@@ -21,7 +21,7 @@ import {
   brandBtnOutline,
 } from '@/components/brand/BrandShell';
 
-// ─── Brand constants — Design system « étiquette » QRBag ───
+// ─── Brand constants — Design system « étiquette » QRBags ───
 const NAVY = '#16234e';     // navy officiel — bandeaux de la carte, QR, textes forts
 const VIOLET = '#8b17c9';   // violet signature — badge « Protégé »
 const RED = '#ef4036';      // rouge de marque — badge « Perdu » + erreurs
@@ -236,7 +236,7 @@ function PassportContent() {
                     <div className="flex items-center gap-2">
                       <img
                         src="/logo.png"
-                        alt="QRBag"
+                        alt="QRBags"
                         className="h-8 w-auto object-contain rounded bg-white p-0.5"
                       />
                       <div>
@@ -248,7 +248,7 @@ function PassportContent() {
                     </div>
                     <img
                       src="/logo.png"
-                      alt="Logo QRBag"
+                      alt="Logo QRBags"
                       className="w-9 h-9 object-contain rounded-xl bg-white/10 border border-white/20 p-1"
                     />
                   </div>

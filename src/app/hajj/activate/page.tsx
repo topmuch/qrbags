@@ -122,7 +122,7 @@ function HajjActivateContent() {
             <BrandCard corners className="mb-10 p-6 sm:p-8 text-center animate-fade-in">
               <div className="flex justify-center mb-4">
                 <BrandIconRing size="w-14 h-14" glow="#f8921f">
-                  <img src="/logo.png" alt="Logo QRBag" className="w-10 h-10 object-contain rounded-xl" aria-hidden />
+                  <img src="/logo.png" alt="Logo QRBags" className="w-10 h-10 object-contain rounded-xl" aria-hidden />
                 </BrandIconRing>
               </div>
               <h2 className="text-xl font-extrabold text-[#16234e] mb-2">
@@ -141,7 +141,7 @@ function HajjActivateContent() {
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
               <BrandIconRing size="w-16 h-16" glow="#2f9bff">
-                <img src="/logo.png" alt="Logo QRBag" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
+                <img src="/logo.png" alt="Logo QRBags" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
               </BrandIconRing>
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-[#16234e] mb-3">
@@ -332,8 +332,8 @@ function HajjActivateContent() {
           <div className="mt-8 text-center">
             <p className="text-[#16234e]/60 text-sm">
               Besoin d&apos;aide ? Contactez votre agence ou{' '}
-              <a href="mailto:contact@qrbag.com" className="text-[#2f9bff] font-semibold hover:underline">
-                contact@qrbag.com
+              <a href="mailto:contact@qrbags.com" className="text-[#2f9bff] font-semibold hover:underline">
+                contact@qrbags.com
               </a>
             </p>
           </div>

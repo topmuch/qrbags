@@ -2,9 +2,9 @@ import { Buffer } from 'buffer';
 import path from 'path';
 
 /**
- * QRBag — Génération d'étiquettes QR prêtes à imprimer (7 × 10 cm)
+ * QRBags — Génération d'étiquettes QR prêtes à imprimer (7 × 10 cm)
  *
- * Chaque QR code généré est composé sur le design officiel QRBag
+ * Chaque QR code généré est composé sur le design officiel QRBags
  * (« Scannez pour contacter le propriétaire ») pour obtenir une
  * étiquette bagage imprimable directement au format 7 cm × 10 cm.
  *

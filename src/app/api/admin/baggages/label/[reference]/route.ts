@@ -5,7 +5,7 @@ import { generateQrLabelPng, generateQrLabelPdf } from '@/lib/qr-label';
 /**
  * GET /api/admin/baggages/label/[reference]
  *
- * Télécharge l'étiquette QR print-ready (design QRBag intégré, 7 × 10 cm)
+ * Télécharge l'étiquette QR print-ready (design QRBags intégré, 7 × 10 cm)
  * pour une référence de bagage donnée.
  *
  * Query params :

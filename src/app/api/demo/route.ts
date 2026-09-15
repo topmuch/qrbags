@@ -1,5 +1,5 @@
 /**
- * API Route — Démo réelle QRBag
+ * API Route — Démo réelle QRBags
  *
  * GET    /api/demo          → état du bagage démo + journal des scans (réels)
  * POST   /api/demo          → simule un scan trouveur (crée un vrai ScanLog, aucun WhatsApp réel envoyé)
@@ -99,7 +99,7 @@ function buildWhatsappPreview(location: string, finderName?: string, finderPhone
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrbags.com';
 
   let msg = [
-    `✈️ Alerte QRBag`,
+    `✈️ Alerte QRBags`,
     `Votre bagage ${DEMO_REFERENCE} (vol) a été scanné à ${location} à ${now}.`,
     `Suivez son statut : ${appUrl}/suivi/${DEMO_REFERENCE}`,
   ].join('\n');

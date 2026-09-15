@@ -73,11 +73,11 @@ const LANG_TO_SPEECH: Record<Language, string> = {
 // ─── Notification title/body per locale ───
 const NOTIF_TEXT: Record<Language, { title: string; body: (ref: string, location: string) => string }> = {
   fr: {
-    title: 'QRBag — Bagage localisé !',
+    title: 'QRBags — Bagage localisé !',
     body: (ref, loc) => `Réf. ${ref} scanné à ${loc}`,
   },
   en: {
-    title: 'QRBag — Baggage located!',
+    title: 'QRBags — Baggage located!',
     body: (ref, loc) => `Ref. ${ref} scanned at ${loc}`,
   },
   ar: {

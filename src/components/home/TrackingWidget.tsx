@@ -78,7 +78,7 @@ export default function TrackingWidget() {
             {t('home.tracking_label')}
           </label>
           <p className="text-sm text-slate-500 mb-6 ml-12">
-            Saisissez la référence inscrite sur votre étiquette QRBag.
+            Saisissez la référence inscrite sur votre étiquette QRBags.
           </p>
 
           {/* Input + Button */}

@@ -1,7 +1,7 @@
 {
-  "name": "qrbag",
+  "name": "qrbags",
   "version": "1.0.0",
-  "description": "QRBag - Protection intelligente des bagages avec QR codes",
+  "description": "QRBags - Protection intelligente des bagages avec QR codes",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",

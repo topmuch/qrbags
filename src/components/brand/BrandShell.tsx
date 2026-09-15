@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /* ══════════════════════════════════════════════════════════════
-   QRBag — Design system « Étiquette officielle »
+   QRBags — Design system « Étiquette officielle »
    Palette signature (identique à l'étiquette 7×10 cm imprimée) :
      Navy    #16234e  — titres, textes forts
      Azure   #2f9bff  — accents froids, focus
@@ -36,7 +36,7 @@ export const brandInput =
 export const brandLabel =
   'block text-xs font-bold uppercase tracking-wider text-[#16234e]/70 mb-2';
 
-/** Bouton principal — dégradé signature QRBag */
+/** Bouton principal — dégradé signature QRBags */
 export const brandBtnGradient =
   'bg-gradient-qrbag text-white font-bold rounded-2xl shadow-lg shadow-[#e6216e]/25 ' +
   'hover:shadow-xl hover:shadow-[#e6216e]/40 hover:-translate-y-0.5 active:translate-y-0 ' +
@@ -113,7 +113,7 @@ function CornerArcs({ position }: { position: 'tl' | 'br' }) {
 /* ─── Coquille de page complète ───
    Fond blanc + carte pointillée + halos de couleur + liseré dégradé
    en haut + arcs arc-en-ciel dans les coins (exactement comme
-   l'étiquette officielle QRBag). */
+   l'étiquette officielle QRBags). */
 
 export function BrandShell({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
@@ -165,10 +165,10 @@ export function BrandLogo({ href = '/', className = 'h-12 w-auto' }: { href?: st
   return (
     <a
       href={href}
-      aria-label="QRBag — retour à l'accueil"
+      aria-label="QRBags — retour à l'accueil"
       className="inline-flex items-center hover:opacity-85 transition-opacity"
     >
-      <img src="/logo.png" alt="QRBag" className={`${className} object-contain`} />
+      <img src="/logo.png" alt="QRBags" className={`${className} object-contain`} />
     </a>
   );
 }

@@ -205,7 +205,7 @@ export default function EtiquettesPage() {
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('QRBag - Étiquettes', canvas.width / 2, 35);
+      ctx.fillText('QRBags - Étiquettes', canvas.width / 2, 35);
 
       ctx.font = '16px Arial';
       ctx.fillText(`${set.setId} | ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'} | ${set.qrCount} QR`, canvas.width / 2, 65);
@@ -262,11 +262,11 @@ export default function EtiquettesPage() {
       ctx.fillStyle = '#64748b';
       ctx.font = '12px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText(`Généré le ${new Date().toLocaleDateString('fr-FR')} | QRBag.com`, canvas.width / 2, canvas.height - 20);
+      ctx.fillText(`Généré le ${new Date().toLocaleDateString('fr-FR')} | QRBags.com`, canvas.width / 2, canvas.height - 20);
 
       // Download
       const link = document.createElement('a');
-      link.download = `QRBag-${set.setId}.png`;
+      link.download = `QRBags-${set.setId}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
 
@@ -288,7 +288,7 @@ export default function EtiquettesPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `QRBag - ${set.setId}`,
+          title: `QRBags - ${set.setId}`,
           text: `${set.qrCount} QR codes pour ${set.agencyName || 'agence'}`,
           url: shareUrl,
         });

@@ -44,7 +44,7 @@ export default function SansApplicationPage() {
                 <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">un scan suffit</span>
               </h1>
               <p className="text-lg text-slate-500 leading-relaxed mb-8 max-w-lg">
-                QRBag ne vous demande jamais de télécharger une application. Collez l&apos;autocollant QR code sur votre bagage, et toute personne qui le trouve peut vous contacter en un simple scan. Zéro friction, zéro barrière.
+                QRBags ne vous demande jamais de télécharger une application. Collez l&apos;autocollant QR code sur votre bagage, et toute personne qui le trouve peut vous contacter en un simple scan. Zéro friction, zéro barrière.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/commander" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-sm shadow-xl shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300 hover:scale-105">
@@ -62,7 +62,7 @@ export default function SansApplicationPage() {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100">
                   <Image
                     src="/images/landing-v2/features/sans-app.jpg"
-                    alt="Sans application - QRBag"
+                    alt="Sans application - QRBags"
                     width={600}
                     height={800}
                     className="w-full h-auto object-cover"
@@ -124,7 +124,7 @@ export default function SansApplicationPage() {
                 <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mb-6">
                   <CheckCircle className="w-6 h-6 text-emerald-600" />
                 </div>
-                <h3 className="text-xl font-bold text-emerald-900 mb-4">Avec QRBag, sans application</h3>
+                <h3 className="text-xl font-bold text-emerald-900 mb-4">Avec QRBags, sans application</h3>
                 <ul className="space-y-3">
                   {[
                     'Zéro téléchargement — le scan ouvre directement la page web',
@@ -158,7 +158,7 @@ export default function SansApplicationPage() {
               {
                 step: '01',
                 title: 'Collez le QR code',
-                description: 'Recevez vos autocollants QRBag et collez-les bien visiblement sur chacun de vos bagages. Chaque QR code est unique et lié à votre profil voyageur.',
+                description: 'Recevez vos autocollants QRBags et collez-les bien visiblement sur chacun de vos bagages. Chaque QR code est unique et lié à votre profil voyageur.',
                 color: 'from-violet-500 to-purple-600',
               },
               {
@@ -220,7 +220,7 @@ export default function SansApplicationPage() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <FadeIn>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Prêt à protéger vos bagages sans application ?</h2>
-            <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">Rejoignez les milliers de voyageurs qui font confiance à QRBag pour la protection de leurs bagages, sans jamais télécharger une application.</p>
+            <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">Rejoignez les milliers de voyageurs qui font confiance à QRBags pour la protection de leurs bagages, sans jamais télécharger une application.</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/commander" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-violet-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Commander mes QR codes <ChevronRight className="w-4 h-4" />

@@ -68,7 +68,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
             <div className="hidden sm:flex items-center gap-3">
               <div className="px-4 py-2 bg-emerald-100 dark:bg-violet-600/10 rounded-xl">
                 <span className="text-violet-700 dark:text-violet-500 font-medium text-sm">
-                  Partenaire QRBag
+                  Partenaire QRBags
                 </span>
               </div>
             </div>
@@ -227,7 +227,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
         <footer className="mt-8 text-center text-slate-400 dark:text-slate-500 text-sm pb-8">
           <p className="flex items-center justify-center gap-2">
             <QrCode className="w-4 h-4" />
-            Propulsé par <span className="font-semibold text-[#8b17c9]">QRBag</span>
+            Propulsé par <span className="font-semibold text-[#8b17c9]">QRBags</span>
           </p>
           <p className="mt-1 text-xs">
             Protection intelligente des bagages

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Bot, X, Send, User, MessageCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
-/** QRBag WhatsApp SAV */
+/** QRBags WhatsApp SAV */
 const QRBAGS_WHATSAPP_URL = 'https://wa.me/221784858226';
 const QRBAGS_WHATSAPP_URL_2 = 'https://wa.me/33745349339';
 
@@ -225,7 +225,7 @@ export default function LandingChatbotWidget() {
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#6613e3] to-[#4b0082] border-b border-white/10">
             <div className="flex items-center gap-2">
               <Bot className="w-5 h-5 text-violet-300" />
-              <span className="text-white font-semibold text-sm">QRBag Assistant</span>
+              <span className="text-white font-semibold text-sm">QRBags Assistant</span>
             </div>
             <button
               onClick={() => setIsOpen(false)}

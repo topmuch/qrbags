@@ -344,8 +344,8 @@ const STATIC_FALLBACK_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
   table('EmailSettings', [
     C('"id" TEXT NOT NULL PRIMARY KEY'),
     C('"provider" TEXT NOT NULL DEFAULT \'console\''),
-    C('"fromEmail" TEXT NOT NULL DEFAULT \'noreply@qrbag.com\''),
-    C('"fromName" TEXT NOT NULL DEFAULT \'QRBag\''),
+    C('"fromEmail" TEXT NOT NULL DEFAULT \'noreply@qrbags.com\''),
+    C('"fromName" TEXT NOT NULL DEFAULT \'QRBags\''),
     C('"recipientEmail" TEXT'),
     C('"smtpHost" TEXT'),
     C('"smtpPort" INTEGER'),

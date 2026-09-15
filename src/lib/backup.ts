@@ -3,7 +3,7 @@ import path from 'path';
 import { db } from '@/lib/db';
 
 /**
- * QRBag — Backups automatiques de la base SQLite.
+ * QRBags — Backups automatiques de la base SQLite.
  *
  * Stratégie :
  *  - Snapshot consistant via `VACUUM INTO` (SQLite natif, sans verrou long,

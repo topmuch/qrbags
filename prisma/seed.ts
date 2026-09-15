@@ -14,11 +14,11 @@ async function main() {
   // Create settings
   console.log('Creating settings...');
   const settings = [
-    { key: 'company_name', value: 'QRBag' },
+    { key: 'company_name', value: 'QRBags' },
     { key: 'company_address', value: 'Poissy, France' },
     { key: 'company_phone', value: '+33 7 45 34 93 39' },
-    { key: 'company_email', value: 'contact@qrbag.com' },
-    { key: 'seo_title', value: 'QRBag - Protection intelligente des bagages' },
+    { key: 'company_email', value: 'contact@qrbags.com' },
+    { key: 'seo_title', value: 'QRBags - Protection intelligente des bagages' },
     { key: 'seo_description', value: 'Protégez vos bagages avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS.' },
     { key: 'seo_keywords', value: 'QR, bagage, voyage, hajj, protection, sticker' },
     { key: 'languages', value: 'fr,en,ar' },
@@ -52,12 +52,12 @@ async function main() {
   // Create superadmin user
   console.log('Creating superadmin user...');
   await prisma.user.upsert({
-    where: { email: 'admin@qrbag.com' },
+    where: { email: 'admin@qrbags.com' },
     update: {
       password: await hashPassword('admin123'),
     },
     create: {
-      email: 'admin@qrbag.com',
+      email: 'admin@qrbags.com',
       name: 'SuperAdmin',
       password: await hashPassword('admin123'),
       role: 'superadmin',
@@ -67,12 +67,12 @@ async function main() {
   // Create agency user
   console.log('Creating agency user...');
   await prisma.user.upsert({
-    where: { email: 'agency@qrbag.com' },
+    where: { email: 'agency@qrbags.com' },
     update: {
       password: await hashPassword('agency123'),
     },
     create: {
-      email: 'agency@qrbag.com',
+      email: 'agency@qrbags.com',
       name: 'Chef Agence',
       password: await hashPassword('agency123'),
       role: 'agency',
@@ -188,8 +188,8 @@ async function main() {
   console.log('✅ Seed completed successfully!');
   console.log('');
   console.log('📋 Demo credentials:');
-  console.log('  SuperAdmin: admin@qrbag.com / admin123');
-  console.log('  Agency: agency@qrbag.com / agency123');
+  console.log('  SuperAdmin: admin@qrbags.com / admin123');
+  console.log('  Agency: agency@qrbags.com / agency123');
   console.log('');
   console.log('📱 Test QR codes:');
   console.log('  VOL26-FLUX01 - Passeport voyageur (Dakar, Air Sénégal SN209)');

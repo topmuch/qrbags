@@ -193,7 +193,7 @@ export default function GenererQRPage() {
 
       // Get filename
       const contentDisposition = exportResponse.headers.get('Content-Disposition');
-      let filename = 'QRBag-export.zip';
+      let filename = 'QRBags-export.zip';
       if (contentDisposition) {
         const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/i) ||
                       contentDisposition.match(/filename="?([^"]+)"?/);
@@ -312,7 +312,7 @@ export default function GenererQRPage() {
             <>
               <p className="text-xs text-emerald-700/90 dark:text-emerald-400/90 mb-3">
                 <Printer className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
-                Chaque QR est fourni sur le design officiel QRBag — étiquette <strong>7 × 10 cm</strong> prête à imprimer (haute résolution, dimensions physiques intégrées).
+                Chaque QR est fourni sur le design officiel QRBags — étiquette <strong>7 × 10 cm</strong> prête à imprimer (haute résolution, dimensions physiques intégrées).
               </p>
 
               <div className="flex flex-col md:flex-row gap-4 bg-white dark:bg-slate-900/60 rounded-xl p-4 border border-emerald-200/60 dark:border-emerald-800/60">
@@ -320,7 +320,7 @@ export default function GenererQRPage() {
                 <div className="flex-shrink-0 text-center">
                   <img
                     src={`/api/admin/baggages/label/${lastGeneratedRefs[0]}?preview=1`}
-                    alt={`Aperçu de l'étiquette QRBag 7×10 cm pour ${lastGeneratedRefs[0]}`}
+                    alt={`Aperçu de l'étiquette QRBags 7×10 cm pour ${lastGeneratedRefs[0]}`}
                     className="h-56 w-auto rounded-lg shadow-md mx-auto"
                   />
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-medium uppercase tracking-wide">

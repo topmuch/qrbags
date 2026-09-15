@@ -208,50 +208,50 @@ const FALLBACK_WHATSAPP_MESSAGES: Record<string, (p: WhatsAppMessageParams) => s
   // ─── Avion ───
   fr: (p) => {
     const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];
-    return `${t.emoji} Alerte QRBag\nVotre bagage ${p.reference} (${t.fr}) a été scanné à ${p.location.city}, ${p.location.country} à ${p.time}.\nSuivez son statut : ${p.link}`;
+    return `${t.emoji} Alerte QRBags\nVotre bagage ${p.reference} (${t.fr}) a été scanné à ${p.location.city}, ${p.location.country} à ${p.time}.\nSuivez son statut : ${p.link}`;
   },
   en: (p) => {
     const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];
-    return `${t.emoji} QRBag Alert\nYour bag ${p.reference} (${t.en}) was scanned in ${p.location.city}, ${p.location.country} at ${p.time}.\nTrack it: ${p.link}`;
+    return `${t.emoji} QRBags Alert\nYour bag ${p.reference} (${t.en}) was scanned in ${p.location.city}, ${p.location.country} at ${p.time}.\nTrack it: ${p.link}`;
   },
   ar: (p) => {
     const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];
-    return `${t.emoji} تنبيه QRBag\nتم مسح أمتعتك ${p.reference} (${t.ar}) في ${p.location.city}، ${p.location.country} الساعة ${p.time}.\nتابع حالتها: ${p.link}`;
+    return `${t.emoji} تنبيه QRBags\nتم مسح أمتعتك ${p.reference} (${t.ar}) في ${p.location.city}، ${p.location.country} الساعة ${p.time}.\nتابع حالتها: ${p.link}`;
   },
 };
 
 // TRANSPORT-NOTIFY: Prompts système par langue — adaptés pour modes de transport
 const SYSTEM_PROMPTS: Record<string, string> = {
-  fr: `Tu es un assistant QRBag. Génère UN SEUL message WhatsApp d'alerte de scan de bagage.
+  fr: `Tu es un assistant QRBags. Génère UN SEUL message WhatsApp d'alerte de scan de bagage.
 RÈGLES STRICTES:
 - Maximum 280 caractères STRICT
 - Ton urgent mais rassurant
 - Utilise des emojis pertinents AU MODE DE TRANSPORT (✈️ avion, 🚆 train, 🚢 bateau, 🚌 bus)
 - Adapte le vocabulaire : "vol" / "train" / "traversée maritime" / "voyage en bus"
 - Formate comme un message WhatsApp (sauts de ligne avec \\n)
-- Commence par l'emoji du mode de transport + "Alerte QRBag"
+- Commence par l'emoji du mode de transport + "Alerte QRBags"
 - Inclus: référence, mode de transport, lieu, heure, lien de suivi
 - RETOURNE UNIQUEMENT LE MESSAGE, aucun commentaire ni explication`,
 
-  en: `You are a QRBag assistant. Generate a SINGLE WhatsApp baggage scan alert message.
+  en: `You are a QRBags assistant. Generate a SINGLE WhatsApp baggage scan alert message.
 STRICT RULES:
 - Maximum 280 characters STRICT
 - Urgent but reassuring tone
 - Use transport-mode-specific emojis (✈️ flight, 🚆 train, 🚢 boat, 🚌 bus)
 - Adapt vocabulary: "flight" / "train" / "boat crossing" / "bus trip"
 - Format as a WhatsApp message (newlines with \\n)
-- Start with transport emoji + "QRBag Alert"
+- Start with transport emoji + "QRBags Alert"
 - Include: reference, transport mode, location, time, tracking link
 - RETURN ONLY THE MESSAGE, no comments or explanation`,
 
-  ar: `أنت مساعد QRBag. قم بتوليد رسالة تنبيه مسح أمتعة واحدة عبر واتساب.
+  ar: `أنت مساعد QRBags. قم بتوليد رسالة تنبيه مسح أمتعة واحدة عبر واتساب.
 قواعد صارمة:
 - بحد أقصى 280 حرفًا كحد أقصى
 - نبرة عاجلة ولكن مطمئنة
 - استخدم رموز تعبيرية مناسبة لوسيلة النقل (✈️ طائرة، 🚆 قطار، 🚢 سفينة، 🚌 حافلة)
 - تكيف المفردات: "رحلة طيران" / "قطار" / "رحلة بحرية" / "رحلة حافلة"
 - صيغة كرسالة واتساب (أسطر جديدة مع \\n)
-- ابدأ برمز وسيلة النقل + "تنبيه QRBag"
+- ابدأ برمز وسيلة النقل + "تنبيه QRBags"
 - ضمّن: المرجع، وسيلة النقل، الموقع، الوقت، رابط التتبع
 - أعد الرسالة فقط، بدون تعليقات أو شرح`,
 };
@@ -272,7 +272,7 @@ STRICT RULES:
  *   link: 'https://qrbags.com/suivi/VOL26-ZG46J2',
  *   language: 'fr',
  * });
- * console.log(result.message); // "🚨 Alerte QRBag..."
+ * console.log(result.message); // "🚨 Alerte QRBags..."
  * console.log(result.generated); // true si IA, false si fallback
  * ```
  */
@@ -397,7 +397,7 @@ export interface ScanSuspicionResult {
 }
 
 /** Prompt système pour l'analyse anti-doublon */
-const SCAN_GUARD_SYSTEM_PROMPT = `Tu es un détecteur de fraude QRBag. Analyse ces données de scan et retourne UNIQUEMENT un JSON valide sans backticks ni commentaires.
+const SCAN_GUARD_SYSTEM_PROMPT = `Tu es un détecteur de fraude QRBags. Analyse ces données de scan et retourne UNIQUEMENT un JSON valide sans backticks ni commentaires.
 {
   "isSuspicious": boolean,
   "reason": string (courte, max 100 caractères),

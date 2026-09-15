@@ -5,10 +5,10 @@
  * Chaque bouton affiche la VRAIE IMAGE du moyen de transport (PNG)
  * + label i18n + description.
  *
- * Style (palette QRBag — bleu #0047d6 + jaune #fcd616):
+ * Style (palette QRBags — bleu #0047d6 + jaune #fcd616):
  *   - Non sélectionné: carte jaune #fcd616 + bordure noire dashed + image (mix-blend multiply).
  *   - Sélectionné: carte jaune #fcd616 + bordure noire solide + image (mix-blend multiply)
- *     + checkmark jaune QRBag en haut à droite.
+ *     + checkmark jaune QRBags en haut à droite.
  *
  * Usage:
  *   <TransportModeSelector

@@ -18,19 +18,19 @@ function getShareText(props: SocialShareProps): string {
   const loc = lastCity ? `${lastCity}${lastCountry ? `, ${lastCountry}` : ''}` : '';
 
   if (lang === 'ar') {
-    if (status === 'lost') return `🚨 أمتعتي ${reference} مفقودة! آخر موقع: ${loc}. ساعدوني #QRBag`;
-    if (scanCount > 0) return `✅ تم مسح أمتعتي ${reference} في ${loc} — ${scanCount} مسح. محمي بـ QRBag! #QRBag`;
-    return `🎒 أمتعتي ${reference} محمية بـ QRBag. تابعو موقعها! #QRBag`;
+    if (status === 'lost') return `🚨 أمتعتي ${reference} مفقودة! آخر موقع: ${loc}. ساعدوني #QRBags`;
+    if (scanCount > 0) return `✅ تم مسح أمتعتي ${reference} في ${loc} — ${scanCount} مسح. محمي بـ QRBags! #QRBags`;
+    return `🎒 أمتعتي ${reference} محمية بـ QRBags. تابعو موقعها! #QRBags`;
   }
   if (lang === 'en') {
-    if (status === 'lost') return `🚨 My luggage ${reference} is lost! Last location: ${loc}. Help me find it #QRBag`;
-    if (scanCount > 0) return `✅ My luggage ${reference} was scanned in ${loc} — ${scanCount} scans. Protected by QRBag! #QRBag`;
-    return `🎒 My luggage ${reference} is protected by QRBag. Track it live! #QRBag`;
+    if (status === 'lost') return `🚨 My luggage ${reference} is lost! Last location: ${loc}. Help me find it #QRBags`;
+    if (scanCount > 0) return `✅ My luggage ${reference} was scanned in ${loc} — ${scanCount} scans. Protected by QRBags! #QRBags`;
+    return `🎒 My luggage ${reference} is protected by QRBags. Track it live! #QRBags`;
   }
   // French (default)
-  if (status === 'lost') return `🚨 Mon bagage ${reference} est perdu ! Dernier lieu : ${loc}. Aidez-moi #QRBag`;
-  if (scanCount > 0) return `✅ Mon bagage ${reference} a été scanné à ${loc} — ${scanCount} scans. Protégé par QRBag ! #QRBag`;
-  return `🎒 Mon bagage ${reference} est protégé par QRBag. Suivez-le en direct ! #QRBag`;
+  if (status === 'lost') return `🚨 Mon bagage ${reference} est perdu ! Dernier lieu : ${loc}. Aidez-moi #QRBags`;
+  if (scanCount > 0) return `✅ Mon bagage ${reference} a été scanné à ${loc} — ${scanCount} scans. Protégé par QRBags ! #QRBags`;
+  return `🎒 Mon bagage ${reference} est protégé par QRBags. Suivez-le en direct ! #QRBags`;
 }
 
 export function SocialShareButtons(props: SocialShareProps) {
@@ -42,7 +42,7 @@ export function SocialShareButtons(props: SocialShareProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `QRBag — ${props.reference}`,
+          title: `QRBags — ${props.reference}`,
           text,
           url: `${QRBAG_URL}/suivi/${props.reference}`,
         });

@@ -19,7 +19,7 @@ export default function NotFound() {
           <BrandLogo className="h-14 w-auto" />
         </div>
 
-        {/* 404 — dégradé signature QRBag */}
+        {/* 404 — dégradé signature QRBags */}
         <h1
           className="text-7xl sm:text-8xl font-extrabold leading-none text-gradient-qrbag mb-6"
           aria-label="Erreur 404"
@@ -41,7 +41,7 @@ export default function NotFound() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/"
-              aria-label="Retour à la page d'accueil QRBag"
+              aria-label="Retour à la page d'accueil QRBags"
               className={`${brandBtnGradient} inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[48px]`}
             >
               <Home className="w-5 h-5" />

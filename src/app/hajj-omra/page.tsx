@@ -23,8 +23,8 @@ function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2" aria-label="QRBag — retour à l'accueil">
-            <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+          <Link href="/" className="flex items-center gap-2" aria-label="QRBags — retour à l'accueil">
+            <img src="/logo.png" alt="QRBags" className="h-12 w-auto object-contain" />
           </Link>
 
           {/* Desktop Nav */}
@@ -218,7 +218,7 @@ function AdvantagesSection() {
         {/* Title */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-            Pourquoi choisir <span className="text-gradient-qrbag">QRBag Hajj ?</span>
+            Pourquoi choisir <span className="text-gradient-qrbag">QRBags Hajj ?</span>
           </h2>
         </div>
 
@@ -257,7 +257,7 @@ function TestimonialsSection() {
     {
       name: "Mamadou Diallo",
       role: "Pèlerin Hajj 2025",
-      content: "Grâce à QRBag, j'ai retrouvé ma valise perdue à l'aéroport de Djeddah en moins de 2 heures. Une invention géniale !",
+      content: "Grâce à QRBags, j'ai retrouvé ma valise perdue à l'aéroport de Djeddah en moins de 2 heures. Une invention géniale !",
       avatar: "👴🏾"
     },
     {
@@ -310,7 +310,7 @@ function FAQSection() {
   const faqs = [
     {
       q: "Comment obtenir mes QR codes ?",
-      a: "Les QR codes sont fournis par votre agence de voyage partenaire. Demandez-leur s'ils proposent QRBag."
+      a: "Les QR codes sont fournis par votre agence de voyage partenaire. Demandez-leur s'ils proposent QRBags."
     },
     {
       q: "Combien de temps dure la protection ?",
@@ -356,7 +356,7 @@ function CTASection() {
           Prêt à protéger vos bagages<br />pour le Hajj 2026 ?
         </h2>
         <p className="text-white/85 max-w-xl mx-auto mb-8 text-lg">
-          Demandez à votre agence de voyage si elle propose QRBag, ou contactez-nous pour plus d'informations.
+          Demandez à votre agence de voyage si elle propose QRBags, ou contactez-nous pour plus d'informations.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -378,7 +378,7 @@ function CTASection() {
         <p className="mt-8 text-white/80 text-sm">
           Vous êtes agence ?{' '}
           <Link href="/devenir-partenaire" className="text-[#ffd200] font-bold hover:underline">
-            Devenez partenaire QRBag
+            Devenez partenaire QRBags
           </Link>
         </p>
       </div>
@@ -395,7 +395,7 @@ function Footer() {
           {/* Logo */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
+              <img src="/logo.png" alt="QRBags" className="h-12 w-auto object-contain" />
             </div>
             <p className="text-white/60 text-sm">
               Protection intelligente des bagages pour voyageurs et pèlerins.
@@ -431,7 +431,7 @@ function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#2f9bff]" aria-hidden />
-                contact@qrbag.com
+                contact@qrbags.com
               </li>
               <li className="flex items-center gap-2">
                 <MapPinned className="w-4 h-4 text-[#2f9bff]" aria-hidden />
@@ -444,17 +444,17 @@ function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-white/60 text-sm">
-            © {new Date().getFullYear()} QRBag. Tous droits réservés.
+            © {new Date().getFullYear()} QRBags. Tous droits réservés.
           </p>
 
           <div className="flex items-center gap-4">
-            <a href="https://facebook.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#2f9bff] transition-colors" aria-label="Facebook">
+            <a href="https://facebook.com/qrbags" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#2f9bff] transition-colors" aria-label="Facebook">
               <Facebook className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="https://instagram.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#2f9bff] transition-colors" aria-label="Instagram">
+            <a href="https://instagram.com/qrbags" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#2f9bff] transition-colors" aria-label="Instagram">
               <Instagram className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="https://twitter.com/qrbag" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#2f9bff] transition-colors" aria-label="Twitter">
+            <a href="https://twitter.com/qrbags" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-[#2f9bff] transition-colors" aria-label="Twitter">
               <Twitter className="w-5 h-5" aria-hidden="true" />
             </a>
           </div>

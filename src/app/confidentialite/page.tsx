@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité',
-  description: 'Politique de confidentialité de QRBag - Comment nous protégeons vos données personnelles.',
+  description: 'Politique de confidentialité de QRBags - Comment nous protégeons vos données personnelles.',
 };
 
 export default function Confidentialite() {
@@ -17,7 +17,7 @@ export default function Confidentialite() {
             <section>
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">1. Introduction</h2>
               <p className="mb-4">
-                La société MMASOLUTION s&apos;engage à protéger la vie privée des utilisateurs de son site QRBag. La présente politique de confidentialité a pour but de vous informer sur la manière dont nous collectons, utilisons et protégeons vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD).
+                La société MMASOLUTION s&apos;engage à protéger la vie privée des utilisateurs de son site QRBags. La présente politique de confidentialité a pour but de vous informer sur la manière dont nous collectons, utilisons et protégeons vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD).
               </p>
               <p>
                 En utilisant notre site et nos services, vous acceptez les pratiques décrites dans cette politique de confidentialité.
@@ -40,7 +40,7 @@ export default function Confidentialite() {
               <h2 className="text-2xl font-semibold text-[#16234e] mb-4">3. Finalités du traitement</h2>
               <p className="mb-4">Vos données personnelles sont collectées et traitées pour les finalités suivantes :</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Gestion et suivi des bagages enregistrés via le système QRBag</li>
+                <li>Gestion et suivi des bagages enregistrés via le système QRBags</li>
                 <li>Faciliter la restitution des bagages perdus ou trouvés</li>
                 <li>Communication avec les utilisateurs (notifications, alertes)</li>
                 <li>Amélioration de nos services et de l&apos;expérience utilisateur</li>
@@ -103,7 +103,7 @@ export default function Confidentialite() {
                 <li><strong>Droit à la limitation :</strong> limiter le traitement de vos données</li>
               </ul>
               <p>
-                Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@qrbag.com" className="text-[#e07c0a] hover:underline">contact@qrbag.com</a>
+                Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@qrbags.com" className="text-[#e07c0a] hover:underline">contact@qrbags.com</a>
               </p>
             </section>
 
@@ -113,7 +113,7 @@ export default function Confidentialite() {
                 Vos données personnelles peuvent être partagées avec :
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Nos partenaires de livraison pour l&apos;expédition des autocollants QRBag</li>
+                <li>Nos partenaires de livraison pour l&apos;expédition des autocollants QRBags</li>
                 <li>Les autorités compétentes si la loi l&apos;exige</li>
                 <li>Nos prestataires techniques (hébergement, paiement) sous strictes conditions de confidentialité</li>
               </ul>
@@ -135,7 +135,7 @@ export default function Confidentialite() {
                 Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter :
               </p>
               <p>
-                <strong>Email :</strong> <a href="mailto:contact@qrbag.com" className="text-[#e07c0a] hover:underline">contact@qrbag.com</a><br />
+                <strong>Email :</strong> <a href="mailto:contact@qrbags.com" className="text-[#e07c0a] hover:underline">contact@qrbags.com</a><br />
                 <strong>Adresse :</strong> Poissy, France
               </p>
               <p className="mt-4">

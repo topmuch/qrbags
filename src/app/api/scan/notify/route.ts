@@ -314,7 +314,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const transportLabel = transportLabels[transportMode]?.[fallbackLang] || 'vol';
 
       messageContent = [
-        `${transportEmoji} Alerte QRBag`,
+        `${transportEmoji} Alerte QRBags`,
         `Votre bagage ${baggage.reference} (${transportLabel}) a été scanné à ${location?.city || 'une localisation inconnue'} à ${scanTime}.`,
         `Suivez son statut : ${appUrl}/suivi/${baggage.reference}`,
       ].join('\n');

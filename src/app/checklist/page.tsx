@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * QRBag — Checklist d'inventaire ONBOARDING (refonte ludique)
+ * QRBags — Checklist d'inventaire ONBOARDING (refonte ludique)
  *
  * Parcours en 3 étapes guidées + écran de succès « wahoo » :
  *   1. Qui voyage ?        — identité + voyage (form)
@@ -9,7 +9,7 @@
  *   3. Personnalisez       — quantités / couleurs / marques + photo (optionnel)
  *   ✓ Attestation générée  — confettis, code, clé, téléchargement PDF
  *
- * Palette signature QRBag (navy/azure/orange/magenta/violet) via BrandShell.
+ * Palette signature QRBags (navy/azure/orange/magenta/violet) via BrandShell.
  * API inchangée : POST /api/checklist + /api/checklist/upload-photo.
  */
 
@@ -66,7 +66,7 @@ import {
   brandBtnOutline,
 } from '@/components/brand/BrandShell';
 
-/* ─── Palette QRBag ─── */
+/* ─── Palette QRBags ─── */
 const NAVY = '#16234e';
 const AZURE = '#2f9bff';
 const ORANGE = '#f8921f';
@@ -75,7 +75,7 @@ const MAGENTA = '#e6216e';
 const VIOLET = '#8b17c9';
 const YELLOW = '#ffd200';
 
-/* Couleur signature par catégorie (cycle de la palette QRBag) */
+/* Couleur signature par catégorie (cycle de la palette QRBags) */
 const CATEGORY_COLORS: Record<string, { main: string; darkText: boolean }> = {
   women: { main: MAGENTA, darkText: false },
   men: { main: AZURE, darkText: false },
@@ -90,7 +90,7 @@ const CATEGORY_COLORS: Record<string, { main: string; darkText: boolean }> = {
 
 const catColor = (id: string) => CATEGORY_COLORS[id] ?? { main: NAVY, darkText: false };
 
-/* ─── ConfettiBurst — pluie de confettis signature (palette QRBag, zéro dépendance) ───
+/* ─── ConfettiBurst — pluie de confettis signature (palette QRBags, zéro dépendance) ───
    Valeurs pseudo-aléatoires déterministes (seed par index) : rendu identique
    serveur/client, donc aucune erreur d'hydratation. */
 const CONFETTI_COLORS = [ORANGE, MAGENTA, VIOLET, AZURE, YELLOW];
@@ -403,7 +403,7 @@ function ChecklistPageContent() {
           <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#16234e]/10 px-4 py-2.5">
             <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
               <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-                <img src="/logo.png" alt="QRBag" className="h-11 w-auto object-contain" />
+                <img src="/logo.png" alt="QRBags" className="h-11 w-auto object-contain" />
               </Link>
               <LanguageSelector lang={lang} setLang={setLang} variant="blue" />
             </div>
@@ -577,7 +577,7 @@ function ChecklistPageContent() {
           </section>
 
           <footer className="bg-[#16234e] text-white/70 text-center py-4 mt-auto">
-            <p className="text-xs">QRBag — Protection intelligente des bagages • qrbags.com</p>
+            <p className="text-xs">QRBags — Protection intelligente des bagages • qrbags.com</p>
           </footer>
         </main>
       </BrandShell>
@@ -602,7 +602,7 @@ function ChecklistPageContent() {
         <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#16234e]/10 px-4 py-2.5">
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <img src="/logo.png" alt="QRBag" className="h-11 w-auto object-contain" />
+              <img src="/logo.png" alt="QRBags" className="h-11 w-auto object-contain" />
             </Link>
             <div className="hidden md:flex items-center gap-1">
               {NAV_LINKS.map((link) => (
@@ -620,7 +620,7 @@ function ChecklistPageContent() {
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 bg-gradient-qrbag text-white text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-3 shadow-md shadow-[#e6216e]/25">
               <Sparkles className="w-3.5 h-3.5" />
-              {refParam && sourceParam === 'tracking_page' ? 'Checklist gratuite' : 'Service gratuit QRBag'}
+              {refParam && sourceParam === 'tracking_page' ? 'Checklist gratuite' : 'Service gratuit QRBags'}
             </div>
             <h1 className="text-2xl md:text-4xl font-black text-[#16234e] mb-2">
               {t('checklist.title')}
@@ -1151,7 +1151,7 @@ function ChecklistPageContent() {
 
         {/* Footer sticky */}
         <footer className="bg-[#16234e] text-white/70 text-center py-4 mt-auto">
-          <p className="text-xs">QRBag — Protection intelligente des bagages • qrbags.com</p>
+          <p className="text-xs">QRBags — Protection intelligente des bagages • qrbags.com</p>
         </footer>
       </main>
     </BrandShell>

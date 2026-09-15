@@ -6,7 +6,7 @@ import { brandBadge } from '@/components/brand/BrandShell';
 function AProposContent() {
   return (
     <>
-      {/* Hero section — bandeau navy étiquette QRBag */}
+      {/* Hero section — bandeau navy étiquette QRBags */}
       <section className="relative overflow-hidden bg-[#16234e] text-center">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
         <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
@@ -16,7 +16,7 @@ function AProposContent() {
         <div className="relative max-w-4xl mx-auto px-4 py-16 md:py-20">
           <span className={brandBadge}>À propos</span>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 mt-6">
-            À propos de QRBag
+            À propos de QRBags
           </h1>
           <p className="text-white/70 max-w-2xl mx-auto text-xl leading-relaxed">
             Nous croyons qu&apos;un voyageur ne devrait jamais perdre son bagage — ni sa sérénité.
@@ -136,7 +136,7 @@ function AProposContent() {
       <section className="py-16 max-w-4xl mx-auto px-4 text-center">
         <h2 className="text-3xl font-bold text-[#16234e] mb-6">Qui sommes-nous ?</h2>
         <p className="text-[#16234e]/70 mb-8 max-w-2xl mx-auto leading-relaxed">
-          QRBag est développé par <strong className="text-[#f8921f]">MMASOLUTION</strong>, une entreprise
+          QRBags est développé par <strong className="text-[#f8921f]">MMASOLUTION</strong>, une entreprise
           spécialisée dans les solutions digitales pour le tourisme religieux et les voyages internationaux.
           Notre équipe combine des expertises en technologie, logistique et expérience client pour créer
           des solutions qui font la différence.
@@ -156,8 +156,8 @@ function AProposContent() {
             </div>
             <div className="flex items-center justify-center gap-2">
               <span className="text-xl" aria-hidden>✉️</span>
-              <a href="mailto:contact@qrbag.com" className="hover:text-[#2f9bff] transition-colors">
-                contact@qrbag.com
+              <a href="mailto:contact@qrbags.com" className="hover:text-[#2f9bff] transition-colors">
+                contact@qrbags.com
               </a>
             </div>
           </div>
@@ -169,7 +169,7 @@ function AProposContent() {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
         <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
         <div className="relative max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">QRBag en chiffres</h2>
+          <h2 className="text-3xl font-bold text-center text-white mb-12">QRBags en chiffres</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { number: '10 000+', label: 'Bagages protégés' },

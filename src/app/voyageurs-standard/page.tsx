@@ -16,7 +16,7 @@ import {
   Shield
 } from "lucide-react";
 
-// Hero Section — bandeau navy étiquette QRBag
+// Hero Section — bandeau navy étiquette QRBags
 function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#0e1734] to-[#16234e]">
@@ -177,7 +177,7 @@ function AdvantagesSection() {
         {/* Title */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-[#16234e] mb-4">
-            Pourquoi choisir <span className="text-gradient-qrbag">QRBag Voyageurs ?</span>
+            Pourquoi choisir <span className="text-gradient-qrbag">QRBags Voyageurs ?</span>
           </h2>
         </div>
 
@@ -315,13 +315,13 @@ function TestimonialsSection() {
     {
       name: "Sophie Martin",
       role: "Voyageuse fréquente",
-      content: "Simple, efficace et pas cher. J'ai utilisé QRBag pour tous mes voyages cette année. Plus de stress !",
+      content: "Simple, efficace et pas cher. J'ai utilisé QRBags pour tous mes voyages cette année. Plus de stress !",
       avatar: "👩🏻"
     },
     {
       name: "Thomas Dubois",
       role: "Business traveler",
-      content: "Je voyage souvent pour le travail. Avec QRBag, je suis tranquille. L'activation prend 30 secondes top chrono.",
+      content: "Je voyage souvent pour le travail. Avec QRBags, je suis tranquille. L'activation prend 30 secondes top chrono.",
       avatar: "👨🏻"
     }
   ];
@@ -398,7 +398,7 @@ function CTASection() {
         <p className="mt-8 text-white/60 text-sm">
           Vous êtes une agence ?{' '}
           <Link href="/devenir-partenaire" className="text-[#ffd200] font-medium hover:underline">
-            Devenez partenaire QRBag
+            Devenez partenaire QRBags
           </Link>
         </p>
       </div>

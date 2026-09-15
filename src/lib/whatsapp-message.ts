@@ -18,7 +18,7 @@
  *   👤 [FINDER_NAME]
  *   📱 [FINDER_WHATSAPP]
  *   [CALL_TO_ACTION_CONTEXT]
- *   QRBag – Protégez vos bagages, en toute sérénité.
+ *   QRBags – Protégez vos bagages, en toute sérénité.
  *
  * Contraintes:
  *   - Max 400 caractères (limite wa.me pre-filled)
@@ -135,9 +135,9 @@ const CONTEXT_EMOJIS: Record<string, string> = {
 };
 
 const SIGNATURES: Record<WhatsAppLocale, string> = {
-  fr: 'QRBag – Protégez vos bagages, en toute sérénité.',
-  en: 'QRBag – Protect your luggage with peace of mind.',
-  ar: 'QRBag – احمِ أمتعتك براحة بال.',
+  fr: 'QRBags – Protégez vos bagages, en toute sérénité.',
+  en: 'QRBags – Protect your luggage with peace of mind.',
+  ar: 'QRBags – احمِ أمتعتك براحة بال.',
 };
 
 const SEE_BAGAGE: Record<WhatsAppLocale, string> = {
@@ -262,9 +262,9 @@ function smartTruncate(message: string, maxChars: number, locale: WhatsAppLocale
 
   let truncated = false;
 
-  // Retirer signature (dernière ligne si commence par "QRBag")
+  // Retirer signature (dernière ligne si commence par "QRBags")
   for (let i = lines.length - 1; i >= 0; i--) {
-    if (lines[i].startsWith('QRBag') || lines[i].startsWith('*QRBag')) {
+    if (lines[i].startsWith('QRBags') || lines[i].startsWith('*QRBags')) {
       lines.splice(i, 1);
       truncated = true;
       break;

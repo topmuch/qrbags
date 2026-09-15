@@ -60,14 +60,14 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
       { value: '99.9%', label: 'Disponibilité' },
     ],
     testimonials: [
-      { name: 'Fatou Diallo', role: 'Agence Hajj Express', text: 'QRBag a transformé notre gestion de bagages. Zéro perte depuis 2 ans.' },
+      { name: 'Fatou Diallo', role: 'Agence Hajj Express', text: 'QRBags a transformé notre gestion de bagages. Zéro perte depuis 2 ans.' },
       { name: 'Moussa Koné', role: 'Voyages Sahel', text: 'Le dashboard est simple et efficace. Nos clients sont rassurés.' },
     ],
   },
   superadmin: {
     type: 'superadmin',
     title: 'Administration',
-    subtitle: 'Accès réservé aux administrateurs de la plateforme QRBag',
+    subtitle: 'Accès réservé aux administrateurs de la plateforme QRBags',
     role: 'superadmin',
     redirectPath: '/admin/tableau-de-bord',
     badgeText: 'Admin',
@@ -82,7 +82,7 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
       { value: '99.9%', label: 'Disponibilité' },
     ],
     testimonials: [
-      { name: 'Fatou Diallo', role: 'Agence Hajj Express', text: 'QRBag a transformé notre gestion de bagages. Zéro perte depuis 2 ans.' },
+      { name: 'Fatou Diallo', role: 'Agence Hajj Express', text: 'QRBags a transformé notre gestion de bagages. Zéro perte depuis 2 ans.' },
       { name: 'Moussa Koné', role: 'Voyages Sahel', text: 'Le dashboard est simple et efficace. Nos clients sont rassurés.' },
     ],
   },
@@ -172,7 +172,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
           <div className="flex items-center justify-between">
             <Link href="/" className="group">
               <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex items-center justify-center group-hover:bg-white/15 transition-all">
-                <img src="/logo.png" alt="QRBag" className="h-9 w-auto rounded-xl" />
+                <img src="/logo.png" alt="QRBags" className="h-9 w-auto rounded-xl" />
               </div>
             </Link>
           </div>
@@ -255,7 +255,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center mb-10">
             <div className="w-20 h-20 rounded-2xl bg-[#16234e] flex items-center justify-center">
-              <img src="/logo.png" alt="QRBag" className="h-9 w-auto rounded-xl" />
+              <img src="/logo.png" alt="QRBags" className="h-9 w-auto rounded-xl" />
             </div>
           </div>
 

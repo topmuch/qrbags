@@ -474,7 +474,7 @@ export async function POST(
       `Tu peux aussi voir tous les détails ici :\n` +
       `👉 ${trackingUrl}\n` +
       `Ne panique pas, tout va bien se passer ! 💪\n` +
-      `L'équipe QRBag`;
+      `L'équipe QRBags`;
 
     // Clean phone number
     const phone = baggage.whatsappOwner.replace(/[^0-9]/g, '');
@@ -522,7 +522,7 @@ export async function POST(
           });
           sendEmail({
             to: baggage.travelerEmail,
-            subject: `🔔 QRBag — Ton bagage ${baggage.reference} vient d'être scanné${city ? ` (${city})` : ''}`,
+            subject: `🔔 QRBags — Ton bagage ${baggage.reference} vient d'être scanné${city ? ` (${city})` : ''}`,
             html: template.html,
             text: template.text,
             type: 'scan_alert',

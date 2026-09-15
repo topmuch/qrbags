@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * QRBag — Page publique de l'attestation /checklist/[code]
+ * QRBags — Page publique de l'attestation /checklist/[code]
  *
- * Design premium (palette signature QRBag) :
+ * Design premium (palette signature QRBags) :
  *  - État verrouillé : carte héro dégradé + clé de vérification + réassurance
  *  - État déverrouillé : héro « Attestation vérifiée » avec cachet CSS,
  *    carte Voyageur & Vol (nom, prénom, compagnie, N° vol, départ, destination),
@@ -43,7 +43,7 @@ import {
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
 import { DEFAULT_CHECKLIST_CATEGORIES } from '@/lib/checklist-catalog';
 
-/* ─── Palette QRBag ─── */
+/* ─── Palette QRBags ─── */
 const CATEGORY_UI_COLORS: Record<string, string> = {
   women: '#e6216e',
   men: '#2f9bff',
@@ -105,7 +105,7 @@ function SealBadge({ dateStr }: { dateStr: string }) {
       <div className="absolute inset-[5px] rounded-full border border-dashed border-white/60" aria-hidden />
       <div className="text-center leading-tight px-2">
         <div className="text-[10px] font-black text-white tracking-[0.18em]">CERTIFIÉ</div>
-        <div className="text-[9px] font-bold text-[#ffd200]">QRBag</div>
+        <div className="text-[9px] font-bold text-[#ffd200]">QRBags</div>
         <div className="text-[7.5px] font-semibold text-white/80 mt-1">{dateStr}</div>
       </div>
     </div>
@@ -278,7 +278,7 @@ function ChecklistViewContent() {
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#16234e]/10 px-4 py-2.5">
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/logo.png" alt="QRBag" className="h-11 w-auto object-contain" />
+            <img src="/logo.png" alt="QRBags" className="h-11 w-auto object-contain" />
           </Link>
           <div className="hidden md:flex items-center gap-1">
             <a href="/" className="px-3 py-2 text-[13px] font-medium text-[#16234e]/70 hover:text-[#16234e] transition-colors rounded-lg hover:bg-[#16234e]/5">Accueil</a>
@@ -712,7 +712,7 @@ function ChecklistViewContent() {
         <div className="bg-[#16234e] text-center py-4">
           <p className="text-xs text-white/70 font-medium">
             <CheckCircle2 className="w-3 h-3 inline mr-1 text-[#ffd200]" />
-            QRBag — Protection intelligente des bagages • qrbags.com
+            QRBags — Protection intelligente des bagages • qrbags.com
           </p>
         </div>
       </footer>

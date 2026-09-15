@@ -64,7 +64,7 @@ export default function Activez30SecondesPage() {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100 aspect-[3/4]">
                   <Image
                     src="/images/landing-v2/step-activate.jpg"
-                    alt="Activez en 30 secondes - QRBag"
+                    alt="Activez en 30 secondes - QRBags"
                     fill
                     className="object-cover"
                   />
@@ -155,7 +155,7 @@ export default function Activez30SecondesPage() {
           <FadeIn>
             <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-white/60 mb-4">Étape suivante</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Prêt à voyager serein ?</h2>
-            <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">Votre QR code est activé, votre bagage est protégé. Découvrez comment profiter de la protection QRBag pendant votre voyage.</p>
+            <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">Votre QR code est activé, votre bagage est protégé. Découvrez comment profiter de la protection QRBags pendant votre voyage.</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/etapes/voyagez-serein" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-violet-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Voir l'étape suivante <ChevronRight className="w-4 h-4" />

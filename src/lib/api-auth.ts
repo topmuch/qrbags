@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getSession, SessionUser } from '@/lib/session';
 
 /**
- * QRBag — Scoping agence côté API (défense en profondeur, complément du middleware).
+ * QRBags — Scoping agence côté API (défense en profondeur, complément du middleware).
  *
  * Règle absolue : un utilisateur de rôle `agency` ne peut JAMAIS accéder aux
  * données d'une autre agence — le `agencyId` passé en query/body est ignoré et

@@ -11,7 +11,7 @@ import { rateLimit } from '@/lib/rate-limit';
  *
  * Headers:
  *   Content-Type: application/pdf
- *   Content-Disposition: inline; filename="QRBag-attestation-{code}.pdf"
+ *   Content-Disposition: inline; filename="QRBags-attestation-{code}.pdf"
  *   Cache-Control: no-store
  */
 /**
@@ -127,7 +127,7 @@ export async function GET(
     });
 
     // ─── Stream as response ───
-    const filename = `QRBag-attestation-${checklist.code}.pdf`;
+    const filename = `QRBags-attestation-${checklist.code}.pdf`;
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {

@@ -99,7 +99,7 @@ export function TestimonialsSection({ lang = 'fr' }: TestimonialsSectionProps) {
               {/* Admin response */}
               {review.response && (
                 <div className="bg-[#c5a643]/10 border-l-3 border-[#c5a643] rounded-r-lg p-3 mb-4">
-                  <p className="text-xs font-bold text-[#1a1a1a] mb-1">QRBag</p>
+                  <p className="text-xs font-bold text-[#1a1a1a] mb-1">QRBags</p>
                   <p className="text-xs text-[#1a1a1a]/70">{review.response}</p>
                 </div>
               )}

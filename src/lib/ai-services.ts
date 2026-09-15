@@ -1,5 +1,5 @@
 /**
- * AI Services for QRBag
+ * AI Services for QRBags
  * 
  * All AI features are:
  * - Toggleable via feature flags

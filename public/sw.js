@@ -14,7 +14,7 @@ const PRECACHE_ASSETS = [
 self.addEventListener('install', (event: ExtendableEvent) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[QRBag SW] Precaching app shell');
+      console.log('[QRBags SW] Precaching app shell');
       return cache.addAll(PRECACHE_ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
         cacheNames
           .filter((name) => name !== CACHE_NAME)
           .map((name) => {
-            console.log('[QRBag SW] Deleting old cache:', name);
+            console.log('[QRBags SW] Deleting old cache:', name);
             return caches.delete(name);
           })
       );

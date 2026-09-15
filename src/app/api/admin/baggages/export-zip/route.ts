@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     const timestamp = new Date().toISOString().slice(0, 10);
     const agencyName = baggages[0]?.agency?.name || 'export';
     const baggageType = type || 'all';
-    const zipFilename = `QRBag-${agencyName}-${baggageType}-${baggages.length}QR-${timestamp}.zip`;
+    const zipFilename = `QRBags-${agencyName}-${baggageType}-${baggages.length}QR-${timestamp}.zip`;
 
     // Group baggages by setId
     const baggagesBySetId = new Map<string, typeof baggages>();
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
               travelerInfo?.lastName,
             );
 
-            // Generate PRINT-READY LABELS (design QRBag + QR intégré, 7×10 cm)
+            // Generate PRINT-READY LABELS (design QRBags + QR intégré, 7×10 cm)
             // for each baggage in this set
             for (const baggage of setBaggages) {
               try {
@@ -239,7 +239,7 @@ function generatePassengerReadme(
 ): string {
   const lines: string[] = [
     '===================================',
-    '  QRBag - QR Codes Bagage',
+    '  QRBags - QR Codes Bagage',
     '===================================',
     '',
     `Set ID    : ${setId}`,
@@ -259,14 +259,14 @@ function generatePassengerReadme(
   lines.push('--- Instructions ---');
   lines.push('');
   lines.push('1. Chaque image ETIQUETTE-7x10cm-*.png est une etiquette PRETE A IMPRIMER');
-  lines.push('   (design QRBag + QR code integre, format exact 7 x 10 cm, ~381 DPI).');
+  lines.push('   (design QRBags + QR code integre, format exact 7 x 10 cm, ~381 DPI).');
   lines.push('2. Imprimez sans redimensionner (l\'image contient ses dimensions physiques).');
   lines.push('3. Collez chaque etiquette sur le bagage correspondant.');
   lines.push('4. Le voyageur active ses QR codes sur qrbags.com/activate');
   lines.push('5. Si un bagage est perdu, le trouveur scanne le QR code');
   lines.push('   et le proprietaire recoit une notification WhatsApp.');
   lines.push('');
-  lines.push('QRBag - Protegez vos bagages, en toute serenite.');
+  lines.push('QRBags - Protegez vos bagages, en toute serenite.');
 
   return lines.join('\n');
 }
@@ -291,7 +291,7 @@ function generateManifest(
 ): string {
   const lines: string[] = [
     '===================================',
-    '  QRBag - Export Manifest',
+    '  QRBags - Export Manifest',
     '===================================',
     '',
     `Date d'export    : ${new Date().toLocaleString('fr-FR')}`,

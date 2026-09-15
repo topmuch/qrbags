@@ -13,7 +13,7 @@ import {
   Send
 } from "lucide-react";
 
-// Hero Section — bandeau navy étiquette QRBag
+// Hero Section — bandeau navy étiquette QRBags
 function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#0e1734] to-[#16234e]">
@@ -29,7 +29,7 @@ function HeroSection() {
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-          Devenez partenaire <span className="text-gradient-qrbag">QRBag</span>
+          Devenez partenaire <span className="text-gradient-qrbag">QRBags</span>
         </h1>
 
         <p className="text-white/70 max-w-2xl mx-auto mb-8 text-lg">
@@ -86,7 +86,7 @@ function WhyPartnerSection() {
             Pourquoi collaborer avec nous ?
           </h2>
           <p className="text-[#16234e]/70 text-lg">
-            Trois raisons de devenir partenaire QRBag
+            Trois raisons de devenir partenaire QRBags
           </p>
         </div>
 
@@ -150,7 +150,7 @@ function TestimonialsSection() {
     {
       name: "Amadou Diallo",
       role: "Directeur, Pèlerins du Sénégal",
-      text: "QRBag a réduit de 90% les pertes de bagages lors du Hajj 2025. Un service révolutionnaire.",
+      text: "QRBags a réduit de 90% les pertes de bagages lors du Hajj 2025. Un service révolutionnaire.",
       avatar: "AD"
     },
     {

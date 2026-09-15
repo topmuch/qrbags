@@ -53,7 +53,7 @@ const ChatbotWidget = dynamic(() => import('@/components/finder/ChatbotWidget'),
   loading: () => null,
 });
 
-// Design system QRBag « étiquette 7×10 » appliqué via BrandShell/BrandCard
+// Design system QRBags « étiquette 7×10 » appliqué via BrandShell/BrandCard
 // (palette navy #16234e / azure #2f9bff / orange #f8921f / rouge #ef4036 /
 //  magenta #e6216e / violet #8b17c9 — voir src/components/brand/BrandShell.tsx)
 const FALLBACK_PHONE = '33745349339';
@@ -97,7 +97,7 @@ interface BaggageData {
   };
 }
 
-// ─── Language Selector Component (carte blanche — design system QRBag) ───
+// ─── Language Selector Component (carte blanche — design system QRBags) ───
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -139,7 +139,7 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
   );
 }
 
-// ─── Activation Redirect Component (design system QRBag) ───
+// ─── Activation Redirect Component (design system QRBags) ───
 // ACTIVATION-FLOW: redirection directe vers /inscrire?qr=REF — le sélecteur de
 // mode de transport (avion/train/bus/bateau) a été supprimé ; l'API applique
 // son mode par défaut ('flight') à l'activation.
@@ -172,7 +172,7 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
           <BrandCard corners className="p-6 md:p-8 text-center">
             <div className="relative inline-block mb-5">
               <BrandIconRing size="w-16 h-16" glow="#2f9bff">
-                <img src="/logo.png" alt="Logo QRBag" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
+                <img src="/logo.png" alt="Logo QRBags" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
               </BrandIconRing>
               <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-qrbag rounded-full flex items-center justify-center shadow-md shadow-[#e6216e]/30">
                 <Sparkles className="w-3.5 h-3.5 text-white" />
@@ -229,7 +229,7 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   );
 }
 
-// ─── Loading Component (design system QRBag — fond blanc) ───
+// ─── Loading Component (design system QRBags — fond blanc) ───
 function LoadingScreen({ t }: { t: (key: string) => string }) {
   return (
     <BrandShell>
@@ -243,7 +243,7 @@ function LoadingScreen({ t }: { t: (key: string) => string }) {
   );
 }
 
-// ─── Error Screen (design system QRBag — BrandCard corners + BrandIconRing) ───
+// ─── Error Screen (design system QRBags — BrandCard corners + BrandIconRing) ───
 function ErrorScreen({
   type,
   t,
@@ -309,7 +309,7 @@ function ErrorScreen({
   );
 }
 
-// ─── Soft Encart Helper (fond azure doux + bordure navy discrète — design system QRBag) ───
+// ─── Soft Encart Helper (fond azure doux + bordure navy discrète — design system QRBags) ───
 function SoftEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={`bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl p-3 mb-2.5 last:mb-0 ${className}`}>
@@ -509,7 +509,7 @@ export default function ScanPage() {
       let ownerNumber = rawOwner.replace(/\D/g, '');
       if (ownerNumber.startsWith('00')) ownerNumber = ownerNumber.slice(2); // préfixe international 00
       if (!/^[1-9]\d{7,14}$/.test(ownerNumber)) {
-        // Numéro absent ou invalide → fallback support QRBag
+        // Numéro absent ou invalide → fallback support QRBags
         ownerNumber = FALLBACK_PHONE;
       }
 
@@ -627,7 +627,7 @@ export default function ScanPage() {
   const isDeclaredLost = baggage?.declaredLostAt && !baggage?.foundAt;
 
   // ═══════════════════════════════════════════════════════════════
-  // ─── MAIN RENDER — BrandShell blanc + BrandCard + encarts doux (design system QRBag) ───
+  // ─── MAIN RENDER — BrandShell blanc + BrandCard + encarts doux (design system QRBags) ───
   // ═══════════════════════════════════════════════════════════════
   return (
     <BrandShell>
@@ -682,7 +682,7 @@ export default function ScanPage() {
                 {isDeclaredLost ? (
                   <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-[#8b17c9]" aria-hidden />
                 ) : (
-                  <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl" aria-hidden />
+                  <img src="/logo.png" alt="Logo QRBags" className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl" aria-hidden />
                 )}
               </motion.div>
 
@@ -1125,7 +1125,7 @@ export default function ScanPage() {
                       </>
                     )}
                   </button>
-                  {/* Phone Button — navy officiel (brandBtnNavy, design system QRBag) */}
+                  {/* Phone Button — navy officiel (brandBtnNavy, design system QRBags) */}
                   <button
                     onClick={handlePhoneCall}
                     disabled={isLocating || isSubmitting}

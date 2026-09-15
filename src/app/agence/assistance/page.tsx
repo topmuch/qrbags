@@ -112,7 +112,7 @@ export default function AssistancePage() {
     {
       icon: <Mail className="w-5 h-5" />,
       title: "Email",
-      value: "support@qrbag.com",
+      value: "support@qrbags.com",
       subtitle: "Réponse sous 24h"
     },
     {
@@ -408,7 +408,7 @@ export default function AssistancePage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-slate-800 dark:text-white">Support QRBag</h3>
+                        <h3 className="font-semibold text-slate-800 dark:text-white">Support QRBags</h3>
                         <span className="px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-700">
                           Réponse
                         </span>

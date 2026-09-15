@@ -46,7 +46,7 @@ export default function SansBatteriePage() {
                 <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">autonome à 100%</span>
               </h1>
               <p className="text-lg text-slate-500 leading-relaxed mb-8 max-w-lg">
-                Contrairement aux trackers GPS ou Bluetooth, les QR codes QRBag ne nécessitent aucune source d&apos;énergie. Pas de batterie à charger, pas de pile à remplacer, pas de technologie à entretenir. Votre protection fonctionne toujours, même après des semaines ou des mois de voyage.
+                Contrairement aux trackers GPS ou Bluetooth, les QR codes QRBags ne nécessitent aucune source d&apos;énergie. Pas de batterie à charger, pas de pile à remplacer, pas de technologie à entretenir. Votre protection fonctionne toujours, même après des semaines ou des mois de voyage.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/commander" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold text-sm shadow-xl shadow-amber-500/20 hover:shadow-amber-500/30 transition-all duration-300 hover:scale-105">
@@ -64,7 +64,7 @@ export default function SansBatteriePage() {
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100">
                   <Image
                     src="/images/landing-v2/features/sans-batterie.jpg"
-                    alt="Sans batterie - QRBag"
+                    alt="Sans batterie - QRBags"
                     width={600}
                     height={800}
                     className="w-full h-auto object-cover"
@@ -94,7 +94,7 @@ export default function SansBatteriePage() {
         <div className="max-w-6xl mx-auto">
           <FadeIn className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-[-0.02em]">Pourquoi le QR code bat le tracker</h2>
-            <p className="text-lg text-slate-500 max-w-2xl mx-auto">Les trackers GPS et AirTags ont des limites que QRBag n&apos;a pas</p>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto">Les trackers GPS et AirTags ont des limites que QRBags n&apos;a pas</p>
           </FadeIn>
 
           <div className="overflow-x-auto">
@@ -102,7 +102,7 @@ export default function SansBatteriePage() {
               <thead>
                 <tr className="bg-slate-50">
                   <th className="text-left py-4 px-6 text-sm font-bold text-slate-600 rounded-tl-2xl">Critère</th>
-                  <th className="text-center py-4 px-6 text-sm font-bold text-amber-600">QRBag (QR Code)</th>
+                  <th className="text-center py-4 px-6 text-sm font-bold text-amber-600">QRBags (QR Code)</th>
                   <th className="text-center py-4 px-6 text-sm font-bold text-slate-400 rounded-tr-2xl">Tracker GPS / AirTag</th>
                 </tr>
               </thead>
@@ -143,8 +143,8 @@ export default function SansBatteriePage() {
             {[
               { icon: Clock, title: 'Toujours opérationnel', description: 'Un QR code ne s\'éteint jamais. Pas de batterie à surveiller, pas de charge à planifier. Votre bagage est protégé 24h/24, 365 jours par an, sans interruption.' },
               { icon: Globe, title: 'Fonctionne partout', description: 'Pas de réseau cellulaire ? Pas de problème. Un QR code peut être scanné même hors ligne par l\'appareil photo du téléphone. Aucune dépendance à un réseau ou à un satellite.' },
-              { icon: Shield, title: 'Zéro maintenance', description: 'Contrairement aux trackers qui nécessitent des mises à jour, des remplacements de pile et des vérifications régulières, un QR code QRBag ne demande absolument rien une fois collé.' },
-              { icon: Zap, title: 'Léger et discret', description: 'Moins d\'un gramme, fin comme un autocollant. Le QR code QRBag se fait oublier dans votre bagage tout en restant la protection la plus efficace du marché.' },
+              { icon: Shield, title: 'Zéro maintenance', description: 'Contrairement aux trackers qui nécessitent des mises à jour, des remplacements de pile et des vérifications régulières, un QR code QRBags ne demande absolument rien une fois collé.' },
+              { icon: Zap, title: 'Léger et discret', description: 'Moins d\'un gramme, fin comme un autocollant. Le QR code QRBags se fait oublier dans votre bagage tout en restant la protection la plus efficace du marché.' },
               { icon: Smartphone, title: 'Universel', description: 'Pas de compatibilité à vérifier. Un QR code fonctionne avec n\'importe quel smartphone, quelle que soit la marque, le modèle ou le système d\'exploitation.' },
               { icon: Battery, title: 'Écologique', description: 'Pas de batterie = pas de déchets électroniques. Le QR code est la solution la plus écologique pour la protection de bagages. Simple, efficace, responsable.' },
             ].map((item, i) => (
@@ -168,7 +168,7 @@ export default function SansBatteriePage() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <FadeIn>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Protégez vos bagages sans jamais recharger</h2>
-            <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">La protection la plus fiable est celle qui ne dépend d&apos;aucune batterie. Découvrez QRBag et voyagez en toute sérénité.</p>
+            <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">La protection la plus fiable est celle qui ne dépend d&apos;aucune batterie. Découvrez QRBags et voyagez en toute sérénité.</p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/commander" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-amber-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Commander mes QR codes <ChevronRight className="w-4 h-4" />

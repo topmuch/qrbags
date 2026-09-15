@@ -10,7 +10,7 @@
  * - generateVerificationKey(): 8-char verification key (mixed case + digits)
  * - generateChecklistPdf(): premium "invoice-style" attestation with round seal + QR
  *
- * Brand colors — palette signature QRBag (identique au site) :
+ * Brand colors — palette signature QRBags (identique au site) :
  *   NAVY    #16234e   AZURE  #2f9bff   ORANGE  #f8921f
  *   RED     #ef4036   MAGENTA #e6216e  VIOLET  #8b17c9   YELLOW #ffd200
  */
@@ -76,7 +76,7 @@ export function generateVerificationKey(): string {
 }
 
 // ═══════════════════════════════════════════════════════
-//  PDF GENERATION — Design premium « facture certifiée » QRBag
+//  PDF GENERATION — Design premium « facture certifiée » QRBags
 // ═══════════════════════════════════════════════════════
 
 export interface ChecklistPdfData {
@@ -94,7 +94,7 @@ export interface ChecklistPdfData {
   createdAt?: Date;
 }
 
-/* ─── Palette signature QRBag (identique au site) ─── */
+/* ─── Palette signature QRBags (identique au site) ─── */
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const h = hex.replace('#', '');
   return {
@@ -220,7 +220,7 @@ export function computeChecklistSecurity(f: ChecklistSecurityFields): {
   return { serial, fingerprint, fingerprintShort: shortFingerprint(fingerprint) };
 }
 
-/** Charge le logo QRBag (public/logo.png) — null si indisponible (fallback texte) */
+/** Charge le logo QRBags (public/logo.png) — null si indisponible (fallback texte) */
 async function loadLogoPng(): Promise<Buffer | null> {
   try {
     const fs = await import('node:fs/promises');
@@ -291,8 +291,8 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
   const roundCap = LineCapStyle?.Round ?? 0;
 
   const pdfDoc = await PDFDocument.create();
-  pdfDoc.setTitle(`Attestation d'inventaire QRBag - ${data.firstName} ${data.lastName}`);
-  pdfDoc.setAuthor('QRBag');
+  pdfDoc.setTitle(`Attestation d'inventaire QRBags - ${data.firstName} ${data.lastName}`);
+  pdfDoc.setAuthor('QRBags');
   pdfDoc.setSubject(`Checklist ${data.code} — ${serial}`);
   pdfDoc.setCreationDate(createdAt);
 
@@ -338,7 +338,7 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
 
   // ═══════════ Briques de dessin ═══════════
 
-  /** Liseré arc-en-ciel signature (5 segments palette QRBag) */
+  /** Liseré arc-en-ciel signature (5 segments palette QRBags) */
   const drawRainbowStrip = (p: any, y: number, h: number) => {
     const segW = pageWidth / 5;
     PALETTE.forEach((color, i) => {
@@ -455,7 +455,7 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
 
     // Bloc central : CERTIFIÉ + horodatage + série + empreinte
     p.drawText('CERTIFIÉ', { x: cx - fontBold.widthOfTextAtSize('CERTIFIÉ', 10) / 2, y: cy + 21, size: 10, font: fontBold, color: magenta });
-    p.drawText('QRBag', { x: cx - fontBold.widthOfTextAtSize('QRBag', 6.5) / 2, y: cy + 12, size: 6.5, font: fontBold, color: azure });
+    p.drawText('QRBags', { x: cx - fontBold.widthOfTextAtSize('QRBags', 6.5) / 2, y: cy + 12, size: 6.5, font: fontBold, color: azure });
     const tsLine1 = `Émis le ${new Date(createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
     const tsLine2 = `à ${new Date(createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
     p.drawText(tsLine1, { x: cx - fontBold.widthOfTextAtSize(tsLine1, 6.6) / 2, y: cy + 0.5, size: 6.6, font: fontBold, color: navy });
@@ -470,7 +470,7 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
     const footerH = 50;
     drawRainbowStrip(p, footerH, 4);
     p.drawRectangle({ x: 0, y: 0, width: pageWidth, height: footerH, color: navy });
-    p.drawText('QRBag — Protection intelligente des bagages', {
+    p.drawText('QRBags — Protection intelligente des bagages', {
       x: margin, y: footerH - 20, size: 9, font: fontBold, color: yellow,
     });
     p.drawText(
@@ -492,7 +492,7 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
   const drawContinuationHeader = (p: any, _pageNum: number) => {
     p.drawRectangle({ x: 0, y: pageHeight - 44, width: pageWidth, height: 44, color: navy });
     drawRainbowStrip(p, pageHeight - 49, 5);
-    p.drawText(`QRBag — Attestation d'inventaire (suite)`, {
+    p.drawText(`QRBags — Attestation d'inventaire (suite)`, {
       x: margin, y: pageHeight - 28, size: 10.5, font: fontBold, color: white,
     });
     const codeText = `Code : ${data.code}`;
@@ -536,7 +536,7 @@ export async function generateChecklistPdf(data: ChecklistPdfData): Promise<Buff
       height: LOGO_H,
     });
   } else {
-    page.drawText('QRBag', { x: plateX + 20, y: plateY + 22, size: 20, font: fontBold, color: navy });
+    page.drawText('QRBags', { x: plateX + 20, y: plateY + 22, size: 20, font: fontBold, color: navy });
   }
 
   // ─── TITRES ───

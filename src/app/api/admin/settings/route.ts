@@ -4,13 +4,13 @@ import { db } from '@/lib/db';
 // Default settings
 const defaultSettings = {
   // Company Info
-  company_name: 'QRBag',
+  company_name: 'QRBags',
   company_address: 'Poissy, France',
   company_phone: '+33 7 45 34 93 39',
-  company_email: 'contact@qrbag.com',
+  company_email: 'contact@qrbags.com',
   company_logo: '',
   // SEO
-  seo_title: 'QRBag - Protection intelligente des bagages',
+  seo_title: 'QRBags - Protection intelligente des bagages',
   seo_description: 'Protégez vos bagages avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS.',
   seo_keywords: 'QR, bagage, voyage, hajj, protection, sticker',
   seo_image: '',

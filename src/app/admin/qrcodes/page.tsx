@@ -216,7 +216,7 @@ export default function QRCodesPage() {
 
       // Get the filename from Content-Disposition header
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `QRBag-${set.setId}.zip`;
+      let filename = `QRBags-${set.setId}.zip`;
       if (contentDisposition) {
         const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/i) ||
                       contentDisposition.match(/filename="?([^"]+)"?/);
@@ -305,7 +305,7 @@ export default function QRCodesPage() {
 
       // Get filename
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'QRBag-export.zip';
+      let filename = 'QRBags-export.zip';
       if (contentDisposition) {
         const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/i) ||
                       contentDisposition.match(/filename="?([^"]+)"?/);
@@ -342,12 +342,12 @@ export default function QRCodesPage() {
   };
 
   const handleShareSet = async (set: QRSet) => {
-    const shareText = `QRBag - ${set.setId}\n${set.qrCount} QR codes générés\nType: ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'}`;
+    const shareText = `QRBags - ${set.setId}\n${set.qrCount} QR codes générés\nType: ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `QRBag - ${set.setId}`,
+          title: `QRBags - ${set.setId}`,
           text: shareText,
           url: window.location.href,
         });
@@ -827,7 +827,7 @@ export default function QRCodesPage() {
               <div className="bg-[#0e1734] rounded-xl p-4 border border-[#1a2238]">
                 <h4 className="text-[#a0a8b8] text-sm mb-2">Structure du ZIP</h4>
                 <pre className="text-[#101b3f] text-xs leading-5 font-mono">
-{`QRBag-export.zip
+{`QRBags-export.zip
 ├── Passager-001-HAJJ-2026-ABCD/
 │   ├── bagage-1-cabine-HAJJ26-XXXXXX.png
 │   ├── bagage-2-soute-HAJJ26-YYYYYY.png

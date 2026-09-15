@@ -137,7 +137,7 @@ export default function DemoPage() {
   const startDemo = async () => {
     await resetDemo(false);
     await loadDemo();
-    toast({ title: 'Démo prête !', description: 'Un vrai bagage QRBag vous attend.' });
+    toast({ title: 'Démo prête !', description: 'Un vrai bagage QRBags vous attend.' });
   };
 
   /** Simule un scan trouveur → crée un VRAI ScanLog en base */
@@ -179,7 +179,7 @@ export default function DemoPage() {
 
   return (
     <PublicLayout paddingTop="pt-20">
-      {/* Panneau principal — bandeau navy étiquette QRBag */}
+      {/* Panneau principal — bandeau navy étiquette QRBags */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#0e1734] to-[#16234e]">
         {/* Liseré dégradé signature + texture pointillée + halos */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
@@ -198,7 +198,7 @@ export default function DemoPage() {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5">
-              <span className="text-gradient-qrbag">Essayez QRBag</span>
+              <span className="text-gradient-qrbag">Essayez QRBags</span>
               <br />
               <span className="text-white">en conditions réelles</span>
             </h1>
@@ -259,7 +259,7 @@ export default function DemoPage() {
                     </div>
                     <div>
                       <h2 className="text-[#16234e] font-bold leading-tight">Le bagage du voyageur</h2>
-                      <p className="text-[#16234e]/50 text-xs">Enregistré réellement dans QRBag</p>
+                      <p className="text-[#16234e]/50 text-xs">Enregistré réellement dans QRBags</p>
                     </div>
                   </div>
 
@@ -420,7 +420,7 @@ export default function DemoPage() {
                       <div className="flex-1 bg-[#e7ffdb] rounded-2xl p-4 border border-[#25d366]/30 relative">
                         <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#25d366]/20">
                           <MessageCircle className="w-4 h-4 text-[#128c4b]" aria-hidden />
-                          <span className="text-[#128c4b] text-xs font-semibold">QRBag • maintenant</span>
+                          <span className="text-[#128c4b] text-xs font-semibold">QRBags • maintenant</span>
                         </div>
                         <p className="text-[#16234e] text-sm whitespace-pre-line leading-relaxed">
                           {whatsappMessage}

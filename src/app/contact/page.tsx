@@ -54,7 +54,7 @@ function ContactContent() {
 
   return (
     <>
-      {/* Hero section — bandeau navy étiquette QRBag */}
+      {/* Hero section — bandeau navy étiquette QRBags */}
       <section className="relative overflow-hidden bg-[#16234e] text-center">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
         <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
@@ -113,8 +113,8 @@ function ContactContent() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1 text-[#16234e]">Email</h3>
-                    <a href="mailto:contact@qrbag.com" className="text-[#16234e]/70 hover:text-[#f8921f] transition-colors">
-                      contact@qrbag.com
+                    <a href="mailto:contact@qrbags.com" className="text-[#16234e]/70 hover:text-[#f8921f] transition-colors">
+                      contact@qrbags.com
                     </a>
                   </div>
                 </div>
