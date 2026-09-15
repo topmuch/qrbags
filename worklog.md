@@ -1208,3 +1208,23 @@ Work Log:
 Stage Summary:
 - Toutes les cards des pages inscription affichent désormais le logo QRBag arrondi (même pattern validé que la page trouveur)
 - Artifacts : commits 0e39a1f (trouveur, session précédente) + a0182ff (inscription) ; redéploiement Coolify toujours requis
+
+---
+Task ID: success-page-email-docs
+Agent: Z.ai Code (main)
+Task: Page confirmation inscription — supprimer l'accueil, ajouter champ email (passeport + lien suivi), renommer « Tester mon QR » en « Voir mon QR »
+
+Work Log:
+- /success : bouton « Retour à l'accueil » supprimé (+ import Home retiré)
+- /success : nouvelle card « 📬 Recevez vos documents » (champ email pré-rempli via sessionStorage, bouton « Recevoir par email », états sending/sent/error + toast)
+- Nouvelle API POST /api/success/send-docs : zod, rate limit 5/min/email, URLs passeport (/passeport/REF) et suivi (/suivi/REF) construites côté serveur depuis les headers (anti-phishing), persistance Baggage.travelerEmail, envoi via sendEmail + log EmailLog type 'success_docs'
+- src/lib/email.ts : nouveau template getDocsEmailTemplate (HTML brandé QRBag + version texte)
+- Locales fr/en/ar : test_qr renommé (« Voir mon QR » / « View my QR » / « اعرض رمزي ») + 8 nouvelles clés email_docs_*
+- /inscrire : travelerEmail désormais stocké dans sessionStorage.activationData (pré-remplit le champ)
+- Vérifié agent-browser (session simulée VOL26-63Q6UK) : accueil absent, « Voir mon QR » affiché, envoi email réel OK → EmailLog 'sent', Baggage.travelerEmail à jour, aucune erreur console
+- Lint OK ; commit e6f453c poussé sur main
+
+Stage Summary:
+- La page de confirmation permet maintenant de recevoir par email le Passeport bagage + le lien de suivi, sans passer par l'accueil
+- L'email voyageur saisi sur /success active aussi les futures notifications « bagage scanné »
+- Artifacts : commit e6f453c ; redéploiement Coolify requis (production SMTP via EmailSettings admin)
