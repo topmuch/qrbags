@@ -1015,3 +1015,24 @@ Stage Summary:
 - Champs date/heure shrinkables (min-w-0) — plus d'overflow mobile
 - Tous les overlays décoratifs du site sont désormais imperméables aux clics — aucun risque que le motif pointillé bloque un bouton/lien/ input
 - Push GitHub + rappel redéploiement Coolify manuel
+
+---
+Task ID: fix-whatsapp + checklist-onboarding + pdf-wahoo
+Agent: Main Orchestrator
+Task: 1) Bug WhatsApp page trouveur (parfois « Télécharger l'application ») 2) Refonte /checklist en wizard onboarding ludique 3) PDF attestation design Ouf (logo + couleurs QRBag + gros cachet horodaté + QR code)
+
+Work Log:
+- [WhatsApp] Diagnostic : window.open(url,'_blank') sur Android après await GPS/logScan → nouvel onglet où Chrome bloque la redirection intent:// → interstitiel « Télécharger l'application » ; URL non canonique /send/?phone= ; numéro propriétaire non normalisé (00, espaces)
+- [WhatsApp] Fix /scan/[reference]/page.tsx : normalisation robuste du numéro (strip non-digits, préfixe 00, garde-fou regex ^[1-9]\d{7,14}$ → fallback FALLBACK_PHONE) ; URL canonique https://api.whatsapp.com/send?phone= (sans slash) ; navigation same-tab (window.location.href) sur TOUS mobiles (iOS+Android), window.open+fallback desktop uniquement
+- [WhatsApp] Test E2E navigateur : POST /api/scan 200 puis navigation effective vers api.whatsapp.com/send?phone=33700000000&text=... — numéro normalisé, emojis 4-octets correctement encodés (%F0%9F%8E%89), page WhatsApp chargée (XHR ajax/bz 200)
+- [Checklist] Refonte /checklist/page.tsx : wizard onboarding 3 étapes (1 Qui voyage ? → 2 Composez votre valise → 3 Personnalisez) + écran succès wahoo ; stepper animé framer-motion (cercles colorés azure/orange/magenta, barre de progression scaleX, coche spring) ; AnimatePresence slide LTR/RTL ; chips catégories colorées par palette QRBag + badge compteur ; tuiles articles whileTap/whileHover + coche animée ; étape 3 : photo optionnelle + qty/couleur/marque ; succès : ConfettiBurst 34 particules, code+clé copiables, bouton « Télécharger mon attestation PDF » (lien direct /api/checklist/{code}/pdf?key=), page publique, créer une autre
+- [Checklist] API inchangée (POST /api/checklist + upload-photo) ; BrandShell/BrandCard/brandInput ; footer sticky ; i18n : +10 clés checklist.* (wizard_step, step1/2/3_title+hint, next, back, success_download) ajoutées à fr/en/ar
+- [PDF] Réécriture generateChecklistPdf (src/lib/checklist.ts) : bandeau navy avec VRAI logo embed (public/logo.png, plaque blanche) + code jaune + date d'émission ; liseré arc-en-ciel 5 couleurs signature ; confettis déterministes (seededRand) ; GROS cachet horodaté pivoté -8° double bordure orange/magenta (« CERTIFIÉ QRBag / Horodaté le JJ/MM/AAAA à HH:MM / Réf • Authentique ») ; carte passager iceBlue barre d'accent azure+magenta (5 champs dont email) ; inventaire par catégories avec bande colorée dédiée par catégorie (palette QRBag) + coches dessinées (2 segments LineCapStyle.Round, azure, pas de glyphe ✓) ; carte QR navy (QR navy #16234e sur plateau blanc + URL + nb articles horodatés) ; clé de vérification bordure pointillée + tag orange « À CONSERVER » ; footer navy avec liseré + Page N sur toutes les pages ; multi-pages corrigé (continuation avec mini-header au lieu du break qui perdait des catégories)
+- [PDF] Test E2E : POST /api/checklist → GET pdf 200 (90 Ko) → rendu pdftoppm inspecté : logo, cachet, bandes, QR, clé OK ; 8 articles = 2 pages propres, 4 articles = 1 page
+- Nettoyage : 2 checklists de test supprimées de la DB ; lint 0 erreur ; screenshots mobile 390×844 (étapes 1/2/3 + succès) et desktop 1280×800 ; 0 erreur JS console ; DEMO-QRBAG intact
+
+Stage Summary:
+- Bug WhatsApp corrigé à la racine : same-tab mobile + numéro normalisé + URL canonique → plus d'interstitiel « Télécharger l'application »
+- /checklist = parcours onboarding ludique en 3 étapes + succès wahoo avec téléchargement PDF direct
+- PDF attestation totalement rebrandé QRBag (logo, palette, cachet horodaté géant, QR code, arc-en-ciel) — design « Ouf »
+- Push GitHub + rappel redéploiement Coolify manuel
