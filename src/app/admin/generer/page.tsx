@@ -60,7 +60,7 @@ export default function GenererQRPage() {
     firstName: '',
     lastName: '',
     whatsapp: '',
-    duration: '7d' as '7d' | '1y',
+    duration: '30d' as '30d' | '1y',
     baggageCount: 1 as 1 | 2,
   });
   
@@ -274,7 +274,7 @@ export default function GenererQRPage() {
             firstName: '',
             lastName: '',
             whatsapp: '',
-            duration: '7d',
+            duration: '30d',
             baggageCount: 1,
           });
         }
@@ -476,13 +476,13 @@ export default function GenererQRPage() {
                     <Label className="text-slate-700 dark:text-slate-300">Durée</Label>
                     <Select 
                       value={individualForm.duration} 
-                      onValueChange={(v) => setIndividualForm({ ...individualForm, duration: v as '7d' | '1y' })}
+                      onValueChange={(v) => setIndividualForm({ ...individualForm, duration: v as '30d' | '1y' })}
                     >
                       <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                        <SelectItem value="7d">7 jours</SelectItem>
+                        <SelectItem value="30d">30 jours</SelectItem>
                         <SelectItem value="1y">1 an</SelectItem>
                       </SelectContent>
                     </Select>
@@ -510,7 +510,7 @@ export default function GenererQRPage() {
 
                 <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300">
                   <p><strong>Statut :</strong> Actif immédiatement • les infos voyageur sont pré-remplies.</p>
-                  <p><strong>Expiration :</strong> {individualForm.duration === '7d' ? '7 jours' : '1 an'} à partir de la génération</p>
+                  <p><strong>Expiration :</strong> {individualForm.duration === '30d' ? '30 jours' : '1 an'} à partir de la génération</p>
                 </div>
               </>
             ) : (
@@ -633,7 +633,7 @@ export default function GenererQRPage() {
               </div>
               <div className="text-sm text-slate-500 dark:text-slate-400">
                 {context === 'individual' 
-                  ? `${individualForm.duration === '7d' ? '7 jours' : '1 an'} de validité • Activation immédiate`
+                  ? `${individualForm.duration === '30d' ? '30 jours' : '1 an'} de validité • Activation immédiate`
                   : `${agencyForm.type === 'hajj' ? agencyForm.travelerCount * 3 : agencyForm.travelerCount * agencyForm.baggagePerTraveler} QR • En attente d'attribution`
                 }
               </div>
@@ -669,10 +669,10 @@ export default function GenererQRPage() {
                   <p className="text-slate-500 dark:text-slate-400">Expiration</p>
                   <p className="text-slate-800 dark:text-white font-medium">
                     {context === 'individual' 
-                      ? individualForm.duration === '7d' ? '7 jours' : '1 an'
+                      ? individualForm.duration === '30d' ? '30 jours' : '1 an'
                       : agencyForm.type === 'hajj' 
                         ? '60 jours'
-                        : '5 jours'
+                        : '30 jours'
                     }
                   </p>
                 </div>

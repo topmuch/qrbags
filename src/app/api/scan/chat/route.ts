@@ -119,7 +119,7 @@ function buildSystemPrompt(locale: Language, contextStr: string): string {
 • Pas de consigne/stockage : QRBag ne stocke pas les bagages, c'est un service de mise en relation.
 
 💰 TARIFS :
-• Formule Essentiel : 4€ pour 7 jours (2 étiquettes QR, support WhatsApp, géolocalisation)
+• Formule Essentiel : 4€ pour 30 jours (2 étiquettes QR, support WhatsApp, géolocalisation)
 • Formule Premium : 7€ pour 1 an (2 étiquettes QR, support prioritaire 24/7, statistiques, multi-voyages)
 • Paiement : Carte bancaire, Mobile Money. Livraison digitale immédiate.
 • Achat : qrbags.com/inscrire

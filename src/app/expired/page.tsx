@@ -154,7 +154,7 @@ function ExpiredContent() {
                 </p>
                 <p className="text-[#16234e]/60 text-xs mt-1 leading-relaxed">
                   Contactez votre agence de voyage ou rendez-vous sur QRBag.com pour
-                  générer un nouveau QR code. La protection standard dure 7 jours, et
+                  générer un nouveau QR code. La protection standard dure 30 jours, et
                   jusqu&apos;à 1 an avec un tag premium.
                 </p>
               </div>
