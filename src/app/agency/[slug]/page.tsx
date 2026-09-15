@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import { isActive } from '@/lib/status';
 import { Luggage, MapPin, Clock, CheckCircle, QrCode, Phone, Mail, Globe, Search } from 'lucide-react';
@@ -10,6 +11,27 @@ interface PageProps {
 
 // Force dynamic rendering - no database available during Docker build
 export const dynamic = 'force-dynamic';
+
+// SEO local — chaque page agence générée dynamiquement pour Google
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const agency = await prisma.agency.findUnique({
+    where: { slug },
+    select: { name: true, address: true },
+  });
+
+  if (!agency) return { title: 'Agence introuvable' };
+
+  const title = `${agency.name} — Partenaire QRBags`;
+  const description = `${agency.name} propose l'étiquette QR QRBags à ses voyageurs${agency.address ? ` (${agency.address})` : ''} : bagages perdus retrouvés, objets trouvés, alerte WhatsApp immédiate.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/agency/${slug}` },
+    openGraph: { title, description, type: 'website' },
+  };
+}
 
 // Public Agency Page - Shows active/scanned/found baggages for an agency
 export default async function PublicAgencyPage({ params }: PageProps) {

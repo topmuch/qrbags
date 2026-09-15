@@ -1018,6 +1018,119 @@ function Footer() {
    Palette étiquette QR : navy · azure · orange ·
    magenta · violet · dégradé signature
    ══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   FAQ SEO — Questions fréquentes (valise perdue,
+   objets trouvés, bagage aéroport) + JSON-LD FAQPage
+   ══════════════════════════════════════════════ */
+const FAQ_ITEMS = [
+  {
+    q: 'Comment retrouver une valise perdue à l\u2019aéroport ?',
+    a: 'Moins d\u2019un bagage perdu sur deux est rendu à son propriétaire sans solution de contact. Avec QRBags, collez l\u2019étiquette QR sur votre valise : si elle est perdue à l\u2019aéroport ou ailleurs, la personne qui la trouve scanne le QR et vous recevez immédiatement une alerte WhatsApp avec la position du scan. Vous organisez la restitution en direct, sans attendre le service objets trouvés.',
+  },
+  {
+    q: 'Que se passe-t-il quand quelqu\u2019un trouve mon bagage ?',
+    a: 'Le trouveur scanne le QR avec l\u2019appareil photo de son téléphone — aucune application à installer. Une page sécurisée s\u2019ouvre dans son navigateur et lui permet de vous prévenir en un clic. Vous pouvez ensuite vous coordonner directement par WhatsApp pour récupérer votre valise ou vos objets trouvés.',
+  },
+  {
+    q: 'Que voit le trouveur quand il scanne le QR de ma valise ?',
+    a: 'Uniquement votre prénom et votre message personnalisé. Jamais votre adresse, votre numéro de téléphone ni votre email. Vos données personnelles sont chiffrées et protégées selon le RGPD — le trouveur ne peut vous contacter qu\u2019à travers le canal que vous avez choisi.',
+  },
+  {
+    q: 'QRBags fonctionne-t-il sans application et sans batterie ?',
+    a: 'Oui. Contrairement aux traceurs GPS (30 à 150\u20ac + piles à remplacer + abonnement), l\u2019étiquette QRBags ne nécessite ni application, ni batterie, ni entretien. Le scan se fait depuis n\u2019importe quel téléphone, et l\u2019étiquette fonctionne pendant des années sans jamais se recharger.',
+  },
+  {
+    q: 'Dans quels pays QRBags est-il disponible ?',
+    a: 'QRBags fonctionne partout dans le monde où il y a une connexion internet. Nous livrons et assurons un support en français dans toute la francophonie : France, Belgique, Suisse, Luxembourg, Canada, Sénégal, Côte d\u2019Ivoire, Mali, Burkina Faso, Guinée, Cameroun, Gabon, Bénin, Togo, Maroc, Algérie, Tunisie — ainsi que dans les destinations Hajj et Omra (Arabie Saoudite, Émirats arabes unis).',
+  },
+  {
+    q: 'Combien coûte une étiquette QRBags ?',
+    a: 'L\u2019étiquette QRBags démarre à 5\u20ac par an et par bagage. Des packs dédiés existent pour les pèlerins (Hajj & Omra, 3 bagages inclus) et pour les voyageurs réguliers. Consultez la section tarifs ou la page Commander pour choisir votre formule.',
+  },
+];
+
+function FaqSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  };
+
+  return (
+    <section className="py-24 lg:py-32 px-5 bg-white" id="faq">
+      {/* Données structurées FAQPage (rich results Google) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <div className="max-w-3xl mx-auto">
+        <FadeIn className="text-center mb-14">
+          <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-[#2f9bff] mb-5"><Headphones className="w-3.5 h-3.5" />Questions fréquentes</span>
+          <h2 className="text-3xl sm:text-4xl font-black text-[#16234e] mb-6 tracking-[-0.02em] leading-[1.1]">
+            Valise perdue, objets trouvés&nbsp;:<br className="hidden sm:block" /> <span className="text-gradient-qrbag">on répond à tout</span>
+          </h2>
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            Tout ce qu’il faut savoir pour retrouver un bagage perdu à l’aéroport ou des objets trouvés grâce à une simple étiquette QR.
+          </p>
+        </FadeIn>
+
+        <div className="space-y-3.5">
+          {FAQ_ITEMS.map((item, i) => {
+            const open = openIndex === i;
+            return (
+              <FadeIn key={item.q} delay={i * 0.06}>
+                <div className={`rounded-2xl border transition-all duration-300 ${open ? 'border-[#2f9bff]/40 bg-[#f6f9ff] shadow-lg shadow-[#2f9bff]/5' : 'border-slate-200/80 bg-white hover:border-slate-300'}`}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenIndex(open ? null : i)}
+                    aria-expanded={open}
+                    className="w-full flex items-center justify-between gap-4 text-left px-6 py-5"
+                  >
+                    <span className="text-[15px] sm:text-base font-bold text-[#16234e] leading-snug">{item.q}</span>
+                    <ChevronDown className={`w-5 h-5 flex-shrink-0 text-[#2f9bff] transition-transform duration-300 ${open ? 'rotate-180' : ''}`} aria-hidden />
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {open && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.28, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <p className="px-6 pb-6 text-[15px] text-slate-500 leading-relaxed">{item.a}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </FadeIn>
+            );
+          })}
+        </div>
+
+        {/* Zones desservies — ciblage francophonie */}
+        <FadeIn className="mt-12 text-center">
+          <p className="text-sm font-bold text-[#16234e] mb-4">Déjà disponible dans toute la francophonie 🌍</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {['France', 'Belgique', 'Suisse', 'Luxembourg', 'Canada', 'Sénégal', 'Côte d\u2019Ivoire', 'Mali', 'Cameroun', 'Gabon', 'Maroc', 'Tunisie', 'Arabie Saoudite'].map((country) => (
+              <span key={country} className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#f6f9ff] border border-[#2f9bff]/20 text-xs font-semibold text-[#16234e]">
+                <MapPin className="w-3 h-3 text-[#2f9bff]" aria-hidden />
+                {country}
+              </span>
+            ))}
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   return (
     <main className="bg-white flex flex-col min-h-screen">
@@ -1032,6 +1145,7 @@ export default function HomePage() {
       <WhyQRBagSection />
       <SolutionsSection />
       <TestimonialsSection />
+      <FaqSection />
       <PricingSection />
       <FinalCTASection />
       <ContactCTASection />

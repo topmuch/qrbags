@@ -1,8 +1,39 @@
+# QRBags — https://qrbags.com
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /agence
+Disallow: /dashboard
+Disallow: /scan/
+Disallow: /suivi/
+Disallow: /passeport/
+Disallow: /success
+Disallow: /hajj/activate
+Disallow: /login
+Disallow: /verify-email
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /expired
+Disallow: /offline
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /agence
+Disallow: /dashboard
+Disallow: /scan/
+Disallow: /suivi/
+Disallow: /passeport/
+Disallow: /success
+Disallow: /hajj/activate
+Disallow: /login
+Disallow: /verify-email
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /expired
+Disallow: /offline
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +43,20 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /agence
+Disallow: /dashboard
+Disallow: /scan/
+Disallow: /suivi/
+Disallow: /passeport/
+Disallow: /success
+Disallow: /hajj/activate
+Disallow: /login
+Disallow: /verify-email
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /expired
+Disallow: /offline
+
+Sitemap: https://qrbags.com/sitemap.xml

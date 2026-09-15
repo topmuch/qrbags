@@ -13,16 +13,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://qrbags.com"),
   title: {
-    default: "QRBags - Protection intelligente des bagages",
+    default: "QRBags — Retrouver une valise perdue à l'aéroport | Objets trouvés",
     template: "%s | QRBags",
   },
-  description: "Protégez vos bagages avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS. Un seul scan pour la tranquillité d'esprit.",
-  keywords: ["QR", "bagage", "voyage", "hajj", "protection", "sticker", "luggage", "travel", "pèlerinage"],
+  description: "Valise perdue à l'aéroport ? QRBags est l'étiquette QR intelligente pour retrouver vos bagages perdus et vos objets trouvés. Sans application, sans batterie, sans GPS. France, Belgique, Suisse, Luxembourg, Canada et Afrique francophone.",
+  keywords: [
+    "valise perdue", "valise perdue aéroport", "bagage perdu", "bagage aéroport",
+    "objets trouvés", "objets trouvés aéroport", "valise trouvée", "retrouver valise",
+    "retrouver bagage perdu", "étiquette bagage", "étiquette valise", "étiquette QR bagage",
+    "suivi bagage", "localiser valise", "QR code bagage", "protection bagage",
+    "bagage hajj", "étiquette bagage hajj", "omra", "pèlerinage",
+    "QR", "bagage", "voyage", "hajj", "sticker", "luggage", "travel",
+  ],
   authors: [{ name: "QRBags Team" }],
   creator: "MMASOLUTION",
   publisher: "QRBags",
-  metadataBase: new URL("https://qrbags.com"),
 
   // PWA Icons
   icons: {
@@ -42,8 +49,8 @@ export const metadata: Metadata = {
 
   // Open Graph
   openGraph: {
-    title: "QRBags - Protection intelligente des bagages",
-    description: "Un autocollant QR intelligent pour protéger vos effets personnels. Sans application. Sans batterie. Sans GPS.",
+    title: "QRBags — Retrouver une valise perdue à l'aéroport",
+    description: "Étiquette QR intelligente pour retrouver vos bagages perdus et vos objets trouvés. Sans application, sans batterie, sans GPS. Un scan suffit.",
     url: "https://qrbags.com",
     siteName: "QRBags",
     type: "website",
@@ -53,7 +60,7 @@ export const metadata: Metadata = {
         url: "/icons/icon-512x512.png",
         width: 512,
         height: 512,
-        alt: "QRBags Logo",
+        alt: "QRBags — Étiquette QR pour bagages",
       },
     ],
   },
@@ -91,11 +98,21 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 
-  // Alternates
+  // Alternates — hreflang : le site est en français, servi à toute la francophonie
   alternates: {
-    canonical: "https://qrbags.com",
+    canonical: "/",
+    languages: {
+      fr: "https://qrbags.com",
+      "x-default": "https://qrbags.com",
+    },
   },
 };
 
@@ -152,6 +169,43 @@ export default function RootLayout({
         {/* Preconnect for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* 🎯 SEO — Données structurées JSON-LD (Organization + WebSite) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://qrbags.com/#organization",
+                  name: "QRBags",
+                  url: "https://qrbags.com",
+                  logo: { "@type": "ImageObject", url: "https://qrbags.com/icons/icon-512x512.png" },
+                  email: "contact@qrbags.com",
+                  description: "Étiquettes QR intelligentes pour retrouver les bagages perdus et les objets trouvés à l'aéroport.",
+                  areaServed: [
+                    "FR", "BE", "CH", "LU", "CA", "SN", "CI", "ML", "BF", "NE", "TG", "BJ", "GN", "CM", "GA", "CG", "CD", "MA", "DZ", "TN", "SA", "AE",
+                  ],
+                  sameAs: [
+                    "https://facebook.com/qrbags",
+                    "https://instagram.com/qrbags",
+                    "https://twitter.com/qrbags",
+                  ],
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://qrbags.com/#website",
+                  url: "https://qrbags.com",
+                  name: "QRBags",
+                  publisher: { "@id": "https://qrbags.com/#organization" },
+                  inLanguage: "fr",
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body
         className={`${inter.variable} antialiased bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white`}
