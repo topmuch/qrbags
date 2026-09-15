@@ -66,6 +66,8 @@ interface BaggageData {
   type?: string;
   expiredAt?: string;
   agency?: string;
+  /** 🔔 Langue auto : détectée côté serveur via Accept-Language (premier scan) */
+  detectedLang?: 'fr' | 'en' | 'ar';
   baggage?: {
     reference: string;
     type: string;
@@ -324,7 +326,7 @@ export default function ScanPage() {
   const params = useParams();
   const reference = params.reference as string;
 
-  const { t, lang, setLang, dir, countryCode } = useTranslation();
+  const { t, lang, setLang, applyAutoDetectedLang, dir, countryCode } = useTranslation();
 
   const [baggageData, setBaggageData] = useState<BaggageData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -354,6 +356,13 @@ export default function ScanPage() {
         const response = await fetch(`/api/scan/${reference}`, { cache: 'no-store' });
         const data = await response.json();
         setBaggageData(data);
+
+        // 🔔 LANGUE AUTO : applique la langue détectée serveur (Accept-Language du
+        // navigateur du trouveur) dès la première visite — sans écraser une
+        // préférence explicite (localStorage) déjà choisie par l'utilisateur.
+        if (data?.detectedLang) {
+          applyAutoDetectedLang(data.detectedLang as Language);
+        }
       } catch (error) {
         console.error('Error fetching baggage:', error);
         setBaggageData({ status: 'error', message: 'Erreur serveur' });
@@ -363,7 +372,7 @@ export default function ScanPage() {
     };
 
     fetchBaggage();
-  }, [reference]);
+  }, [reference, applyAutoDetectedLang]);
 
   // Trigger SuccessOverlay once when baggage loads successfully
   useEffect(() => {
@@ -546,8 +555,18 @@ export default function ScanPage() {
 
     await logScan(null, '');
 
-    const phoneNumber = baggageData?.baggage?.whatsappOwner || FALLBACK_PHONE;
-    window.location.href = `tel:${phoneNumber}`;
+    // ─── Normalisation du numéro pour tel: ───
+    // Un tel: avec espaces/tirets est toléré par iOS mais casse sur certains
+    // Android → format international compact « +XXYYYYYYYY » uniquement.
+    const rawOwner = baggageData?.baggage?.whatsappOwner || '';
+    let telNumber = rawOwner.replace(/[^+0-9]/g, '');
+    if (telNumber.startsWith('00')) telNumber = `+${telNumber.slice(2)}`;
+    if (!/^\+?[1-9]\d{7,14}$/.test(telNumber.replace(/\+/g, ''))) {
+      telNumber = `+${FALLBACK_PHONE}`;
+    }
+    if (!telNumber.startsWith('+')) telNumber = `+${telNumber}`;
+
+    window.location.href = `tel:${telNumber}`;
   }, [finderName, finderPhone, t, logScan, baggageData]);
 
   // Format date for display

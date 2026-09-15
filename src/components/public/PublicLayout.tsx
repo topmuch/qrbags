@@ -29,7 +29,7 @@ export function PublicNavigation() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-xl shadow-sm border-b border-slate-100' : 'bg-white/70 backdrop-blur-lg'}`}>
       {/* Liseré dégradé signature QRBag — très haut de page */}
-      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-qrbag" aria-hidden />
+      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-qrbag pointer-events-none" aria-hidden />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -98,7 +98,7 @@ export function PublicFooter() {
   return (
     <footer className="bg-[#16234e] py-12 px-4 relative overflow-hidden">
       {/* Liseré dégradé signature + texture pointillée */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag pointer-events-none" aria-hidden />
       <div className="absolute inset-0 dotted-map-light opacity-40 pointer-events-none" aria-hidden />
       <div className="relative max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">

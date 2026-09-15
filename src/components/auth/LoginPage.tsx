@@ -249,7 +249,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
       {/* ─── RIGHT: Clean Form Panel ─── */}
       <div className="w-full lg:w-[48%] min-h-screen flex items-center justify-center bg-white px-6 py-12 sm:px-10 relative">
         {/* Signature gradient accent line */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag pointer-events-none" aria-hidden />
 
         <div className="w-full max-w-[400px] relative z-10">
           {/* Mobile Logo */}

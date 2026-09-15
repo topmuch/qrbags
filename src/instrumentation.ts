@@ -14,5 +14,17 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { startDbSelfheal } = await import('./lib/db-selfheal');
     startDbSelfheal();
+
+    // 💾 Backup automatique quotidien au boot (fire-and-forget, jamais bloquant)
+    if (process.env.DISABLE_AUTO_BACKUP !== '1') {
+      setTimeout(async () => {
+        try {
+          const { backupIfNeededOncePerDay } = await import('./lib/backup');
+          await backupIfNeededOncePerDay('boot');
+        } catch (error) {
+          console.error('[backup] Erreur au boot :', error);
+        }
+      }, 10_000); // 10 s après le boot pour laisser Prisma/DB se stabiliser
+    }
   }
 }

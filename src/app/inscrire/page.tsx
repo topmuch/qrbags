@@ -131,6 +131,7 @@ function InscrireContent() {
     reference: qrFromUrl.toUpperCase(), // caché UI, conservé pour l'API
     firstName: '',
     lastName: '',
+    travelerEmail: '',
     destination: '',
     airlineName: '',
     flightNumber: '',
@@ -230,6 +231,7 @@ function InscrireContent() {
           travelerFirstName: formData.firstName,
           travelerLastName: formData.lastName,
           whatsappOwner: formData.whatsapp,
+          travelerEmail: formData.travelerEmail.trim() || undefined,
           // Plus de sélection de transport côté UI — l'API applique son défaut ('flight',
           // cohérent avec les références voyageur VOL26-)
           transportMode: 'flight',
@@ -469,6 +471,26 @@ function InscrireContent() {
                     label={t('inscrire.whatsapp_label')}
                     hint={t('inscrire.whatsapp_hint')}
                   />
+
+                  {/* 🔔 Email — alerte « bagage scanné » (optionnel) */}
+                  <div className="mt-4">
+                    <label htmlFor="inscrire-email" className={brandLabel}>
+                      {t('inscrire.email_label')}
+                    </label>
+                    <input
+                      id="inscrire-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="vous@exemple.com"
+                      value={formData.travelerEmail}
+                      onChange={(e) => setFormData({ ...formData, travelerEmail: e.target.value })}
+                      className={brandInput}
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 00-4-5.7V5a2 2 0 10-4 0v.3A6 6 0 006 11v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                      {t('inscrire.email_hint')}
+                    </p>
+                  </div>
                 </FormSection>
 
                 {/* ═══ 2. VOTRE TRAJET ═══ */}
@@ -516,13 +538,45 @@ function InscrireContent() {
                       onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
                       className={`${brandInput} min-w-0`}
                     />
-                    <input
-                      type="time"
-                      aria-label={t('inscrire.departure_time_label')}
-                      value={formData.departureTime}
-                      onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
-                      className={`${brandInput} min-w-0`}
-                    />
+                    {/* 🔧 FIX « cadran heure mobile » : les <input type="time"> natifs
+                        affichent un cadran 12h AM/PM sur les téléphones configurés en
+                        anglais (impossible à forcer en 24h en HTML). On remplace par
+                        deux <select> déterministes 24h → « 14:30 » partout, tous
+                        appareils, sans clavier ni ambiguïté AM/PM. */}
+                    <div className="grid grid-cols-2 gap-2" role="group" aria-label={t('inscrire.departure_time_label')}>
+                      <select
+                        aria-label={`${t('inscrire.departure_time_label')} — heures`}
+                        value={formData.departureTime ? formData.departureTime.split(':')[0] : ''}
+                        onChange={(e) => {
+                          const h = e.target.value;
+                          const m = formData.departureTime.split(':')[1] || '00';
+                          setFormData({ ...formData, departureTime: h ? `${h}:${m}` : '' });
+                        }}
+                        className={`${brandInput} min-w-0 cursor-pointer`}
+                      >
+                        <option value="">-- h --</option>
+                        {Array.from({ length: 24 }, (_, h) => {
+                          const v = String(h).padStart(2, '0');
+                          return <option key={v} value={v}>{v} h</option>;
+                        })}
+                      </select>
+                      <select
+                        aria-label={`${t('inscrire.departure_time_label')} — minutes`}
+                        value={formData.departureTime ? formData.departureTime.split(':')[1] : ''}
+                        onChange={(e) => {
+                          const m = e.target.value;
+                          const h = formData.departureTime.split(':')[0] || '';
+                          if (h && m) setFormData({ ...formData, departureTime: `${h}:${m}` });
+                        }}
+                        className={`${brandInput} min-w-0 cursor-pointer`}
+                      >
+                        <option value="">-- min --</option>
+                        {Array.from({ length: 12 }, (_, i) => {
+                          const v = String(i * 5).padStart(2, '0');
+                          return <option key={v} value={v}>{v} min</option>;
+                        })}
+                      </select>
+                    </div>
                   </div>
                 </FormSection>
 

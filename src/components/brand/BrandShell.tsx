@@ -119,7 +119,7 @@ export function BrandShell({ children, className = '' }: { children: ReactNode; 
   return (
     <div className={`relative min-h-screen bg-white overflow-x-clip ${className}`}>
       {/* Liseré dégradé signature — très haut de page */}
-      <div className="absolute top-0 left-0 right-0 h-[5px] bg-gradient-qrbag z-20" aria-hidden />
+      <div className="absolute top-0 left-0 right-0 h-[5px] bg-gradient-qrbag z-20 pointer-events-none" aria-hidden />
 
       {/* Texture « carte du monde en pointillés » */}
       <div className="absolute inset-0 dotted-map opacity-50 pointer-events-none" aria-hidden />

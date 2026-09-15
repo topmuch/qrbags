@@ -14,6 +14,8 @@ interface UseTranslationReturn {
   t: (key: string, params?: Record<string, string>) => string;
   lang: Language;
   setLang: (lang: Language) => void;
+  /** Applique la langue auto-détectée (serveur) sans créer de préférence persistante */
+  applyAutoDetectedLang: (lang: Language) => void;
   dir: 'ltr' | 'rtl';
   langName: string;
   isLoading: boolean;
@@ -24,6 +26,11 @@ interface UseTranslationReturn {
 // Store module-level (compat : fonction t() autonome hors React)
 let translations: Record<string, string> = {};
 let currentLang: Language = 'fr';
+
+/** 🔔 Flag module : la langue auto-détectée serveur (page scan) a été appliquée →
+ *  les heuristiques IP/navigateur de detectLanguage ne doivent PAS l'écraser
+ *  (race observée : detect-country résout APRÈS le fetch du scan et réécrivait 'fr'). */
+let serverLangApplied = false;
 
 export function useTranslation(): UseTranslationReturn {
   const [lang, setLangState] = useState<Language>('fr');
@@ -67,6 +74,9 @@ export function useTranslation(): UseTranslationReturn {
           const data = await response.json();
           if (data.countryCode) {
             setCountryCode(data.countryCode.toUpperCase());
+            // 🔔 Re-check après await : la langue serveur a pu être appliquée
+            // pendant le fetch (page scan) → on ne l'écrase PAS
+            if (serverLangApplied) return;
             const detectedLang = detectLanguageFromCountry(data.countryCode);
             setLangState(detectedLang);
             return;
@@ -75,6 +85,9 @@ export function useTranslation(): UseTranslationReturn {
       } catch (error) {
         console.log('IP detection failed, falling back to browser detection');
       }
+
+      // 🔔 Ne pas écraser une langue serveur déjà appliquée
+      if (serverLangApplied) return;
 
       // 4. Fallback to browser language
       const browserLang = detectLanguageFromBrowser();
@@ -136,10 +149,25 @@ export function useTranslation(): UseTranslationReturn {
     }
   }, []);
 
+  /**
+   * 🔔 Détection auto au premier scan : applique la langue détectée côté serveur
+   * (Accept-Language du navigateur du trouveur) SANS créer de préférence
+   * utilisateur persistante — n'écrase jamais un choix explicite (localStorage).
+   */
+  const applyAutoDetectedLang = useCallback((newLang: Language) => {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('qrbag_lang')) {
+      return; // préférence explicite → ne rien changer
+    }
+    if (!['fr', 'en', 'ar'].includes(newLang)) return;
+    serverLangApplied = true; // 🔔 protège contre la race avec detect-country
+    setLangState(newLang);
+  }, []);
+
   return {
     t,
     lang,
     setLang,
+    applyAutoDetectedLang,
     dir: LANGUAGE_DIRECTION[lang],
     langName: LANGUAGE_NAMES[lang],
     isLoading,

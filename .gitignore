@@ -72,3 +72,4 @@ db/*.db-journal
 
 # OS
 Thumbs.db*.png.bak
+db/backups/

@@ -4,6 +4,8 @@ import { generateWhatsAppMessage, analyzeScanSuspicion } from '@/lib/groq';
 import { GROQ_AI_ENABLED, GROQ_SCAN_GUARD_ENABLED, GROQ_AUTO_TRANSLATE_ENABLED } from '@/lib/config';
 import { isFeatureEnabled } from '@/lib/features';
 import { logMetric } from '@/lib/logger';
+import { rateLimit } from '@/lib/rate-limit';
+import { sendEmail, getScanAlertEmailTemplate } from '@/lib/email';
 import { detectLocaleFromHeaders, LANGUAGE_COOKIE_NAME, LANGUAGE_COOKIE_MAX_AGE_DAYS } from '@/lib/i18n';
 import { detectScanContext } from '@/lib/scan-context';
 import type { Language } from '@/lib/i18n';
@@ -90,12 +92,17 @@ export async function GET(
     const isDeclaredLost = baggage.declaredLostAt && !baggage.foundAt;
 
     // AI-FEATURE: Feature #3 — Detect locale and set cookie for server-side i18n
+    // autoLangActive : la détection n'est active QUE si la feature est ON.
+    // Sinon detectedLang=null → la page scan garde sa détection locale (IP/navigateur)
+    // au lieu de forcer 'fr' pour tout le monde.
     let detectedLocale: Language = 'fr';
+    let autoLangActive = false;
     try {
       if (GROQ_AI_ENABLED && GROQ_AUTO_TRANSLATE_ENABLED) {
         const autoTranslateEnabled = await isFeatureEnabled('auto_translate').catch(() => false);
         if (autoTranslateEnabled) {
           detectedLocale = detectLocaleFromHeaders(request.headers);
+          autoLangActive = true;
         }
       }
     } catch {
@@ -117,6 +124,11 @@ export async function GET(
       status: isDeclaredLost ? 'lost' : 'active',
       theme,
       type: baggage.type,
+      // 🔔 LANGUE AUTO : langue détectée côté serveur (Accept-Language du navigateur du
+      // trouveur) — appliquée immédiatement par la page au premier scan (le cookie seul
+      // n'est pas suffisant : le hook i18n monte avant que la réponse n'arrive).
+      // null = feature désactivée → la page garde sa détection locale.
+      detectedLang: autoLangActive ? (detectedLocale as Language) : null,
       // TRANSPORT-FEATURE: Include transportMode + conditional fields
       baggage: {
         reference: baggage.reference,
@@ -156,12 +168,14 @@ export async function GET(
 
     // AI-FEATURE: Set qrbag_locale cookie (7 days) so server can detect language on next request
     try {
-      response.cookies.set(LANGUAGE_COOKIE_NAME, detectedLocale, {
-        path: '/',
-        maxAge: LANGUAGE_COOKIE_MAX_AGE_DAYS * 24 * 60 * 60,
-        sameSite: 'lax',
-        httpOnly: false, // Client needs to read it for localStorage sync
-      });
+      if (autoLangActive) {
+        response.cookies.set(LANGUAGE_COOKIE_NAME, detectedLocale, {
+          path: '/',
+          maxAge: LANGUAGE_COOKIE_MAX_AGE_DAYS * 24 * 60 * 60,
+          sameSite: 'lax',
+          httpOnly: false, // Client needs to read it for localStorage sync
+        });
+      }
     } catch {
       // Cookie setting can fail in some environments — silent
     }
@@ -196,6 +210,19 @@ export async function POST(
       return NextResponse.json(
         { error: 'Baggage not found or not activated' },
         { status: 404 }
+      );
+    }
+
+    // 🔒 Anti spam trouveur : 10 signalements / min / IP
+    const scanIp =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      ipAddress ||
+      'unknown';
+    if (rateLimit(`scan-post:${reference}:${scanIp}`, { windowMs: 60_000, maxRequests: 10 })) {
+      return NextResponse.json(
+        { error: 'Trop de signalements. Réessayez dans une minute.' },
+        { status: 429 }
       );
     }
 
@@ -452,6 +479,85 @@ export async function POST(
     // Clean phone number
     const phone = baggage.whatsappOwner.replace(/[^0-9]/g, '');
     const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(whatsappText)}`;
+
+    // ─── 🔔 NOTIFICATION VOYAGEUR « bagage scanné » (fire-and-forget) ───
+    // Canal 1 : email (si le voyageur a renseigné son email à l'activation)
+    // Canal 2 : WhatsApp Business (wakit) si configuré — sinon silencieux
+    // Anti-spam : max 1 notification par référence toutes les 10 minutes.
+    // Ne JAMAIS bloquer la réponse du trouveur si l'envoi échoue.
+    try {
+      const alreadyNotified = rateLimit(
+        `scan-notify:${baggage.reference}`,
+        { windowMs: 10 * 60_000, maxRequests: 1 }
+      );
+
+      if (!alreadyNotified) {
+        const mapUrl = latitude && longitude
+          ? `https://www.google.com/maps?q=${latitude},${longitude}`
+          : undefined;
+        const scannedAt = new Date().toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+        const transportLabel = [
+          baggage.transportMode === 'flight' ? baggage.airlineName : baggage.transportMode === 'train' ? baggage.trainCompany : baggage.transportMode === 'boat' ? baggage.shipName : baggage.busCompany,
+          baggage.flightNumber || baggage.trainNumber || null,
+          baggage.destination,
+        ].filter(Boolean).join(' — ') || undefined;
+        const travelerName = [baggage.travelerFirstName, baggage.travelerLastName]
+          .filter(Boolean)
+          .join(' ') || undefined;
+
+        // Canal 1 : email
+        if (baggage.travelerEmail) {
+          const template = getScanAlertEmailTemplate({
+            reference: baggage.reference,
+            travelerName,
+            city: city || undefined,
+            location: location || undefined,
+            mapUrl,
+            finderName: finderName?.trim() || undefined,
+            finderPhone: finderPhone?.trim() || undefined,
+            reward: baggage.reward || undefined,
+            trackingUrl,
+            scannedAt,
+            transportLabel,
+          });
+          sendEmail({
+            to: baggage.travelerEmail,
+            subject: `🔔 QRBag — Ton bagage ${baggage.reference} vient d'être scanné${city ? ` (${city})` : ''}`,
+            html: template.html,
+            text: template.text,
+            type: 'scan_alert',
+            data: { baggageId: baggage.id },
+          }).catch((e) => console.warn('[ScanNotify] Email échoué (non bloquant):', e));
+          console.log(`🔔 [ScanNotify] Email de scan envoyé à ${baggage.travelerEmail} pour ${baggage.reference}`);
+        }
+
+        // Canal 2 : WhatsApp Business (wakit) — si l'API est configurée
+        if (baggage.whatsappOwner) {
+          import('@/lib/wakit')
+            .then(({ sendWakitMessage }) =>
+              sendWakitMessage({
+                to: baggage.whatsappOwner!,
+                template: 'baggage_scan_alert',
+                variables: {
+                  name: travelerName || baggage.reference,
+                  reference: baggage.reference,
+                  place: lieu,
+                  finderName: finderNameDisplay,
+                  finderPhone: finderPhoneDisplay,
+                  link: trackingUrl,
+                },
+              })
+            )
+            .then((r) => {
+              if (r?.fallback) console.log('[ScanNotify] Wakit non configuré → pas de WhatsApp auto');
+              else console.log(`🔔 [ScanNotify] WhatsApp envoyé au propriétaire pour ${baggage.reference}`);
+            })
+            .catch((e) => console.warn('[ScanNotify] Wakit échoué (non bloquant):', e));
+        }
+      }
+    } catch (notifyError) {
+      console.warn('[ScanNotify] Erreur non bloquante:', notifyError);
+    }
 
     return NextResponse.json({
       success: true,

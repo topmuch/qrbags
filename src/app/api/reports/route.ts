@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { isPending, isActive } from '@/lib/status';
+import { resolveAgencyScope } from '@/lib/api-auth';
 
-// GET - Fetch report statistics
+// GET - Fetch report statistics (SCOPED : une agence ne voit QUE ses rapports)
 export async function GET(request: NextRequest) {
   try {
+    const scope = await resolveAgencyScope(request);
+    if (!scope.ok) return scope.response;
+    const agencyId = scope.agencyId;
+
     const { searchParams } = new URL(request.url);
-    const agencyId = searchParams.get('agencyId');
     const period = searchParams.get('period') || 'week'; // week, month, year
     const includeFounders = searchParams.get('founders') === 'true';
 

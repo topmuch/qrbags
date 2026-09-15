@@ -502,6 +502,88 @@ export function getBaggageLostEmailTemplate(data: {
   };
 }
 
+export function getScanAlertEmailTemplate(data: {
+  reference: string;
+  travelerName?: string;
+  city?: string;
+  location?: string;
+  mapUrl?: string;
+  finderName?: string;
+  finderPhone?: string;
+  reward?: string;
+  trackingUrl: string;
+  scannedAt: string;
+  transportLabel?: string;
+}): { html: string; text: string } {
+  const travelerDisplay = data.travelerName?.trim() || 'Bonjour';
+  const place = data.city || data.location || 'Lieu en cours de localisation';
+  const mapLink = data.mapUrl
+    ? `<a href="${data.mapUrl}" style="color:#0a66c2;font-weight:bold;">📍 Voir sur la carte</a>`
+    : '—';
+  const finderBlock = data.finderName
+    ? `
+            <tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Trouveur</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #333; border-bottom: 1px solid #eee;">${data.finderName}${data.finderPhone ? ` — ${data.finderPhone}` : ''}</td>
+            </tr>`
+    : '';
+  const rewardBlock = data.reward
+    ? `
+            <tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Récompense promise</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #e67e22; border-bottom: 1px solid #eee;">${data.reward}</td>
+            </tr>`
+    : '';
+
+  return {
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="color: #16234e; margin: 0; letter-spacing: 2px;">QR<span style="color:#f97316;">BAG</span></h1>
+        </div>
+        <div style="background: #fff7ed; border: 2px solid #f97316; border-radius: 12px; padding: 28px;">
+          <h2 style="color: #f97316; margin-top: 0;">🔔 Ton bagage vient d'être scanné !</h2>
+          <p style="color: #333; font-size: 15px;">${travelerDisplay}, quelqu'un a scanné le QR code de ton bagage. Voici ce que nous savons :</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 18px;">
+            <tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Référence</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #16234e; border-bottom: 1px solid #eee;">${data.reference}</td>
+            </tr>
+            ${data.transportLabel ? `
+            <tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Voyage</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #333; border-bottom: 1px solid #eee;">${data.transportLabel}</td>
+            </tr>` : ''}
+            <tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Lieu du scan</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #333; border-bottom: 1px solid #eee;">${place} ${''}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Position</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #333; border-bottom: 1px solid #eee;">${mapLink}</td>
+            </tr>
+            ${finderBlock}
+            ${rewardBlock}
+            <tr>
+              <td style="padding: 8px 0; color: #999; font-size: 14px;">Heure du scan</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #333;">${data.scannedAt}</td>
+            </tr>
+          </table>
+          <div style="text-align: center; margin-top: 26px;">
+            <a href="${data.trackingUrl}" style="display: inline-block; background: #16234e; color: #ffffff; text-decoration: none; padding: 14px 34px; border-radius: 10px; font-weight: bold; font-size: 15px;">Suivre mon bagage en direct →</a>
+          </div>
+          <p style="color: #666; font-size: 13px; margin-top: 20px;">💡 <strong>Conseil :</strong> contacte rapidement le trouveur pour organiser la restitution. Reste vigilant : ne verse aucune avance d'argent sans avoir vérifié la personne.</p>
+        </div>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRBag — ${data.scannedAt}</p>
+        <div style="text-align: center; color: #999; font-size: 12px;">
+          <p>© QRBag — Protection intelligente des bagages</p>
+        </div>
+      </div>
+    `,
+    text: `🔔 QRBag — Ton bagage vient d'être scanné !\n\n${travelerDisplay}, quelqu'un a scanné le QR code de ton bagage.\n\nRéférence : ${data.reference}\nLieu : ${place}\nPosition : ${data.mapUrl || data.location || 'non précisée'}\nTrouveur : ${data.finderName || 'non précisé'}${data.finderPhone ? ` — ${data.finderPhone}` : ''}\nHeure : ${data.scannedAt}\n\nSuivre en direct : ${data.trackingUrl}\n\n💡 Contacte rapidement le trouveur. Ne verse aucune avance d'argent sans vérification.\n\nL'équipe QRBag`,
+  };
+}
+
 export function getBaggageFoundEmailTemplate(data: {
   reference: string;
   agencyName?: string;

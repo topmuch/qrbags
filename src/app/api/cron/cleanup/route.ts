@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
       oldEmailLogs: 0,
       oldEmailTokens: 0,
     };
-
     // Delete expired email tokens
     const expiredTokens = await prisma.emailToken.deleteMany({
       where: {
@@ -49,12 +48,23 @@ export async function POST(request: NextRequest) {
     });
     results.oldEmailTokens = oldTokens.count;
 
+    // 💾 Backup quotidien de la base (idempotent : 1×/jour max)
+    let backupFile: string | null = null;
+    try {
+      const { backupIfNeededOncePerDay } = await import('@/lib/backup');
+      const backup = await backupIfNeededOncePerDay('cleanup-cron');
+      backupFile = backup?.filename ?? null;
+    } catch (backupError) {
+      console.error('[cleanup] Backup échoué (non bloquant) :', backupError);
+    }
+
     console.log('🧹 Cleanup completed:', results);
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Nettoyage effectué',
-      results 
+      backupFile,
+      results
     });
   } catch (error) {
     console.error('Error during cleanup:', error);

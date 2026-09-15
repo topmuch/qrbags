@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { createEmailToken, sendEmail, getPasswordResetEmailTemplate } from '@/lib/email';
+import { rateLimit } from '@/lib/rate-limit';
 
 // POST - Request password reset
 export async function POST(request: NextRequest) {
   try {
+    // 🔒 Anti email-bombing : 5 demandes / 15 min par IP
+    const clientIp =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    if (rateLimit(`forgot:${clientIp}`, { windowMs: 15 * 60_000, maxRequests: 5 })) {
+      return NextResponse.json(
+        { error: 'Trop de demandes. Réessayez plus tard.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 

@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { normalizeStatus, isPending, isActive, statusFilterIn } from '@/lib/status';
+import { resolveAgencyScope } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET - List all baggages for an agency
+// GET - List all baggages for an agency (scoped: une agence ne voit QUE ses bagages)
 export async function GET(request: NextRequest) {
   try {
+    const scope = await resolveAgencyScope(request);
+    if (!scope.ok) return scope.response;
+    const agencyId = scope.agencyId;
+
     const { searchParams } = new URL(request.url);
-    const agencyId = searchParams.get('agencyId');
     const status = searchParams.get('status');
     const search = searchParams.get('search');
 
@@ -76,12 +80,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// DELETE - Bulk delete baggages for an agency
+// DELETE - Bulk delete baggages for an agency (SCOPED)
 // Body: { agencyId: string, ids: string[] } or { agencyId: string, status: 'pending_activation' }
 export async function DELETE(request: NextRequest) {
   try {
+    const scope = await resolveAgencyScope(request);
+    if (!scope.ok) return scope.response;
+
     const body = await request.json();
-    const { agencyId, ids, status } = body;
+    const { ids, status } = body;
+    const agencyId = scope.user.role === 'agency'
+      ? scope.agencyId
+      : body.agencyId ?? scope.agencyId;
 
     if (!agencyId) {
       return NextResponse.json(

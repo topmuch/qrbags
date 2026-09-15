@@ -178,6 +178,8 @@
     "whatsapp_label": "رقم واتساب *",
     "whatsapp_placeholder": "+212 6 12 34 56 78",
     "whatsapp_hint": "سيستقبل هذا الرقم الإشعارات إذا تم العثور على أمتعتك",
+    "email_label": "البريد الإلكتروني (اختياري)",
+    "email_hint": "استلم تنبيهاً فورياً بالبريد الإلكتروني فور مسح حقيبتك ضوئياً",
     "protection_title": "تم تفعيل الحماية",
     "protection_desc": "ملصق: 5 أيام | بطاقة: سنة واحدة",
     "submit_loading": "جارٍ التفعيل...",
@@ -475,7 +477,11 @@
     "view_photo_title": "صورة الحقيبة",
     "view_protected": "محمي بمفتاح التحقق",
     "view_doc_title": "إقرار جرد السفر",
-    "view_doc_subtitle": "وثيقة رسمية موثقة من QRBag"
+    "view_doc_subtitle": "وثيقة رسمية موثقة من QRBag",
+    "upsell_title": "ماذا لو كانت حقيبتك قابلة للاستعادة؟",
+    "upsell_desc": "شهادتك تحمي محتوياتك. مع ملصق QR مفعّل، أي شخص يجد حقيبتك يتواصل معك بمسح واحد — 4 أورو لمدة 30 يوماً.",
+    "upsell_cta_activate": "لدي رمز QR ← فعّله",
+    "upsell_cta_order": "اطلب ملصقي"
   },
   "success": {
     "success_title": "✅ تم التفعيل بنجاح!",

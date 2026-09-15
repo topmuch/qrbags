@@ -80,6 +80,7 @@ model Baggage {
   agencyId          String?
   travelerFirstName String?
   travelerLastName  String?
+  travelerEmail     String?   // Email du voyageur — notification « bagage scanné »
   whatsappOwner     String?
   baggageIndex      Int       @default(1) // 1, 2, 3 (order: 1 = cabine)
   baggageType       String    @default("cabine") // "cabine" or "soute"

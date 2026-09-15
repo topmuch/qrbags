@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { resolveAgencyScope, applyAgencyScopeToBody } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET - Fetch agency profile
+// GET - Fetch agency profile (SCOPED : une agence ne voit QUE son profil)
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const agencyId = searchParams.get('agencyId');
+    const scope = await resolveAgencyScope(request);
+    if (!scope.ok) return scope.response;
+    const agencyId = scope.agencyId;
 
     if (!agencyId) {
       return NextResponse.json(
@@ -57,11 +59,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT - Update agency profile
+// PUT - Update agency profile (SCOPED)
 export async function PUT(request: NextRequest) {
   try {
+    const scope = await resolveAgencyScope(request);
+    if (!scope.ok) return scope.response;
+
     const body = await request.json();
-    const { agencyId, name, email, phone, address } = body;
+    const { name, email, phone, address } = body;
+    const agencyId = applyAgencyScopeToBody(scope.user, body.agencyId);
 
     if (!agencyId) {
       return NextResponse.json(

@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { calculateExpirationDate } from '@/lib/qr';
 import { z } from 'zod';
 import { readPhotoFromDisk } from '@/lib/photo-storage';
+import { rateLimit } from '@/lib/rate-limit';
 
 // Validation schema for activation
 const activateSchema = z.object({
@@ -10,6 +11,8 @@ const activateSchema = z.object({
   travelerFirstName: z.string().min(1, 'First name is required'),
   travelerLastName: z.string().min(1, 'Last name is required'),
   whatsappOwner: z.string().min(1, 'WhatsApp number is required'),
+  // 🔔 NOTIFICATION : email du voyageur pour l'alerte « bagage scanné » (optionnel)
+  travelerEmail: z.union([z.string().email(), z.literal('')]).optional(),
   airlineName: z.string().optional(),
   flightNumber: z.string().optional(),
   destination: z.string().optional(),
@@ -30,6 +33,18 @@ const activateSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // 🔒 Anti spam/énumération de références : 20 activations / min / IP
+    const clientIp =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    if (rateLimit(`activate:${clientIp}`, { windowMs: 60_000, maxRequests: 20 })) {
+      return NextResponse.json(
+        { error: 'Trop de requêtes. Réessayez dans une minute.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = activateSchema.parse(body);
 
@@ -76,6 +91,7 @@ export async function POST(request: NextRequest) {
       data: {
         travelerFirstName: validatedData.travelerFirstName,
         travelerLastName: validatedData.travelerLastName,
+        travelerEmail: validatedData.travelerEmail?.trim() || null,
         whatsappOwner: validatedData.whatsappOwner,
         airlineName: validatedData.airlineName || null,
         flightNumber: validatedData.flightNumber || null,
@@ -122,6 +138,7 @@ export async function POST(request: NextRequest) {
             data: {
               travelerFirstName: validatedData.travelerFirstName,
               travelerLastName: validatedData.travelerLastName,
+              travelerEmail: validatedData.travelerEmail?.trim() || null,
               whatsappOwner: validatedData.whatsappOwner,
               departureDate: validatedData.departureDate ? new Date(validatedData.departureDate + 'T00:00:00') : null,
               departureTime: validatedData.departureTime || null,

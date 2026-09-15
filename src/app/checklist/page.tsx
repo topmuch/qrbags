@@ -53,6 +53,8 @@ import {
   SlidersHorizontal,
   Download,
   PartyPopper,
+  QrCode,
+  ShoppingBag,
 } from 'lucide-react';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
 import {
@@ -528,6 +530,43 @@ function ChecklistPageContent() {
               >
                 {t('checklist.create_another')}
               </button>
+            </motion.div>
+
+            {/* 🔔 UPSELL post-checklist : l'attestation protège l'inventaire,
+                le QR actif rend la valise retrouvable — monétisation naturelle */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-6 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#16234e] via-[#1d3168] to-[#0f1838] p-5 text-white"
+            >
+              <div className="pointer-events-none absolute -top-10 -right-10 w-36 h-36 rounded-full bg-[#f8921f]/20 blur-2xl" aria-hidden />
+              <div className="pointer-events-none absolute -bottom-12 -left-8 w-28 h-28 rounded-full bg-[#e6216e]/15 blur-2xl" aria-hidden />
+              <div className="relative flex items-start gap-3">
+                <div className="w-11 h-11 shrink-0 rounded-2xl bg-[#f8921f]/20 border border-[#f8921f]/40 flex items-center justify-center" aria-hidden>
+                  <QrCode className="w-6 h-6 text-[#fbbf24]" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base leading-snug">{t('checklist.upsell_title')}</h3>
+                  <p className="text-white/70 text-sm mt-1 leading-relaxed">{t('checklist.upsell_desc')}</p>
+                </div>
+              </div>
+              <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                <Link
+                  href="/inscrire"
+                  className="py-3 px-4 bg-[#f8921f] hover:bg-[#e0820f] text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors min-h-[48px] text-sm shadow-lg shadow-[#f8921f]/25"
+                >
+                  <QrCode className="w-4 h-4" />
+                  {t('checklist.upsell_cta_activate')}
+                </Link>
+                <Link
+                  href="/commander"
+                  className="py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/25 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors min-h-[48px] text-sm"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  {t('checklist.upsell_cta_order')}
+                </Link>
+              </div>
             </motion.div>
 
             {!success.emailSent && (

@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sendEmail, getEmailSettings, getAgencyMessageEmailTemplate } from '@/lib/email';
+import { resolveAgencyScope, applyAgencyScopeToBody } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET - Fetch messages for agency
+// GET - Fetch messages for agency (SCOPED : une agence ne voit QUE ses messages)
 export async function GET(request: NextRequest) {
   try {
+    const scope = await resolveAgencyScope(request);
+    if (!scope.ok) return scope.response;
+    const agencyId = scope.agencyId;
+
     const { searchParams } = new URL(request.url);
-    const agencyId = searchParams.get('agencyId');
     const type = searchParams.get('type');
     const unreadOnly = searchParams.get('unread') === 'true';
 
@@ -87,11 +91,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create a new message from agency to superadmin
+// POST - Create a new message from agency to superadmin (SCOPED)
 export async function POST(request: NextRequest) {
   try {
+    const scope = await resolveAgencyScope(request);
+    if (!scope.ok) return scope.response;
+
     const body = await request.json();
-    const { type, agencyId, senderName, subject, content } = body;
+    const { type, senderName, subject, content } = body;
+    const agencyId = applyAgencyScopeToBody(scope.user, body.agencyId);
 
     if (!type || !agencyId || !content) {
       return NextResponse.json(

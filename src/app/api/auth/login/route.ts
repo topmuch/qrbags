@@ -2,9 +2,38 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { createSession, logLoginAttempt } from '@/lib/session';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
-  const { email, password, role } = await request.json();
+  // 🔒 Anti brute-force : 10 tentatives / 5 min par IP (et par email)
+  const clientIp =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
+  let email: string | undefined;
+  let password: string | undefined;
+  let role: string | undefined;
+  try {
+    const body = await request.json();
+    email = body.email;
+    password = body.password;
+    role = body.role;
+  } catch {
+    return NextResponse.json(
+      { error: 'Email et mot de passe requis' },
+      { status: 400 }
+    );
+  }
+  const emailLower = (email || '').toLowerCase();
+  if (
+    rateLimit(`login:ip:${clientIp}`, { windowMs: 5 * 60_000, maxRequests: 10 }) ||
+    (emailLower && rateLimit(`login:email:${emailLower}`, { windowMs: 5 * 60_000, maxRequests: 10 }))
+  ) {
+    return NextResponse.json(
+      { error: 'Trop de tentatives. Réessayez dans quelques minutes.' },
+      { status: 429 }
+    );
+  }
 
   try {
     if (!email || !password) {

@@ -178,6 +178,8 @@
     "whatsapp_label": "WhatsApp number *",
     "whatsapp_placeholder": "+1 234 567 890",
     "whatsapp_hint": "This number will receive notifications if your luggage is found",
+    "email_label": "Email (optional)",
+    "email_hint": "Get an instant email alert as soon as your bag is scanned",
     "protection_title": "Protection activated",
     "protection_desc": "Sticker: 5 days | Tag: 1 year",
     "submit_loading": "Activating...",
@@ -475,7 +477,11 @@
     "view_photo_title": "Suitcase photo",
     "view_protected": "Key-protected",
     "view_doc_title": "Travel inventory attestation",
-    "view_doc_subtitle": "Official timestamped document by QRBag"
+    "view_doc_subtitle": "Official timestamped document by QRBag",
+    "upsell_title": "What if your bag were FINDABLE?",
+    "upsell_desc": "Your inventory is protected. With an active QR sticker, anyone who finds your bag contacts you in 1 scan — €4 for 30 days.",
+    "upsell_cta_activate": "I have a QR → activate it",
+    "upsell_cta_order": "Order my sticker"
   },
   "success": {
     "success_title": "✅ Activation successful!",

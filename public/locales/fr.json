@@ -178,6 +178,8 @@
     "whatsapp_label": "Numéro WhatsApp *",
     "whatsapp_placeholder": "+33 6 12 34 56 78",
     "whatsapp_hint": "Ce numéro recevra les notifications si vos bagages sont trouvés",
+    "email_label": "Email (optionnel)",
+    "email_hint": "Reçois une alerte immédiate par email dès que ton bagage est scanné",
     "protection_title": "Protection activée",
     "protection_desc": "Sticker : 5 jours | Étiquette : 1 an",
     "submit_loading": "Activation en cours...",
@@ -475,7 +477,11 @@
     "view_photo_title": "Photo de la valise",
     "view_protected": "Protégé par clé",
     "view_doc_title": "Attestation d'inventaire de voyage",
-    "view_doc_subtitle": "Document officiel horodaté par QRBag"
+    "view_doc_subtitle": "Document officiel horodaté par QRBag",
+    "upsell_title": "Et si votre valise était RETROUVABLE ?",
+    "upsell_desc": "Votre attestation protège votre inventaire. Avec un autocollant QR actif, quiconque trouve votre valise vous contacte en 1 scan — 4€ pour 30 jours.",
+    "upsell_cta_activate": "J'ai un QR → l'activer",
+    "upsell_cta_order": "Commander mon autocollant"
   },
   "success": {
     "success_title": "✅ Activation réussie !",
