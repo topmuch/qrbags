@@ -1164,3 +1164,28 @@ Work Log:
 Stage Summary:
 - Card « bagage trouvé » affiche désormais le logo QRBag au lieu de l'icône PartyPopper, mobile et desktop validés
 - Note : les anciennes refs de test (95UHPH, CCXEJN, 5PH4W4) n'existent plus dans la DB (19 bagages actuels : VOL26-* actifs, HAJJ26-* en attente) — confirme la perte de données antérieure
+
+---
+Task ID: logo-cards + tri-activation + trouvailles
+Agent: Z.ai Code (main)
+Task: (1) Remplacer les icônes des cards par le logo arrondi sur pages succes/trouveur/passeport/profil ; (2) diagnostic tri QR dashboard agence ; (3) onglet trouvailles n'affichait pas les bagages perdus
+
+Work Log:
+- /success : CheckCircle remplacé par logo arrondi (cercle hero + état vide BrandIconRing), import nettoyé
+- /scan/[ref] : logo hero arrondi (rounded-2xl)
+- /passeport/[ref] : icône Luggage du bandeau navy remplacée par chip logo arrondi (bg-white/10 border)
+- /agence/profil : icônes Building/Key des 2 cards remplacées par logo arrondi (w-7 h-7 rounded-lg)
+- DIAGNOSTIC TRI : la DB n'avait AUCUN champ activatedAt — le tri se faisait sur createdAt (date de génération du lot, identique pour tout le lot → ordre mélangé)
+- FIX : schema.prisma + Baggage.activatedAt (DateTime?) → db:push → backfill local (activatedAt = expiresAt − 60j hajj / −30j voyageur, epoch ms)
+- activatedAt désormais écrit dans /api/activate (principal + set groupé) et /api/admin/baggages/generate (QR nés actifs)
+- /api/agency/baggages + /api/admin/baggages/generate : orderBy [{activatedAt:'desc'},{createdAt:'desc'}]
+- /agence/baggages : le détail affiche « Activé le » (activatedAt)
+- TROUVAILLES : la page ne filtrait que status==='found' → les perdus n'apparaissaient jamais (un bagage perdu scanné reste 'lost' jusqu'à confirmation)
+- FIX : onglet trouvailles = perdus + retrouvés + founderAt (vu par un trouveur), badges Retrouvé/Perdu/Vu par un trouveur, chips filtres Tous/Retrouvés/Perdus, tri par événement le plus récent, KPI doubles, modal mis à jour
+- Redémarrage dev server requis (nouveau client Prisma) — testé via Agent Browser connecté en agence : tri OK (63Q6UK avant R6EUQG), perdu affiché avec badge rouge, retrouvé avec badge vert, filtres OK
+- Mot de passe test local agence@qrbag.com = Test1234! (dev uniquement, prod Coolify inchangée)
+- Données de test restaurées (VOL26-R6EUQG redevient active) ; commit 0fbdfb7 poussé sur main
+
+Stage Summary:
+- 4 pages brandées avec logo arrondi ; tri « dernier activé en premier » opérationnel en prod après redéploiement Coolify (le backfill prod devra être relancé : UPDATE activatedAt = expiresAt − durée) ; trouvailles affiche désormais pertes + trouvailles récentes
+- NOTE PROD : après déploiement, exécuter le backfill activatedAt sur la DB prod (2 UPDATE SQLite, cf. worklog) pour que les QR déjà activés soient triés correctement
