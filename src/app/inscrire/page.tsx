@@ -310,7 +310,7 @@ function InscrireContent() {
             <BrandCard corners className="w-full">
               {/* Bandeau dégradé signature (orange → rouge → magenta → violet) */}
               <div className="relative bg-gradient-qrbag rounded-t-[23px] overflow-hidden px-5 pt-7 pb-6 text-center">
-                <div className="absolute inset-0 dotted-map-light opacity-60" aria-hidden />
+                <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
                 <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
                 <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
                 <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
@@ -514,14 +514,14 @@ function InscrireContent() {
                       aria-label={t('inscrire.departure_date_label')}
                       value={formData.departureDate}
                       onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
-                      className={brandInput}
+                      className={`${brandInput} min-w-0`}
                     />
                     <input
                       type="time"
                       aria-label={t('inscrire.departure_time_label')}
                       value={formData.departureTime}
                       onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
-                      className={brandInput}
+                      className={`${brandInput} min-w-0`}
                     />
                   </div>
                 </FormSection>
@@ -630,7 +630,7 @@ function InscrireContent() {
                     <div className="absolute -inset-1 bg-gradient-qrbag rounded-[1.4rem] opacity-40 blur-lg animate-pulse" aria-hidden />
                     <div className="relative rounded-2xl p-[2.5px] bg-gradient-qrbag shadow-lg shadow-[#8b17c9]/25">
                       <div className="relative bg-[#16234e] rounded-[13px] px-4 py-4 overflow-hidden">
-                        <div className="absolute inset-0 dotted-map-light opacity-50" aria-hidden />
+                        <div className="absolute inset-0 dotted-map-light opacity-50 pointer-events-none" aria-hidden />
                         <Sparkles className="absolute top-3 right-3.5 w-4 h-4 text-[#ffd200]/70" aria-hidden />
 
                         <div className="relative flex items-center gap-2 mb-1.5 flex-wrap">
@@ -654,7 +654,7 @@ function InscrireContent() {
                           placeholder={t('inscrire.reward_placeholder')}
                           value={reward}
                           onChange={(e) => setReward(e.target.value)}
-                          className={`${brandInput} bg-white/95`}
+                          className={`${brandInput} relative bg-white/95`}
                         />
                       </div>
                     </div>

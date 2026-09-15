@@ -61,7 +61,7 @@ export default function TrackingWidget() {
       className="relative w-full bg-[#16234e] py-14 sm:py-20 px-5 overflow-hidden scroll-mt-20"
     >
       {/* Fond carte du monde en pointillés + halo signature */}
-      <div className="absolute inset-0 dotted-map-light opacity-40" aria-hidden />
+      <div className="absolute inset-0 dotted-map-light opacity-40 pointer-events-none" aria-hidden />
       <div className="absolute -top-24 left-1/4 w-96 h-96 bg-[#8b17c9]/20 rounded-full blur-[110px]" aria-hidden />
       <div className="absolute -bottom-24 right-1/4 w-96 h-96 bg-[#f8921f]/15 rounded-full blur-[110px]" aria-hidden />
 

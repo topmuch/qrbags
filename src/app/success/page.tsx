@@ -245,7 +245,7 @@ function SuccessContent() {
             <BrandCard corners className="w-full">
               {/* Bandeau dégradé signature (orange → rouge → magenta → violet) */}
               <div className="relative bg-gradient-qrbag rounded-t-[23px] overflow-hidden px-5 pt-7 pb-6 text-center">
-                <div className="absolute inset-0 dotted-map-light opacity-60" aria-hidden />
+                <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
                 <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
                 <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
                 <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
@@ -326,7 +326,7 @@ function SuccessContent() {
             <BrandCard corners className="p-5 mb-4 text-center">
               {/* QR Code sur fond blanc dans un cadre navy pour scan optimal */}
               <div className="relative mx-auto w-fit rounded-2xl bg-[#16234e] p-3.5 shadow-lg shadow-[#16234e]/25">
-                <div className="absolute inset-0 dotted-map-light opacity-40 rounded-2xl" aria-hidden />
+                <div className="absolute inset-0 dotted-map-light opacity-40 rounded-2xl pointer-events-none" aria-hidden />
                 <div className="relative bg-white rounded-xl p-2.5 border border-[#16234e]/10">
                   <QRCodeSVG
                     value={qrUrl}

@@ -158,7 +158,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
         {/* Navy background + dotted world map texture */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[#16234e]" />
-          <div className="absolute inset-0 dotted-map-light" aria-hidden />
+          <div className="absolute inset-0 dotted-map-light pointer-events-none" aria-hidden />
           {/* Brand orbs */}
           <div className="absolute top-1/4 -left-20 w-80 h-80 rounded-full bg-[#8b17c9]/20 blur-[100px] animate-pulse" />
           <div className="absolute bottom-1/4 right-10 w-96 h-96 rounded-full bg-[#e6216e]/15 blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />

@@ -997,3 +997,21 @@ Stage Summary:
 - /inscrire et /success alignés sur l'effet wahoo de la page trouveur (mêmes coloris QRBag)
 - Parcours de commande réel : /commander (+?offre=) → Messages superadmin (type 'commande') — 16 boutons connectés
 - Push GitHub + rappel redéploiement Coolify manuel
+
+---
+Task ID: fix-inscrire-mobile
+Agent: Main Orchestrator
+Task: Fix mobile /inscrire — champ heure non responsive + impossible de saisir une récompense
+
+Work Log:
+- Diagnostic navigateur (hit-test elementFromPoint) : l'overlay décoratif dotted-map-light (absolute inset-0, SANS pointer-events-none) dans l'encart récompense peint au-dessus de l'input (élément static) → interceptait tous les clics/taps → focus impossible → « on ne peut pas mettre de récompense »
+- Fix récompense : pointer-events-none sur l'overlay + relative sur l'input #inscrire-reward (double sécurité) — vérifié : hit-test → INPUT, saisie « 50 000 FCFA + un cadeau » OK
+- Fix heure : min-w-0 sur les inputs date + heure (grid item min-width:auto = cause classique d'overflow sur petits écrans, surtout format 12h AM/PM) — vérifié 390px/320px : minW 0px, s'adapte au conteneur, hit-test OK, onChange « 14:30 » fonctionne
+- Sweep sécurité : pointer-events-none ajouté à TOUS les overlays décoratifs dotted-map qui manquaient de cette classe (même bug latent ailleurs) : inscrire ×2, success ×2, page.tsx ×5 (hero, marquee, features, pricing, CTA), TrackingWidget, LoginPage — 0 overlay décoratif restant sans pointer-events-none (grep)
+- Vérifications : lint 0 erreur ; hit-tests + saisies validées au navigateur mobile 390×844
+
+Stage Summary:
+- Le champ récompense reçoit à nouveau les taps (bug d'empilement CSS : overlay décoratif au-dessus des éléments static)
+- Champs date/heure shrinkables (min-w-0) — plus d'overflow mobile
+- Tous les overlays décoratifs du site sont désormais imperméables aux clics — aucun risque que le motif pointillé bloque un bouton/lien/ input
+- Push GitHub + rappel redéploiement Coolify manuel

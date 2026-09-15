@@ -252,7 +252,7 @@ function HeroSection() {
   return (
     <section className="relative pt-28 lg:pt-32 pb-0 overflow-hidden bg-white">
       {/* Fond carte du monde en pointillés (motif étiquette) */}
-      <div className="absolute inset-0 dotted-map opacity-60" aria-hidden />
+      <div className="absolute inset-0 dotted-map opacity-60 pointer-events-none" aria-hidden />
       {/* Blobs dégradés signature */}
       <div className="absolute -top-32 -right-24 w-[560px] h-[560px] rounded-full blur-[130px] opacity-25 bg-[radial-gradient(circle,#f8921f,transparent_65%)]" aria-hidden />
       <div className="absolute top-64 -left-32 w-[480px] h-[480px] rounded-full blur-[120px] opacity-20 bg-[radial-gradient(circle,#8b17c9,transparent_65%)]" aria-hidden />
@@ -413,7 +413,7 @@ function MarqueeStrip() {
   const row = [...items, ...items];
   return (
     <div className="relative bg-[#16234e] py-4 overflow-hidden" aria-hidden>
-      <div className="absolute inset-0 dotted-map-light opacity-50" />
+      <div className="absolute inset-0 dotted-map-light opacity-50 pointer-events-none" />
       <div className="flex w-max animate-marquee gap-0 relative">
         {[0, 1].map(half => (
           <div key={half} className="flex items-center shrink-0">
@@ -639,7 +639,7 @@ function StatsSection() {
 
   return (
     <section className="relative py-20 lg:py-24 px-5 bg-[#16234e] overflow-hidden">
-      <div className="absolute inset-0 dotted-map-light opacity-40" aria-hidden />
+      <div className="absolute inset-0 dotted-map-light opacity-40 pointer-events-none" aria-hidden />
       <div className="absolute -top-32 left-1/4 w-[420px] h-[420px] bg-[#8b17c9]/20 rounded-full blur-[110px]" aria-hidden />
       <div className="absolute -bottom-32 right-1/4 w-[420px] h-[420px] bg-[#f8921f]/15 rounded-full blur-[110px]" aria-hidden />
 
@@ -892,7 +892,7 @@ function PricingSection() {
 function FinalCTASection() {
   return (
     <section className="relative py-24 lg:py-32 px-5 bg-[#16234e] overflow-hidden">
-      <div className="absolute inset-0 dotted-map-light opacity-40" aria-hidden />
+      <div className="absolute inset-0 dotted-map-light opacity-40 pointer-events-none" aria-hidden />
       <div className="absolute -top-32 -right-16 w-[480px] h-[480px] bg-[#e6216e]/20 rounded-full blur-[120px]" aria-hidden />
       <div className="absolute -bottom-32 -left-16 w-[480px] h-[480px] bg-[#f8921f]/15 rounded-full blur-[120px]" aria-hidden />
 
@@ -976,7 +976,7 @@ function Footer() {
 
   return (
     <footer className="relative bg-[#16234e] pt-16 pb-10 mt-auto overflow-hidden">
-      <div className="absolute inset-0 dotted-map-light opacity-30" aria-hidden />
+      <div className="absolute inset-0 dotted-map-light opacity-30 pointer-events-none" aria-hidden />
       {/* Liseré dégradé signature */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
 
