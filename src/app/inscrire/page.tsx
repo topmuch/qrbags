@@ -13,7 +13,12 @@ import {
   Camera,
   Upload,
   X,
+  Luggage,
+  User,
+  Plane,
+  Gift,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import PhoneInput from '@/components/ui/PhoneInput';
 import CountryRegionSelect from '@/components/inscrire/CountryRegionSelect';
 
@@ -21,10 +26,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
 import {
   brandInput,
+  brandLabel,
   brandBtnGradient,
   brandBtnNavy,
   brandBtnOutline,
-  brandBadge,
   BrandShell,
   BrandCard,
 } from '@/components/brand/BrandShell';
@@ -73,12 +78,42 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
   );
 }
 
-// ─── Dashed Encart Helper (bordure pointillée navy douce + fond azur très pâle) ───
-function DashedEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+/* ─── Section de formulaire visuellement distincte (pastille icon + carte douce) ─── */
+const SECTION_ICONS = { User, Plane, Camera } as const;
+
+function FormSection({
+  icon,
+  iconColor,
+  title,
+  children,
+  className = '',
+}: {
+  icon: keyof typeof SECTION_ICONS;
+  iconColor: string;
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const Icon = SECTION_ICONS[icon];
   return (
-    <div className={`border-2 border-dashed border-[#16234e]/15 bg-[#f6f9ff]/80 rounded-2xl p-4 mb-3 last:mb-0 ${className}`}>
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className={`rounded-2xl border border-[#16234e]/10 bg-[#f6f9ff]/70 p-4 ${className}`}
+    >
+      <div className="flex items-center gap-2.5 mb-3.5">
+        <span
+          className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"
+          style={{ backgroundColor: `${iconColor}1A`, border: `1.5px solid ${iconColor}55` }}
+          aria-hidden
+        >
+          <Icon className="w-[18px] h-[18px]" style={{ color: iconColor }} />
+        </span>
+        <h3 className="text-xs font-black uppercase tracking-[0.14em] text-[#16234e]">{title}</h3>
+      </div>
       {children}
-    </div>
+    </motion.section>
   );
 }
 
@@ -262,41 +297,81 @@ function InscrireContent() {
           <LanguageSelector lang={lang} setLang={setLang} />
         </header>
 
-        {/* ─── Hero — badge dégradé + titre + soulignement signature ─── */}
-        <div className="text-center max-w-lg mx-auto mt-4 sm:mt-8 px-4">
-          <span className={brandBadge}>
-            <Sparkles className="w-3.5 h-3.5" />
-            Activation de votre bagage
-          </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#16234e] tracking-tight mt-3">
-            {t('common.welcome')}
-          </h1>
-          <p className="text-[#16234e]/70 text-base md:text-lg mt-3 leading-relaxed">
-            {t('inscrire.subtitle')}
-          </p>
+        {/* ─── Container ─── */}
+        <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-4 sm:px-5 pt-4 pb-10">
 
-          {/* Barre dégradée signature — rappel de l'étiquette officielle */}
-          <div className="mx-auto mt-4 h-1.5 w-24 rounded-full bg-gradient-qrbag" aria-hidden />
+          {/* ═══ 🎒 HERO — bandeau dégradé signature + icône animée (wahoo effect) ═══ */}
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.55, ease: 'easeOut' }}
+            className="mb-5"
+          >
+            <BrandCard corners className="w-full">
+              {/* Bandeau dégradé signature (orange → rouge → magenta → violet) */}
+              <div className="relative bg-gradient-qrbag rounded-t-[23px] overflow-hidden px-5 pt-7 pb-6 text-center">
+                <div className="absolute inset-0 dotted-map-light opacity-60" aria-hidden />
+                <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
+                <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
+                <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
+                <span className="absolute bottom-4 left-4 text-lg" aria-hidden>🧳</span>
 
-          {/* Indicateur d'étape (uniquement à l'étape 2) */}
-          {step === 2 && (
-            <div className="mt-4 flex justify-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white border border-[#16234e]/10 px-4 py-1.5 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-gradient-qrbag" aria-hidden />
-                <span className="text-xs font-bold uppercase tracking-widest text-[#16234e]">
-                  {t('inscrire.step_2_subtitle')}
+                {/* Icône animée — flottement + légère rotation */}
+                <motion.div
+                  animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center"
+                >
+                  <Luggage className="w-8 h-8 sm:w-10 sm:h-10 text-[#e6216e]" aria-hidden />
+                </motion.div>
+
+                {/* Badge pilule — activation gratuite */}
+                <span className="relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/15 border border-white/25 text-white text-[10px] sm:text-xs font-black uppercase tracking-[0.15em]">
+                  <Sparkles className="w-3.5 h-3.5" aria-hidden />
+                  {t('inscrire.hero_badge')}
                 </span>
-              </span>
-            </div>
-          )}
-        </div>
 
-        {/* ─── Carte formulaire (coins viewfinder QR via BrandCard corners) ─── */}
-        <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-4 sm:px-5 -mt-2 pb-8 pt-6">
+                <h1 className="relative mt-3 text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                  {t('inscrire.hero_title')}
+                </h1>
+                <p className="relative mt-2 text-sm md:text-base text-white/90 leading-relaxed max-w-md mx-auto font-medium">
+                  {t('inscrire.hero_subtitle')}
+                </p>
+
+                {/* Chip progression — Étape X/2 */}
+                <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
+                  {t('inscrire.step_progress', { current: String(step) })}
+                </p>
+              </div>
+
+              {/* Bandeau confiance — réassurance (gratuit / sans app / protégé) */}
+              <div className="px-4 py-3 bg-white flex items-center justify-center gap-2 flex-wrap">
+                {[
+                  { emoji: '🆓', key: 'inscrire.trust_free' },
+                  { emoji: '📱', key: 'inscrire.trust_noapp' },
+                  { emoji: '🔒', key: 'inscrire.trust_secure' },
+                ].map((item) => (
+                  <span
+                    key={item.key}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2f9bff]/5 border border-[#2f9bff]/15 text-[10px] sm:text-xs font-bold text-[#16234e]/70"
+                  >
+                    <span aria-hidden>{item.emoji}</span>
+                    {t(item.key)}
+                  </span>
+                ))}
+              </div>
+            </BrandCard>
+          </motion.div>
+
+          {/* ─── Carte formulaire (coins viewfinder QR via BrandCard corners) ─── */}
           <BrandCard corners className="w-full p-5 md:p-7">
             {/* ─── Étape 1 : Bienvenue + Continuer ─── */}
             {step === 1 && (
-              <div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.35 }}
+              >
                 {qrFromUrl && (
                   <div className="flex items-center justify-center gap-2 mb-4 text-sm font-semibold text-[#2f9bff]">
                     <CheckCircle className="w-4 h-4" />
@@ -306,35 +381,35 @@ function InscrireContent() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className={`w-full py-4 px-6 text-lg min-h-[56px] flex items-center justify-center gap-2 ${brandBtnGradient}`}
+                  className={`group w-full py-4 px-6 text-lg min-h-[56px] flex items-center justify-center gap-2 ${brandBtnGradient}`}
                 >
                   {t('inscrire.next_step')}
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5 rtl:rotate-180" aria-hidden />
                 </button>
-              </div>
+              </motion.div>
             )}
 
             {/* ─── Étape 2 : Formulaire d'activation ─── */}
             {step === 2 && (
-              <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.35 }}
+                className="space-y-4"
+              >
                 {/* Back button */}
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="flex items-center gap-1.5 text-[#16234e]/70 hover:text-[#16234e] transition-colors text-sm mb-2"
+                  className="flex items-center gap-1.5 text-[#16234e]/70 hover:text-[#16234e] transition-colors text-sm mb-1 min-h-[44px]"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="w-4 h-4 rtl:rotate-180" aria-hidden />
                   {t('inscrire.back_step')}
                 </button>
 
-                <h2 className="text-xs uppercase tracking-widest font-bold flex items-center gap-2 text-[#16234e]">
-                  <Sparkles className="w-4 h-4" />
-                  {t('transport.traveler_info')}
-                </h2>
-
                 {/* 🔒 Référence absente — warning */}
                 {missingReference && (
-                  <div className="bg-[#2f9bff]/5 border-2 border-dashed border-[#2f9bff]/30 rounded-xl p-4 mb-3 flex items-start gap-3">
+                  <div className="bg-[#2f9bff]/5 border-2 border-dashed border-[#2f9bff]/30 rounded-xl p-4 flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-[#2f9bff] flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-[#16234e]/80">
                       <p className="font-bold mb-1 text-[#16234e]">⚠️ Aucun code QR détecté</p>
@@ -350,14 +425,15 @@ function InscrireContent() {
                   </div>
                 )}
 
-                {/* Name Fields — Dashed Encart */}
-                <DashedEncart>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* ═══ 1. IDENTITÉ DU VOYAGEUR ═══ */}
+                <FormSection icon="User" iconColor="#2f9bff" title={t('inscrire.section_identity')}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-[#16234e] font-medium mb-1.5">
+                      <label htmlFor="inscrire-first-name" className={brandLabel}>
                         {t('inscrire.first_name_label')}
-                      </p>
+                      </label>
                       <input
+                        id="inscrire-first-name"
                         type="text"
                         placeholder={t('inscrire.first_name_placeholder')}
                         value={formData.firstName}
@@ -367,10 +443,11 @@ function InscrireContent() {
                       />
                     </div>
                     <div>
-                      <p className="text-sm text-[#16234e] font-medium mb-1.5">
+                      <label htmlFor="inscrire-last-name" className={brandLabel}>
                         {t('inscrire.last_name_label')}
-                      </p>
+                      </label>
                       <input
+                        id="inscrire-last-name"
                         type="text"
                         placeholder={t('inscrire.last_name_placeholder')}
                         value={formData.lastName}
@@ -380,108 +457,78 @@ function InscrireContent() {
                       />
                     </div>
                   </div>
-                </DashedEncart>
 
-                {/* Destination — Dashed Encart + dropdown pays par régions */}
-                <DashedEncart>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">📍</span>
-                    <div className="flex-1">
-                      <p className="text-sm text-[#16234e] font-medium mb-1.5">
-                        {t('inscrire.destination_label')}
-                      </p>
-                      <CountryRegionSelect
-                        value={formData.destination}
-                        onChange={(v) => setFormData({ ...formData, destination: v })}
-                        placeholder="Sélectionnez votre destination"
+                  {/* WhatsApp */}
+                  <PhoneInput
+                    countryCode={phoneCountry}
+                    onCountryChange={setPhoneCountry}
+                    value={formData.whatsapp}
+                    onChange={(fullNumber) => setFormData({ ...formData, whatsapp: fullNumber })}
+                    placeholder="6 12 34 56 78"
+                    required
+                    label={t('inscrire.whatsapp_label')}
+                    hint={t('inscrire.whatsapp_hint')}
+                  />
+                </FormSection>
+
+                {/* ═══ 2. VOTRE TRAJET ═══ */}
+                <FormSection icon="Plane" iconColor="#f8921f" title={t('inscrire.section_trip')}>
+                  {/* Destination — dropdown pays par régions */}
+                  <div className="mb-4">
+                    <p className={brandLabel}>{t('inscrire.destination_label')}</p>
+                    <CountryRegionSelect
+                      value={formData.destination}
+                      onChange={(v) => setFormData({ ...formData, destination: v })}
+                      placeholder="Sélectionnez votre destination"
+                    />
+                  </div>
+
+                  {/* Vol — compagnie aérienne + numéro de vol (optionnel) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <div>
+                      <p className={brandLabel}>{t('transport.airline')}</p>
+                      <input
+                        type="text"
+                        placeholder={t('transport.airline_placeholder')}
+                        value={formData.airlineName}
+                        onChange={(e) => setFormData({ ...formData, airlineName: e.target.value })}
+                        className={brandInput}
+                      />
+                    </div>
+                    <div>
+                      <p className={brandLabel}>{t('transport.flight_number')}</p>
+                      <input
+                        type="text"
+                        placeholder={t('transport.flight_number_placeholder')}
+                        value={formData.flightNumber}
+                        onChange={(e) => setFormData({ ...formData, flightNumber: e.target.value.toUpperCase() })}
+                        className={brandInput}
                       />
                     </div>
                   </div>
-                </DashedEncart>
 
-                {/* Vol — compagnie aérienne + numéro de vol (optionnel) */}
-                <DashedEncart>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">✈️</span>
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <p className="text-sm text-[#16234e] font-medium mb-1.5">
-                          {t('transport.airline')}
-                        </p>
-                        <input
-                          type="text"
-                          placeholder={t('transport.airline_placeholder')}
-                          value={formData.airlineName}
-                          onChange={(e) => setFormData({ ...formData, airlineName: e.target.value })}
-                          className={brandInput}
-                        />
-                      </div>
-                      <div>
-                        <p className="text-sm text-[#16234e] font-medium mb-1.5">
-                          {t('transport.flight_number')}
-                        </p>
-                        <input
-                          type="text"
-                          placeholder={t('transport.flight_number_placeholder')}
-                          value={formData.flightNumber}
-                          onChange={(e) => setFormData({ ...formData, flightNumber: e.target.value.toUpperCase() })}
-                          className={brandInput}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </DashedEncart>
-
-                {/* Departure Date & Time — Dashed Encart */}
-                <DashedEncart>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-xl">📅</span>
-                    <p className="text-sm text-[#16234e] font-medium">{t('transport.common_departure_date')}</p>
-                  </div>
+                  {/* Departure Date & Time */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
                       type="date"
+                      aria-label={t('inscrire.departure_date_label')}
                       value={formData.departureDate}
                       onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
                       className={brandInput}
                     />
                     <input
                       type="time"
+                      aria-label={t('inscrire.departure_time_label')}
                       value={formData.departureTime}
                       onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
                       className={brandInput}
                     />
                   </div>
-                </DashedEncart>
+                </FormSection>
 
-                {/* WhatsApp — Dashed Encart */}
-                <DashedEncart className="mb-0">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">📱</span>
-                    <div className="flex-1">
-                      <PhoneInput
-                        countryCode={phoneCountry}
-                        onCountryChange={setPhoneCountry}
-                        value={formData.whatsapp}
-                        onChange={(fullNumber) => setFormData({ ...formData, whatsapp: fullNumber })}
-                        placeholder="6 12 34 56 78"
-                        required
-                        label={t('inscrire.whatsapp_label')}
-                        hint={t('inscrire.whatsapp_hint')}
-                      />
-                    </div>
-                  </div>
-                </DashedEncart>
-
-                {/* PHOTO DE LA VALISE — caméra ou téléchargement */}
-                <DashedEncart>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-xl">📸</span>
-                    <div className="flex-1">
-                      <p className="text-sm text-[#16234e] font-medium">{t('inscrire.photo_label')}</p>
-                      <p className="text-xs text-[#16234e]/60">{t('inscrire.photo_hint')}</p>
-                    </div>
-                  </div>
+                {/* ═══ 3. PHOTO DE LA VALISE — zone d'upload violette pointillée ═══ */}
+                <FormSection icon="Camera" iconColor="#e6216e" title={t('inscrire.photo_label')}>
+                  <p className="text-xs text-[#16234e]/60 mb-3">{t('inscrire.photo_hint')}</p>
 
                   {photoPreview ? (
                     <div>
@@ -489,7 +536,7 @@ function InscrireContent() {
                         <img
                           src={photoPreview}
                           alt={t('inscrire.photo_label')}
-                          className="w-full max-h-56 object-cover rounded-lg border-2 border-[#16234e]/15"
+                          className="w-full max-h-56 object-cover rounded-2xl border-2 border-[#8b17c9]/25"
                         />
                         <button
                           type="button"
@@ -497,44 +544,56 @@ function InscrireContent() {
                           aria-label={t('inscrire.photo_remove')}
                           className="absolute top-2 right-2 w-8 h-8 bg-[#e6216e] hover:bg-[#c11a5d] text-white rounded-full flex items-center justify-center shadow-md transition-colors"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-4 h-4" aria-hidden />
                         </button>
                       </div>
                       <button
                         type="button"
                         onClick={() => cameraInputRef.current?.click()}
                         disabled={photoUploading}
-                        className={`mt-2 w-full py-2.5 text-sm flex items-center justify-center gap-2 min-h-[44px] ${brandBtnOutline}`}
+                        className={`mt-2.5 w-full py-2.5 text-sm flex items-center justify-center gap-2 min-h-[44px] ${brandBtnOutline}`}
                       >
-                        <Camera className="w-4 h-4" />
+                        <Camera className="w-4 h-4" aria-hidden />
                         {t('inscrire.photo_change')}
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => cameraInputRef.current?.click()}
-                        disabled={photoUploading}
-                        className={`py-3 px-3 text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] ${brandBtnNavy}`}
+                    /* Zone d'upload attrayante — dashed border violette */
+                    <div className="border-2 border-dashed border-[#8b17c9]/35 bg-[#8b17c9]/[0.04] rounded-2xl p-4 sm:p-5 text-center">
+                      <motion.div
+                        animate={{ y: [0, -4, 0] }}
+                        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                        className="w-12 h-12 mx-auto mb-2.5 rounded-2xl bg-[#8b17c9]/10 border border-[#8b17c9]/25 flex items-center justify-center"
+                        aria-hidden
                       >
-                        <Camera className="w-5 h-5" />
-                        <span className="text-xs">{t('inscrire.photo_camera')}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={photoUploading}
-                        className={`py-3 px-3 text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] ${brandBtnOutline}`}
-                      >
-                        <Upload className="w-5 h-5" />
-                        <span className="text-xs">{t('inscrire.photo_upload')}</span>
-                      </button>
+                        <Camera className="w-6 h-6 text-[#8b17c9]" />
+                      </motion.div>
+                      <p className="text-xs font-bold text-[#16234e]/60 mb-3.5">{t('inscrire.photo_hint')}</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => cameraInputRef.current?.click()}
+                          disabled={photoUploading}
+                          className={`py-3 px-3 text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] ${brandBtnNavy}`}
+                        >
+                          <Camera className="w-5 h-5" aria-hidden />
+                          <span className="text-xs">{t('inscrire.photo_camera')}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={photoUploading}
+                          className={`py-3 px-3 text-sm flex flex-col items-center justify-center gap-1.5 min-h-[64px] ${brandBtnOutline}`}
+                        >
+                          <Upload className="w-5 h-5" aria-hidden />
+                          <span className="text-xs">{t('inscrire.photo_upload')}</span>
+                        </button>
+                      </div>
                     </div>
                   )}
 
                   {photoUploading && (
-                    <p className="text-xs text-[#16234e]/60 mt-2 flex items-center gap-1.5">
+                    <p className="text-xs text-[#16234e]/60 mt-2.5 flex items-center gap-1.5">
                       <span className="w-3 h-3 border-2 border-[#16234e]/30 border-t-[#16234e] rounded-full animate-spin inline-block" />
                       {t('inscrire.photo_uploading')}
                     </p>
@@ -557,51 +616,75 @@ function InscrireContent() {
                     className="hidden"
                     onChange={handlePhotoFile}
                   />
-                </DashedEncart>
+                </FormSection>
 
-                {/* RÉCOMPENSE EN CAS DE PERTE — optionnelle, montant libre */}
-                <DashedEncart>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-xl">🎁</span>
-                    <div className="flex-1">
-                      <p className="text-sm text-[#16234e] font-medium flex items-center gap-2 flex-wrap">
-                        {t('inscrire.reward_label')}
-                        <span className="px-2 py-0.5 rounded-full border border-[#8b17c9]/30 text-[10px] font-bold uppercase tracking-wide text-[#8b17c9]/80">
-                          {t('inscrire.reward_optional')}
-                        </span>
-                      </p>
-                      <p className="text-xs text-[#16234e]/60">{t('inscrire.reward_hint')}</p>
+                {/* ═══ 4. RÉCOMPENSE TROUVEUR — spotlight navy (🎁 wahoo) ═══ */}
+                <motion.section
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  aria-label={t('inscrire.reward_label')}
+                >
+                  {/* Halo pulsant + cadre dégradé */}
+                  <div className="relative">
+                    <div className="absolute -inset-1 bg-gradient-qrbag rounded-[1.4rem] opacity-40 blur-lg animate-pulse" aria-hidden />
+                    <div className="relative rounded-2xl p-[2.5px] bg-gradient-qrbag shadow-lg shadow-[#8b17c9]/25">
+                      <div className="relative bg-[#16234e] rounded-[13px] px-4 py-4 overflow-hidden">
+                        <div className="absolute inset-0 dotted-map-light opacity-50" aria-hidden />
+                        <Sparkles className="absolute top-3 right-3.5 w-4 h-4 text-[#ffd200]/70" aria-hidden />
+
+                        <div className="relative flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span className="text-xl" aria-hidden>🎁</span>
+                          <p className="text-white font-extrabold text-sm">{t('inscrire.reward_label')}</p>
+                          <span className="px-2 py-0.5 rounded-full bg-[#ffd200] text-[#16234e] text-[10px] font-black uppercase tracking-wide">
+                            {t('inscrire.reward_optional')}
+                          </span>
+                        </div>
+                        <p className="relative text-xs text-white/75 mb-3 flex items-center gap-1.5">
+                          <Gift className="w-3.5 h-3.5 text-[#ffd200] flex-shrink-0" aria-hidden />
+                          {t('inscrire.reward_spotlight')}
+                        </p>
+
+                        <label htmlFor="inscrire-reward" className="sr-only">
+                          {t('inscrire.reward_label')}
+                        </label>
+                        <input
+                          id="inscrire-reward"
+                          type="text"
+                          placeholder={t('inscrire.reward_placeholder')}
+                          value={reward}
+                          onChange={(e) => setReward(e.target.value)}
+                          className={`${brandInput} bg-white/95`}
+                        />
+                      </div>
                     </div>
                   </div>
+                </motion.section>
 
-                  <input
-                    type="text"
-                    placeholder={t('inscrire.reward_placeholder')}
-                    value={reward}
-                    onChange={(e) => setReward(e.target.value)}
-                    className={brandInput}
-                  />
-                </DashedEncart>
-
-                {/* ═══ BOUTON SUBMIT ═══ */}
-                <button
+                {/* ═══ BOUTON SUBMIT — dégradé signature XL + flèche glissante ═══ */}
+                <motion.button
                   onClick={doSubmit}
                   disabled={loading || missingReference}
-                  className={`${brandBtnGradient} w-full py-4 px-6 text-lg min-h-[56px] flex items-center justify-center gap-2`}
+                  whileTap={{ scale: 0.98 }}
+                  className={`group ${brandBtnGradient} w-full py-4 px-6 text-lg min-h-[56px] flex items-center justify-center gap-2`}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
                       {t('inscrire.submit_loading')}
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
-                      <Sparkles className="w-5 h-5" />
+                      <Sparkles className="w-5 h-5" aria-hidden />
                       {t('inscrire.submit')}
+                      <ArrowRight
+                        className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5 rtl:rotate-180"
+                        aria-hidden
+                      />
                     </span>
                   )}
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             )}
           </BrandCard>
 

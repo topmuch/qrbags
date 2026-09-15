@@ -45,6 +45,7 @@ interface Message {
 
 // Type labels
 const TYPE_LABELS: Record<string, { label: string; icon: string; color: string }> = {
+  commande: { label: 'Commande produit', icon: '🛒', color: 'text-[#f8921f]' },
   contact: { label: 'Contact', icon: '📩', color: 'text-violet-600 dark:text-violet-400' },
   partenaire: { label: 'Partenaire', icon: '🤝', color: 'text-violet-600 dark:text-violet-400' },
   commande_agence: { label: 'Commande', icon: '📦', color: 'text-amber-600 dark:text-violet-500' },
@@ -71,6 +72,19 @@ function formatMessageContent(content: string, messageType: string): string {
       const countLabel = parsed.type === 'hajj' ? 'pèlerins' : 'voyageurs';
       const notes = parsed.notes ? `\nNotes: ${parsed.notes}` : '';
       return `Commande: ${parsed.count} ${countLabel}\nType: ${typeLabel}${notes}`;
+    }
+    
+    // Handle commande produit (boutique publique /commander)
+    if (messageType === 'commande') {
+      const lines: string[] = [];
+      if (parsed.produit) lines.push(`Produit: ${parsed.produit}`);
+      if (parsed.prixUnitaire != null) lines.push(`Prix unitaire: ${parsed.prixUnitaire} €`);
+      if (parsed.quantite != null) lines.push(`Quantité: ${parsed.quantite}`);
+      if (parsed.total != null) lines.push(`Total: ${parsed.total} €`);
+      const adresse = [parsed.adresse, parsed.ville, parsed.pays].filter(Boolean).join(', ');
+      if (adresse) lines.push(`Adresse de livraison: ${adresse}`);
+      if (parsed.message) lines.push(`Message: ${parsed.message}`);
+      if (lines.length > 0) return lines.join('\n');
     }
     
     // Handle contact/partenaire types
@@ -353,6 +367,7 @@ export default function MessagesPage() {
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
               <SelectItem value="all">Tous</SelectItem>
+              <SelectItem value="commande">Commandes produit</SelectItem>
               <SelectItem value="contact">Contact</SelectItem>
               <SelectItem value="partenaire">Partenaire</SelectItem>
               <SelectItem value="commande_agence">Commande</SelectItem>

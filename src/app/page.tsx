@@ -20,7 +20,6 @@ import {
   QrCode,
   Smartphone,
   MapPin,
-  MessageCircle,
   Star,
   Menu,
   X,
@@ -176,7 +175,7 @@ function Navigation() {
                 Connexion
               </Button>
             </Link>
-            <Link href="/devenir-partenaire">
+            <Link href="/commander">
               <Button className="bg-gradient-qrbag text-white font-semibold text-[13px] rounded-full px-6 h-10 shadow-lg shadow-[#e6216e]/25 hover:shadow-[#e6216e]/40 transition-all duration-300 hover:scale-[1.02]">
                 Commander mes QR
               </Button>
@@ -206,7 +205,7 @@ function Navigation() {
                 <Link href="/login" onClick={() => setIsOpen(false)}>
                   <Button variant="ghost" className="w-full text-[#16234e]/80 font-medium justify-start">Connexion</Button>
                 </Link>
-                <Link href="/devenir-partenaire" onClick={() => setIsOpen(false)}>
+                <Link href="/commander" onClick={() => setIsOpen(false)}>
                   <Button className="w-full bg-gradient-qrbag text-white font-semibold rounded-full mt-1">
                     Commander mes QR
                   </Button>
@@ -303,7 +302,7 @@ function HeroSection() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-3.5 justify-center lg:justify-start mb-9"
             >
-              <Link href="/devenir-partenaire">
+              <Link href="/commander">
                 <Button className="bg-gradient-qrbag text-white px-8 py-4 rounded-full font-bold text-base shadow-xl shadow-[#e6216e]/25 hover:shadow-[#e6216e]/45 hover:scale-[1.03] transition-all duration-300 gap-2 h-14 w-full sm:w-auto">
                   <QrCode className="w-5 h-5" />
                   Commander mes QR codes
@@ -351,9 +350,6 @@ function HeroSection() {
               {/* Halo dégradé signature */}
               <div className="absolute -inset-10 bg-[conic-gradient(from_180deg,#f8921f33,#e6216e22,#8b17c933,#2f9bff22,#f8921f33)] rounded-[3rem] blur-[70px]" aria-hidden />
 
-              {/* Coins viewfinder (motif étiquette QR) */}
-              <CornerBrackets inset="-18px" size="w-14 h-14 sm:w-16 sm:h-16" border="border-[6px]" />
-
               <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-[#16234e]/25 border-4 border-white bg-white">
                 <AnimatePresence mode="popLayout">
                   <motion.div
@@ -377,36 +373,6 @@ function HeroSection() {
                 </AnimatePresence>
               </div>
 
-              {/* Carte flottante : bagage retrouvé */}
-              <motion.div
-                className="absolute -left-5 sm:-left-10 bottom-20 bg-white px-4 py-3 rounded-2xl shadow-xl shadow-[#16234e]/15 border border-slate-100 flex items-center gap-3"
-                animate={{ y: [0, -7, 0] }}
-                transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <div className="w-10 h-10 rounded-xl bg-gradient-qrbag flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-[#16234e]">Bagage retrouvé !</div>
-                  <div className="text-[10px] text-slate-500 flex items-center gap-1"><MessageCircle className="w-3 h-3 text-[#2f9bff]" /> WhatsApp · il y a 2 min</div>
-                </div>
-              </motion.div>
-
-              {/* Carte flottante : géolocalisation */}
-              <motion.div
-                className="absolute -right-3 sm:-right-8 top-14 bg-white px-4 py-3 rounded-2xl shadow-xl shadow-[#16234e]/15 border border-slate-100 flex items-center gap-3"
-                animate={{ y: [0, -9, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-              >
-                <div className="w-10 h-10 rounded-xl bg-[#16234e] flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-[#f8921f]" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-[#16234e]">Géolocalisé</div>
-                  <div className="text-[10px] text-slate-500">Aéroport Dakar · Terminal 1</div>
-                </div>
-              </motion.div>
-
               {/* Indicateurs */}
               <div className="flex items-center justify-center gap-2 mt-8">
                 {heroSlides.map((_, idx) => (
@@ -425,33 +391,6 @@ function HeroSection() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Cartes fonctionnalités (images cliquables) ── */}
-      <div className="relative bg-white/80 backdrop-blur border-t border-slate-100/80 py-10 mt-2">
-        <div className="max-w-7xl mx-auto px-5 sm:px-6">
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
-            {[
-              { image: '/images/landing-v2/features/sans-app.jpg', title: 'Sans application', subtitle: 'Un scan suffit', href: '/fonctionnalites/sans-application' },
-              { image: '/images/landing-v2/features/sans-batterie.jpg', title: 'Sans batterie', subtitle: 'Autonome à 100%', href: '/fonctionnalites/sans-batterie' },
-              { image: '/images/landing-v2/features/geolocalisation.jpg', title: 'Géolocalisation', subtitle: 'Temps réel', href: '/fonctionnalites/geolocalisation' },
-              { image: '/images/landing-v2/features/securise-rgpd.jpg', title: 'Sécurisé RGPD', subtitle: 'Données protégées', href: '/fonctionnalites/securite-rgpd' },
-              { image: '/images/landing-v2/features/alertes-whatsapp.jpg', title: 'Alertes WhatsApp', subtitle: 'Notification instantanée', href: '/fonctionnalites/alertes-whatsapp' },
-            ].map((item, idx) => (
-              <FadeIn key={item.title} delay={idx * 0.06}>
-                <Link
-                  href={item.href}
-                  className="group relative block w-[168px] h-[224px] rounded-2xl overflow-hidden shadow-lg shadow-[#16234e]/10 transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer ring-2 ring-transparent hover:ring-[#f8921f]/60"
-                >
-                  <Image src={item.image} alt={item.title} fill className="object-cover transition-transform duration-500 group-hover:scale-110" sizes="168px" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#16234e]/50 via-transparent to-[#16234e]/70" />
-                  <p className="absolute top-4 left-0 right-0 text-center text-white text-sm font-bold drop-shadow-lg px-2">{item.title}</p>
-                  <p className="absolute bottom-4 left-0 right-0 text-center text-white/90 text-xs drop-shadow-md px-2">{item.subtitle}</p>
-                </Link>
-              </FadeIn>
-            ))}
           </div>
         </div>
       </div>
@@ -892,9 +831,9 @@ function TestimonialsSection() {
    ══════════════════════════════════════════════ */
 function PricingSection() {
   const plans = [
-    { name: 'Solo', price: '5', period: '/an', description: 'Idéal pour un voyage ponctuel', features: ['2 bagages QR codes', 'Activation en 30 secondes', 'Notifications WhatsApp', 'Géolocalisation temps réel'], popular: false, href: '/voyageurs-standard', accentColor: '#2f9bff', popularBorder: 'border-slate-200/80' },
-    { name: 'Famille', price: '12', period: '/an', description: 'Pour les familles ou voyageurs fréquents', features: ['6 bagages QR codes', 'Activation en 30 secondes', 'Notifications WhatsApp', 'Géolocalisation temps réel', 'Support prioritaire'], popular: true, href: '/voyageurs-standard', accentColor: '#f8921f', popularBorder: 'border-transparent' },
-    { name: 'Hajj & Omra', price: '5', period: '/pèlerin', description: 'Protection complète pour les pèlerins', features: ['3 bagages QR codes', 'Géré par votre agence', 'Notifications WhatsApp', 'Support 24/7 dédié', 'Couverture internationale'], popular: false, href: '/hajj-omra', accentColor: '#8b17c9', popularBorder: 'border-slate-200/80' },
+    { name: 'Solo', price: '5', period: '/an', description: 'Idéal pour un voyage ponctuel', features: ['2 bagages QR codes', 'Activation en 30 secondes', 'Notifications WhatsApp', 'Géolocalisation temps réel'], popular: false, href: '/commander?offre=solo', accentColor: '#2f9bff', popularBorder: 'border-slate-200/80' },
+    { name: 'Famille', price: '12', period: '/an', description: 'Pour les familles ou voyageurs fréquents', features: ['6 bagages QR codes', 'Activation en 30 secondes', 'Notifications WhatsApp', 'Géolocalisation temps réel', 'Support prioritaire'], popular: true, href: '/commander?offre=famille', accentColor: '#f8921f', popularBorder: 'border-transparent' },
+    { name: 'Hajj & Omra', price: '5', period: '/pèlerin', description: 'Protection complète pour les pèlerins', features: ['3 bagages QR codes', 'Géré par votre agence', 'Notifications WhatsApp', 'Support 24/7 dédié', 'Couverture internationale'], popular: false, href: '/commander?offre=hajj', accentColor: '#8b17c9', popularBorder: 'border-slate-200/80' },
   ];
 
   return (
@@ -986,7 +925,7 @@ function FinalCTASection() {
         </FadeIn>
         <FadeIn delay={0.45}>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact">
+            <Link href="/commander">
               <Button className="bg-gradient-qrbag text-white px-8 py-4 rounded-full font-bold text-base shadow-xl shadow-[#e6216e]/30 hover:shadow-[#e6216e]/50 hover:scale-[1.03] transition-all duration-300 gap-2.5 h-14">
                 Commander maintenant<ArrowRight className="w-4 h-4" />
               </Button>

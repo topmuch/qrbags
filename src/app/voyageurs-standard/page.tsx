@@ -227,7 +227,8 @@ function PricingSection() {
         "Notification email",
         "Activation instantanée"
       ],
-      popular: false
+      popular: false,
+      commanderHref: "/commander?offre=solo"
     },
     {
       title: "Multi-voyages",
@@ -240,7 +241,8 @@ function PricingSection() {
         "Renouvellement facile",
         "Statistiques de scans"
       ],
-      popular: true
+      popular: true,
+      commanderHref: "/commander?offre=famille"
     }
   ];
 
@@ -292,7 +294,7 @@ function PricingSection() {
                 ))}
               </div>
 
-              <Link href="/#contact" aria-label={`Commander l'offre ${plan.title}`}>
+              <Link href={plan.commanderHref} aria-label={`Commander l'offre ${plan.title}`}>
                 <button
                   className={`w-full py-3 min-h-[48px] text-base ${plan.popular ? brandBtnGradient : brandBtnNavy}`}
                 >
@@ -380,7 +382,7 @@ function CTASection() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/#contact">
+          <Link href="/commander">
             <button className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px]`}>
               🎟️ Commander maintenant
             </button>

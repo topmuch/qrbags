@@ -51,7 +51,7 @@ export default function AlertesWhatsAppPage() {
                 Dès que quelqu&apos;un scanne le QR code de votre bagage, vous recevez une alerte WhatsApp instantanée avec la localisation, les coordonnées du trouveur et un lien vers la carte GPS. Pas d&apos;application à installer, pas de notification à configurer.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold text-sm shadow-xl shadow-green-500/20 hover:shadow-green-500/30 transition-all duration-300 hover:scale-105">
+                <Link href="/commander" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold text-sm shadow-xl shadow-green-500/20 hover:shadow-green-500/30 transition-all duration-300 hover:scale-105">
                   Commander mes QR codes <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link href="/#comment" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-slate-200 text-slate-700 font-semibold text-sm hover:border-slate-300 hover:bg-slate-50 transition-all duration-300">
@@ -219,7 +219,7 @@ export default function AlertesWhatsAppPage() {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Soyez alerté dès que votre bagage est trouvé</h2>
             <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">Recevez une notification WhatsApp instantanée avec la position GPS de votre bagage, sans rien configurer.</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-green-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <Link href="/commander" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-green-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Commander mes QR codes <ChevronRight className="w-4 h-4" />
               </Link>
               <Link href="/voyageurs-standard" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border-2 border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all duration-300">

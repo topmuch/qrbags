@@ -916,3 +916,84 @@ Stage Summary:
 - Rétrocompatible : photos legacy sur disque sont servies puis migrées automatiquement en base au premier affichage
 - Les photos déjà perdues en production (fichiers effacés avant ce fix) sont irrécupérables — seules les nouvelles activations sont durables
 - Fichiers : prisma/schema.prisma, src/lib/db-selfheal.ts, src/lib/photo-storage.ts (nouveau), api/baggage-photo/upload (nouveau), api/activate, api/baggage-photo/[reference], api/scan/[reference], api/checklist, api/checklist/[code], api/checklist/[code]/photo
+---
+Task ID: 2-a
+Agent: inscrire-success-redesign
+Task: Redesign wahoo pages /inscrire + /success
+
+Work Log:
+- Lu worklog.md (Task ID 8 + photo-durable), BrandShell.tsx (design system) et la référence « wahoo » /scan/[reference] (hero célébration lignes ~640-700) avant toute modification
+- i18n : clés ajoutées dans public/locales/{fr,en,ar}.json (le hook useTranslation fetch /locales/*.json depuis public/ — la mission mentionnait src/locales/ mais ce dossier n'existe pas, le chemin fonctionnel est public/locales/) :
+  - inscrire.* : hero_badge, hero_title (« Activez votre protection en 30 secondes »), hero_subtitle, step_progress (« Étape {current}/2 », param t()), section_identity, section_trip, reward_spotlight (« Augmentez vos chances de récupération… »), trust_free, trust_noapp, trust_secure
+  - success.* (nouvelle section, 30 clés) : success_title/subtitle, back_to_inscrire, congrats_title (« Félicitations {firstName} ! » + congrats_default), protected_subtitle, steps_title, step1-3_title/desc, copy_ref, ref_copied_title/desc, copy_fail_title, sticker_hint, bag_activated, protection_active, expires_on, activated_on, per_plan, test_qr, track_baggage, share, passport, checklist_title/cta, tagline
+- src/app/inscrire/page.tsx — refonte visuelle uniquement, logique 100% conservée (states, step 1→2, compressAndUpload canvas 1200px/JPEG80%, fetch /api/baggage-photo/upload, doSubmit POST /api/activate, sessionStorage 'activationData', router.push('/success?type=voyageur'), alert erreurs, PhoneInput, CountryRegionSelect, LanguageSelector, useTranslation, dir={dir}, Suspense) :
+  - Hero « wahoo » : BrandCard corners avec bandeau dégradé signature (bg-gradient-qrbag, rounded-t-[23px], dotted-map-light, halos blancs/jaunes, emojis ✨🧳), icône Luggage animée motion (flottement y + rotate, cercle blanc shadow navy), badge pilule glass « ACTIVATION GRATUITE » (Sparkles), titre h1 blanc « Activez votre protection en 30 secondes », sous-titre rassurant, chip « Étape {step}/2 » réactive (font-mono)
+  - Bandeau confiance blanc sous le bandeau : 3 pills 🆓 100% gratuit / 📱 Sans application / 🔒 Coordonnées protégées
+  - Formulaire dans BrandCard corners : 4 sections visuellement distinctes via nouveau composant local FormSection (motion fade-in, pastille icône colorée style finder : User azure #2f9bff = Identité, Plane orange #f8921f = Trajet, Camera magenta #e6216e = Photo) sur fond doux #f6f9ff/70 bordure navy/10 ; labels brandLabel + id/htmlFor (accessibilité), inputs brandInput
+  - WhatsApp déplacé dans la section Identité ; destination/vol/date/heure regroupés dans Trajet (champs et handlers inchangés)
+  - Photo : zone d'upload attrayante border-dashed violette #8b17c9/35 + icône caméra flottante motion dans tuile violette, boutons Caméra brandBtnNavy / Upload brandBtnOutline, preview rounded-2xl bordure violette + X magenta #e6216e (suppression inchangée), photo_uploading spinner conservé
+  - Récompense trouveur : encart spotlight navy #16234e dans cadre dégradé (halo bg-gradient-qrbag animate-pulse, dotted-map-light), 🎁 + badge optionnel jaune #ffd200, texte « Augmentez vos chances de récupération » (Gift jaune), input blanc sur navy (reward handler inchangé)
+  - Submit : brandBtnGradient XL min-h-[56px] + motion whileTap + flèche ArrowRight qui glisse au hover (group-hover:translate-x-1.5, rtl:rotate-180), spinner loading conservé
+  - Warning « Aucun code QR détecté » conservé (encart azure pointillé), lien commander autocollant azure
+- src/app/success/page.tsx — refonte célébratoire, logique 100% conservée (sessionStorage 'activationData' au mount, SuccessOverlay, QRCodeSVG fgColor NAVY #16234e, formatDate/formatExpiration, handleShare Web Share + clipboard + toast, liens /suivi + /passeport target _blank, /checklist, /inscrire, empty state) :
+  - Nouveau composant local ConfettiBurst (framer-motion, ZÉRO dépendance) : 28 particules orange/magenta/violet/azure/jaune qui tombent en boucle avec drift+rotation ; valeurs pseudo-aléatoires déterministes (seed par index via Math.sin) → rendu SSR/client identique, aucune erreur d'hydratation
+  - Hero célébration : BrandCard corners + bandeau dégradé signature (dotted-map-light, halos, emojis ✨🎉) + grand cercle animé (scale pulse) CheckCircle blanc sur glass blanc/15 + anneau animate-ping, apparition spring du check ; h1 « Félicitations Ahmed ! » (t param {firstName}, fallback congrats_default si prénom vide), sous-titre « Votre bagage est officiellement protégé », pilule référence bagage (mono, Luggage)
+  - Bandeau « ET MAINTENANT ? 3 ÉTAPES SIMPLES » : 3 mini-cards icônes Sticker orange / ScanLine azure / Plane violet + titres/desc (pattern bandes étapes page trouveur)
+  - Carte QR : BrandCard corners, QR 160 niveau H dans cadre navy #16234e (dotted-map-light + tuile blanche rounded-xl), référence en pilule copiable + bouton copier w-11 h-11 navy (handleCopyReference → navigator.clipboard + toast 'Référence copiée !' — infra toast existante), consigne « Collez l'étiquette sur votre valise et scannez-la pour tester » (Sticker violet)
+  - Résumé dates : BrandCard, tuiles icônes azure (Luggage/Calendar), « 1 bagage activé • Protection active » + « Expire le X • Activé le Y » (formatExpiration/formatDate inchangés)
+  - CTA : « Tester mon QR » brandBtnGradient XL → /scan/[reference] (Link + ScanLine), row Suivre mon bagage + Partager (brandBtnNavy), Passeport QRBags brandBtnOutline, Retour à l'accueil brandBtnOutline (Home) → /, encart checklist BrandCard (Backpack magenta) + CTA dégradé, tagline
+  - Empty state harmonisé i18n (success.success_title/subtitle/back_to_inscrire), BrandIconRing CheckCircle conservé
+  - Tous les textes migrés vers clés success.* (fini les strings FR en dur) ; motion fade-in échelonné (delay 0.15/0.25/0.35) sur les cartes
+- Palette stricte respectée : navy #16234e, azure #2f9bff, orange #f8921f, magenta #e6216e, violet #8b17c9, jaune #ffd200 — zéro bleu/indigo Tailwind, zéro beige/or legacy (#b8975a/#e9dcc0/#f3ecdc absents), rouge #e6216e famille pour suppression photo
+- Vérifications : bun run lint → 0 erreur 0 warning ; curl /inscrire → 200, /success?type=voyageur → 200 ; dev.log : compilation OK, seules erreurs préexistantes (summarization HuggingFace ENOTFOUND, hors scope)
+- Agent-browser (1440×900 puis 390×844) : /inscrire étape 1 (badge ACTIVATION GRATUITE + Étape 1/2) → clic Continuer → étape 2 (4 sections, warning QR absent, chip « Étape 2/2 ») ; screenshots /tmp/inscrire-desktop.png, /tmp/inscrire-desktop-step2.png, /tmp/inscrire-desktop-step2-bas.png, /tmp/inscrire-mobile.png, /tmp/inscrire-mobile-step2*.png
+- /success avec sessionStorage (eval setItem activationData DEMO-QRBAG/Ahmed) : screenshots /tmp/success-desktop.png, /tmp/success-mobile.png, /tmp/success-mobile-bas.png ; vérifié « Félicitations Ahmed ! », 28 spans confettis animés, QR SVG présent, toast « Référence copiée ! » au clic du bouton copier, 0 image cassée (naturalWidth=0 : aucune), agent-browser errors → vide
+- Sanity RTL : langue ar → dir=rtl + hero arabe « فعّل حمايتك في 30 ثانية » sur /inscrire, 0 image cassée
+- Analyse visuelle VLM des captures desktop+mobile : bandeau dégradé/icône animée/brackets viewfinder visibles, aucune chevauchement ni texte tronqué, mise en page validée
+
+Stage Summary:
+- /inscrire : hero « wahoo » bandeau dégradé signature + valise animée + badge activation gratuite + chip étape réactive, formulaire en 4 sections distinctes (Identité/Trajet/Photo/Récompense spotlight navy 🎁), zone photo pointillée violette, submit dégradé XL à flèche glissante — logique métier bit-à-bit identique (upload photo, activate, sessionStorage, redirect)
+- /success : hero célébration (CheckCircle blanc pulsant + ConfettiBurst motion sans dépendance), bandeau 3 étapes, QR en cadre navy + BrandCorners + référence copiable (toast), CTA « Tester mon QR » dégradé, tous les liens d'origine conservés (suivi/partage/passeport/checklist), dates formatées
+- i18n complète FR/EN/AR (10 clés inscrire.* + 30 clés success.*) dans public/locales, support paramètre {firstName}/{current}, RTL opérationnel
+- Lint 0 erreur, pages 200, 0 erreur JS navigateur, 0 image cassée — prêt pour production
+---
+Task ID: 2-b
+Agent: order-form-messages
+Task: Formulaire de commande /commander + connexion onglet Messages superadmin
+
+Work Log:
+- Nouvelle page /commander (src/app/commander/page.tsx, 'use client', publique) — design system QRBag : BrandShell + BrandCard corners + hero bandeau dégradé signature (ShoppingBag animée, titre « Commandez vos étiquettes QRBag », sous-titre livraison/activation 30s, pill réassurance) + bandeau 3 étapes façon page trouveur
+- Sélection produit radio-like (role=radiogroup/radio, aria-checked, clavier) : Sticker Solo 5 €/an (azure #2f9bff), Pack Famille 12 €/an (orange #f8921f, badge POPULAIRE), Hajj & Omra 5 €/pèlerin (violet #8b17c9) ; pré-sélection via ?offre=solo|famille|hajj (useSearchParams dans composant client wrap <Suspense>, fallback spinner BrandShell)
+- Formulaire BrandCard : nom*, WhatsApp* (tel, ≥8 chiffres), email* (regex), quantité 1-99 (défaut 1) avec TOTAL dynamique en gros caractères (text-gradient-qrbag, ex. 12 €×2 = 24 €), adresse complète*, ville*, pays*, message optionnel ; labels au-dessus (brandLabel), champs 48px (brandInput), erreurs inline text-[#ef4036] + aria-invalid + toast destructive (use-toast)
+- Submit → POST /api/messages {type:'commande', senderName, senderEmail, senderPhone, subject:'Commande {produit} ×{qté} — {total} €', content:JSON(produit, prixUnitaire, quantite, total, adresse, ville, pays, message, dateCommande)} ; API non modifiée
+- État succès : carte célébration (BrandIconRing + CheckCircle2 dégradé, confettis framer-motion boucle, récap produit ×qté + total, texte contact WhatsApp sous 24h, boutons « Retour à l'accueil » navy + CTA dégradé)
+- admin/messages/page.tsx : TYPE_LABELS.commande {label:'Commande produit', icon:'🛒', color:'text-[#f8921f]'} ; SelectItem « Commandes produit » (value=commande) ; formatMessageContent gère 'commande' → lignes Produit/Prix unitaire/Quantité/Total/Adresse de livraison (adresse, ville, pays)/Message — autres types (contact, partenaire, commande_agence, assistance_agence, reponse_assistance) inchangés, stat cards inchangées
+- Boutons raccordés : accueil (nav desktop+mobile, hero « Commander mes QR codes », CTA final « Commander maintenant », pricing Solo/Famille/Hajj → /commander?offre=*) ; voyageurs-standard (2 plans → ?offre=solo|famille + CTA « 🎟️ Commander maintenant ») ; 5 pages fonctionnalites (hero + CTA bas → /commander ×2 chacune) ; etapes/recevez-votre-qr (hero + CTA → /commander) ; espace agence et hajj-omra NON touchés
+- Vérifications : bun run lint → 0 erreur ; curl /commander → 200 ; agent-browser desktop 1440×900 + mobile 390×844 (screenshots /tmp/commander-desktop.png, /tmp/commander-mobile.png, /tmp/commander-success.png, /tmp/admin-*.png) ; E2E complet : sélection Famille → formulaire (Test Client, +221770123456, test@test.com, qté 2, Rue 12, Dakar, Sénégal) → succès « Commande reçue ! » avec total 24 € ; DB : Message type 'commande' créé avec content JSON complet et subject correct ; admin /admin/messages (login admin@qrbag.com/admin123 — comptes restaurés via scripts/seed-users.ts existant, DB était vide) : commande visible avec badge 🛒 Commande produit, filtre « Commandes produit » OK, modale détail lisible (Produit/Prix unitaire/Quantité/Total/Adresse) ; préselection ?offre=hajj et ?offre=famille validées ; validation formulaire vide → erreurs inline + toast ; agent-browser errors → 0 erreur JS ; browser fermé
+
+Stage Summary:
+- Parcours de commande produit public /commander livré (wahoo hero, 3 offres, total dynamique, validation, écran célébration confettis) — aucune dépendance ajoutée, API messages intacte
+- Les commandes arrivent dans l'onglet Messages superadmin (type commande, badge 🛒, filtre dédié, détail formaté Produit/Quantité/Total/Livraison)
+- Tous les boutons « Commander » publics pointent vers /commander (avec ?offre= quand pertinent) ; flux agence conservés
+- Note : DB était réinitialisée (0 user) — comptes démo restaurés via le seed du projet (admin@qrbag.com/admin123, agence@qrbag.com/agence123)
+
+---
+Task ID: 1 + 2-a + 2-b
+Agent: Main Orchestrator (1) + subagents inscrire-success-redesign (2-a) / order-form-messages (2-b)
+Task: Nettoyage accueil (cards + décorations), redesign wahoo /inscrire + /success, formulaire de commande /commander connecté aux Messages superadmin
+
+Work Log:
+- [1] src/app/page.tsx : suppression de la section « Cartes fonctionnalités » (5-6 cards images cliquables sous le hero) ; suppression des décorations sous le slider (CornerBrackets viewfinder + 2 cartes flottantes « Bagage retrouvé ! » / « Géolocalisé ») ; import MessageCircle nettoyé ; slider = image + dots/arrows uniquement
+- [2-a] /inscrire : refonte wahoo — BrandShell, hero dégradé signature + Luggage animée, badge ACTIVATION GRATUITE, bandeau confiance, 4 FormSections (identité/trajet/photo/récompense spotlight navy), submit dégradé XL ; logique métier inchangée (upload photo, /api/activate, sessionStorage, redirect)
+- [2-a] /success : hero célébration + ConfettiBurst motion local (28 particules déterministes), « Félicitations {prénom} ! », QR cadre navy + BrandCorners, référence copiable + toast, 3 étapes simples, CTA Tester mon QR ; locales fr/en/ar enrichies (inscrire.*, success.*)
+- [2-b] Nouvelle page /commander : sélection produit (Solo 5€/Famille 12€/Hajj 5€, pré-sélection ?offre=solo|famille|hajj), formulaire complet (nom, WhatsApp, email, quantité + total dynamique, adresse livraison, message), POST /api/messages type='commande' avec content JSON (produit, prix, quantité, total, adresse, date), écran succès célébratoire
+- [2-b] Admin messages : TYPE_LABELS commande (🛒 Commande produit), filtre Select, formatMessageContent dédié (produit/quantité/total/adresse) — autres types intacts
+- [2-b] 16 boutons « Commander » raccordés : accueil (nav desktop/mobile, hero, CTA final, 3 cards pricing → ?offre=), voyageurs-standard (3), 5 pages fonctionnalites (×2), etapes/recevez-votre-qr (×2) — espace agence intact
+- [2-b] DB users vide constatée → restaurée via scripts/seed-users.ts (admin@qrbag.com, agence@qrbag.com)
+- Vérifications : lint 0 erreur ; accueil mobile (0 card, 0 déco, hero OK) ; /commander?offre=famille E2E (commande créée en DB, visible + filtrable dans /admin/messages avec détail lisible) ; /inscrire + /success capturés mobile 390×844 ; 0 erreur JS ; bagage démo DEMO-QRBAG + photo DB + récompense intacts
+
+Stage Summary:
+- Accueil épuré : plus de cards sous le hero, plus de décorations sous le slider
+- /inscrire et /success alignés sur l'effet wahoo de la page trouveur (mêmes coloris QRBag)
+- Parcours de commande réel : /commander (+?offre=) → Messages superadmin (type 'commande') — 16 boutons connectés
+- Push GitHub + rappel redéploiement Coolify manuel

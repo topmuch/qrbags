@@ -50,7 +50,7 @@ export default function SecuriteRGPDPage() {
                 Vos données personnelles sont chiffrées, protégées et conformes au Règlement Général sur la Protection des Données. QRBag ne stocke aucune donnée sensible publiquement et chaque information est traitée avec le plus haut niveau de sécurité.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#f8921f] via-[#e6216e] to-[#8b17c9] text-white font-semibold text-sm shadow-xl shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300 hover:scale-105">
+                <Link href="/commander" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#f8921f] via-[#e6216e] to-[#8b17c9] text-white font-semibold text-sm shadow-xl shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300 hover:scale-105">
                   Commander mes QR codes <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link href="/confidentialite" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-slate-200 text-slate-700 font-semibold text-sm hover:border-slate-300 hover:bg-slate-50 transition-all duration-300">
@@ -188,7 +188,7 @@ export default function SecuriteRGPDPage() {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Vos données sont entre de bonnes mains</h2>
             <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">Protégez vos bagages avec une solution qui protège aussi votre vie privée.</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-violet-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <Link href="/commander" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-violet-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Commander mes QR codes <ChevronRight className="w-4 h-4" />
               </Link>
               <Link href="/confidentialite" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border-2 border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all duration-300">

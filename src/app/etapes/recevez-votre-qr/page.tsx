@@ -49,7 +49,7 @@ export default function RecevezVotreQRPage() {
                 Commandez vos QR codes QRBag en quelques clics et recevez vos autocollants directement chez vous ou à votre agence. Chaque QR code est unique, personnalisé et prêt à être activé en 30 secondes.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#f8921f] via-[#e6216e] to-[#8b17c9] text-white font-semibold text-sm shadow-xl shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300 hover:scale-105">
+                <Link href="/commander" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#f8921f] via-[#e6216e] to-[#8b17c9] text-white font-semibold text-sm shadow-xl shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300 hover:scale-105">
                   Commander mes QR codes <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link href="/hajj-omra" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-slate-200 text-slate-700 font-semibold text-sm hover:border-slate-300 hover:bg-slate-50 transition-all duration-300">
@@ -161,7 +161,7 @@ export default function RecevezVotreQRPage() {
               <Link href="/etapes/activez-30-secondes" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-violet-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Voir l'étape suivante <ChevronRight className="w-4 h-4" />
               </Link>
-              <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border-2 border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all duration-300">
+              <Link href="/commander" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border-2 border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all duration-300">
                 Commander mes QR codes
               </Link>
             </div>
