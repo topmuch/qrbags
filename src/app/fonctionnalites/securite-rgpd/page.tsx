@@ -34,23 +34,23 @@ export default function SecuriteRGPDPage() {
       <PublicNavigation />
 
       {/* Hero */}
-      <section className="pt-28 pb-20 lg:pt-36 lg:pb-28 px-5 bg-gradient-to-b from-blue-50/60 via-white to-white">
+      <section className="pt-28 pb-20 lg:pt-36 lg:pb-28 px-5 bg-gradient-to-b from-violet-50/60 via-white to-white">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <FadeIn>
-              <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-blue-600 mb-5">
+              <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.15em] uppercase text-violet-600 mb-5">
                 <Lock className="w-3.5 h-3.5" /> Fonctionnalité
               </span>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-6 tracking-[-0.02em] leading-[1.08]">
                 Sécurisé
                 <br />
-                <span className="bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">RGPD</span>
+                <span className="bg-gradient-to-r from-violet-500 to-violet-600 bg-clip-text text-transparent">RGPD</span>
               </h1>
               <p className="text-lg text-slate-500 leading-relaxed mb-8 max-w-lg">
                 Vos données personnelles sont chiffrées, protégées et conformes au Règlement Général sur la Protection des Données. QRBag ne stocke aucune donnée sensible publiquement et chaque information est traitée avec le plus haut niveau de sécurité.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-sm shadow-xl shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105">
+                <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#f8921f] via-[#e6216e] to-[#8b17c9] text-white font-semibold text-sm shadow-xl shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300 hover:scale-105">
                   Commander mes QR codes <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link href="/confidentialite" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-slate-200 text-slate-700 font-semibold text-sm hover:border-slate-300 hover:bg-slate-50 transition-all duration-300">
@@ -61,7 +61,7 @@ export default function SecuriteRGPDPage() {
 
             <FadeIn delay={0.15}>
               <div className="relative">
-                <div className="absolute -inset-6 bg-gradient-to-br from-blue-200/40 to-indigo-200/40 rounded-[2rem] blur-[50px]" />
+                <div className="absolute -inset-6 bg-gradient-to-br from-violet-200/40 to-violet-200/40 rounded-[2rem] blur-[50px]" />
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 border border-slate-100">
                   <Image
                     src="/images/landing-v2/features/securise-rgpd.jpg"
@@ -76,7 +76,7 @@ export default function SecuriteRGPDPage() {
                   animate={{ y: [0, -6, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-violet-500 flex items-center justify-center">
                     <Lock className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -108,9 +108,9 @@ export default function SecuriteRGPDPage() {
               { icon: Shield, title: 'Audit de sécurité', description: 'Nos systèmes sont audités régulièrement par des experts en cybersécurité indépendants. Nous appliquons les dernières recommandations de l\'ANSSI et de la CNIL.' },
             ].map((item, i) => (
               <FadeIn key={item.title} delay={i * 0.08}>
-                <div className="bg-blue-50/40 border border-blue-100/60 rounded-2xl p-7 h-full hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-5">
-                    <item.icon className="w-5 h-5 text-blue-600" />
+                <div className="bg-violet-50/40 border border-violet-100/60 rounded-2xl p-7 h-full hover:shadow-lg transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center mb-5">
+                    <item.icon className="w-5 h-5 text-violet-600" />
                   </div>
                   <h3 className="text-base font-bold text-slate-900 mb-2">{item.title}</h3>
                   <p className="text-sm text-slate-500 leading-relaxed">{item.description}</p>
@@ -168,8 +168,8 @@ export default function SecuriteRGPDPage() {
             ].map((item, i) => (
               <FadeIn key={item.title} delay={i * 0.1}>
                 <div className="text-center p-8 bg-slate-50 rounded-2xl border border-slate-200/60">
-                  <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-5">
-                    <Shield className="w-7 h-7 text-blue-600" />
+                  <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-5">
+                    <Shield className="w-7 h-7 text-violet-600" />
                   </div>
                   <h3 className="text-lg font-bold text-slate-900 mb-2">{item.title}</h3>
                   <p className="text-sm text-slate-500 leading-relaxed">{item.description}</p>
@@ -181,14 +181,14 @@ export default function SecuriteRGPDPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 lg:py-28 px-5 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 relative overflow-hidden">
+      <section className="py-20 lg:py-28 px-5 bg-gradient-to-br from-violet-600 via-violet-600 to-violet-700 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <FadeIn>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-[-0.02em]">Vos données sont entre de bonnes mains</h2>
             <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">Protégez vos bagages avec une solution qui protège aussi votre vie privée.</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-blue-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <Link href="/devenir-partenaire" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-violet-700 font-bold text-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                 Commander mes QR codes <ChevronRight className="w-4 h-4" />
               </Link>
               <Link href="/confidentialite" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border-2 border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all duration-300">

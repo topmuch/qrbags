@@ -166,7 +166,7 @@ export function QRSuggestionCard({
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4">
+      <div className="bg-gradient-to-r from-purple-500/10 to-violet-500/10 border border-purple-500/20 rounded-xl p-4">
         <div className="animate-pulse flex items-center gap-3">
           <div className="w-8 h-8 bg-purple-500/20 rounded-lg"></div>
           <div className="flex-1">
@@ -183,7 +183,7 @@ export function QRSuggestionCard({
   }
 
   return (
-    <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4">
+    <div className="bg-gradient-to-r from-purple-500/10 to-violet-500/10 border border-purple-500/20 rounded-xl p-4">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center shrink-0">
           <span className="text-xl">🤖</span>

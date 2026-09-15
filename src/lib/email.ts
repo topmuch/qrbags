@@ -307,20 +307,20 @@ export function getVerificationEmailTemplate(name: string, verificationUrl: stri
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Vérification de votre email</h2>
           <p style="color: #666;">Bonjour ${name},</p>
           <p style="color: #666;">Merci de vous être inscrit sur QRBag. Vérifiez votre adresse email en utilisant le code ci-dessous :</p>
           <div style="text-align: center; margin: 30px 0;">
-            <div style="background: #fff; border: 2px solid #2563EB; border-radius: 10px; padding: 20px; display: inline-block;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563EB;">${code}</span>
+            <div style="background: #fff; border: 2px solid #8b17c9; border-radius: 10px; padding: 20px; display: inline-block;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #8b17c9;">${code}</span>
             </div>
           </div>
           <p style="color: #666; text-align: center;">Ou cliquez sur le bouton suivant :</p>
           <div style="text-align: center; margin: 20px 0;">
-            <a href="${verificationUrl}" style="background: #2563EB; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Vérifier mon email</a>
+            <a href="${verificationUrl}" style="background: #8b17c9; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Vérifier mon email</a>
           </div>
           <p style="color: #999; font-size: 12px; text-align: center;">Ce code expire dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
         </div>
@@ -338,20 +338,20 @@ export function getPasswordResetEmailTemplate(name: string, resetUrl: string, co
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Réinitialisation de votre mot de passe</h2>
           <p style="color: #666;">Bonjour ${name},</p>
           <p style="color: #666;">Vous avez demandé la réinitialisation de votre mot de passe. Utilisez le code ci-dessous :</p>
           <div style="text-align: center; margin: 30px 0;">
-            <div style="background: #fff; border: 2px solid #2563EB; border-radius: 10px; padding: 20px; display: inline-block;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563EB;">${code}</span>
+            <div style="background: #fff; border: 2px solid #8b17c9; border-radius: 10px; padding: 20px; display: inline-block;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #8b17c9;">${code}</span>
             </div>
           </div>
           <p style="color: #666; text-align: center;">Ou cliquez sur le bouton suivant :</p>
           <div style="text-align: center; margin: 20px 0;">
-            <a href="${resetUrl}" style="background: #2563EB; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Réinitialiser mon mot de passe</a>
+            <a href="${resetUrl}" style="background: #8b17c9; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Réinitialiser mon mot de passe</a>
           </div>
           <p style="color: #999; font-size: 12px; text-align: center;">Ce code expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.</p>
         </div>
@@ -370,7 +370,7 @@ export function getTestEmailTemplate(): { html: string; text: string } {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Email de test</h2>
@@ -456,7 +456,7 @@ export function getBaggageLostEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #fff3f3; border: 2px solid #e74c3c; border-radius: 10px; padding: 30px;">
           <h2 style="color: #e74c3c; margin-top: 0;">🚨 Bagage déclaré comme perdu</h2>
@@ -514,7 +514,7 @@ export function getBaggageFoundEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #e8f5e9; border: 2px solid #27ae60; border-radius: 10px; padding: 30px;">
           <h2 style="color: #27ae60; margin-top: 0;">✅ Bagage retrouvé !</h2>
@@ -561,7 +561,7 @@ export function getNewAgencyEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 30px;">
           <h2 style="color: #4f46e5; margin-top: 0;">🏢 Nouvelle agence créée</h2>
@@ -615,7 +615,7 @@ export function getAgencyMessageEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 10px; padding: 30px;">
           <h2 style="color: #d97706; margin-top: 0;">💬 Nouveau message d'une agence</h2>
@@ -663,10 +663,10 @@ export function getNewLeadEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563EB; margin: 0;">QRBag</h1>
+          <h1 style="color: #8b17c9; margin: 0;">QRBag</h1>
         </div>
         <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px; padding: 30px;">
-          <h2 style="color: #2563EB; margin-top: 0;">🆕 Nouveau lead CRM</h2>
+          <h2 style="color: #8b17c9; margin-top: 0;">🆕 Nouveau lead CRM</h2>
           <p style="color: #666;">Un nouveau prospect a été ajouté :</p>
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <tr>

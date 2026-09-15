@@ -103,7 +103,7 @@ export default function Confidentialite() {
                 <li><strong>Droit à la limitation :</strong> limiter le traitement de vos données</li>
               </ul>
               <p>
-                Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@qrbag.com" className="text-[#b8860b] hover:underline">contact@qrbag.com</a>
+                Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@qrbag.com" className="text-[#f8921f] hover:underline">contact@qrbag.com</a>
               </p>
             </section>
 
@@ -135,7 +135,7 @@ export default function Confidentialite() {
                 Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter :
               </p>
               <p>
-                <strong>Email :</strong> <a href="mailto:contact@qrbag.com" className="text-[#b8860b] hover:underline">contact@qrbag.com</a><br />
+                <strong>Email :</strong> <a href="mailto:contact@qrbag.com" className="text-[#f8921f] hover:underline">contact@qrbag.com</a><br />
                 <strong>Adresse :</strong> Poissy, France
               </p>
               <p className="mt-4">

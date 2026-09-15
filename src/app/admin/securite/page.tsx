@@ -129,7 +129,7 @@ export default function SecurityAuditPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-            <Shield className="w-7 h-7 text-[#2563EB]" />
+            <Shield className="w-7 h-7 text-[#8b17c9]" />
             Sécurité & Audit
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -150,8 +150,8 @@ export default function SecurityAuditPage() {
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-blue-600/20 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-blue-700" />
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-violet-600/20 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-violet-700" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-800 dark:text-white">{successfulLogins}</p>
@@ -178,8 +178,8 @@ export default function SecurityAuditPage() {
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center">
+                <Users className="w-6 h-6 text-violet-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-800 dark:text-white">{activeSessions.length}</p>
@@ -214,7 +214,7 @@ export default function SecurityAuditPage() {
       <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-[#2563EB]" />
+            <Activity className="w-5 h-5 text-[#8b17c9]" />
             Sessions actives
           </CardTitle>
         </CardHeader>
@@ -273,7 +273,7 @@ export default function SecurityAuditPage() {
       <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-[#2563EB]" />
+            <Clock className="w-5 h-5 text-[#8b17c9]" />
             Historique des connexions
           </CardTitle>
         </CardHeader>
@@ -298,8 +298,8 @@ export default function SecurityAuditPage() {
                     <div className="flex items-center justify-between mb-3">
                       {log.success ? (
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-blue-600" />
-                          <span className="text-blue-700 dark:text-blue-500 font-medium text-sm">Réussie</span>
+                          <CheckCircle className="w-4 h-4 text-violet-600" />
+                          <span className="text-violet-700 dark:text-violet-500 font-medium text-sm">Réussie</span>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -325,7 +325,7 @@ export default function SecurityAuditPage() {
                         <span className="text-xs">{browser} / {os}</span>
                       </div>
                       {log.failureReason && (
-                        <div className="flex items-center gap-2 text-amber-600 dark:text-blue-500">
+                        <div className="flex items-center gap-2 text-amber-600 dark:text-violet-500">
                           <AlertTriangle className="w-3 h-3" />
                           <span className="text-xs">{log.failureReason}</span>
                         </div>

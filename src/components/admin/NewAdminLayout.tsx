@@ -27,12 +27,12 @@ import {
 // Modern color palette - Orange & Black theme
 const COLORS = {
   primary: '#000000',      // Black for buttons
-  secondary: '#2563EB',    // Orange
+  secondary: '#8b17c9',    // Orange
   accent: '#06b6d4',       // Cyan
-  success: '#2563EB',      // Emerald
+  success: '#8b17c9',      // Emerald
   warning: '#f59e0b',      // Amber
   danger: '#ef4444',       // Red
-  sidebar: '#2563EB',      // Orange sidebar
+  sidebar: '#8b17c9',      // Orange sidebar
 };
 
 interface MenuItem {
@@ -102,7 +102,7 @@ export default function AdminLayout({ children, title, subtitle, unreadMessages 
 
         <aside className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-[280px] bg-[#2563EB]
+          w-[280px] bg-[#8b17c9]
           transform transition-transform duration-300
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           flex flex-col shadow-2xl

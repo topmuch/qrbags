@@ -199,7 +199,7 @@ export default function EtiquettesPage() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Header
-      ctx.fillStyle = set.type === 'hajj' ? '#1D4ED8' : '#f59e0b';
+      ctx.fillStyle = set.type === 'hajj' ? '#6d28d9' : '#f59e0b';
       ctx.fillRect(0, 0, canvas.width, headerHeight);
 
       ctx.fillStyle = '#ffffff';
@@ -226,12 +226,12 @@ export default function EtiquettesPage() {
 
         const qrUrl = `${window.location.origin}/scan/${set.references[i]}`;
         const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        const qrSvg = <QRCodeSVG value={qrUrl} size={qrSize - 40} level="H" fgColor={set.type === 'hajj' ? '#1D4ED8' : '#f59e0b'} />;
+        const qrSvg = <QRCodeSVG value={qrUrl} size={qrSize - 40} level="H" fgColor={set.type === 'hajj' ? '#6d28d9' : '#f59e0b'} />;
 
         // Use a promise-based approach to render SVG to canvas
         const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${qrSize - 40}" height="${qrSize - 40}">
           <rect width="100%" height="100%" fill="white"/>
-          ${generateQRPath(qrUrl, qrSize - 40, set.type === 'hajj' ? '#1D4ED8' : '#f59e0b')}
+          ${generateQRPath(qrUrl, qrSize - 40, set.type === 'hajj' ? '#6d28d9' : '#f59e0b')}
         </svg>`;
 
         const img = new Image();
@@ -355,7 +355,7 @@ export default function EtiquettesPage() {
           onClick={() => setActiveTab('voyageur')}
           className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
             activeTab === 'voyageur'
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+              ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30'
               : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
           }`}
         >
@@ -374,7 +374,7 @@ export default function EtiquettesPage() {
           onClick={() => setActiveTab('hajj')}
           className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
             activeTab === 'hajj'
-              ? 'bg-blue-700 text-white shadow-lg shadow-blue-700/30'
+              ? 'bg-violet-700 text-white shadow-lg shadow-violet-700/30'
               : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
           }`}
         >
@@ -398,10 +398,10 @@ export default function EtiquettesPage() {
       ) : agencyGroups.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center">
           <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
-            activeTab === 'hajj' ? 'bg-emerald-100 dark:bg-blue-600/20' : 'bg-amber-100 dark:bg-blue-600/20'
+            activeTab === 'hajj' ? 'bg-emerald-100 dark:bg-violet-600/20' : 'bg-amber-100 dark:bg-violet-600/20'
           }`}>
             {activeTab === 'hajj' ? (
-              <Luggage className="w-8 h-8 text-blue-700" />
+              <Luggage className="w-8 h-8 text-violet-700" />
             ) : (
               <Plane className="w-8 h-8 text-amber-600" />
             )}
@@ -437,11 +437,11 @@ export default function EtiquettesPage() {
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     activeTab === 'hajj' 
-                      ? 'bg-emerald-100 dark:bg-blue-600/20' 
-                      : 'bg-amber-100 dark:bg-blue-600/20'
+                      ? 'bg-emerald-100 dark:bg-violet-600/20' 
+                      : 'bg-amber-100 dark:bg-violet-600/20'
                   }`}>
                     <Building2 className={`w-5 h-5 ${
-                      activeTab === 'hajj' ? 'text-blue-700' : 'text-amber-600'
+                      activeTab === 'hajj' ? 'text-violet-700' : 'text-amber-600'
                     }`} />
                   </div>
                   <div className="text-left">
@@ -471,11 +471,11 @@ export default function EtiquettesPage() {
                           {/* QR Icon */}
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                             activeTab === 'hajj'
-                              ? 'bg-emerald-100 dark:bg-blue-600/20'
-                              : 'bg-amber-100 dark:bg-blue-600/20'
+                              ? 'bg-emerald-100 dark:bg-violet-600/20'
+                              : 'bg-amber-100 dark:bg-violet-600/20'
                           }`}>
                             <QrCode className={`w-6 h-6 ${
-                              activeTab === 'hajj' ? 'text-blue-700' : 'text-amber-600'
+                              activeTab === 'hajj' ? 'text-violet-700' : 'text-amber-600'
                             }`} />
                           </div>
 
@@ -512,14 +512,14 @@ export default function EtiquettesPage() {
                               setSelectedSet(set);
                               setShowDetailModal(true);
                             }}
-                            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+                            className="p-2 text-slate-400 hover:text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-lg transition-colors"
                             title="Voir les QR codes"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDownloadPDF(set)}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-emerald-50 dark:hover:bg-blue-600/10 rounded-lg transition-colors"
+                            className="p-2 text-slate-400 hover:text-violet-600 hover:bg-emerald-50 dark:hover:bg-violet-600/10 rounded-lg transition-colors"
                             title="Télécharger"
                           >
                             <Download className="w-4 h-4" />
@@ -591,7 +591,7 @@ export default function EtiquettesPage() {
                       level="H"
                       includeMargin={true}
                       bgColor="#f8fafc"
-                      fgColor={selectedSet.type === 'hajj' ? '#1D4ED8' : '#f59e0b'}
+                      fgColor={selectedSet.type === 'hajj' ? '#6d28d9' : '#f59e0b'}
                     />
                     <p className="text-slate-800 dark:text-white font-mono font-bold mt-2 text-sm">
                       {ref}
@@ -625,14 +625,14 @@ export default function EtiquettesPage() {
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => handleDownloadPDF(selectedSet)}
-                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <FileText className="w-4 h-4" />
                   Télécharger PDF
                 </button>
                 <button
                   onClick={() => handleShareSet(selectedSet)}
-                  className="flex-1 py-3 bg-blue-700 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-violet-700 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-4 h-4" />
                   Partager

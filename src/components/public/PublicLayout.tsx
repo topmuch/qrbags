@@ -28,6 +28,8 @@ export function PublicNavigation() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-xl shadow-sm border-b border-slate-100' : 'bg-white/70 backdrop-blur-lg'}`}>
+      {/* Liseré dégradé signature QRBag — très haut de page */}
+      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-qrbag" aria-hidden />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -51,7 +53,7 @@ export function PublicNavigation() {
               </Button>
             </Link>
             <Link href="/devenir-partenaire">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-full px-5 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-300">
+              <Button className="bg-gradient-to-r from-[#f8921f] via-[#e6216e] to-[#8b17c9] hover:opacity-90 text-white font-semibold text-sm rounded-full px-5 shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 transition-all duration-300">
                 Devenir Partenaire
               </Button>
             </Link>
@@ -79,7 +81,7 @@ export function PublicNavigation() {
                 <Button variant="ghost" className="w-full text-slate-600 font-medium justify-start">Connexion</Button>
               </Link>
               <Link href="/devenir-partenaire" onClick={() => setIsOpen(false)}>
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-full">
+                <Button className="w-full bg-gradient-to-r from-[#f8921f] via-[#e6216e] to-[#8b17c9] text-white font-medium rounded-full">
                   Devenir Partenaire
                 </Button>
               </Link>
@@ -94,8 +96,11 @@ export function PublicNavigation() {
 // Footer Component (Dark but Refined)
 export function PublicFooter() {
   return (
-    <footer className="bg-slate-900 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
+    <footer className="bg-[#16234e] py-12 px-4 relative overflow-hidden">
+      {/* Liseré dégradé signature + texture pointillée */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
+      <div className="absolute inset-0 dotted-map-light opacity-40 pointer-events-none" aria-hidden />
+      <div className="relative max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Logo */}
           <div>

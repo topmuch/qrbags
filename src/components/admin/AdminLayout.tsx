@@ -80,7 +80,7 @@ export default function AdminLayout({
 
         <aside className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-[260px] bg-[#080c1a] 
+          w-[260px] bg-[#0e1734] 
           transform transition-transform duration-200
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           flex flex-col shadow-2xl

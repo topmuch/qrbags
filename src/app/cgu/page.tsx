@@ -143,7 +143,7 @@ export default function CGU() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">10. Protection des données</h2>
               <p className="mb-4">
-                Les données personnelles collectées par QRBag sont traitées conformément à notre <a href="/confidentialite" className="text-[#b8860b] hover:underline">Politique de confidentialité</a> et dans le respect du Règlement Général sur la Protection des Données (RGPD).
+                Les données personnelles collectées par QRBag sont traitées conformément à notre <a href="/confidentialite" className="text-[#f8921f] hover:underline">Politique de confidentialité</a> et dans le respect du Règlement Général sur la Protection des Données (RGPD).
               </p>
               <p>
                 Pour toute question relative à vos données personnelles, contactez-nous à : contact@qrbag.com
@@ -182,7 +182,7 @@ export default function CGU() {
                 Pour toute question relative aux présentes CGU, vous pouvez nous contacter :
               </p>
               <p>
-                <strong>Email :</strong> <a href="mailto:contact@qrbag.com" className="text-[#b8860b] hover:underline">contact@qrbag.com</a><br />
+                <strong>Email :</strong> <a href="mailto:contact@qrbag.com" className="text-[#f8921f] hover:underline">contact@qrbag.com</a><br />
                 <strong>Adresse :</strong> Poissy, France
               </p>
             </section>

@@ -90,7 +90,7 @@ export const CONTEXT_COLORS: Record<ScanContext, string> = {
   departure_airport_urgent: 'bg-red-500',
   arrival_airport: 'bg-green-500',
   in_transit: 'bg-yellow-500',
-  static_location: 'bg-blue-500',
+  static_location: 'bg-violet-500',
 };
 
 // ═══════════════════════════════════════════════════════

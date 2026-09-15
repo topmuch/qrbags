@@ -165,10 +165,10 @@ export default function LandingChatbotWidget() {
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 rounded-xl text-sm font-medium border border-blue-500/30 transition-all duration-200 hover:scale-[1.02] no-underline"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 hover:text-violet-200 rounded-xl text-sm font-medium border border-violet-500/30 transition-all duration-200 hover:scale-[1.02] no-underline"
             >
               <span>{link.replace(/^https?:\/\//, '')}</span>
-              <span className="text-blue-600">↗</span>
+              <span className="text-violet-600">↗</span>
             </a>
           ))}
         </div>
@@ -191,10 +191,10 @@ export default function LandingChatbotWidget() {
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 rounded-xl text-sm font-medium border border-blue-500/30 transition-all duration-200 hover:scale-[1.02] no-underline"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 hover:text-violet-200 rounded-xl text-sm font-medium border border-violet-500/30 transition-all duration-200 hover:scale-[1.02] no-underline"
           >
             <span>{link.replace(/^https?:\/\//, '')}</span>
-            <span className="text-blue-600">↗</span>
+            <span className="text-violet-600">↗</span>
           </a>
         ))}
       </div>
@@ -209,7 +209,7 @@ export default function LandingChatbotWidget() {
         <button
           onClick={() => setIsOpen(true)}
           aria-label="Ouvrir le chatbot"
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white rounded-full shadow-lg shadow-blue-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-violet-500 hover:bg-violet-700 active:bg-violet-800 text-white rounded-full shadow-lg shadow-violet-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 focus:ring-2 focus:ring-violet-600 focus:ring-offset-2"
         >
           <Bot className="w-7 h-7" />
         </button>
@@ -224,7 +224,7 @@ export default function LandingChatbotWidget() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#6613e3] to-[#4b0082] border-b border-white/10">
             <div className="flex items-center gap-2">
-              <Bot className="w-5 h-5 text-blue-300" />
+              <Bot className="w-5 h-5 text-violet-300" />
               <span className="text-white font-semibold text-sm">QRBag Assistant</span>
             </div>
             <button
@@ -247,10 +247,10 @@ export default function LandingChatbotWidget() {
 
             {messages.map((msg, i) => (
               <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-blue-500' : 'bg-white/10'}`}>
-                  {msg.role === 'user' ? <User className="w-3.5 h-3.5 text-white" /> : <Bot className="w-3.5 h-3.5 text-blue-300" />}
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-violet-500' : 'bg-white/10'}`}>
+                  {msg.role === 'user' ? <User className="w-3.5 h-3.5 text-white" /> : <Bot className="w-3.5 h-3.5 text-violet-300" />}
                 </div>
-                <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-blue-500 text-white rounded-tr-md' : 'bg-white/10 text-white rounded-tl-md'}`}>
+                <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-violet-500 text-white rounded-tr-md' : 'bg-white/10 text-white rounded-tl-md'}`}>
                   {msg.role === 'assistant'
                     ? renderAssistantMessage(msg.content, i)
                     : msg.content
@@ -262,7 +262,7 @@ export default function LandingChatbotWidget() {
             {isLoading && (
               <div className="flex gap-2">
                 <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-white/10">
-                  <Bot className="w-3.5 h-3.5 text-blue-300 animate-pulse" />
+                  <Bot className="w-3.5 h-3.5 text-violet-300 animate-pulse" />
                 </div>
                 <div className="bg-white/10 text-white/70 px-3 py-2 rounded-2xl rounded-tl-md text-sm">
                   {lang === 'fr' ? 'Réflexion...' : lang === 'en' ? 'Thinking...' : 'جاري التفكير...'}
@@ -299,13 +299,13 @@ export default function LandingChatbotWidget() {
               disabled={isLoading}
               maxLength={500}
               aria-label="Question"
-              className="flex-1 bg-white/10 text-white placeholder:text-white/40 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:ring-1 focus:ring-blue-600 disabled:opacity-50 min-h-[40px]"
+              className="flex-1 bg-white/10 text-white placeholder:text-white/40 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-600 disabled:opacity-50 min-h-[40px]"
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
               aria-label="Envoyer"
-              className="w-11 h-11 bg-blue-500 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
+              className="w-11 h-11 bg-violet-500 hover:bg-violet-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>

@@ -68,7 +68,7 @@ function ChecklistFallback() {
     <main className="min-h-screen flex flex-col bg-[#f8fafc]" dir="ltr">
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+          <div className="inline-block w-10 h-10 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin" />
           <p className="mt-4 text-slate-500 text-sm">Chargement…</p>
         </div>
       </div>
@@ -277,7 +277,7 @@ function ChecklistPageContent() {
         <section className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
           <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-lg">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-violet-600 flex items-center justify-center">
                 <CheckCircle2 className="w-9 h-9 text-white" />
               </div>
             </div>
@@ -288,7 +288,7 @@ function ChecklistPageContent() {
               {t('checklist.success_desc')}
             </p>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-3">
+            <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 mb-3">
               <div className="text-xs uppercase tracking-widest text-slate-500 mb-1">{t('checklist.success_code')}</div>
               <div className="font-mono font-bold text-xl text-slate-900">{success.code}</div>
             </div>
@@ -301,14 +301,14 @@ function ChecklistPageContent() {
             </div>
 
             <div className="bg-slate-900 rounded-xl p-4 mb-6">
-              <div className="text-xs uppercase tracking-widest text-blue-400 mb-1">{t('checklist.success_url')}</div>
+              <div className="text-xs uppercase tracking-widest text-violet-400 mb-1">{t('checklist.success_url')}</div>
               <div className="text-white text-sm font-mono break-all">{success.publicUrl}</div>
             </div>
 
             <div className="flex flex-col gap-2.5">
               <Link
                 href={`/checklist/${success.code}`}
-                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md shadow-blue-600/25"
+                className="w-full py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md shadow-violet-600/25"
               >
                 <ExternalLink className="w-4 h-4" />
                 {t('checklist.view_public_page')}
@@ -373,7 +373,7 @@ function ChecklistPageContent() {
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[40px] shadow-md shadow-blue-600/25"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[40px] shadow-md shadow-violet-600/25"
             >
               {submitting || photoUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               {photoUploading ? 'Envoi de la photo...' : t('checklist.header_generate_pdf')}
@@ -385,7 +385,7 @@ function ChecklistPageContent() {
       <section className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
         {/* ─── Title block ─── */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3">
+          <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-100 text-violet-700 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3">
             {refParam && sourceParam === 'tracking_page' ? '✨ Checklist gratuite' : '✨ Service gratuit QRBag'}
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
@@ -397,8 +397,8 @@ function ChecklistPageContent() {
         {/* ─── Section 1: Travel Information ─── */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 mb-4 shadow-sm">
           <h2 className="flex items-center gap-2 text-slate-900 font-bold text-base mb-4">
-            <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</span>
-            <MapPin className="w-4 h-4 text-blue-600" />
+            <span className="w-7 h-7 rounded-full bg-violet-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+            <MapPin className="w-4 h-4 text-violet-600" />
             {t('checklist.step_passenger')}
           </h2>
 
@@ -411,7 +411,7 @@ function ChecklistPageContent() {
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 min-h-[44px]"
                 placeholder="Aïssatou"
               />
             </div>
@@ -423,7 +423,7 @@ function ChecklistPageContent() {
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 min-h-[44px]"
                 placeholder="Diallo"
               />
             </div>
@@ -435,7 +435,7 @@ function ChecklistPageContent() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 min-h-[44px]"
                 placeholder="aissatou@email.com"
               />
               <p className="text-[10px] text-slate-500 mt-1">{t('checklist.email_hint')}</p>
@@ -448,7 +448,7 @@ function ChecklistPageContent() {
                 type="date"
                 value={departureDate}
                 onChange={(e) => setDepartureDate(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 min-h-[44px]"
               />
             </div>
             <div>
@@ -459,7 +459,7 @@ function ChecklistPageContent() {
                 type="text"
                 value={destinationCountry}
                 onChange={(e) => setDestinationCountry(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 min-h-[44px]"
                 placeholder="Ex: Paris, Tokyo..."
               />
             </div>
@@ -471,7 +471,7 @@ function ChecklistPageContent() {
                 type="text"
                 value={airline}
                 onChange={(e) => setAirline(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px]"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 min-h-[44px]"
                 placeholder={t('checklist.airline_placeholder')}
               />
             </div>
@@ -481,8 +481,8 @@ function ChecklistPageContent() {
         {/* ─── Section 2: Photo upload (optional) ─── */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 mb-4 shadow-sm">
           <h2 className="flex items-center gap-2 text-slate-900 font-bold text-base mb-4">
-            <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">2</span>
-            <Camera className="w-4 h-4 text-blue-600" />
+            <span className="w-7 h-7 rounded-full bg-violet-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+            <Camera className="w-4 h-4 text-violet-600" />
             {t('checklist.photo_upload_title')}
           </h2>
           {photoPreview ? (
@@ -499,7 +499,7 @@ function ChecklistPageContent() {
             </div>
           ) : (
             <label className="block cursor-pointer">
-              <div className="border-2 border-dashed border-slate-300 rounded-xl py-8 px-4 text-center hover:border-blue-500 hover:bg-blue-50/60 transition-colors">
+              <div className="border-2 border-dashed border-slate-300 rounded-xl py-8 px-4 text-center hover:border-violet-500 hover:bg-violet-50/60 transition-colors">
                 <Camera className="w-10 h-10 text-slate-400 mx-auto mb-2" />
                 <p className="text-sm font-bold text-slate-900">{t('checklist.photo_upload_hint')}</p>
                 <p className="text-xs text-slate-500 mt-1">{t('checklist.photo_upload_optional')}</p>
@@ -525,11 +525,11 @@ function ChecklistPageContent() {
         <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 mb-4 shadow-sm">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h2 className="flex items-center gap-2 text-slate-900 font-bold text-base">
-              <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">3</span>
-              <Tag className="w-4 h-4 text-blue-600" />
+              <span className="w-7 h-7 rounded-full bg-violet-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+              <Tag className="w-4 h-4 text-violet-600" />
               {t('checklist.step_items')}
             </h2>
-            <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+            <span className="text-xs font-bold text-violet-700 bg-violet-50 border border-violet-200 px-3 py-1 rounded-full">
               {t('checklist.items_in_category', { count: String(activeCat.items.length) })}
             </span>
           </div>
@@ -545,8 +545,8 @@ function ChecklistPageContent() {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-bold border transition-colors ${
                     isActive
-                      ? 'bg-blue-600 border-blue-600 text-white'
-                      : 'bg-white border-slate-300 text-slate-600 hover:border-blue-500 hover:text-blue-700'
+                      ? 'bg-violet-600 border-violet-600 text-white'
+                      : 'bg-white border-slate-300 text-slate-600 hover:border-violet-500 hover:text-violet-700'
                   }`}
                 >
                   <span className="mr-1">{cat.emoji}</span>
@@ -564,7 +564,7 @@ function ChecklistPageContent() {
           {/* Select all */}
           <button
             onClick={() => toggleCategoryAll(activeCat.id)}
-            className="text-xs font-bold text-blue-600 underline mb-3 hover:text-blue-800"
+            className="text-xs font-bold text-violet-600 underline mb-3 hover:text-violet-800"
           >
             {allCatSelected ? t('checklist.unselect_all') : t('checklist.select_all')}
           </button>
@@ -581,14 +581,14 @@ function ChecklistPageContent() {
                   onClick={() => toggleItem(activeCat.id, name)}
                   className={`relative flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all text-left bg-white ${
                     isSelected
-                      ? 'border-blue-600 bg-blue-50 shadow-md'
-                      : 'border-slate-200 hover:border-blue-400'
+                      ? 'border-violet-600 bg-violet-50 shadow-md'
+                      : 'border-slate-200 hover:border-violet-400'
                   }`}
                   aria-pressed={isSelected}
                 >
                   {/* Checkmark badge */}
                   {isSelected && (
-                    <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
+                    <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-violet-600 flex items-center justify-center z-10">
                       <CheckCircle2 className="w-3 h-3 text-white" />
                     </div>
                   )}
@@ -608,7 +608,7 @@ function ChecklistPageContent() {
                       <span className="text-4xl">{activeCat.emoji}</span>
                     )}
                     {isSelected && (
-                      <div className="absolute inset-0 bg-blue-600/10 pointer-events-none" />
+                      <div className="absolute inset-0 bg-violet-600/10 pointer-events-none" />
                     )}
                   </div>
 
@@ -632,8 +632,8 @@ function ChecklistPageContent() {
           <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 mb-4 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="flex items-center gap-2 text-slate-900 font-bold text-base">
-                <span className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">4</span>
-                <FileText className="w-4 h-4 text-blue-600" />
+                <span className="w-7 h-7 rounded-full bg-violet-600 text-white flex items-center justify-center text-xs font-bold">4</span>
+                <FileText className="w-4 h-4 text-violet-600" />
                 {t('checklist.step_selection')} ({selectedCount})
               </h2>
             </div>
@@ -681,7 +681,7 @@ function ChecklistPageContent() {
                           <div className="flex items-center gap-1 bg-white border border-slate-300 rounded-lg">
                             <button
                               onClick={() => changeQty(it.category, it.name, -1)}
-                              className="w-7 h-7 flex items-center justify-center text-slate-700 hover:bg-blue-100 hover:text-blue-700 rounded-l-md"
+                              className="w-7 h-7 flex items-center justify-center text-slate-700 hover:bg-violet-100 hover:text-violet-700 rounded-l-md"
                               aria-label="Decrease quantity"
                             >
                               <Minus className="w-3 h-3" />
@@ -689,7 +689,7 @@ function ChecklistPageContent() {
                             <span className="text-xs font-bold w-6 text-center text-slate-900">{it.qty}</span>
                             <button
                               onClick={() => changeQty(it.category, it.name, 1)}
-                              className="w-7 h-7 flex items-center justify-center text-slate-700 hover:bg-blue-100 hover:text-blue-700 rounded-r-md"
+                              className="w-7 h-7 flex items-center justify-center text-slate-700 hover:bg-violet-100 hover:text-violet-700 rounded-r-md"
                               aria-label="Increase quantity"
                             >
                               <Plus className="w-3 h-3" />
@@ -701,7 +701,7 @@ function ChecklistPageContent() {
                             <select
                               value={it.color || ''}
                               onChange={(e) => changeColor(it.category, it.name, e.target.value)}
-                              className="appearance-none pl-2 pr-7 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer min-h-[32px]"
+                              className="appearance-none pl-2 pr-7 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 cursor-pointer min-h-[32px]"
                               aria-label={t('checklist.item_color')}
                             >
                               <option value="">{t('checklist.item_color')}</option>
@@ -717,7 +717,7 @@ function ChecklistPageContent() {
                             <select
                               value={it.brand || ''}
                               onChange={(e) => changeBrand(it.category, it.name, e.target.value)}
-                              className="appearance-none pl-2 pr-7 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer min-h-[32px]"
+                              className="appearance-none pl-2 pr-7 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 cursor-pointer min-h-[32px]"
                               aria-label={t('checklist.item_brand')}
                             >
                               <option value="">{t('checklist.item_brand')}</option>
@@ -751,7 +751,7 @@ function ChecklistPageContent() {
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-base md:text-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
+            className="w-full py-4 px-6 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-base md:text-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-violet-600/30 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
           >
             {submitting || photoUploading ? (
               <>

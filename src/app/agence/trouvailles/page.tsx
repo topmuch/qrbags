@@ -111,7 +111,7 @@ export default function TrouvaillesPage() {
       {/* Success Notification */}
       {showNotification && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
-          <div className="bg-blue-600 text-white rounded-xl p-4 shadow-lg flex items-center gap-3 max-w-sm">
+          <div className="bg-violet-600 text-white rounded-xl p-4 shadow-lg flex items-center gap-3 max-w-sm">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
               <Bell className="w-5 h-5" />
             </div>
@@ -151,7 +151,7 @@ export default function TrouvaillesPage() {
             placeholder="Rechercher par nom ou référence..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all"
           />
         </div>
       </div>
@@ -174,7 +174,7 @@ export default function TrouvaillesPage() {
                 <tr>
                   <td colSpan={5} className="text-center py-12">
                     <div className="flex items-center justify-center gap-3">
-                      <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+                      <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
                       <span className="text-slate-500">Chargement...</span>
                     </div>
                   </td>
@@ -183,8 +183,8 @@ export default function TrouvaillesPage() {
                 <tr>
                   <td colSpan={5} className="text-center py-12">
                     <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 bg-emerald-100 dark:bg-blue-600/10 rounded-full flex items-center justify-center mb-4">
-                        <CheckCircle className="w-8 h-8 text-blue-600" />
+                      <div className="w-16 h-16 bg-emerald-100 dark:bg-violet-600/10 rounded-full flex items-center justify-center mb-4">
+                        <CheckCircle className="w-8 h-8 text-violet-600" />
                       </div>
                       <p className="text-slate-500 dark:text-slate-400">Aucun bagage retrouvé</p>
                       <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Les bagages retrouvés apparaîtront ici</p>
@@ -195,12 +195,12 @@ export default function TrouvaillesPage() {
                 filteredBaggages.map((baggage) => (
                   <tr
                     key={baggage.id}
-                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-emerald-50/30 dark:bg-blue-600/5"
+                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-emerald-50/30 dark:bg-violet-600/5"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-blue-600/10 flex items-center justify-center">
-                          <QrCode className="w-4 h-4 text-blue-600" />
+                        <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-violet-600/10 flex items-center justify-center">
+                          <QrCode className="w-4 h-4 text-violet-600" />
                         </div>
                         <span className="text-slate-800 dark:text-white font-mono font-medium">
                           {baggage.reference}
@@ -242,7 +242,7 @@ export default function TrouvaillesPage() {
                         className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
                         title="Voir détails"
                       >
-                        <Eye className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                        <Eye className="w-4 h-4 text-slate-400 group-hover:text-violet-600" />
                       </button>
                     </td>
                   </tr>
@@ -271,12 +271,12 @@ export default function TrouvaillesPage() {
             </div>
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-emerald-100 dark:bg-blue-600/10 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-emerald-100 dark:bg-violet-600/10 rounded-xl flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-violet-600" />
                 </div>
                 <div>
                   <p className="text-slate-800 dark:text-white font-mono font-bold">{selectedBaggage.reference}</p>
-                  <p className="text-blue-600 text-sm font-medium">Bagage retrouvé</p>
+                  <p className="text-violet-600 text-sm font-medium">Bagage retrouvé</p>
                 </div>
               </div>
 
@@ -309,8 +309,8 @@ export default function TrouvaillesPage() {
 
               {/* Founder Information */}
               {selectedBaggage.founderName && (
-                <div className="bg-emerald-50 dark:bg-blue-600/10 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                  <p className="text-emerald-700 dark:text-blue-500 font-medium text-sm mb-2 flex items-center gap-2">
+                <div className="bg-emerald-50 dark:bg-violet-600/10 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                  <p className="text-emerald-700 dark:text-violet-500 font-medium text-sm mb-2 flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" />
                     Trouvé par
                   </p>

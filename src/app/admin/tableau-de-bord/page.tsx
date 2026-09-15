@@ -72,7 +72,7 @@ function StatCard({
           {icon}
         </div>
         {trend && (
-          <div className={`flex items-center gap-1 text-sm font-medium ${trend.isUp ? 'text-blue-600' : 'text-rose-500'}`}>
+          <div className={`flex items-center gap-1 text-sm font-medium ${trend.isUp ? 'text-violet-600' : 'text-rose-500'}`}>
             {trend.isUp ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             {Math.abs(trend.value)}%
           </div>
@@ -134,9 +134,9 @@ function KPICard({
 // Quick Actions Component
 function QuickActions() {
   const actions = [
-    { label: "Générer QR", icon: <QrCode className="w-5 h-5" />, href: "/admin/generer", color: "bg-blue-600" },
-    { label: "Hajj 2026", icon: <Users className="w-5 h-5" />, href: "/admin/hajj", color: "bg-blue-500" },
-    { label: "Commandes", icon: <ShoppingCart className="w-5 h-5" />, href: "/admin/messages", color: "bg-blue-500" },
+    { label: "Générer QR", icon: <QrCode className="w-5 h-5" />, href: "/admin/generer", color: "bg-violet-600" },
+    { label: "Hajj 2026", icon: <Users className="w-5 h-5" />, href: "/admin/hajj", color: "bg-violet-500" },
+    { label: "Commandes", icon: <ShoppingCart className="w-5 h-5" />, href: "/admin/messages", color: "bg-violet-500" },
     { label: "Agences", icon: <Building className="w-5 h-5" />, href: "/admin/agences", color: "bg-purple-500" },
   ];
 
@@ -171,8 +171,8 @@ function ActivationsChart({ data }: { data: DailyActivation[] }) {
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Activations par jour</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Total: {total} activations cette semaine</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-blue-600/10 rounded-lg">
-          <span className="w-3 h-3 rounded-full bg-blue-600"></span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-violet-600/10 rounded-lg">
+          <span className="w-3 h-3 rounded-full bg-violet-600"></span>
           <span className="text-xs text-slate-600 dark:text-slate-300">Pèlerins</span>
         </div>
       </div>
@@ -199,7 +199,7 @@ function ActivationsChart({ data }: { data: DailyActivation[] }) {
                 <div
                   className={`w-full max-w-[40px] rounded-t-lg transition-all duration-300 cursor-pointer ${
                     item.count > 0 
-                      ? 'bg-blue-600' 
+                      ? 'bg-violet-600' 
                       : 'bg-slate-200 dark:bg-slate-700'
                   } ${isHovered && item.count > 0 ? 'opacity-80' : ''}`}
                   style={{ height: `${height}%` }}
@@ -220,9 +220,9 @@ function ActivationsChart({ data }: { data: DailyActivation[] }) {
 // Activity Item Component
 function ActivityItem({ activity }: { activity: RecentActivity }) {
   const statusConfig = {
-    success: { bg: 'bg-emerald-100 dark:bg-blue-600/10', icon: <CheckCircle className="w-4 h-4 text-blue-600" /> },
-    warning: { bg: 'bg-amber-100 dark:bg-blue-600/10', icon: <Clock className="w-4 h-4 text-blue-600" /> },
-    info: { bg: 'bg-blue-100 dark:bg-blue-500/10', icon: <Package className="w-4 h-4 text-blue-500" /> }
+    success: { bg: 'bg-emerald-100 dark:bg-violet-600/10', icon: <CheckCircle className="w-4 h-4 text-violet-600" /> },
+    warning: { bg: 'bg-amber-100 dark:bg-violet-600/10', icon: <Clock className="w-4 h-4 text-violet-600" /> },
+    info: { bg: 'bg-violet-100 dark:bg-violet-500/10', icon: <Package className="w-4 h-4 text-violet-500" /> }
   };
 
   const config = statusConfig[activity.status];
@@ -260,7 +260,7 @@ function RecentActivityList({ activities }: { activities: RecentActivity[] }) {
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
       <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
         <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Activité récente</h3>
-        <Link href="/admin/trouvailles" className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+        <Link href="/admin/trouvailles" className="text-sm text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1">
           Voir tout <ArrowUpRight className="w-3 h-3" />
         </Link>
       </div>

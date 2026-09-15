@@ -339,7 +339,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
                 <Link
                   href="/agence/trouvailles"
                   onClick={() => setMobileActionsOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-blue-700 dark:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-violet-700 dark:text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                 >
                   <CheckCircle className="w-4 h-4" />
                   Trouvailles

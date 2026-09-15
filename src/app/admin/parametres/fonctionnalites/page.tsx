@@ -488,7 +488,7 @@ export default function FonctionnalitesPage() {
       className={`
         relative w-14 h-7 rounded-full transition-all duration-300
         ${enabled
-          ? 'bg-blue-600'
+          ? 'bg-violet-600'
           : 'bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
         }
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
@@ -536,7 +536,7 @@ export default function FonctionnalitesPage() {
               }
             `}>
               <IconComponent
-                className={`w-4 h-4 ${feature.enabled ? 'text-blue-700 dark:text-blue-500' : 'text-slate-400 dark:text-slate-500'}`}
+                className={`w-4 h-4 ${feature.enabled ? 'text-violet-700 dark:text-violet-500' : 'text-slate-400 dark:text-slate-500'}`}
                 aria-hidden="true"
               />
             </div>
@@ -548,7 +548,7 @@ export default function FonctionnalitesPage() {
                   {feature.label}
                 </h3>
                 {feature.enabled ? (
-                  <span className="flex items-center gap-1 text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-blue-500 px-1.5 py-0.5 rounded-full">
+                  <span className="flex items-center gap-1 text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-violet-500 px-1.5 py-0.5 rounded-full">
                     <CheckCircle className="w-2.5 h-2.5" />
                     Activé
                   </span>
@@ -561,14 +561,14 @@ export default function FonctionnalitesPage() {
                 {showConfigWarning && (
                   <button
                     onClick={() => openConfigModal(feature.key)}
-                    className="flex items-center gap-1 text-[10px] bg-amber-100 dark:bg-blue-900/30 text-amber-700 dark:text-blue-500 px-1.5 py-0.5 rounded-full hover:bg-amber-200 cursor-pointer"
+                    className="flex items-center gap-1 text-[10px] bg-amber-100 dark:bg-violet-900/30 text-amber-700 dark:text-violet-500 px-1.5 py-0.5 rounded-full hover:bg-amber-200 cursor-pointer"
                   >
                     <AlertTriangle className="w-2.5 h-2.5" />
                     Configurer
                   </button>
                 )}
                 {feature.enabled && needsConfig && status?.configured && (
-                  <span className="flex items-center gap-1 text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-blue-500 px-1.5 py-0.5 rounded-full">
+                  <span className="flex items-center gap-1 text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-violet-500 px-1.5 py-0.5 rounded-full">
                     <CheckCircle className="w-2.5 h-2.5" />
                     Configuré
                   </span>
@@ -609,7 +609,7 @@ export default function FonctionnalitesPage() {
                 </Button>
               )}
               {isUpdating ? (
-                <RefreshCw className="w-5 h-5 text-blue-600 animate-spin shrink-0" />
+                <RefreshCw className="w-5 h-5 text-violet-600 animate-spin shrink-0" />
               ) : (
                 <ToggleSwitch
                   enabled={feature.enabled}
@@ -663,7 +663,7 @@ export default function FonctionnalitesPage() {
         </Card>
         <Card className="bg-white dark:bg-slate-800 border-emerald-200 dark:border-emerald-800 shadow-sm rounded-2xl">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-blue-700 dark:text-blue-500">{stats.enabled === 0 ? '—' : stats.enabled}</p>
+            <p className="text-3xl font-bold text-violet-700 dark:text-violet-500">{stats.enabled === 0 ? '—' : stats.enabled}</p>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Activées</p>
           </CardContent>
         </Card>
@@ -676,7 +676,7 @@ export default function FonctionnalitesPage() {
         {stats.needsAttention > 0 && (
           <Card className="bg-white dark:bg-slate-800 border-amber-200 dark:border-amber-800 shadow-sm rounded-2xl">
             <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-amber-600 dark:text-blue-500">{stats.needsAttention}</p>
+              <p className="text-3xl font-bold text-amber-600 dark:text-violet-500">{stats.needsAttention}</p>
               <p className="text-slate-500 dark:text-slate-400 text-sm">À configurer</p>
             </CardContent>
           </Card>
@@ -688,7 +688,7 @@ export default function FonctionnalitesPage() {
         <Card className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 rounded-2xl mb-8">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-blue-500 mt-0.5 shrink-0" aria-hidden="true" />
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-violet-500 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
                 <h3 className="text-slate-800 dark:text-white font-medium mb-1">
                   {stats.needsAttention} fonctionnalité{stats.needsAttention > 1 ? 's' : ''} nécessite{stats.needsAttention > 1 ? 'nt' : ''} une configuration
@@ -706,7 +706,7 @@ export default function FonctionnalitesPage() {
       <Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 rounded-2xl mb-8">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <Zap className="w-5 h-5 text-blue-700 dark:text-blue-500 mt-0.5 shrink-0" aria-hidden="true" />
+            <Zap className="w-5 h-5 text-violet-700 dark:text-violet-500 mt-0.5 shrink-0" aria-hidden="true" />
             <div>
               <h3 className="text-slate-800 dark:text-white font-medium mb-1">Feature Flags modulaires</h3>
               <p className="text-slate-600 dark:text-slate-300 text-sm">
@@ -721,7 +721,7 @@ export default function FonctionnalitesPage() {
       {/* Loading State */}
       {loading && !data && (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
         </div>
       )}
 
@@ -766,7 +766,7 @@ export default function FonctionnalitesPage() {
                 <div className="flex items-center gap-3">
                   {testResult.success ? (
                     <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-blue-700 dark:text-blue-500" />
+                      <CheckCircle className="w-5 h-5 text-violet-700 dark:text-violet-500" />
                     </div>
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
@@ -806,7 +806,7 @@ export default function FonctionnalitesPage() {
               <div className="mt-6 flex justify-end">
                 <Button
                   onClick={() => setShowTestModal(false)}
-                  className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-white rounded-xl"
+                  className="bg-[#8b17c9] hover:bg-[#8b17c9]/90 text-white rounded-xl"
                 >
                   Fermer
                 </Button>
@@ -912,7 +912,7 @@ export default function FonctionnalitesPage() {
                   href={currentConfig.helpLink.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-[#2563EB] hover:underline mt-4"
+                  className="inline-flex items-center gap-1 text-sm text-[#8b17c9] hover:underline mt-4"
                 >
                   <ExternalLink className="w-3 h-3" />
                   {currentConfig.helpLink.label}
@@ -930,7 +930,7 @@ export default function FonctionnalitesPage() {
                 <Button
                   onClick={saveConfig}
                   disabled={savingConfig}
-                  className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-white"
+                  className="bg-[#8b17c9] hover:bg-[#8b17c9]/90 text-white"
                 >
                   {savingConfig ? (
                     <RefreshCw className="w-4 h-4 animate-spin mr-2" />

@@ -186,7 +186,7 @@ function Sidebar({
       {/* Sidebar - Orange Background */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-[280px] bg-[#2563EB]
+        w-[280px] bg-[#8b17c9]
         transform transition-transform duration-300
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         flex flex-col shadow-2xl
@@ -329,7 +329,7 @@ function Header({
             title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
           >
             {theme === 'dark' ? (
-              <Sun className="w-5 h-5 text-blue-600" />
+              <Sun className="w-5 h-5 text-violet-600" />
             ) : (
               <Moon className="w-5 h-5 text-slate-600" />
             )}
@@ -403,7 +403,7 @@ export default function AdminRootLayout({
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
           <span className="text-slate-500">Vérification...</span>
         </div>
       </div>

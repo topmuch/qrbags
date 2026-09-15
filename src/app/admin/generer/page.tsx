@@ -363,7 +363,7 @@ export default function GenererQRPage() {
               <button
                 onClick={handleExportGenerated}
                 disabled={isExporting}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1e7e34] to-[#0d5e34] text-white rounded-lg hover:from-[#228b22] hover:to-[#1e7e34] transition-all text-sm shadow-lg shadow-green-900/20 disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#2f9bff] to-[#101b3f] text-white rounded-lg hover:from-[#228b22] hover:to-[#2f9bff] transition-all text-sm shadow-lg shadow-green-900/20 disabled:opacity-50"
               >
                 {isExporting ? (
                   <>
@@ -379,7 +379,7 @@ export default function GenererQRPage() {
               </button>
               <a
                 href="/admin/qrcodes"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm"
               >
                 <QrCode className="w-4 h-4" />
                 Voir tous les QR codes
@@ -399,7 +399,7 @@ export default function GenererQRPage() {
             className={cn(
               "flex items-center gap-3 p-4 rounded-xl border transition-all",
               context === 'individual' 
-                ? "bg-[#2563EB] border-[#2563EB] text-white" 
+                ? "bg-[#8b17c9] border-[#8b17c9] text-white" 
                 : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300"
             )}
           >
@@ -414,7 +414,7 @@ export default function GenererQRPage() {
             className={cn(
               "flex items-center gap-3 p-4 rounded-xl border transition-all",
               context === 'agency' 
-                ? "bg-[#2563EB] border-[#2563EB] text-white" 
+                ? "bg-[#8b17c9] border-[#8b17c9] text-white" 
                 : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300"
             )}
           >
@@ -432,7 +432,7 @@ export default function GenererQRPage() {
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl">
           <CardHeader>
             <CardTitle className="text-slate-800 dark:text-white flex items-center gap-2">
-              <QrCode className="w-5 h-5 text-blue-600" />
+              <QrCode className="w-5 h-5 text-violet-600" />
               {context === 'individual' ? 'Voyageur individuel' : 'Génération agence'}
             </CardTitle>
           </CardHeader>
@@ -504,7 +504,7 @@ export default function GenererQRPage() {
                   </div>
                 </div>
 
-                <div className="bg-amber-50 dark:bg-blue-600/10 border border-amber-200 dark:border-amber-800 rounded-xl p-4 text-sm text-amber-700 dark:text-blue-500">
+                <div className="bg-amber-50 dark:bg-violet-600/10 border border-amber-200 dark:border-amber-800 rounded-xl p-4 text-sm text-amber-700 dark:text-violet-500">
                   <p className="font-medium">ℹ️ Le QR sera actif immédiatement avec les informations du voyageur.</p>
                 </div>
 
@@ -605,7 +605,7 @@ export default function GenererQRPage() {
             )}
             
             <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl"
               onClick={handleGenerateQR}
               disabled={qrGenerating}
             >
@@ -684,7 +684,7 @@ export default function GenererQRPage() {
 
       {/* Info Cards */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-5 text-white">
+        <div className="bg-gradient-to-r from-violet-600 to-violet-700 rounded-2xl p-5 text-white">
           <div className="flex items-center gap-3">
             <QrCode className="w-8 h-8" />
             <div>
@@ -693,7 +693,7 @@ export default function GenererQRPage() {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-5 text-white">
+        <div className="bg-gradient-to-r from-violet-500 to-violet-600 rounded-2xl p-5 text-white">
           <div className="flex items-center gap-3">
             <Building2 className="w-8 h-8" />
             <div>
@@ -702,7 +702,7 @@ export default function GenererQRPage() {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-r from-blue-600 to-amber-600 rounded-2xl p-5 text-white">
+        <div className="bg-gradient-to-r from-violet-600 to-amber-600 rounded-2xl p-5 text-white">
           <div className="flex items-center gap-3">
             <Shield className="w-8 h-8" />
             <div>

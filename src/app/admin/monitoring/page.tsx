@@ -123,14 +123,14 @@ export default function MonitoringPage() {
   };
 
   const levelColors: Record<string, string> = {
-    info: 'bg-blue-100 text-blue-800',
+    info: 'bg-violet-100 text-violet-800',
     warn: 'bg-yellow-100 text-yellow-800',
     error: 'bg-red-100 text-red-800',
     fatal: 'bg-purple-100 text-purple-800',
   };
 
   const levelBg: Record<string, string> = {
-    info: 'border-l-blue-400',
+    info: 'border-l-violet-400',
     warn: 'border-l-yellow-400',
     error: 'border-l-red-400',
     fatal: 'border-l-purple-500',
@@ -210,7 +210,7 @@ export default function MonitoringPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6 text-center">
-            <Database className="w-8 h-8 mx-auto mb-2 text-blue-500" />
+            <Database className="w-8 h-8 mx-auto mb-2 text-violet-500" />
             <p className="text-2xl font-bold">{totalLogs}</p>
             <p className="text-xs text-gray-500">Logs totaux</p>
           </CardContent>

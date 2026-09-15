@@ -81,9 +81,9 @@ interface DailyReport {
 
 // Status configuration
 const STATUS_CONFIG: Record<LeadStatus, { label: string; className: string }> = {
-  new: { label: 'Nouveau', className: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' },
+  new: { label: 'Nouveau', className: 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300' },
   contacted: { label: 'Contacté', className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300' },
-  in_discussion: { label: 'En discussion', className: 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300' },
+  in_discussion: { label: 'En discussion', className: 'bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-300' },
   qualified: { label: 'Qualifié', className: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' },
   converted: { label: 'Converti', className: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' },
   lost: { label: 'Perdu', className: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' },
@@ -93,9 +93,9 @@ const STATUS_CONFIG: Record<LeadStatus, { label: string; className: string }> = 
 const OBSERVATION_TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
   note: { label: 'Note', icon: <FileText className="w-4 h-4" />, className: 'bg-gray-500' },
   appel: { label: 'Appel', icon: <PhoneCall className="w-4 h-4" />, className: 'bg-green-500' },
-  rdv: { label: 'Rendez-vous', icon: <Calendar className="w-4 h-4" />, className: 'bg-blue-500' },
+  rdv: { label: 'Rendez-vous', icon: <Calendar className="w-4 h-4" />, className: 'bg-violet-500' },
   email: { label: 'Email', icon: <Mail className="w-4 h-4" />, className: 'bg-purple-500' },
-  whatsapp: { label: 'WhatsApp', icon: <MessageCircle className="w-4 h-4" />, className: 'bg-blue-600' },
+  whatsapp: { label: 'WhatsApp', icon: <MessageCircle className="w-4 h-4" />, className: 'bg-violet-600' },
 };
 
 export default function LeadDetailPage() {
@@ -233,7 +233,7 @@ export default function LeadDetailPage() {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-20">
-          <div className="animate-spin w-8 h-8 border-4 border-slate-300 border-t-[#2563EB] rounded-full" />
+          <div className="animate-spin w-8 h-8 border-4 border-slate-300 border-t-[#8b17c9] rounded-full" />
         </div>
       </div>
     );
@@ -268,7 +268,7 @@ export default function LeadDetailPage() {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-violet-700 rounded-xl flex items-center justify-center text-white font-bold text-xl">
                 {lead.name.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -319,12 +319,12 @@ export default function LeadDetailPage() {
           {/* Contact Info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <div className="w-10 h-10 bg-violet-100 dark:bg-violet-500/20 rounded-lg flex items-center justify-center">
+                <Mail className="w-5 h-5 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500">Email</p>
-                <a href={`mailto:${lead.email}`} className="text-sm text-blue-500 hover:underline">
+                <a href={`mailto:${lead.email}`} className="text-sm text-violet-500 hover:underline">
                   {lead.email}
                 </a>
               </div>
@@ -443,7 +443,7 @@ export default function LeadDetailPage() {
             <Button
               onClick={handleSaveDailyReport}
               disabled={savingReport || !dailyReportContent.trim()}
-              className="bg-blue-600 hover:bg-amber-600 text-white ml-auto disabled:opacity-50"
+              className="bg-violet-600 hover:bg-amber-600 text-white ml-auto disabled:opacity-50"
             >
               {savingReport ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />

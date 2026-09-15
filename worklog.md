@@ -584,3 +584,99 @@ Stage Summary:
 - Vérifié navigateur : 6 pages desktop + 2 mobile OK ; login agence end-to-end fonctionnel (API 200 + redirect /agence/tableau-de-bord) ; /inscrire étape 1→2 OK
 - Note environnement : le sandbox reprend les processus next entre les appels shell (tests réussis en appels monolithiques) ; OOM constaté si Chromium + compile simultanés
 - Lint 0 erreur 0 warning
+---
+Task ID: 2-a
+Agent: status-pages-restyler
+Task: Conversion expired/not-found/offline au design system QRBag
+
+Work Log:
+- Lecture worklog + BrandShell.tsx (design system obligatoire) + exemple converti /success (pattern : BrandShell > main centré > BrandCard corners, BrandIconRing, boutons brandBtn*)
+- src/app/expired/page.tsx — refonte visuelle, logique 100% conservée (useSearchParams ref/agency/expired, countdown + interval, formatDate try/catch, handleWhatsApp wa.me/33745349339, router.push('/'), Suspense) :
+  - Fond sombre générique (#0e1734→#14204a) remplacé par <BrandShell> ; contenu dans <BrandCard corners> centrée max-w-md
+  - Pastille ronde rouge sombre → BrandIconRing w-20 glow magenta avec Clock text-[#e6216e] ; titre text-2xl/3xl extrabold navy #16234e
+  - Référence bagage : font-mono bold navy sur pastille bg-[#16234e]/5 border-[#16234e]/10 (remplace bg-slate-800 + text-violet-500)
+  - Encart « Que faire ? » : fond violet doux bg-[#8b17c9]/5 border-[#8b17c9]/15, AlertTriangle violet #8b17c9, texte navy/70 (remplace violet-600 + amber)
+  - Bouton WhatsApp : vert de marque #25D366 CONSERVÉ (hover #128C7E, shadow vert, min-h-[48px], rounded-2xl) ; agence affichée navy/60
+  - « Retour à l'accueil » → brandBtnNavy ; nom d'agence/textes slate-400→navy opacités
+  - Encart « Comment renouveler ? » → BrandCard séparé (RefreshCw azure, texte navy/60) ; footer « QRBag – Protégez vos bagages, en toute sérénité » en text-[#16234e]/50
+  - Fallback Suspense : fond blanc + spinner border-[#16234e]/15 border-t-[#e6216e] (aligné pattern /success)
+- src/app/not-found.tsx — <BrandShell> + BrandLogo h-14 en haut (lien retour accueil aria-label intégré) ; « 404 » énorme text-7xl/8xl extrabold en .text-gradient-qrbag (dégradé signature, remplace l'ancien dégradé indigo #4c1d95→#6d28d9) ; message + 2 boutons dans <BrandCard corners> : brandBtnGradient « Retour à l'accueil » (Link href="/") + brandBtnOutline « Page précédente » (window.history.back() inchangé) ; lien Contactez-nous → text-[#2f9bff] (azure officiel) ; aria-labels ajoutés, boutons min-h-[48px]
+- src/app/offline/page.tsx — <BrandShell> + <BrandCard corners> ; icône QR (svg lucide-style conservé) dans BrandIconRing w-20 glow azure #2f9bff ; titre navy extrabold ; bouton « Réessayer » brandBtnGradient (window.location.reload() inchangé, min-h-[48px]) ; textes navy/70 et navy/50 ; aria-hidden sur le svg + aria-label rechargement
+- Aucun autre fichier touché, aucune nouvelle dépendance, imports lucide-react conservés (Clock, MessageCircle, Home, RefreshCw, Shield, AlertTriangle / Home, ArrowLeft)
+- Validation : grep 0 classe bleue/indigo/slate/violet générique restante dans les 3 fichiers (seul azure #2f9bff officiel utilisé) ; bun run lint → exit 0, 0 erreur ; serveur dev : GET /expired 200, /offline 200, route inconnue → 404 rendu sans erreur ; HTML vérifié (brackets viewfinder, animate-pulse du ring, #25D366, brandBtnNavy, #8b17c9, text-gradient-qrbag présents ; anciens fonds #0e1734/#4c1d95 absents)
+
+Stage Summary:
+- 3 pages de statut adoptent le design officiel étiquette QRBag : BrandShell (liseré dégradé, carte pointillée, halos, arcs arc-en-ciel), BrandCard corners (brackets viewfinder), BrandIconRing, palette navy/azure/magenta/violet
+- Logique métier et comportements inchangés (searchParams, countdown, WhatsApp #25D366, history.back, location.reload, Suspense) ; accessibilité renforcée (aria-labels, cibles tactiles ≥ 48px, responsive mobile-first)
+- Plus aucun bleu générique/indigo/slate : uniquement la palette officielle + vert de marque WhatsApp
+- Prêt pour vérification navigateur par l'orchestrateur (pages /expired, 404, /offline)
+
+---
+Task ID: 2-b
+Agent: hajj-pages-harmonizer
+Task: Harmonisation hajj/activate + hajj-omra à la charte QRBag
+
+Work Log:
+- Lu worklog.md, BrandShell.tsx (design system) et success/page.tsx (page convertie de référence) avant toute modification
+- src/app/hajj/activate/page.tsx — refonte visuelle, logique 100% conservée (searchParams qr + préfill, fetch /api/activate, sessionStorage activationData, router /success?type=hajj, alerts, loading, readOnly/required) :
+  - Enveloppée dans <BrandShell> (liseré dégradé, dotted-map, halos, arcs arc-en-ciel) ; fallback Suspense passé en navy #16234e + dotted-map-light
+  - Header sticky : retour brandBtnOutline (icône seule mobile, ≥44px), BrandLogo centré, brandBadge « 🕋 Hajj & Omra »
+  - Bandeau bienvenue QR → BrandCard corners + BrandIconRing (Sparkles orange) + pilule navy « ✈️ Hajj 2025 »
+  - Hero : BrandIconRing (Plane, glow azure), h1 navy + « Hajj » en text-gradient-qrbag
+  - Formulaire dans BrandCard corners ; tous les champs → <input>/<label> natifs avec brandInput/brandLabel (shadcn Card/Input/Label/Button/Badge retirés) ; focus ring azure
+  - Touche Hajj émeraude #1 : état « code QR détecté » (variante émeraude du champ + texte ✓), construite sans conflit de classes ; #2 : icône CheckCircle émeraude de l'encart info — chrome 100% navy/dégradé
+  - Submit → brandBtnGradient (spinner blanc conservé), aide mailto → lien azure #2f9bff
+- src/app/hajj-omra/page.tsx — landing repassée en navy étiquette, textes/contenu identiques :
+  - Tous les fonds hérités (#233061/#101b3f/#0e1734/#14204a/#0a0f2c/#1a2238) remplacés par #16234e / #0f1838 (navyHover brand) alternés ; or #ffd700 → #ffd200 (brand) ; textes #e0e6f0/#a0a8b8 → white/opacity
+  - Hero navy + dotted-map-light + halos azure/magenta, tuile 🕋 en bg-gradient-qrbag, titre blanc + « pour les pèlerins » en text-gradient-qrbag ; wave separator supprimé (sections adjacentes même teinte)
+  - Nav : liens hover azure, CTA « Devenir Partenaire » → brandBtnGradient, targets ≥44px
+  - Étapes/avantages/témoignages/FAQ → BrandCard (blanches, texte navy), numéros d'étapes en pastille dégradée, titres de sections en spans text-gradient-qrbag, étoiles orange #f8921f conservées
+  - CTA final en section bg-gradient-qrbag + dotted-map-light (boutons blanc/navy + outline blanc), lien partenaire #ffd200
+  - Touche Hajj émeraude : uniquement l'encart « Conçu pour le Hajj & Omra » (bordure/fond émeraude subtils)
+  - Icônes contact/footer passées en azure #2f9bff (ex-#233061 illisible sur fond sombre)
+- Validation : rg sur les 2 fichiers → zéro couleur héritée, zéro bleu/indigo, zéro vert hors touches émeraude autorisées ; bun run lint → 0 erreur 0 warning ; bunx tsc --noEmit → aucune erreur sur les 2 fichiers ; aucun autre fichier touché, aucune dépendance ajoutée
+
+Stage Summary:
+- /hajj/activate : formulaire d'activation habillé aux normes étiquette QRBag (BrandShell + BrandCard corners + boutons dégradés + navy/azure), 2 touches émeraude informatives seulement, logique d'activation bit-à-bit identique
+- /hajj-omra : landing premium « nuit » navy #16234e avec texture dotted-map-light, cartes blanches BrandCard, dégradé signature sur titres/CTA, accents émeraude limités à 1 encart
+- Zéro régression : lint + tsc propres sur les 2 fichiers ; prêtes pour vérification navigateur par l'orchestrateur
+
+---
+Task ID: 2-c
+Agent: public-heroes-polisher
+Task: Politure héros publics (contact, devenir-partenaire, a-propos, voyageurs-standard, demo)
+
+Work Log:
+- src/app/contact/page.tsx — héros → navy #16234e + .dotted-map-light + liseré top h-1 .bg-gradient-qrbag + halos magenta/azure + brandBadge « Contact », titre blanc, sous-titre white/70 ; encarts coordonnées → cartes blanches rounded-2xl bordure navy/10 avec pastilles douces violet/azure/orange/magenta (WhatsApp vert #25D366 → violet, règle « pas de vert ») ; formulaire → <BrandCard corners>, labels brandLabel, champs brandInput (+ id/htmlFor), textarea brandInput min-h 10rem, succès CheckCircle azure, « Envoyer un autre message » brandBtnNavy, submit brandBtnGradient ; bandeau « Nous trouver » → navy + dotted-map-light + CTA brandBtnGradient ; handleSubmit/states 100% conservés
+- src/app/devenir-partenaire/page.tsx — suppression Navigation/Footer locaux (doublons non-harmonisés), page migrée vers <PublicLayout> ; héros → dégradé from-[#0e1734] to-[#16234e] + dotted-map-light + liseré + brandBadge « 🤝 Partenaires », CTA « Demander un devis » brandBtnGradient, secondaire contour blanc ; cartes avantages → style BrandCard (blanches, rounded-3xl, navy/10, gradient-ring hover) avec pastilles orange/azure/magenta ; qui-peut-devenir → section bg-[#f6f9ff] + cartes blanches ; titres sur fond blanc → .text-gradient-qrbag ; témoignages → avatars bg-gradient-qrbag, étoiles orange #f8921f ; formulaire → bandeau navy + <BrandCard corners> + brandInput + submit brandBtnGradient (fetch /api/messages type 'partenaire' intact) ; footer dupliqué supprimé
+- src/app/a-propos/page.tsx — héros navy + texture + brandBadge « À propos » ; mission → titre navy + barre dégradée bg-gradient-qrbag ; trio valeurs → cartes blanches pastilles orange/azure/magenta ; 4 croyances → cartes blanches sur bg-[#f6f9ff] avec pastilles numérotées bg-gradient-qrbag ; équipe → carte blanche navy/10, liens hover azure ; chiffres clés → bandeau navy + dotted-map-light, nombres .text-gradient-qrbag ; import Link inutilisé retiré
+- src/app/voyageurs-standard/page.tsx — suppression Navigation/Footer locaux, migration <PublicLayout> ; héros violet/orange #6d28d9→#e67e22 → navy from-[#0e1734] to-[#16234e] + dotted-map-light + liseré + brandBadge « ✈️ Voyageurs », accent titre → .text-gradient-qrbag, pills/stats glass white/10 border-white/15, vague → fill #ffffff ; étapes → cartes blanches, numéros bg-gradient-qrbag ; avantages → blanches sur #f6f9ff, encart RGPD dégradé doux violet/magenta/orange + pastille violet ; tarifs → prix .text-gradient-qrbag, badge POPULAIRE bg-gradient-qrbag, boutons brandBtnGradient/brandBtnNavy (style inline backgroundColor supprimé) ; témoignages étoiles orange ; CTA final → navy + texture + brandBtnGradient + lien partenaire #ffd200 ; routes /#contact, /demo, /devenir-partenaire conservées
+- src/app/demo/page.tsx — conteneur → bandeau navy dégradé + dotted-map-light + liseré + halos (l'ancien contenu text-white sur fond blanc PublicLayout était illisible) ; badge → brandBadge, titre « Essayez QRBag » .text-gradient-qrbag ; pills/timer → glass white/10 ; QR card → verre dépoli sur navy, carré QR blanc bordure navy/10, ligne de scan bg-gradient-qrbag, succès azure #2f9bff (plus de vert #4ade80/#25D366) ; carte map → placeholder #f6f9ff, pin bg-gradient-qrbag, ping magenta ; carte WhatsApp → carte blanche brandLabel/brandInput, aperçu azure ; succès → panneau bg-gradient-qrbag, « Recommencer » blanc/navy ; panache features → cartes blanches icônes azure/orange/violet/magenta ; tous les handlers (handleScan/handleLocation/handleWhatsApp/resetDemo/timer) et animations style-jsx intacts
+- Vérification : bun run lint → 0 erreur 0 warning ; dev serveur → /contact, /devenir-partenaire, /a-propos, /voyageurs-standard, /demo toutes 200 compilation OK ; grep zéro résidu bleu/indigo/vert (#4c1d95, #6d28d9, #25D366, #4ade80, slate, gray…) dans les 5 fichiers
+
+Stage Summary:
+- 5 pages publiques adoptent le héros signature étiquette QRBag : navy #16234e (ou dégradé #0e1734→#16234e) + .dotted-map-light + liseré/badge dégradé, titres blancs, sous-titres white/70
+- devenir-partenaire et voyageurs-standard désormais sur <PublicLayout> (nav liseré dégradé + footer navy dotted-map harmonisés, doublons supprimés)
+- Palette 100% charte : navy/azure/orange/rouge/magenta/violet + blanc ; aucun bleu/indigo, aucun vert (WhatsApp/succès → violet/azure), cartes blanches bordure navy/10 style BrandCard, CTA bg-gradient-qrbag
+- Toute la logique conservée : formulaires contact + partenaire (fetch /api/messages), démo interactive 4 étapes, states, timers, routes ; lint 0 erreur ; 5 routes testées 200
+
+---
+Task ID: 1
+Agent: Main Orchestrator (harmonisation globale)
+Task: Harmoniser TOUTES les pages du site avec la charte officielle QRBag (étiquette 7×10 : navy #16234e, azure #2f9bff, orange #f8921f, rouge #ef4036, magenta #e6216e, violet #8b17c9)
+
+Work Log:
+- globals.css : tokens shadcn rebrandés — --primary 217°bleu → 279° violet #8b17c9 (dark 279 80% 60%), --ring → azure 204 100% 59% (focus azure comme brandInput), sidebar active violet, KPI gradients réalignés (green→violet, blue→azure, purple→magenta, orange→orange→rouge signature, indigo→violet profond), badge-success/info, btn-primary, focus inputs, scrollbar hover
+- Migration automatique ordonnée sur 76 fichiers (sed) : 1) combos signature `from-blue-600 to-indigo-600` → `from-[#f8921f] via-[#e6216e] to-[#8b17c9]` + `hover:opacity-90` ; 2) classes indigo-* → violet-* ; 3) blue-* → violet-* ; 4) hex : #2563EB→#8b17c9, #3B82F6→#2f9bff, #1D4ED8→#6d28d9, #1E40AF→#4c1d95, vieux fonds sombres #080c1a→#0e1734, #1e3a2e→#233061, #0d5e34→#101b3f, #1e7e34→#2f9bff, #b8860b→#f8921f — y compris emails (lib/email.ts), QR serveur (qr-server.ts, restés sombres/scannables), permissions, scan-context
+- PublicLayout : liseré dégradé signature h-[3px] au-dessus de la nav + footer slate-900 → navy #16234e avec liseré dégradé + texture dotted-map-light
+- qr-label.ts officielle exclue du sweep (couleurs étiquette intactes)
+- Task 2-a (subagent) : expired + not-found + offline → BrandShell/BrandCard corners/BrandIconRing (WhatsApp #25D366 conservé, logique intacte)
+- Task 2-b (subagent) : hajj/activate + hajj-omra → BrandShell, fonds verts → navy #16234e/#0f1838, CTA gradient, 2 touches émeraude Hajj conservées
+- Task 2-c (subagent) : contact + devenir-partenaire + a-propos + voyageurs-standard + demo → héros navy + dotted-map-light + brandBadge, formulaires BrandCard corners + brandInput/brandBtnGradient, titres .text-gradient-qrbag
+- Vérification lint : 0 erreur après chaque étape
+- Vérification navigateur (1440×900 + 390×844) : /, /inscrire, /agence/connexion, /admin/connexion, /contact, /devenir-partenaire, /expired?ref=..., 404, /offline, /hajj-omra, /hajj/activate?qr=..., /admin/tableau-de-bord après login (sidebar+KPI violet/azure), footer navy — toutes conformes, aucune erreur console/serveur (hors detect-country externe préexistant)
+
+Stage Summary:
+- Tout le site (public, auth, dashboards admin/agence, emails) est désormais à la charte officielle QRBag : violet signature en primaire, azure en focus, dégradé orange→rouge→magenta→violet en CTA, navy en fonds sombres
+- Design system consolidé : BrandShell + tokens shadcn violets + utilitaires gradient/dotted-map
+- 81 fichiers modifiés au total ; prête pour commit/push (rappel : redeploy Coolify manuel nécessaire)

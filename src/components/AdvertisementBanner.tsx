@@ -125,7 +125,7 @@ export default function AdvertisementBanner({ position = 'top', className = '' }
   if (position === 'sidebar') {
     return (
       <div className={`mt-4 ${className}`}>
-        <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-[#2563EB] to-[#ff9f00] shadow-lg">
+        <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-[#8b17c9] to-[#ff9f00] shadow-lg">
           {/* Close button */}
           <button
             onClick={() => handleDismiss(currentAd.id)}

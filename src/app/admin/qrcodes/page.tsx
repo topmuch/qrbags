@@ -377,10 +377,10 @@ export default function QRCodesPage() {
 
   // KPI Cards
   const kpiCards = [
-    { title: 'Total Sets', value: stats.totalSets, icon: QrCode, color: 'text-[#b8860b]' },
+    { title: 'Total Sets', value: stats.totalSets, icon: QrCode, color: 'text-[#f8921f]' },
     { title: 'Total QR', value: stats.totalQr, icon: Luggage, color: 'text-white' },
     { title: 'Hajj', value: stats.hajjSets, icon: Plane, color: 'text-green-400' },
-    { title: 'Voyageur', value: stats.voyageurSets, icon: Luggage, color: 'text-blue-600' },
+    { title: 'Voyageur', value: stats.voyageurSets, icon: Luggage, color: 'text-violet-600' },
   ];
 
   // Calculate total QR in selection
@@ -389,7 +389,7 @@ export default function QRCodesPage() {
     .reduce((sum, s) => sum + s.qrCount, 0);
 
   return (
-    <div className="min-h-screen bg-[#080c1a]">
+    <div className="min-h-screen bg-[#0e1734]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -409,14 +409,14 @@ export default function QRCodesPage() {
             {/* Export ZIP Button */}
             <button
               onClick={() => setShowExportModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1e7e34] to-[#0d5e34] text-white rounded-lg hover:from-[#228b22] hover:to-[#1e7e34] transition-all shadow-lg shadow-green-900/30"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#2f9bff] to-[#101b3f] text-white rounded-lg hover:from-[#228b22] hover:to-[#2f9bff] transition-all shadow-lg shadow-green-900/30"
             >
               <Archive className="w-4 h-4" />
               Export ZIP
             </button>
             <Link
               href="/admin/generer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#b8860b] text-white rounded-lg hover:bg-[#3b82f6] transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#f8921f] text-white rounded-lg hover:bg-[#2f9bff] transition-colors"
             >
               <Plus className="w-4 h-4" />
               Générer nouveau
@@ -442,7 +442,7 @@ export default function QRCodesPage() {
 
         {/* Selection Info Bar */}
         {selectedSetIds.size > 0 && (
-          <div className="mb-4 px-5 py-3 bg-gradient-to-r from-[#0d5e34] to-[#1e7e34] rounded-xl border border-[#0d5e34] flex items-center justify-between">
+          <div className="mb-4 px-5 py-3 bg-gradient-to-r from-[#101b3f] to-[#2f9bff] rounded-xl border border-[#101b3f] flex items-center justify-between">
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-white" />
               <span className="text-white font-medium">
@@ -455,7 +455,7 @@ export default function QRCodesPage() {
                   setShowExportModal(true);
                   setExportForm(prev => ({ ...prev, mode: 'selected' }));
                 }}
-                className="px-3 py-1.5 bg-white text-[#0d5e34] rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center gap-1"
+                className="px-3 py-1.5 bg-white text-[#101b3f] rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center gap-1"
               >
                 <Archive className="w-3.5 h-3.5" />
                 Exporter ZIP
@@ -478,7 +478,7 @@ export default function QRCodesPage() {
               placeholder="Rechercher par référence ou set..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#0d152a] border border-[#1a2238] rounded-lg py-3 px-4 text-[#e0e6f0] placeholder-[#a0a8b8] focus:outline-none focus:border-[#b8860b]/50"
+              className="w-full bg-[#0d152a] border border-[#1a2238] rounded-lg py-3 px-4 text-[#e0e6f0] placeholder-[#a0a8b8] focus:outline-none focus:border-[#f8921f]/50"
             />
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a0a8b8]" />
           </div>
@@ -489,7 +489,7 @@ export default function QRCodesPage() {
                 onClick={() => setTypeFilter(btn.id)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   typeFilter === btn.id
-                    ? 'bg-[#b8860b] text-white'
+                    ? 'bg-[#f8921f] text-white'
                     : 'bg-[#0d152a] text-[#a0a8b8] hover:bg-[#1a2238]'
                 }`}
               >
@@ -515,7 +515,7 @@ export default function QRCodesPage() {
             </div>
             <button
               onClick={fetchSets}
-              className="px-4 py-2 bg-[#b8860b] text-white rounded-lg text-sm font-medium hover:bg-[#a0760a] transition-colors shrink-0"
+              className="px-4 py-2 bg-[#f8921f] text-white rounded-lg text-sm font-medium hover:bg-[#a0760a] transition-colors shrink-0"
             >
               Réessayer
             </button>
@@ -526,7 +526,7 @@ export default function QRCodesPage() {
         <div className="space-y-3">
           {loading ? (
             <div className="text-center py-12">
-              <div className="w-12 h-12 border-2 border-[#b8860b]/30 border-t-[#b8860b] rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-12 h-12 border-2 border-[#f8921f]/30 border-t-[#f8921f] rounded-full animate-spin mx-auto mb-4" />
               <p className="text-[#a0a8b8]">Chargement...</p>
             </div>
           ) : sets.length === 0 ? (
@@ -547,7 +547,7 @@ export default function QRCodesPage() {
                   type="checkbox"
                   checked={selectAll}
                   onChange={toggleSelectAll}
-                  className="w-4 h-4 rounded border-[#1a2238] bg-[#080c1a] text-[#b8860b] focus:ring-[#b8860b] accent-[#b8860b]"
+                  className="w-4 h-4 rounded border-[#1a2238] bg-[#0e1734] text-[#f8921f] focus:ring-[#f8921f] accent-[#f8921f]"
                 />
                 <span className="text-[#a0a8b8] text-sm">
                   Tout sélectionner ({sets.length} sets)
@@ -559,7 +559,7 @@ export default function QRCodesPage() {
                   key={set.id}
                   className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-xl border gap-4 transition-colors ${
                     selectedSetIds.has(set.setId)
-                      ? 'bg-[#0d5e34]/10 border-[#0d5e34]/50'
+                      ? 'bg-[#101b3f]/10 border-[#101b3f]/50'
                       : 'bg-[#0a0f2c] border-[#1a1a3a]'
                   }`}
                 >
@@ -569,10 +569,10 @@ export default function QRCodesPage() {
                       type="checkbox"
                       checked={selectedSetIds.has(set.setId)}
                       onChange={() => toggleSetSelection(set.setId)}
-                      className="mt-1 w-4 h-4 rounded border-[#1a2238] bg-[#080c1a] text-[#b8860b] focus:ring-[#b8860b] accent-[#b8860b]"
+                      className="mt-1 w-4 h-4 rounded border-[#1a2238] bg-[#0e1734] text-[#f8921f] focus:ring-[#f8921f] accent-[#f8921f]"
                     />
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      set.type === 'hajj' ? 'bg-[#0d5e34]' : 'bg-[#7a3e00]'
+                      set.type === 'hajj' ? 'bg-[#101b3f]' : 'bg-[#7a3e00]'
                     }`}>
                       {set.type === 'hajj' ? (
                         <Plane className="h-5 w-5 text-white" />
@@ -584,7 +584,7 @@ export default function QRCodesPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-white">{set.setId}</h3>
-                        <span className="px-2 py-0.5 bg-[#0d5e34] text-[#e0e6f0] text-xs rounded">
+                        <span className="px-2 py-0.5 bg-[#101b3f] text-[#e0e6f0] text-xs rounded">
                           Nouveau
                         </span>
                       </div>
@@ -609,7 +609,7 @@ export default function QRCodesPage() {
                         setSelectedSet(set);
                         setShowDetailModal(true);
                       }}
-                      className="w-10 h-10 rounded-lg bg-[#0d5e34] flex items-center justify-center text-white hover:bg-[#1e7e34] transition-colors"
+                      className="w-10 h-10 rounded-lg bg-[#101b3f] flex items-center justify-center text-white hover:bg-[#2f9bff] transition-colors"
                       title="Voir détails"
                     >
                       <Eye className="h-4 w-4" />
@@ -619,7 +619,7 @@ export default function QRCodesPage() {
                     <button
                       onClick={() => handleDownloadSet(set)}
                       disabled={isDownloading && selectedSet?.id === set.id}
-                      className="w-10 h-10 rounded-lg bg-[#b8860b] flex items-center justify-center text-white hover:bg-[#3b82f6] transition-colors disabled:opacity-50"
+                      className="w-10 h-10 rounded-lg bg-[#f8921f] flex items-center justify-center text-white hover:bg-[#2f9bff] transition-colors disabled:opacity-50"
                       title="Télécharger ZIP"
                     >
                       {isDownloading && selectedSet?.id === set.id ? (
@@ -632,7 +632,7 @@ export default function QRCodesPage() {
                     {/* Share Button */}
                     <button
                       onClick={() => handleShareSet(set)}
-                      className="w-10 h-10 rounded-lg bg-[#1e7e34] flex items-center justify-center text-white hover:bg-[#228b22] transition-colors"
+                      className="w-10 h-10 rounded-lg bg-[#2f9bff] flex items-center justify-center text-white hover:bg-[#228b22] transition-colors"
                       title="Partager"
                     >
                       <Share2 className="h-4 w-4" />
@@ -663,7 +663,7 @@ export default function QRCodesPage() {
           </span>
           <Link
             href="/admin"
-            className="text-[#b8860b] text-sm hover:underline"
+            className="text-[#f8921f] text-sm hover:underline"
           >
             ← Retour au dashboard
           </Link>
@@ -676,7 +676,7 @@ export default function QRCodesPage() {
           <div className="bg-[#0d152a] border border-[#1a2238] rounded-xl max-w-lg w-full">
             <div className="flex items-center justify-between p-6 border-b border-[#1a2238]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#1e7e34] to-[#0d5e34] rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-[#2f9bff] to-[#101b3f] rounded-lg flex items-center justify-center">
                   <Archive className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -705,8 +705,8 @@ export default function QRCodesPage() {
                     onClick={() => setExportForm(prev => ({ ...prev, mode: 'selected' }))}
                     className={`p-3 rounded-xl border text-center transition-all ${
                       exportForm.mode === 'selected'
-                        ? 'bg-[#0d5e34] border-[#0d5e34] text-white'
-                        : 'bg-[#080c1a] border-[#1a2238] text-[#a0a8b8] hover:border-[#2a2a3a]'
+                        ? 'bg-[#101b3f] border-[#101b3f] text-white'
+                        : 'bg-[#0e1734] border-[#1a2238] text-[#a0a8b8] hover:border-[#2a2a3a]'
                     }`}
                   >
                     <CheckCircle className="w-5 h-5 mx-auto mb-1" />
@@ -717,8 +717,8 @@ export default function QRCodesPage() {
                     onClick={() => setExportForm(prev => ({ ...prev, mode: 'agency' }))}
                     className={`p-3 rounded-xl border text-center transition-all ${
                       exportForm.mode === 'agency'
-                        ? 'bg-[#0d5e34] border-[#0d5e34] text-white'
-                        : 'bg-[#080c1a] border-[#1a2238] text-[#a0a8b8] hover:border-[#2a2a3a]'
+                        ? 'bg-[#101b3f] border-[#101b3f] text-white'
+                        : 'bg-[#0e1734] border-[#1a2238] text-[#a0a8b8] hover:border-[#2a2a3a]'
                     }`}
                   >
                     <Filter className="w-5 h-5 mx-auto mb-1" />
@@ -729,8 +729,8 @@ export default function QRCodesPage() {
                     onClick={() => setExportForm(prev => ({ ...prev, mode: 'type' }))}
                     className={`p-3 rounded-xl border text-center transition-all ${
                       exportForm.mode === 'type'
-                        ? 'bg-[#0d5e34] border-[#0d5e34] text-white'
-                        : 'bg-[#080c1a] border-[#1a2238] text-[#a0a8b8] hover:border-[#2a2a3a]'
+                        ? 'bg-[#101b3f] border-[#101b3f] text-white'
+                        : 'bg-[#0e1734] border-[#1a2238] text-[#a0a8b8] hover:border-[#2a2a3a]'
                     }`}
                   >
                     <QrCode className="w-5 h-5 mx-auto mb-1" />
@@ -747,7 +747,7 @@ export default function QRCodesPage() {
                   <select
                     value={exportForm.agencyId}
                     onChange={(e) => setExportForm(prev => ({ ...prev, agencyId: e.target.value }))}
-                    className="w-full bg-[#080c1a] border border-[#1a2238] rounded-lg py-3 px-4 text-[#e0e6f0] focus:outline-none focus:border-[#b8860b]/50"
+                    className="w-full bg-[#0e1734] border border-[#1a2238] rounded-lg py-3 px-4 text-[#e0e6f0] focus:outline-none focus:border-[#f8921f]/50"
                   >
                     <option value="">Sélectionner une agence</option>
                     {exportAgencies.map(agency => (
@@ -766,8 +766,8 @@ export default function QRCodesPage() {
                       onClick={() => setExportForm(prev => ({ ...prev, type: 'hajj' }))}
                       className={`p-3 rounded-xl border text-center transition-all ${
                         exportForm.type === 'hajj'
-                          ? 'bg-[#0d5e34] border-[#0d5e34] text-white'
-                          : 'bg-[#080c1a] border-[#1a2238] text-[#a0a8b8]'
+                          ? 'bg-[#101b3f] border-[#101b3f] text-white'
+                          : 'bg-[#0e1734] border-[#1a2238] text-[#a0a8b8]'
                       }`}
                     >
                       <Plane className="w-5 h-5 mx-auto mb-1" />
@@ -777,8 +777,8 @@ export default function QRCodesPage() {
                       onClick={() => setExportForm(prev => ({ ...prev, type: 'voyageur' }))}
                       className={`p-3 rounded-xl border text-center transition-all ${
                         exportForm.type === 'voyageur'
-                          ? 'bg-[#1D4ED8] border-[#1D4ED8] text-white'
-                          : 'bg-[#080c1a] border-[#1a2238] text-[#a0a8b8]'
+                          ? 'bg-[#6d28d9] border-[#6d28d9] text-white'
+                          : 'bg-[#0e1734] border-[#1a2238] text-[#a0a8b8]'
                       }`}
                     >
                       <Luggage className="w-5 h-5 mx-auto mb-1" />
@@ -789,7 +789,7 @@ export default function QRCodesPage() {
               )}
 
               {/* Export Summary */}
-              <div className="bg-[#080c1a] rounded-xl p-4 border border-[#1a2238]">
+              <div className="bg-[#0e1734] rounded-xl p-4 border border-[#1a2238]">
                 <h4 className="text-[#a0a8b8] text-sm mb-2">Résumé de l'export</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -824,9 +824,9 @@ export default function QRCodesPage() {
               </div>
 
               {/* Structure preview */}
-              <div className="bg-[#080c1a] rounded-xl p-4 border border-[#1a2238]">
+              <div className="bg-[#0e1734] rounded-xl p-4 border border-[#1a2238]">
                 <h4 className="text-[#a0a8b8] text-sm mb-2">Structure du ZIP</h4>
-                <pre className="text-[#0d5e34] text-xs leading-5 font-mono">
+                <pre className="text-[#101b3f] text-xs leading-5 font-mono">
 {`QRBag-export.zip
 ├── Passager-001-HAJJ-2026-ABCD/
 │   ├── bagage-1-cabine-HAJJ26-XXXXXX.png
@@ -841,11 +841,11 @@ export default function QRCodesPage() {
 
               {/* Progress */}
               {exportProgress && (
-                <div className="flex items-center gap-3 px-4 py-3 bg-[#080c1a] rounded-xl border border-[#1a2238]">
+                <div className="flex items-center gap-3 px-4 py-3 bg-[#0e1734] rounded-xl border border-[#1a2238]">
                   {isExporting ? (
-                    <Loader2 className="w-5 h-5 text-[#0d5e34] animate-spin" />
+                    <Loader2 className="w-5 h-5 text-[#101b3f] animate-spin" />
                   ) : (
-                    <CheckCircle className="w-5 h-5 text-[#0d5e34]" />
+                    <CheckCircle className="w-5 h-5 text-[#101b3f]" />
                   )}
                   <span className="text-[#e0e6f0] text-sm">{exportProgress}</span>
                 </div>
@@ -868,7 +868,7 @@ export default function QRCodesPage() {
                 <button
                   onClick={handleExportZip}
                   disabled={isExporting}
-                  className="flex-1 py-3 bg-gradient-to-r from-[#1e7e34] to-[#0d5e34] text-white rounded-lg hover:from-[#228b22] hover:to-[#1e7e34] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-green-900/30"
+                  className="flex-1 py-3 bg-gradient-to-r from-[#2f9bff] to-[#101b3f] text-white rounded-lg hover:from-[#228b22] hover:to-[#2f9bff] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-green-900/30"
                 >
                   {isExporting ? (
                     <>
@@ -926,7 +926,7 @@ export default function QRCodesPage() {
                       level="H"
                       includeMargin={true}
                       bgColor="#ffffff"
-                      fgColor={selectedSet.type === 'hajj' ? '#0d5e34' : '#1D4ED8'}
+                      fgColor={selectedSet.type === 'hajj' ? '#101b3f' : '#6d28d9'}
                     />
                     <p className="text-gray-800 font-mono font-bold mt-2 text-sm">
                       {ref}
@@ -954,14 +954,14 @@ export default function QRCodesPage() {
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={() => handleDownloadSet(selectedSet)}
-                  className="flex-1 py-3 bg-[#b8860b] text-white rounded-lg hover:bg-[#3b82f6] transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[#f8921f] text-white rounded-lg hover:bg-[#2f9bff] transition-colors flex items-center justify-center gap-2"
                 >
                   <FileArchive className="w-4 h-4" />
                   Télécharger ZIP
                 </button>
                 <button
                   onClick={() => handleShareSet(selectedSet)}
-                  className="flex-1 py-3 bg-[#0d5e34] text-white rounded-lg hover:bg-[#1e7e34] transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[#101b3f] text-white rounded-lg hover:bg-[#2f9bff] transition-colors flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-4 h-4" />
                   Partager

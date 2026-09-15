@@ -14,36 +14,35 @@
   --border-color: #e2e8f0;
   --card-bg: #ffffff;
   
-  /* Primary Brand Colors */
-  --primary: #2563EB;
-  --primary-light: #3B82F6;
-  --primary-dark: #1D4ED8;
+  /* Primary Brand Colors — QRBag violet signature (#8b17c9 étiquette officielle) */
+  --primary-light: #a855f7;
+  --primary-dark: #6d28d9;
   
   /* Sidebar Colors - White Modern */
   --sidebar-bg: #ffffff;
   --sidebar-text: #475569;
-  --sidebar-text-active: #2563EB;
+  --sidebar-text-active: #8b17c9;
   --sidebar-border: #e2e8f0;
   --sidebar-hover: #f8fafc;
-  --sidebar-active-bg: rgba(37, 99, 235, 0.1);
+  --sidebar-active-bg: rgba(139, 23, 201, 0.1);
   
-  /* KPI Card Colors - Modern Gradient */
-  --kpi-green: #2563EB;
-  --kpi-green-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-  --kpi-blue: #3b82f6;
-  --kpi-blue-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  --kpi-purple: #8b5cf6;
-  --kpi-purple-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  --kpi-orange: #f59e0b;
-  --kpi-orange-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  /* KPI Card Colors — palette QRBag (violet, azure, magenta, orange signature) */
+  --kpi-green: #8b17c9;
+  --kpi-green-gradient: linear-gradient(135deg, #8b17c9 0%, #6a10a3 100%);
+  --kpi-blue: #2f9bff;
+  --kpi-blue-gradient: linear-gradient(135deg, #2f9bff 0%, #1877d2 100%);
+  --kpi-purple: #e6216e;
+  --kpi-purple-gradient: linear-gradient(135deg, #e6216e 0%, #b8125a 100%);
+  --kpi-orange: #f8921f;
+  --kpi-orange-gradient: linear-gradient(135deg, #f8921f 0%, #ef4036 100%);
   --kpi-cyan: #06b6d4;
   --kpi-cyan-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
   --kpi-red: #ef4444;
   --kpi-red-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   --kpi-pink: #ec4899;
   --kpi-pink-gradient: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-  --kpi-indigo: #6366f1;
-  --kpi-indigo-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  --kpi-indigo: #6d28d9;
+  --kpi-indigo-gradient: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
   
   /* Theme variables for shadcn */
   --background: 210 40% 98%;
@@ -52,7 +51,8 @@
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-  --primary: 217 91% 60%;
+  /* QRBag — primary violet signature, focus azure (comme brandInput) */
+  --primary: 279 80% 44%;
   --primary-foreground: 0 0% 100%;
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
@@ -64,7 +64,7 @@
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 217 91% 60%;
+  --ring: 204 100% 59%;
   --radius: 0.75rem;
 }
 
@@ -82,10 +82,10 @@
   /* Sidebar Colors - Dark Modern */
   --sidebar-bg: #1e293b;
   --sidebar-text: #94a3b8;
-  --sidebar-text-active: #2563EB;
+  --sidebar-text-active: #c084fc;
   --sidebar-border: #334155;
   --sidebar-hover: #334155;
-  --sidebar-active-bg: rgba(37, 99, 235, 0.15);
+  --sidebar-active-bg: rgba(192, 132, 252, 0.15);
   
   /* Theme variables for shadcn */
   --background: 222.2 84% 4.9%;
@@ -94,7 +94,7 @@
   --card-foreground: 210 40% 98%;
   --popover: 222.2 84% 4.9%;
   --popover-foreground: 210 40% 98%;
-  --primary: 217 91% 60%;
+  --primary: 279 80% 60%;
   --primary-foreground: 0 0% 100%;
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
@@ -106,7 +106,7 @@
   --destructive-foreground: 210 40% 98%;
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 217 91% 60%;
+  --ring: 204 100% 59%;
 }
 
 @theme inline {
@@ -171,7 +171,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2563EB;
+  background: #8b17c9;
 }
 
 /* ============================================
@@ -205,39 +205,39 @@
 
 /* KPI Card Color Variants */
 .kpi-card-green {
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.25);
+  background: linear-gradient(135deg, #8b17c9 0%, #6a10a3 100%);
+  box-shadow: 0 4px 20px rgba(139, 23, 201, 0.25);
 }
 
 .kpi-card-green:hover {
-  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 8px 30px rgba(139, 23, 201, 0.35);
 }
 
 .kpi-card-blue {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25);
+  background: linear-gradient(135deg, #2f9bff 0%, #1877d2 100%);
+  box-shadow: 0 4px 20px rgba(47, 155, 255, 0.25);
 }
 
 .kpi-card-blue:hover {
-  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 8px 30px rgba(47, 155, 255, 0.35);
 }
 
 .kpi-card-purple {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
+  background: linear-gradient(135deg, #e6216e 0%, #b8125a 100%);
+  box-shadow: 0 4px 20px rgba(230, 33, 110, 0.25);
 }
 
 .kpi-card-purple:hover {
-  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);
+  box-shadow: 0 8px 30px rgba(230, 33, 110, 0.35);
 }
 
 .kpi-card-orange {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
+  background: linear-gradient(135deg, #f8921f 0%, #ef4036 100%);
+  box-shadow: 0 4px 20px rgba(248, 146, 31, 0.25);
 }
 
 .kpi-card-orange:hover {
-  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 8px 30px rgba(248, 146, 31, 0.35);
 }
 
 .kpi-card-cyan {
@@ -277,12 +277,12 @@
 }
 
 .kpi-card-indigo {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+  background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%);
+  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.25);
 }
 
 .kpi-card-indigo:hover {
-  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 8px 30px rgba(109, 40, 217, 0.35);
 }
 
 /* Mini Chart Bars */
@@ -307,7 +307,7 @@
 
 /* Trend Indicators */
 .trend-up {
-  color: #3B82F6;
+  color: #2f9bff;
 }
 
 .trend-down {
@@ -357,7 +357,7 @@
   transform: translateY(-50%);
   width: 3px;
   height: 24px;
-  background: var(--primary);
+  background: hsl(var(--primary));
   border-radius: 0 4px 4px 0;
 }
 
@@ -512,7 +512,7 @@
    ============================================ */
 
 .btn-primary {
-  background: var(--primary);
+  background: hsl(var(--primary));
   color: white;
   padding: 10px 20px;
   border-radius: 10px;
@@ -523,7 +523,7 @@
 .btn-primary:hover {
   background: var(--primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 23, 201, 0.3);
 }
 
 .btn-secondary {
@@ -545,7 +545,7 @@
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(139, 23, 201, 0.15) !important;
 }
 
 /* ============================================
@@ -622,8 +622,8 @@ body * {
 }
 
 .badge-success {
-  background: rgba(37, 99, 235, 0.1);
-  color: #1D4ED8;
+  background: rgba(139, 23, 201, 0.1);
+  color: #6d28d9;
 }
 
 .badge-warning {
@@ -637,8 +637,8 @@ body * {
 }
 
 .badge-info {
-  background: rgba(59, 130, 246, 0.1);
-  color: #2563eb;
+  background: rgba(47, 155, 255, 0.12);
+  color: #1877d2;
 }
 
 /* ============================================

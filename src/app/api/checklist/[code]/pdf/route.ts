@@ -110,7 +110,7 @@ export async function GET(
   .icon{font-size:3rem;margin-bottom:1rem}
   h2{margin:0 0 0.5rem;font-size:1.2rem;color:#dc2626}
   p{margin:0 0 1rem;font-size:0.9rem;color:#64748b}
-  a{color:#2563eb;text-decoration:underline}</style></head>
+  a{color:#8b17c9;text-decoration:underline}</style></head>
   <body><div class="box">
   <div class="icon">⚠️</div>
   <h2>Erreur de génération du PDF</h2>

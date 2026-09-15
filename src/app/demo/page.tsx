@@ -3,7 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PublicLayout from '@/components/public/PublicLayout';
-import { Button } from "@/components/ui/button";
+import {
+  brandBadge,
+  brandBtnGradient,
+  brandInput,
+  brandLabel,
+} from '@/components/brand/BrandShell';
 import {
   QrCode,
   MapPin,
@@ -98,8 +103,8 @@ export default function DemoPage() {
 
   // Timer display for header
   const headerExtra = currentStep !== 'intro' && currentStep !== 'success' ? (
-    <div className="flex items-center gap-2 bg-[#0d1220] px-4 py-2 rounded-full border border-[#1a2238]">
-      <Clock className="w-4 h-4 text-[#1E40AF]" />
+    <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/15">
+      <Clock className="w-4 h-4 text-[#f8921f]" aria-hidden />
       <span className="text-white font-mono">{formatTime(elapsedTime)}</span>
     </div>
   ) : null;
@@ -113,61 +118,61 @@ export default function DemoPage() {
         </div>
       )}
 
-      <div className="relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1E40AF]/10 via-transparent to-[#1D4ED8]/10 pointer-events-none" />
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#1E40AF]/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#1D4ED8]/20 rounded-full blur-3xl animate-pulse" />
+      {/* Panneau démo — bandeau navy étiquette QRBag */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0e1734] to-[#16234e]">
+        {/* Liseré dégradé signature + texture pointillée + halos */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
+        <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#e6216e]/15 rounded-full blur-3xl pointer-events-none" aria-hidden />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#2f9bff]/15 rounded-full blur-3xl pointer-events-none" aria-hidden />
 
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
 
           {/* INTRO STEP */}
           {currentStep === 'intro' && (
             <div className="text-center py-16 animate-fade-in">
               <div className="inline-flex items-center gap-2 mb-6">
-                <span className="px-4 py-2 bg-[#1E40AF]/20 border border-[#1E40AF]/50 text-[#1E40AF] text-sm rounded-full font-medium animate-pulse">
-                  ✨ Découverte interactive
-                </span>
+                <span className={brandBadge}>✨ Découverte interactive</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-[#1E40AF] to-[#1D4ED8] bg-clip-text text-transparent">
+                <span className="text-gradient-qrbag">
                   Essayez QRBag
                 </span>
                 <br />
                 <span className="text-white">en 60 secondes</span>
               </h1>
 
-              <p className="text-[#a0a8b8] max-w-2xl mx-auto mb-8 text-lg">
+              <p className="text-white/70 max-w-2xl mx-auto mb-8 text-lg">
                 Aucun compte, aucune application. Juste un QR code… et magie.
                 Découvrez comment protéger vos bagages en moins d&apos;une minute.
               </p>
 
               {/* Features Pills */}
               <div className="flex flex-wrap justify-center gap-4 mb-12">
-                <div className="flex items-center gap-2 bg-[#0d1220] px-4 py-2 rounded-full border border-[#1a2238]">
-                  <Smartphone className="w-4 h-4 text-[#1E40AF]" />
-                  <span className="text-[#a0a8b8] text-sm">Sans application</span>
+                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/15">
+                  <Smartphone className="w-4 h-4 text-[#2f9bff]" aria-hidden />
+                  <span className="text-white/80 text-sm">Sans application</span>
                 </div>
-                <div className="flex items-center gap-2 bg-[#0d1220] px-4 py-2 rounded-full border border-[#1a2238]">
-                  <Battery className="w-4 h-4 text-[#1D4ED8]" />
-                  <span className="text-[#a0a8b8] text-sm">Sans batterie</span>
+                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/15">
+                  <Battery className="w-4 h-4 text-[#f8921f]" aria-hidden />
+                  <span className="text-white/80 text-sm">Sans batterie</span>
                 </div>
-                <div className="flex items-center gap-2 bg-[#0d1220] px-4 py-2 rounded-full border border-[#1a2238]">
-                  <Zap className="w-4 h-4 text-[#1E40AF]" />
-                  <span className="text-[#a0a8b8] text-sm">30 secondes</span>
+                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/15">
+                  <Zap className="w-4 h-4 text-[#e6216e]" aria-hidden />
+                  <span className="text-white/80 text-sm">30 secondes</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setCurrentStep('scan')}
-                className="bg-[#1E40AF] text-white px-10 py-5 rounded-xl font-bold text-xl hover:bg-[#e01e5a] transition-all transform hover:scale-105 shadow-lg shadow-[#1E40AF]/30 inline-flex items-center gap-3"
+                className={`${brandBtnGradient} px-10 py-5 text-xl min-h-[56px] inline-flex items-center gap-3`}
               >
-                <span className="text-2xl">▶️</span>
+                <span className="text-2xl" aria-hidden>▶️</span>
                 Démarrer la démo
               </button>
 
-              <p className="mt-6 text-[#a0a8b8] text-sm">
+              <p className="mt-6 text-white/60 text-sm">
                 Simulation interactive • Aucune donnée réelle requise
               </p>
             </div>
@@ -177,12 +182,12 @@ export default function DemoPage() {
           {currentStep === 'scan' && (
             <div className="text-center py-8 animate-fade-in">
               {/* Progress */}
-              <div className="flex items-center justify-center gap-2 mb-8">
+              <div className="flex items-center justify-center gap-2 mb-8" aria-hidden>
                 {[1, 2, 3].map((step) => (
                   <div
                     key={step}
                     className={`w-3 h-3 rounded-full transition-all ${
-                      step === 1 ? 'bg-[#1E40AF] w-8' : 'bg-[#1a2238]'
+                      step === 1 ? 'bg-gradient-qrbag w-8' : step < 1 ? 'bg-[#2f9bff]' : 'bg-white/20'
                     }`}
                   />
                 ))}
@@ -191,7 +196,7 @@ export default function DemoPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Étape 1 : Scannez le QR
               </h2>
-              <p className="text-[#a0a8b8] mb-8">
+              <p className="text-white/70 mb-8">
                 Imaginez que vous scannez le QR code sur votre bagage
               </p>
 
@@ -199,41 +204,41 @@ export default function DemoPage() {
               <div className="flex justify-center mb-8">
                 <div className={`relative ${isAnimating ? 'animate-pulse' : ''}`}>
                   {/* Glow */}
-                  <div className="absolute inset-0 bg-[#1E40AF]/30 blur-3xl rounded-full" />
+                  <div className="absolute inset-0 bg-[#e6216e]/25 blur-3xl rounded-full" aria-hidden />
 
                   {/* QR Card */}
-                  <div className={`relative bg-[#0d1220] rounded-3xl p-8 border-2 transition-all duration-500 ${
-                    scanComplete ? 'border-[#1e3a2e] bg-[#1e3a2e]/20' : 'border-[#1E40AF]/50'
+                  <div className={`relative bg-white/10 backdrop-blur rounded-3xl p-8 border-2 transition-all duration-500 ${
+                    scanComplete ? 'border-[#2f9bff]/60 bg-[#2f9bff]/10' : 'border-white/15'
                   }`}>
-                    <div className="w-56 h-56 bg-white rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="w-56 h-56 max-w-full bg-white rounded-2xl flex flex-col items-center justify-center relative overflow-hidden border border-[#16234e]/10">
                       {/* Scan Animation */}
                       {isAnimating && (
-                        <div className="absolute inset-0 bg-[#1E40AF]/20 flex items-center justify-center">
-                          <div className="w-full h-1 bg-[#1E40AF] animate-scan" />
+                        <div className="absolute inset-0 bg-[#2f9bff]/10 flex items-center justify-center">
+                          <div className="w-full h-1 bg-gradient-qrbag animate-scan" />
                         </div>
                       )}
 
                       {scanComplete ? (
                         <div className="flex flex-col items-center animate-bounce">
-                          <CheckCircle className="w-24 h-24 text-[#1e3a2e]" />
-                          <span className="text-[#1e3a2e] font-bold mt-2">Activé !</span>
+                          <CheckCircle className="w-24 h-24 text-[#16234e]" aria-hidden />
+                          <span className="text-[#16234e] font-bold mt-2">Activé !</span>
                         </div>
                       ) : (
                         <>
-                          <QrCode className="w-36 h-36 text-[#080c1a]" />
-                          <p className="text-[#080c1a] font-mono text-lg mt-2 font-bold">DEMO-001</p>
+                          <QrCode className="w-36 h-36 text-[#16234e]" aria-hidden />
+                          <p className="text-[#16234e] font-mono text-lg mt-2 font-bold">DEMO-001</p>
                         </>
                       )}
                     </div>
 
                     <div className="mt-6 text-center">
                       {scanComplete ? (
-                        <div className="flex items-center justify-center gap-2 text-[#4ade80]">
-                          <CheckCircle className="w-5 h-5" />
+                        <div className="flex items-center justify-center gap-2 text-[#2f9bff]">
+                          <CheckCircle className="w-5 h-5" aria-hidden />
                           <span className="font-medium">Bagage activé avec succès !</span>
                         </div>
                       ) : (
-                        <p className="text-[#a0a8b8]">Référence: DEMO-001</p>
+                        <p className="text-white/60">Référence: DEMO-001</p>
                       )}
                     </div>
                   </div>
@@ -241,29 +246,29 @@ export default function DemoPage() {
               </div>
 
               {!scanComplete && (
-                <Button
+                <button
                   onClick={handleScan}
                   disabled={isAnimating}
-                  className="bg-[#1E40AF] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#e01e5a] transition-all transform hover:scale-105 shadow-lg shadow-[#1E40AF]/30 inline-flex items-center gap-2 disabled:opacity-50"
+                  className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px] inline-flex items-center gap-2`}
                 >
                   {isAnimating ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
                       Scan en cours...
                     </>
                   ) : (
                     <>
-                      <Smartphone className="w-5 h-5" />
+                      <Smartphone className="w-5 h-5" aria-hidden />
                       Simuler le scan
                     </>
                   )}
-                </Button>
+                </button>
               )}
 
               {scanComplete && (
                 <div className="animate-fade-in">
-                  <p className="text-[#a0a8b8] mb-4">Préparation de la localisation...</p>
-                  <ArrowRight className="w-6 h-6 text-[#1E40AF] animate-bounce mx-auto" />
+                  <p className="text-white/70 mb-4">Préparation de la localisation...</p>
+                  <ArrowRight className="w-6 h-6 text-[#f8921f] animate-bounce mx-auto" aria-hidden />
                 </div>
               )}
             </div>
@@ -273,12 +278,12 @@ export default function DemoPage() {
           {currentStep === 'location' && (
             <div className="text-center py-8 animate-fade-in">
               {/* Progress */}
-              <div className="flex items-center justify-center gap-2 mb-8">
+              <div className="flex items-center justify-center gap-2 mb-8" aria-hidden>
                 {[1, 2, 3].map((step) => (
                   <div
                     key={step}
                     className={`w-3 h-3 rounded-full transition-all ${
-                      step === 2 ? 'bg-[#1D4ED8] w-8' : step < 2 ? 'bg-[#1E40AF]' : 'bg-[#1a2238]'
+                      step === 2 ? 'bg-gradient-qrbag w-8' : step < 2 ? 'bg-[#2f9bff]' : 'bg-white/20'
                     }`}
                   />
                 ))}
@@ -287,40 +292,40 @@ export default function DemoPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Étape 2 : Localisez-le
               </h2>
-              <p className="text-[#a0a8b8] mb-8">
+              <p className="text-white/70 mb-8">
                 Partagez votre position pour faciliter la récupération
               </p>
 
               {/* Map Display */}
               <div className="flex justify-center mb-8">
                 <div className="relative">
-                  <div className="bg-[#0d1220] rounded-3xl p-4 border border-[#1a2238] overflow-hidden">
+                  <div className="bg-white/10 backdrop-blur rounded-3xl p-4 border border-white/15 overflow-hidden">
                     {/* Map Placeholder */}
-                    <div className={`w-80 h-64 bg-[#1a2238] rounded-2xl relative overflow-hidden transition-all ${
-                      locationShared ? 'border-2 border-[#1e3a2e]' : ''
+                    <div className={`w-80 max-w-full h-64 bg-[#f6f9ff] rounded-2xl relative overflow-hidden transition-all ${
+                      locationShared ? 'ring-2 ring-[#2f9bff]' : ''
                     }`}>
                       {/* Grid Pattern */}
-                      <div className="absolute inset-0 opacity-30">
+                      <div className="absolute inset-0 opacity-60">
                         <div className="grid grid-cols-8 grid-rows-6 h-full gap-px">
                           {[...Array(48)].map((_, i) => (
-                            <div key={i} className="bg-[#0d1220]" />
+                            <div key={i} className="bg-[#16234e]/5" />
                           ))}
                         </div>
                       </div>
 
                       {/* Roads */}
-                      <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#0d1220]" />
-                      <div className="absolute top-0 bottom-0 left-1/3 w-1 bg-[#0d1220]" />
-                      <div className="absolute top-0 bottom-0 right-1/3 w-1 bg-[#0d1220]" />
+                      <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#16234e]/10" aria-hidden />
+                      <div className="absolute top-0 bottom-0 left-1/3 w-1 bg-[#16234e]/10" aria-hidden />
+                      <div className="absolute top-0 bottom-0 right-1/3 w-1 bg-[#16234e]/10" aria-hidden />
 
                       {/* Location Pin */}
                       {locationShared && (
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-bounce">
                           <div className="relative">
-                            <div className="w-8 h-8 bg-[#1E40AF] rounded-full flex items-center justify-center shadow-lg shadow-[#1E40AF]/50">
-                              <MapPin className="w-5 h-5 text-white" />
+                            <div className="w-8 h-8 bg-gradient-qrbag rounded-full flex items-center justify-center shadow-lg shadow-[#e6216e]/40">
+                              <MapPin className="w-5 h-5 text-white" aria-hidden />
                             </div>
-                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#1E40AF]/30 rounded-full animate-ping" />
+                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#e6216e]/40 rounded-full animate-ping" aria-hidden />
                           </div>
                         </div>
                       )}
@@ -328,15 +333,15 @@ export default function DemoPage() {
                       {/* Center Point */}
                       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         {!locationShared && (
-                          <div className="w-4 h-4 bg-[#1D4ED8] rounded-full animate-pulse" />
+                          <div className="w-4 h-4 bg-[#e6216e] rounded-full animate-pulse" aria-hidden />
                         )}
                       </div>
 
                       {/* Location Label */}
                       {locationShared && (
-                        <div className="absolute bottom-4 left-4 right-4 bg-[#0d1220]/90 rounded-lg p-3">
-                          <p className="text-white text-sm font-medium">Position enregistrée</p>
-                          <p className="text-[#a0a8b8] text-xs">Aéroport de Paris CDG, France</p>
+                        <div className="absolute bottom-4 left-4 right-4 bg-white/90 rounded-lg p-3">
+                          <p className="text-[#16234e] text-sm font-medium">Position enregistrée</p>
+                          <p className="text-[#16234e]/60 text-xs">Aéroport de Paris CDG, France</p>
                         </div>
                       )}
                     </div>
@@ -345,32 +350,32 @@ export default function DemoPage() {
               </div>
 
               {!locationShared && (
-                <Button
+                <button
                   onClick={handleLocation}
                   disabled={isAnimating}
-                  className="bg-[#1D4ED8] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#c04800] transition-all transform hover:scale-105 shadow-lg shadow-[#1D4ED8]/30 inline-flex items-center gap-2 disabled:opacity-50"
+                  className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px] inline-flex items-center gap-2`}
                 >
                   {isAnimating ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
                       Localisation...
                     </>
                   ) : (
                     <>
-                      <MapPin className="w-5 h-5" />
+                      <MapPin className="w-5 h-5" aria-hidden />
                       Partager ma position
                     </>
                   )}
-                </Button>
+                </button>
               )}
 
               {locationShared && (
                 <div className="animate-fade-in">
-                  <div className="flex items-center justify-center gap-2 text-[#4ade80] mb-4">
-                    <CheckCircle className="w-5 h-5" />
+                  <div className="flex items-center justify-center gap-2 text-[#2f9bff] mb-4">
+                    <CheckCircle className="w-5 h-5" aria-hidden />
                     <span className="font-medium">Position enregistrée avec succès !</span>
                   </div>
-                  <ArrowRight className="w-6 h-6 text-[#1D4ED8] animate-bounce mx-auto" />
+                  <ArrowRight className="w-6 h-6 text-[#f8921f] animate-bounce mx-auto" aria-hidden />
                 </div>
               )}
             </div>
@@ -380,12 +385,12 @@ export default function DemoPage() {
           {currentStep === 'whatsapp' && (
             <div className="text-center py-8 animate-fade-in">
               {/* Progress */}
-              <div className="flex items-center justify-center gap-2 mb-8">
+              <div className="flex items-center justify-center gap-2 mb-8" aria-hidden>
                 {[1, 2, 3].map((step) => (
                   <div
                     key={step}
                     className={`w-3 h-3 rounded-full transition-all ${
-                      step === 3 ? 'bg-[#25D366] w-8' : 'bg-[#1E40AF]'
+                      step === 3 ? 'bg-gradient-qrbag w-8' : step < 3 ? 'bg-[#2f9bff]' : 'bg-white/20'
                     }`}
                   />
                 ))}
@@ -394,42 +399,44 @@ export default function DemoPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Étape 3 : Envoyer au propriétaire
               </h2>
-              <p className="text-[#a0a8b8] mb-8">
+              <p className="text-white/70 mb-8">
                 Recevez une notification si quelqu&apos;un trouve votre bagage
               </p>
 
               {/* WhatsApp Card */}
               <div className="max-w-md mx-auto mb-8">
-                <div className="bg-[#0d1220] rounded-3xl p-6 border border-[#1a2238]">
+                <div className="bg-white rounded-3xl p-6 border border-[#16234e]/10 shadow-2xl shadow-[#16234e]/10">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-left text-white">Prénom</label>
+                      <label htmlFor="demo-name" className={brandLabel}>Prénom</label>
                       <input
+                        id="demo-name"
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-[#080c1a] border border-[#1a2238] text-white focus:outline-none focus:border-[#25D366]"
+                        className={brandInput}
                         placeholder="Votre prénom"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-left text-white">WhatsApp</label>
+                      <label htmlFor="demo-phone" className={brandLabel}>WhatsApp</label>
                       <input
+                        id="demo-phone"
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-[#080c1a] border border-[#1a2238] text-white focus:outline-none focus:border-[#25D366]"
+                        className={brandInput}
                         placeholder="+33 6 00 00 00 00"
                       />
                     </div>
 
                     {/* Message Preview */}
-                    <div className="bg-[#25D366]/10 rounded-xl p-4 border border-[#25D366]/30">
+                    <div className="bg-[#2f9bff]/10 rounded-xl p-4 border border-[#2f9bff]/30">
                       <div className="flex items-start gap-3">
-                        <MessageCircle className="w-5 h-5 text-[#25D366] shrink-0 mt-1" />
+                        <MessageCircle className="w-5 h-5 text-[#2f9bff] shrink-0 mt-1" aria-hidden />
                         <div className="text-left">
-                          <p className="text-white text-sm font-medium mb-1">Aperçu du message :</p>
-                          <p className="text-[#a0a8b8] text-xs italic">
+                          <p className="text-[#16234e] text-sm font-medium mb-1">Aperçu du message :</p>
+                          <p className="text-[#16234e]/60 text-xs italic">
                             &quot;Bonjour {formData.name}, votre bagage DEMO-001 a été scanné.
                             Cliquez ici pour voir sa localisation : [Lien sécurisé]&quot;
                           </p>
@@ -441,29 +448,29 @@ export default function DemoPage() {
               </div>
 
               {!messageSent && (
-                <Button
+                <button
                   onClick={handleWhatsApp}
                   disabled={isAnimating}
-                  className="bg-[#25D366] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#20bd5a] transition-all transform hover:scale-105 shadow-lg shadow-[#25D366]/30 inline-flex items-center gap-2 disabled:opacity-50"
+                  className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px] inline-flex items-center gap-2`}
                 >
                   {isAnimating ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
                       Envoi en cours...
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
+                      <Send className="w-5 h-5" aria-hidden />
                       Envoyer la notification
                     </>
                   )}
-                </Button>
+                </button>
               )}
 
               {messageSent && (
                 <div className="animate-fade-in">
-                  <div className="flex items-center justify-center gap-2 text-[#4ade80] mb-4">
-                    <CheckCircle className="w-5 h-5" />
+                  <div className="flex items-center justify-center gap-2 text-[#2f9bff] mb-4">
+                    <CheckCircle className="w-5 h-5" aria-hidden />
                     <span className="font-medium">Message envoyé !</span>
                   </div>
                 </div>
@@ -474,9 +481,9 @@ export default function DemoPage() {
           {/* SUCCESS STEP */}
           {currentStep === 'success' && (
             <div className="py-8 animate-fade-in">
-              <div className="text-center bg-gradient-to-r from-[#1E40AF] to-[#1D4ED8] rounded-3xl p-12 relative overflow-hidden">
+              <div className="text-center bg-gradient-qrbag rounded-3xl p-12 relative overflow-hidden shadow-2xl shadow-[#e6216e]/25">
                 {/* Confetti Effect */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
                   {[...Array(20)].map((_, i) => (
                     <div
                       key={i}
@@ -492,7 +499,7 @@ export default function DemoPage() {
 
                 {/* Success Icon */}
                 <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce shadow-2xl">
-                  <span className="text-6xl">🎉</span>
+                  <span className="text-6xl" aria-hidden>🎉</span>
                 </div>
 
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -526,18 +533,18 @@ export default function DemoPage() {
 
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button
+                  <button
                     onClick={resetDemo}
-                    className="bg-white text-[#1E40AF] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all inline-flex items-center justify-center gap-2"
+                    className="bg-white text-[#16234e] px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/90 transition-all min-h-[52px] inline-flex items-center justify-center gap-2"
                   >
-                    <RefreshCw className="w-5 h-5" />
+                    <RefreshCw className="w-5 h-5" aria-hidden />
                     Recommencer
-                  </Button>
+                  </button>
                   <Link href="/contact">
-                    <Button className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all inline-flex items-center justify-center gap-2">
-                      <span>📦</span>
+                    <button className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all min-h-[52px] inline-flex items-center justify-center gap-2">
+                      <span aria-hidden>📦</span>
                       Commander maintenant
-                    </Button>
+                    </button>
                   </Link>
                 </div>
               </div>
@@ -545,17 +552,17 @@ export default function DemoPage() {
               {/* Features Recap */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
                 {[
-                  { icon: Smartphone, label: "Sans application", color: "#1E40AF" },
-                  { icon: Battery, label: "Sans batterie", color: "#1D4ED8" },
-                  { icon: MapPin, label: "Sans GPS", color: "#1e3a2e" },
-                  { icon: Zap, label: "30 secondes", color: "#1E40AF" },
+                  { icon: Smartphone, label: "Sans application", color: "#2f9bff" },
+                  { icon: Battery, label: "Sans batterie", color: "#f8921f" },
+                  { icon: MapPin, label: "Sans GPS", color: "#8b17c9" },
+                  { icon: Zap, label: "30 secondes", color: "#e6216e" },
                 ].map((item, index) => (
                   <div
                     key={index}
-                    className="bg-[#0d1220] rounded-xl p-4 border border-[#1a2238] text-center"
+                    className="bg-white rounded-xl p-4 border border-[#16234e]/10 shadow-lg shadow-[#16234e]/5 text-center"
                   >
-                    <item.icon className="w-6 h-6 mx-auto mb-2" style={{ color: item.color }} />
-                    <span className="text-[#a0a8b8] text-sm">{item.label}</span>
+                    <item.icon className="w-6 h-6 mx-auto mb-2" style={{ color: item.color }} aria-hidden />
+                    <span className="text-[#16234e]/70 text-sm">{item.label}</span>
                   </div>
                 ))}
               </div>
@@ -563,7 +570,7 @@ export default function DemoPage() {
           )}
 
         </div>
-      </div>
+      </section>
 
       {/* CSS for animations */}
       <style jsx global>{`

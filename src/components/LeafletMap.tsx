@@ -40,7 +40,7 @@ interface LeafletMapProps {
 const CONTEXT_MARKER_COLORS: Record<string, string> = {
   departure_airport_urgent: '#EF4444',
   arrival_airport: '#22c55e',
-  in_transit: '#3b82f6',
+  in_transit: '#2f9bff',
   static_location: BRAND_COLOR,
 };
 

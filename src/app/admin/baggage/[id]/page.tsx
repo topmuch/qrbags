@@ -118,7 +118,7 @@ export default function AdminBaggageDetailPage() {
     const config: Record<string, { label: string; className: string }> = {
       pending_activation: { label: 'En attente', className: 'bg-amber-100 text-amber-700' },
       active: { label: 'Actif', className: 'bg-emerald-100 text-emerald-700' },
-      scanned: { label: 'Scanné', className: 'bg-blue-100 text-blue-700' },
+      scanned: { label: 'Scanné', className: 'bg-violet-100 text-violet-700' },
       lost: { label: 'Perdu', className: 'bg-rose-100 text-rose-700' },
       found: { label: 'Retrouvé', className: 'bg-green-100 text-green-700' },
     };
@@ -128,18 +128,18 @@ export default function AdminBaggageDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#080c1a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#b8860b]/30 border-t-[#b8860b] rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#0e1734] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#f8921f]/30 border-t-[#f8921f] rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!baggage) {
     return (
-      <div className="min-h-screen bg-[#080c1a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0e1734] flex items-center justify-center">
         <div className="text-center">
           <p className="text-white">Bagage non trouvé</p>
-          <Link href="/admin/qrcodes" className="text-[#b8860b] hover:underline mt-4 block">
+          <Link href="/admin/qrcodes" className="text-[#f8921f] hover:underline mt-4 block">
             Retour aux QR codes
           </Link>
         </div>
@@ -161,7 +161,7 @@ export default function AdminBaggageDetailPage() {
           Retour aux QR codes
         </Link>
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#b8860b] rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#f8921f] rounded-lg flex items-center justify-center">
             <Luggage className="w-5 h-5 text-white" />
           </div>
           Détails du bagage
@@ -184,10 +184,10 @@ export default function AdminBaggageDetailPage() {
       {/* Main Card */}
       <div className="bg-[#0d152a] border border-[#1a2238] rounded-xl overflow-hidden">
         {/* Reference Header */}
-        <div className="p-6 border-b border-[#1a2238] bg-[#080c1a]">
+        <div className="p-6 border-b border-[#1a2238] bg-[#0e1734]">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[#b8860b] text-sm font-medium">{baggage.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'}</p>
+              <p className="text-[#f8921f] text-sm font-medium">{baggage.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'}</p>
               <h2 className="text-xl font-bold text-white font-mono">{baggage.reference}</h2>
             </div>
             {getStatusBadge(baggage.status)}
@@ -199,7 +199,7 @@ export default function AdminBaggageDetailPage() {
           {/* Traveler Info */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-[#b8860b]" />
+              <User className="w-5 h-5 text-[#f8921f]" />
               Informations du voyageur
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
@@ -212,7 +212,7 @@ export default function AdminBaggageDetailPage() {
               <div className="bg-[#111827] rounded-lg p-4">
                 <p className="text-[#a0a8b8] text-sm">WhatsApp</p>
                 <p className="text-white font-medium mt-1 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-[#b8860b]" />
+                  <Phone className="w-4 h-4 text-[#f8921f]" />
                   {baggage.whatsappOwner || 'Non renseigné'}
                 </p>
               </div>
@@ -223,7 +223,7 @@ export default function AdminBaggageDetailPage() {
           {baggage.agency && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Building className="w-5 h-5 text-[#b8860b]" />
+                <Building className="w-5 h-5 text-[#f8921f]" />
                 Agence
               </h3>
               <div className="bg-[#111827] rounded-lg p-4">
@@ -243,7 +243,7 @@ export default function AdminBaggageDetailPage() {
           {/* Baggage Details */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Luggage className="w-5 h-5 text-[#b8860b]" />
+              <Luggage className="w-5 h-5 text-[#f8921f]" />
               Détails du bagage
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
@@ -268,7 +268,7 @@ export default function AdminBaggageDetailPage() {
           {baggage.transportMode && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-[#b8860b]" />
+                <MapPin className="w-5 h-5 text-[#f8921f]" />
                 Informations de transport
               </h3>
               <div className="grid md:grid-cols-3 gap-4">
@@ -336,12 +336,12 @@ export default function AdminBaggageDetailPage() {
         </div>
 
         {/* Actions */}
-        <div className="p-6 border-t border-[#1a2238] bg-[#080c1a] flex flex-wrap gap-3">
+        <div className="p-6 border-t border-[#1a2238] bg-[#0e1734] flex flex-wrap gap-3">
           {isLost && (
             <button
               onClick={handleMarkFound}
               disabled={actionLoading}
-              className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-1 py-3 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {actionLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -355,7 +355,7 @@ export default function AdminBaggageDetailPage() {
           )}
           <Link
             href={`/scan/${baggage.reference}`}
-            className="flex-1 py-3 bg-[#b8860b] text-white rounded-lg font-medium hover:bg-[#3b82f6] transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-[#f8921f] text-white rounded-lg font-medium hover:bg-[#2f9bff] transition-colors flex items-center justify-center gap-2"
           >
             <QrCode className="w-5 h-5" />
             Voir la page de scan

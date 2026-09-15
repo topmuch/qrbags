@@ -3,12 +3,18 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Plane, QrCode, ArrowLeft, CheckCircle, Luggage, Sparkles } from "lucide-react";
+import { Plane, ArrowLeft, CheckCircle, Luggage, Sparkles } from "lucide-react";
+import {
+  BrandShell,
+  BrandCard,
+  BrandLogo,
+  BrandIconRing,
+  brandBadge,
+  brandBtnGradient,
+  brandBtnOutline,
+  brandInput,
+  brandLabel,
+} from '@/components/brand/BrandShell';
 
 function HajjActivateContent() {
   const router = useRouter();
@@ -84,78 +90,91 @@ function HajjActivateContent() {
     }
   };
 
+  // Variante « Hajj » du champ référence : code QR détecté → touche émeraude (identité Hajj)
+  const referenceInputClass = qrFromUrl
+    ? 'w-full bg-emerald-50 border-2 border-emerald-400 text-[#16234e] placeholder:text-[#16234e]/35 ' +
+      'focus:outline-none focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 ' +
+      'rounded-xl px-4 py-3 text-lg font-mono min-h-[48px] transition-all duration-200'
+    : `${brandInput} font-mono text-lg`;
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#0d5e34] to-[#0a4a2a]">
-      {/* Navigation */}
-      <nav className="bg-[#0d5e34]/95 backdrop-blur-sm border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white">
-            <ArrowLeft className="w-5 h-5" />
-            <span>Retour</span>
+    <BrandShell>
+      {/* En-tête */}
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-[#16234e]/10">
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+          <Link
+            href="/"
+            aria-label="Retour à l'accueil"
+            className={`${brandBtnOutline} inline-flex items-center gap-2 px-3 sm:px-4 py-2 min-h-[44px] text-sm`}
+          >
+            <ArrowLeft className="w-4 h-4" aria-hidden />
+            <span className="hidden sm:inline">Retour</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="QRBag" className="h-12 w-auto object-contain" />
-          </div>
+          <BrandLogo href="/" className="h-10 sm:h-11 w-auto" />
+          <span className={brandBadge}>🕋 Hajj &amp; Omra</span>
         </div>
-      </nav>
+      </header>
 
-      <div className="max-w-3xl mx-auto px-4 py-12">
-        {/* Welcome Banner if QR from URL */}
-        {qrFromUrl && (
-          <div className="mb-8 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 text-center animate-fade-in">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-[#ffd700]/20 rounded-full mb-4">
-              <Sparkles className="w-7 h-7 text-[#ffd700]" />
+      <main className="flex-1">
+        <div className="max-w-3xl mx-auto px-4 py-10 sm:py-14">
+          {/* Bandeau de bienvenue si QR dans l'URL */}
+          {qrFromUrl && (
+            <BrandCard corners className="mb-10 p-6 sm:p-8 text-center animate-fade-in">
+              <div className="flex justify-center mb-4">
+                <BrandIconRing size="w-14 h-14" glow="#f8921f">
+                  <Sparkles className="w-7 h-7 text-[#f8921f]" />
+                </BrandIconRing>
+              </div>
+              <h2 className="text-xl font-extrabold text-[#16234e] mb-2">
+                Bienvenue ! 👋
+              </h2>
+              <p className="text-[#16234e]/70">
+                Activez ce bagage en 30 secondes pour protéger vos effets personnels
+              </p>
+              <span className="inline-block mt-4 px-4 py-1.5 rounded-full bg-[#16234e] text-white text-xs font-bold uppercase tracking-wider shadow-md shadow-[#16234e]/20">
+                ✈️ Hajj 2025
+              </span>
+            </BrandCard>
+          )}
+
+          {/* En-tête principal */}
+          <div className="text-center mb-10">
+            <div className="flex justify-center mb-5">
+              <BrandIconRing size="w-16 h-16" glow="#2f9bff">
+                <Plane className="w-8 h-8 text-[#16234e]" />
+              </BrandIconRing>
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">
-              Bienvenue ! 👋
-            </h2>
-            <p className="text-white/70">
-              Activez ce bagage en 30 secondes pour protéger vos effets personnels
+            <h1 className="text-3xl md:text-4xl font-extrabold text-[#16234e] mb-3">
+              Activation Bagage <span className="text-gradient-qrbag">Hajj</span>
+            </h1>
+            <p className="text-[#16234e]/70 text-lg">
+              Activez vos bagages en 30 secondes
             </p>
-            <Badge className="mt-3 bg-[#1e3a2e]/50 text-[#3B82F6]">
-              ✈️ Hajj 2025
-            </Badge>
           </div>
-        )}
 
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-full mb-6">
-            <Plane className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Activation Bagage Hajj
-          </h1>
-          <p className="text-white/70 text-lg">
-            Activez vos bagages en 30 secondes
-          </p>
-        </div>
-
-        {/* Form Card */}
-        <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Luggage className="w-5 h-5" />
-              Informations du pèlerin
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          {/* Carte formulaire — coins viewfinder QR */}
+          <BrandCard corners className="p-6 sm:p-8">
+            <div className="flex items-center gap-2 mb-6 text-[#16234e]">
+              <Luggage className="w-5 h-5 text-[#2f9bff]" aria-hidden />
+              <h2 className="text-lg font-bold">Informations du pèlerin</h2>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* QR Reference */}
-              <div className="space-y-2">
-                <Label htmlFor="reference" className="text-white">
+              <div>
+                <label htmlFor="reference" className={brandLabel}>
                   Code de référence QR *
-                </Label>
-                <Input
+                </label>
+                <input
                   id="reference"
                   placeholder="HAJJ26-XXXXXX"
                   value={formData.reference}
                   onChange={(e) => setFormData({ ...formData, reference: e.target.value.toUpperCase() })}
-                  className={`bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white font-mono text-lg ${qrFromUrl ? 'border-green-400/50 bg-green-400/5' : ''}`}
+                  className={referenceInputClass}
+                  aria-describedby="reference-help"
                   required
                   readOnly={!!qrFromUrl}
                 />
-                <p className="text-white/50 text-sm">
+                <p id="reference-help" className={`mt-2 text-sm ${qrFromUrl ? 'text-emerald-600 font-semibold' : 'text-[#16234e]/50'}`}>
                   {qrFromUrl 
                     ? '✓ Code QR détecté automatiquement' 
                     : 'Entrez le code inscrit sur votre autocollant QR'}
@@ -164,172 +183,173 @@ function HajjActivateContent() {
 
               {/* Name Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-white">
+                <div>
+                  <label htmlFor="firstName" className={brandLabel}>
                     Prénom *
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="firstName"
                     placeholder="Ahmed"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    className={brandInput}
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-white">
+                <div>
+                  <label htmlFor="lastName" className={brandLabel}>
                     Nom *
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="lastName"
                     placeholder="Diop"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    className={brandInput}
                     required
                   />
                 </div>
               </div>
 
               {/* Airline Name */}
-              <div className="space-y-2">
-                <Label htmlFor="airlineName" className="text-white">
+              <div>
+                <label htmlFor="airlineName" className={brandLabel}>
                   Compagnie aérienne
-                </Label>
-                <Input
+                </label>
+                <input
                   id="airlineName"
                   placeholder="Ex: Saudi Airlines, Royal Air Maroc"
                   value={formData.airlineName}
                   onChange={(e) => setFormData({ ...formData, airlineName: e.target.value })}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  className={brandInput}
                 />
               </div>
 
               {/* Flight, Destination, Departure */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="flightNumber" className="text-white">
+                <div>
+                  <label htmlFor="flightNumber" className={brandLabel}>
                     Numéro de vol
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="flightNumber"
                     placeholder="SV1234"
                     value={formData.flightNumber}
                     onChange={(e) => setFormData({ ...formData, flightNumber: e.target.value.toUpperCase() })}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    className={brandInput}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="destination" className="text-white">
+                <div>
+                  <label htmlFor="destination" className={brandLabel}>
                     Destination
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="destination"
                     placeholder="Djeddah"
                     value={formData.destination}
                     onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    className={brandInput}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="departureDate" className="text-white">
+                <div>
+                  <label htmlFor="departureDate" className={brandLabel}>
                     Date de départ
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="departureDate"
                     type="date"
                     value={formData.departureDate}
                     onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/40 [color-scheme:dark]"
+                    className={brandInput}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="departureTime" className="text-white">
+                <div>
+                  <label htmlFor="departureTime" className={brandLabel}>
                     Heure de départ
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="departureTime"
                     type="time"
                     value={formData.departureTime}
                     onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/40 [color-scheme:dark]"
+                    className={brandInput}
                   />
                 </div>
               </div>
 
               {/* WhatsApp */}
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp" className="text-white">
+              <div>
+                <label htmlFor="whatsapp" className={brandLabel}>
                   Numéro WhatsApp (chef de groupe) *
-                </Label>
-                <Input
+                </label>
+                <input
                   id="whatsapp"
                   type="tel"
                   placeholder="+221 78 485 82 26"
                   value={formData.whatsapp}
                   onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  className={brandInput}
                   required
                 />
-                <p className="text-white/50 text-sm">
+                <p className="mt-2 text-[#16234e]/50 text-sm">
                   Ce numéro recevra les notifications si vos bagages sont trouvés
                 </p>
               </div>
 
-              {/* Info Box */}
-              <div className="bg-white/10 rounded-lg p-4 space-y-2">
-                <div className="flex items-center gap-2 text-white">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">3 bagages seront activés</span>
+              {/* Encart info */}
+              <div className="bg-[#16234e]/[0.04] border border-[#16234e]/10 rounded-2xl p-4 space-y-1.5">
+                <div className="flex items-center gap-2 text-[#16234e]">
+                  <CheckCircle className="w-4 h-4 text-emerald-600" aria-hidden />
+                  <span className="text-sm font-bold">3 bagages seront activés</span>
                 </div>
-                <p className="text-white/60 text-sm">
+                <p className="text-[#16234e]/60 text-sm">
                   1 bagage cabine + 2 bagages soute - Protection de 60 jours
                 </p>
               </div>
 
-              {/* Submit Button */}
-              <Button
+              {/* Bouton de soumission */}
+              <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-white text-[#0d5e34] hover:bg-white/90 h-12 text-lg font-semibold"
+                className={`${brandBtnGradient} w-full inline-flex items-center justify-center px-6 py-3.5 min-h-[52px] text-lg cursor-pointer`}
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-[#0d5e34]/30 border-t-[#0d5e34] rounded-full animate-spin" />
+                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
                     Activation en cours...
                   </span>
                 ) : (
                   'Activer mes bagages'
                 )}
-              </Button>
+              </button>
             </form>
-          </CardContent>
-        </Card>
+          </BrandCard>
 
-        {/* Help Section */}
-        <div className="mt-8 text-center">
-          <p className="text-white/60 text-sm">
-            Besoin d&apos;aide ? Contactez votre agence ou{' '}
-            <a href="mailto:contact@qrbag.com" className="text-white underline">
-              contact@qrbag.com
-            </a>
-          </p>
+          {/* Aide */}
+          <div className="mt-8 text-center">
+            <p className="text-[#16234e]/60 text-sm">
+              Besoin d&apos;aide ? Contactez votre agence ou{' '}
+              <a href="mailto:contact@qrbag.com" className="text-[#2f9bff] font-semibold hover:underline">
+                contact@qrbag.com
+              </a>
+            </p>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </BrandShell>
   );
 }
 
 export default function HajjActivatePage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-gradient-to-b from-[#0d5e34] to-[#0a4a2a] flex items-center justify-center">
-        <div className="text-center text-white">
-          <div className="animate-spin w-12 h-12 border-4 border-white/30 border-t-white rounded-full mx-auto mb-4"></div>
+      <main className="min-h-screen bg-[#16234e] relative flex items-center justify-center">
+        <div className="absolute inset-0 dotted-map-light pointer-events-none" aria-hidden />
+        <div className="text-center text-white relative">
+          <div className="animate-spin w-12 h-12 border-4 border-white/30 border-t-white rounded-full mx-auto mb-4" aria-hidden />
           <p>Chargement...</p>
         </div>
       </main>

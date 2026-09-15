@@ -182,7 +182,7 @@ export default function AssistancePage() {
           onClick={() => setActiveTab('new')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
             activeTab === 'new'
-              ? 'bg-blue-600 text-white shadow-lg'
+              ? 'bg-violet-600 text-white shadow-lg'
               : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
           }`}
         >
@@ -193,7 +193,7 @@ export default function AssistancePage() {
           onClick={() => setActiveTab('sent')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
             activeTab === 'sent'
-              ? 'bg-blue-600 text-white shadow-lg'
+              ? 'bg-violet-600 text-white shadow-lg'
               : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
           }`}
         >
@@ -204,7 +204,7 @@ export default function AssistancePage() {
           onClick={() => setActiveTab('replies')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
             activeTab === 'replies'
-              ? 'bg-blue-600 text-white shadow-lg'
+              ? 'bg-violet-600 text-white shadow-lg'
               : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
           }`}
         >
@@ -220,8 +220,8 @@ export default function AssistancePage() {
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-blue-600/10 flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-violet-600/10 flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-violet-600" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Envoyer un message</h2>
@@ -230,9 +230,9 @@ export default function AssistancePage() {
               </div>
 
               {success && (
-                <div className="mb-6 p-4 bg-emerald-50 dark:bg-blue-600/10 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-blue-600" />
-                  <span className="text-emerald-700 dark:text-blue-500">Message envoyé avec succès !</span>
+                <div className="mb-6 p-4 bg-emerald-50 dark:bg-violet-600/10 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-violet-600" />
+                  <span className="text-emerald-700 dark:text-violet-500">Message envoyé avec succès !</span>
                 </div>
               )}
 
@@ -244,7 +244,7 @@ export default function AssistancePage() {
                     value={form.subject}
                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
                     placeholder="Objet de votre demande"
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all"
                     required
                   />
                 </div>
@@ -254,7 +254,7 @@ export default function AssistancePage() {
                   <select
                     value={form.priority}
                     onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all"
                   >
                     <option value="low">Basse</option>
                     <option value="normal">Normale</option>
@@ -270,7 +270,7 @@ export default function AssistancePage() {
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                     placeholder="Décrivez votre problème ou votre question..."
                     rows={5}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all resize-none"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all resize-none"
                     required
                   />
                 </div>
@@ -278,7 +278,7 @@ export default function AssistancePage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full bg-violet-600 text-white py-3 rounded-xl font-medium hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
@@ -304,7 +304,7 @@ export default function AssistancePage() {
               <div className="space-y-4">
                 {contactInfo.map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-600">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-violet-600">
                       {item.icon}
                     </div>
                     <div>
@@ -318,7 +318,7 @@ export default function AssistancePage() {
             </div>
 
             {/* Working Hours */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-500 rounded-2xl p-6 text-white">
+            <div className="bg-gradient-to-br from-violet-600 to-violet-500 rounded-2xl p-6 text-white">
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="w-5 h-5" />
                 <h3 className="font-semibold">Horaires d'assistance</h3>
@@ -347,7 +347,7 @@ export default function AssistancePage() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
           {loading ? (
             <div className="text-center py-12">
-              <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin mx-auto mb-4" />
               <p className="text-slate-500">Chargement...</p>
             </div>
           ) : sentMessages.length === 0 ? (
@@ -365,7 +365,7 @@ export default function AssistancePage() {
                         <h3 className="font-semibold text-slate-800 dark:text-white">{msg.subject || 'Sans sujet'}</h3>
                         <span className={`px-2 py-0.5 rounded-full text-xs ${
                           msg.status === 'non_lu' ? 'bg-red-100 text-red-700' :
-                          msg.status === 'lu' ? 'bg-blue-100 text-blue-700' :
+                          msg.status === 'lu' ? 'bg-violet-100 text-violet-700' :
                           'bg-green-100 text-green-700'
                         }`}>
                           {msg.status === 'non_lu' ? 'Non lu' : msg.status === 'lu' ? 'Lu' : 'Traité'}
@@ -389,7 +389,7 @@ export default function AssistancePage() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
           {loading ? (
             <div className="text-center py-12">
-              <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+              <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin mx-auto mb-4" />
               <p className="text-slate-500">Chargement...</p>
             </div>
           ) : replies.length === 0 ? (
@@ -401,9 +401,9 @@ export default function AssistancePage() {
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {replies.map((msg) => (
-                <div key={msg.id} className="p-6 bg-emerald-50/50 dark:bg-blue-600/5">
+                <div key={msg.id} className="p-6 bg-emerald-50/50 dark:bg-violet-600/5">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center shrink-0">
                       <span className="text-white font-bold text-sm">SA</span>
                     </div>
                     <div className="flex-1">

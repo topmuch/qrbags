@@ -124,10 +124,10 @@ export default function TrouvaillesPage() {
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { label: string; className: string; icon: string }> = {
-      scanned: { label: 'Scanné', className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-blue-500', icon: '✅' },
+      scanned: { label: 'Scanné', className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-violet-500', icon: '✅' },
       lost: { label: 'Perdu', className: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400', icon: '⚠️' },
       found: { label: 'Retrouvé', className: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400', icon: '🟢' },
-      active: { label: 'Actif', className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-blue-500', icon: '✅' },
+      active: { label: 'Actif', className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-violet-500', icon: '✅' },
     };
     return config[status] || config.active;
   };
@@ -183,7 +183,7 @@ export default function TrouvaillesPage() {
           </Button>
           <Button
             onClick={exportCSV}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+            className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl"
           >
             <Download className="w-4 h-4 mr-2" aria-hidden="true" />
             Export CSV
@@ -200,8 +200,8 @@ export default function TrouvaillesPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Total scans</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.total === 0 ? '—' : stats.total}</p>
               </div>
-              <div className="w-12 h-12 bg-[#2563EB]/10 dark:bg-[#2563EB]/20 rounded-xl flex items-center justify-center">
-                <QrCode className="w-6 h-6 text-[#2563EB]" />
+              <div className="w-12 h-12 bg-[#8b17c9]/10 dark:bg-[#8b17c9]/20 rounded-xl flex items-center justify-center">
+                <QrCode className="w-6 h-6 text-[#8b17c9]" />
               </div>
             </div>
           </CardContent>
@@ -215,7 +215,7 @@ export default function TrouvaillesPage() {
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.scanned === 0 ? '—' : stats.scanned}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-blue-700 dark:text-blue-500" />
+                <CheckCircle className="w-6 h-6 text-violet-700 dark:text-violet-500" />
               </div>
             </div>
           </CardContent>
@@ -261,7 +261,7 @@ export default function TrouvaillesPage() {
                 placeholder="Rechercher par référence, voyageur..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#2563EB]"
+                className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#8b17c9]"
               />
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden="true" />
             </div>
@@ -274,7 +274,7 @@ export default function TrouvaillesPage() {
                   onClick={() => setDateFilter(btn.id)}
                   className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                     dateFilter === btn.id
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-violet-600 text-white'
                       : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600'
                   }`}
                 >
@@ -291,7 +291,7 @@ export default function TrouvaillesPage() {
                   onClick={() => setStatusFilter(btn.id)}
                   className={`px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                     statusFilter === btn.id
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-violet-600 text-white'
                       : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600'
                   }`}
                 >
@@ -304,7 +304,7 @@ export default function TrouvaillesPage() {
             <select
               value={countryFilter}
               onChange={(e) => setCountryFilter(e.target.value)}
-              className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2 px-3 text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+              className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2 px-3 text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
             >
               <option value="all">Tous les pays</option>
               {countries.map((country) => (
@@ -320,7 +320,7 @@ export default function TrouvaillesPage() {
       {/* Scan Logs Table */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="w-12 h-12 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-500 dark:text-slate-400">Chargement...</p>
         </div>
       ) : scanLogs.length === 0 ? (
@@ -380,7 +380,7 @@ export default function TrouvaillesPage() {
                           href={mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#2563EB] text-xs hover:underline flex items-center gap-1"
+                          className="text-[#8b17c9] text-xs hover:underline flex items-center gap-1"
                         >
                           {log.latitude?.toFixed(3)}, {log.longitude?.toFixed(3)}
                           <ExternalLink className="w-3 h-3" aria-hidden="true" />
@@ -399,7 +399,7 @@ export default function TrouvaillesPage() {
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all group"
                       title="Voir détails"
                     >
-                      <Eye className="w-4 h-4 group-hover:text-[#2563EB] transition-colors" aria-hidden="true" />
+                      <Eye className="w-4 h-4 group-hover:text-[#8b17c9] transition-colors" aria-hidden="true" />
                       Détails
                     </button>
                   </div>
@@ -479,7 +479,7 @@ export default function TrouvaillesPage() {
                     href={getMapsUrl(selectedLog.latitude, selectedLog.longitude) || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[#2563EB] text-sm hover:underline mt-2"
+                    className="inline-flex items-center gap-1 text-[#8b17c9] text-sm hover:underline mt-2"
                   >
                     Voir sur Google Maps
                     <ExternalLink className="w-3 h-3" aria-hidden="true" />
@@ -512,7 +512,7 @@ export default function TrouvaillesPage() {
                     href={`https://wa.me/${selectedLog.baggage.whatsappOwner.replace(/\D/g, '')}?text=${encodeURIComponent('Votre bagage a été scanné !')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 py-2 bg-blue-700 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 py-2 bg-violet-700 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
                   >
                     <Send className="w-4 h-4" aria-hidden="true" />
                     Contacter

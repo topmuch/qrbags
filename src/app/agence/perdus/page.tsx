@@ -131,7 +131,7 @@ export default function PerdusPage() {
             placeholder="Rechercher par nom ou référence..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all"
           />
         </div>
       </div>
@@ -163,8 +163,8 @@ export default function PerdusPage() {
                 <tr>
                   <td colSpan={5} className="text-center py-12">
                     <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 bg-emerald-100 dark:bg-blue-600/10 rounded-full flex items-center justify-center mb-4">
-                        <CheckCircle className="w-8 h-8 text-blue-600" />
+                      <div className="w-16 h-16 bg-emerald-100 dark:bg-violet-600/10 rounded-full flex items-center justify-center mb-4">
+                        <CheckCircle className="w-8 h-8 text-violet-600" />
                       </div>
                       <p className="text-slate-500 dark:text-slate-400">Aucun bagage perdu</p>
                       <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Excellent ! Tous vos bagages sont bien suivis.</p>
@@ -225,7 +225,7 @@ export default function PerdusPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleMarkFound(baggage.id)}
-                          className="px-3 py-1.5 bg-emerald-100 dark:bg-blue-600/10 text-blue-700 dark:text-blue-500 rounded-lg text-sm font-medium hover:bg-emerald-200 dark:hover:bg-blue-600/20 transition-colors flex items-center gap-1"
+                          className="px-3 py-1.5 bg-emerald-100 dark:bg-violet-600/10 text-violet-700 dark:text-violet-500 rounded-lg text-sm font-medium hover:bg-emerald-200 dark:hover:bg-violet-600/20 transition-colors flex items-center gap-1"
                           title="Marquer comme retrouvé"
                         >
                           <CheckCircle className="w-4 h-4" />
@@ -312,7 +312,7 @@ export default function PerdusPage() {
                     setShowDetailModal(false);
                     setSelectedBaggage(null);
                   }}
-                  className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-violet-600 text-white py-3 rounded-xl font-medium hover:bg-violet-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-4 h-4" />
                   Marquer comme retrouvé

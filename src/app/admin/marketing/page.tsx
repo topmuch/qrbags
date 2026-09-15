@@ -104,7 +104,7 @@ function buildRenewalMessage(name: string, reference: string, expiryDate: string
 function statusBadgeClass(status: string): string {
   if (status === 'active') return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
   if (status === 'expired') return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
-  return 'bg-amber-100 dark:bg-blue-900/30 text-amber-800 dark:text-blue-500';
+  return 'bg-amber-100 dark:bg-violet-900/30 text-amber-800 dark:text-violet-500';
 }
 
 function statusBadgeLabel(status: string): string {
@@ -207,7 +207,7 @@ export default function MarketingPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-blue-600" />
+            <TrendingUp className="w-6 h-6 text-violet-600" />
             Marketing &amp; Relances
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
@@ -253,8 +253,8 @@ export default function MarketingPage() {
                   {data?.stats.totalUsers ?? '—'}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-500" />
+              <div className="w-12 h-12 bg-violet-50 dark:bg-violet-900/30 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-violet-500" />
               </div>
             </div>
           </CardContent>
@@ -265,12 +265,12 @@ export default function MarketingPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages actifs</p>
-                <p className="text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-500 mt-1">
+                <p className="text-2xl lg:text-3xl font-bold text-violet-700 dark:text-violet-500 mt-1">
                   {data?.stats.activeBaggages ?? '—'}
                 </p>
               </div>
               <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                <ShieldCheck className="w-6 h-6 text-blue-600" />
+                <ShieldCheck className="w-6 h-6 text-violet-600" />
               </div>
             </div>
           </CardContent>
@@ -308,8 +308,8 @@ export default function MarketingPage() {
                   {data?.stats.renewalRate ?? '—'}%
                 </p>
               </div>
-              <div className="w-12 h-12 bg-amber-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-amber-50 dark:bg-violet-900/30 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-violet-600" />
               </div>
             </div>
           </CardContent>
@@ -358,7 +358,7 @@ export default function MarketingPage() {
       {/* ─── Loading ─── */}
       {loading && (
         <div className="flex items-center justify-center py-16">
-          <div className="w-8 h-8 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
         </div>
       )}
 
@@ -496,7 +496,7 @@ function TravelerRow({ traveler, onView }: { traveler: Traveler; onView: () => v
       </td>
       <td className="px-5 py-4">
         {traveler.email ? (
-          <a href={mailtoUrl!} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <a href={mailtoUrl!} className="text-sm text-violet-600 dark:text-violet-400 hover:underline">
             {traveler.email}
           </a>
         ) : (
@@ -535,7 +535,7 @@ function TravelerRow({ traveler, onView }: { traveler: Traveler; onView: () => v
           {mailtoUrl && (
             <a
               href={mailtoUrl}
-              className="p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+              className="p-2 rounded-lg bg-violet-500 hover:bg-violet-600 text-white transition-colors"
               title="Envoyer un Email"
             >
               <Mail className="w-4 h-4" />
@@ -626,7 +626,7 @@ function TravelerCard({ traveler, onView }: { traveler: Traveler; onView: () => 
         {mailtoUrl && (
           <a
             href={mailtoUrl}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-violet-500 hover:bg-violet-600 text-white rounded-xl text-sm font-medium transition-colors"
           >
             <Mail className="w-4 h-4" />
             Email
@@ -674,7 +674,7 @@ function DetailModalContent({ traveler }: { traveler: Traveler }) {
         <div>
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email</p>
           {traveler.email ? (
-            <a href={mailtoUrl!} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">{traveler.email}</a>
+            <a href={mailtoUrl!} className="font-medium text-violet-600 dark:text-violet-400 hover:underline">{traveler.email}</a>
           ) : (
             <p className="font-medium text-slate-400">—</p>
           )}
@@ -761,7 +761,7 @@ function DetailModalContent({ traveler }: { traveler: Traveler }) {
         {mailtoUrl ? (
           <a
             href={mailtoUrl}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-violet-500 hover:bg-violet-600 text-white rounded-xl font-medium transition-colors"
           >
             <Mail className="w-5 h-5" />
             Email

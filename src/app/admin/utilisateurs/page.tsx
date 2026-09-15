@@ -130,9 +130,9 @@ export default function UtilisateursPage() {
   const getRoleBadge = (role: string) => {
     const config: Record<string, { label: string; className: string }> = {
       superadmin: { label: 'SuperAdmin', className: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' },
-      admin: { label: 'Admin', className: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' },
+      admin: { label: 'Admin', className: 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300' },
       agent: { label: 'Agent', className: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' },
-      agency: { label: 'Agence', className: 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300' },
+      agency: { label: 'Agence', className: 'bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-300' },
     };
     const { label, className } = config[role] || { label: role, className: 'bg-slate-100 text-slate-600' };
     return <Badge className={className}>{label}</Badge>;
@@ -149,7 +149,7 @@ export default function UtilisateursPage() {
       <div className="flex items-center justify-end mb-6">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+            <Button className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl">
               <Plus className="w-4 h-4 mr-2" />
               Nouvel utilisateur
             </Button>
@@ -226,7 +226,7 @@ export default function UtilisateursPage() {
                 </div>
               )}
               <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl" 
+                className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl" 
                 onClick={handleCreateUser}
               >
                 Créer l&apos;utilisateur
@@ -240,7 +240,7 @@ export default function UtilisateursPage() {
       {loading ? (
         <div className="text-center py-12">
           <div className="flex items-center justify-center gap-3">
-            <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
             <span className="text-slate-500 dark:text-slate-400">Chargement...</span>
           </div>
         </div>

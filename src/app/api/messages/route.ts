@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           await sendEmail({
             to: recipientEmail,
             subject: `Nouveau message de ${senderName || 'Visiteur'} - ${type}`,
-            html: `<div style="font-family:Arial;max-width:600px;margin:0 auto;padding:20px"><h2 style="color:#2563EB">Nouveau message QRBag</h2><p><strong>Type:</strong> ${type}</p>${senderName ? `<p><strong>De:</strong> ${senderName}</p>` : ''}${senderEmail ? `<p><strong>Email:</strong> ${senderEmail}</p>` : ''}${senderPhone ? `<p><strong>Téléphone:</strong> ${senderPhone}</p>` : ''}${subject ? `<p><strong>Sujet:</strong> ${subject}</p>` : ''}<div style="background:#f5f5f5;padding:15px;border-radius:8px;margin-top:15px"><p>${typeof content === 'string' ? content : JSON.stringify(content)}</p></div><hr style="margin-top:20px;border:none;border-top:1px solid #eee"><p style="color:#999;font-size:12px">© QRBag - Tous droits réservés</p></div>`,
+            html: `<div style="font-family:Arial;max-width:600px;margin:0 auto;padding:20px"><h2 style="color:#8b17c9">Nouveau message QRBag</h2><p><strong>Type:</strong> ${type}</p>${senderName ? `<p><strong>De:</strong> ${senderName}</p>` : ''}${senderEmail ? `<p><strong>Email:</strong> ${senderEmail}</p>` : ''}${senderPhone ? `<p><strong>Téléphone:</strong> ${senderPhone}</p>` : ''}${subject ? `<p><strong>Sujet:</strong> ${subject}</p>` : ''}<div style="background:#f5f5f5;padding:15px;border-radius:8px;margin-top:15px"><p>${typeof content === 'string' ? content : JSON.stringify(content)}</p></div><hr style="margin-top:20px;border:none;border-top:1px solid #eee"><p style="color:#999;font-size:12px">© QRBag - Tous droits réservés</p></div>`,
             type: 'new_message',
           });
           emailSent = true;

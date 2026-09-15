@@ -47,7 +47,7 @@ export default function MentionsLegales() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">4. Données personnelles</h2>
               <p className="mb-4">
-                Les informations concernant la collecte et le traitement des données personnelles sont détaillées dans notre <a href="/confidentialite" className="text-[#b8860b] hover:underline">Politique de confidentialité</a>.
+                Les informations concernant la collecte et le traitement des données personnelles sont détaillées dans notre <a href="/confidentialite" className="text-[#f8921f] hover:underline">Politique de confidentialité</a>.
               </p>
               <p>
                 Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression et de portabilité de vos données personnelles. Pour exercer ces droits, vous pouvez nous contacter à : contact@qrbag.com.
@@ -60,7 +60,7 @@ export default function MentionsLegales() {
                 Le site QRBag utilise des cookies pour améliorer l&apos;expérience utilisateur. Ces cookies sont soumis à votre consentement préalable, conformément à la réglementation applicable.
               </p>
               <p>
-                Pour en savoir plus sur l&apos;utilisation des cookies, veuillez consulter notre <a href="/confidentialite" className="text-[#b8860b] hover:underline">Politique de confidentialité</a>.
+                Pour en savoir plus sur l&apos;utilisation des cookies, veuillez consulter notre <a href="/confidentialite" className="text-[#f8921f] hover:underline">Politique de confidentialité</a>.
               </p>
             </section>
 
@@ -84,7 +84,7 @@ export default function MentionsLegales() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">8. Contact</h2>
               <p>
-                Pour toute question relative aux présentes mentions légales, vous pouvez nous contacter à : <a href="mailto:contact@qrbag.com" className="text-[#b8860b] hover:underline">contact@qrbag.com</a>
+                Pour toute question relative aux présentes mentions légales, vous pouvez nous contacter à : <a href="mailto:contact@qrbag.com" className="text-[#f8921f] hover:underline">contact@qrbag.com</a>
               </p>
             </section>
           </div>

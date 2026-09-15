@@ -46,7 +46,7 @@ export default function RGPDConsent() {
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-[#e0e6f0] text-sm text-center md:text-left">
           Ce site utilise des cookies pour améliorer votre expérience.{' '}
-          <Link href="/confidentialite" className="text-[#b8860b] hover:underline ml-1">
+          <Link href="/confidentialite" className="text-[#f8921f] hover:underline ml-1">
             En savoir plus
           </Link>
         </p>
@@ -59,7 +59,7 @@ export default function RGPDConsent() {
           </button>
           <button
             onClick={handleAccept}
-            className="px-4 py-2 bg-[#1e7e34] text-white text-sm rounded-lg hover:bg-[#1a6b2c] transition-colors font-medium"
+            className="px-4 py-2 bg-[#2f9bff] text-white text-sm rounded-lg hover:bg-[#1a6b2c] transition-colors font-medium"
           >
             Accepter
           </button>

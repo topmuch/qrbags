@@ -51,9 +51,9 @@ interface AgencyWithBaggages {
 // Status Badge Component
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; className: string }> = {
-    pending_activation: { label: 'En attente', className: 'bg-amber-100 text-amber-700 dark:bg-blue-900/30 dark:text-blue-500' },
-    active: { label: 'Actif', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-blue-500' },
-    scanned: { label: 'Scanné', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+    pending_activation: { label: 'En attente', className: 'bg-amber-100 text-amber-700 dark:bg-violet-900/30 dark:text-violet-500' },
+    active: { label: 'Actif', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-violet-500' },
+    scanned: { label: 'Scanné', className: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' },
     lost: { label: 'Perdu', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
     found: { label: 'Retrouvé', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
     blocked: { label: 'Bloqué', className: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400' },
@@ -90,8 +90,8 @@ function AgencyCard({
         className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-left"
       >
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#2563EB]/10 dark:bg-[#2563EB]/20 flex items-center justify-center">
-            <Building className="w-6 h-6 text-[#2563EB]" />
+          <div className="w-12 h-12 rounded-xl bg-[#8b17c9]/10 dark:bg-[#8b17c9]/20 flex items-center justify-center">
+            <Building className="w-6 h-6 text-[#8b17c9]" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white">{agency.name}</h3>
@@ -105,7 +105,7 @@ function AgencyCard({
           {/* Quick Stats */}
           <div className="hidden sm:flex items-center gap-2">
             {activeCount > 0 && (
-              <Badge variant="outline" className="border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-blue-500">
+              <Badge variant="outline" className="border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-violet-500">
                 {activeCount} actif{activeCount > 1 ? 's' : ''}
               </Badge>
             )}
@@ -115,7 +115,7 @@ function AgencyCard({
               </Badge>
             )}
             {pendingCount > 0 && (
-              <Badge variant="outline" className="border-amber-200 dark:border-amber-800 text-amber-700 dark:text-blue-500">
+              <Badge variant="outline" className="border-amber-200 dark:border-amber-800 text-amber-700 dark:text-violet-500">
                 {pendingCount} en attente
               </Badge>
             )}
@@ -153,8 +153,8 @@ function AgencyCard({
                   >
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 dark:bg-[#2563EB]/20 flex items-center justify-center">
-                          <QrCode className="w-4 h-4 text-[#2563EB]" />
+                        <div className="w-8 h-8 rounded-lg bg-[#8b17c9]/10 dark:bg-[#8b17c9]/20 flex items-center justify-center">
+                          <QrCode className="w-4 h-4 text-[#8b17c9]" />
                         </div>
                         <span className="text-slate-800 dark:text-white font-mono font-medium text-sm">
                           {baggage.reference}
@@ -324,8 +324,8 @@ export default function VoyageursAdminPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Total agences</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{agencies.length}</p>
               </div>
-              <div className="w-12 h-12 bg-[#2563EB]/10 dark:bg-[#2563EB]/20 rounded-xl flex items-center justify-center">
-                <Building className="w-6 h-6 text-[#2563EB]" />
+              <div className="w-12 h-12 bg-[#8b17c9]/10 dark:bg-[#8b17c9]/20 rounded-xl flex items-center justify-center">
+                <Building className="w-6 h-6 text-[#8b17c9]" />
               </div>
             </div>
           </CardContent>
@@ -338,8 +338,8 @@ export default function VoyageursAdminPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Total voyageurs</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{totalTravelers}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-violet-600 dark:text-violet-400" />
               </div>
             </div>
           </CardContent>
@@ -353,7 +353,7 @@ export default function VoyageursAdminPage() {
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{totalActive}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-blue-700 dark:text-blue-500" />
+                <CheckCircle className="w-6 h-6 text-violet-700 dark:text-violet-500" />
               </div>
             </div>
           </CardContent>
@@ -382,13 +382,13 @@ export default function VoyageursAdminPage() {
             placeholder="Rechercher par agence, voyageur ou référence..."
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all"
+            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-700 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8b17c9]/20 focus:border-[#8b17c9] transition-all"
           />
         </div>
         <div className="flex gap-2">
           <Button
             onClick={expandAll}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+            className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl"
           >
             Tout ouvrir
           </Button>
@@ -405,7 +405,7 @@ export default function VoyageursAdminPage() {
       {/* Agencies List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
         </div>
       ) : filteredAgencies.length === 0 ? (
         <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">

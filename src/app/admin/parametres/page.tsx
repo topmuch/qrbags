@@ -155,7 +155,7 @@ function BackupSection() {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center">
           <Database className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -194,7 +194,7 @@ function BackupSection() {
           />
           <label
             htmlFor="backup-import"
-            className={`flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors cursor-pointer ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`flex items-center justify-center gap-2 px-4 py-3 bg-violet-600 text-white rounded-xl font-medium hover:bg-violet-700 transition-colors cursor-pointer ${isImporting ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isImporting ? (
               <>
@@ -219,7 +219,7 @@ function BackupSection() {
       </div>
 
       {importStatus && (
-        <div className={`mt-4 p-3 rounded-xl flex items-center gap-2 ${importStatus.success ? 'bg-emerald-50 dark:bg-blue-600/10 text-blue-700 dark:text-blue-500' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
+        <div className={`mt-4 p-3 rounded-xl flex items-center gap-2 ${importStatus.success ? 'bg-emerald-50 dark:bg-violet-600/10 text-violet-700 dark:text-violet-500' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
           {importStatus.success ? (
             <CheckCircle className="w-5 h-5" />
           ) : (
@@ -480,7 +480,7 @@ export default function ParametresPage() {
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-20">
-            <RefreshCw className="w-8 h-8 text-[#2563EB] animate-spin" />
+            <RefreshCw className="w-8 h-8 text-[#8b17c9] animate-spin" />
           </div>
         )}
 
@@ -490,7 +490,7 @@ export default function ParametresPage() {
             {/* Logo Section */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-[#2563EB]" />
+                <ImageIcon className="w-5 h-5 text-[#8b17c9]" />
                 Logo de l&apos;entreprise
               </h3>
               <div className="flex items-start gap-6">
@@ -532,7 +532,7 @@ export default function ParametresPage() {
             {/* Company Info */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-[#2563EB]" />
+                <Building2 className="w-5 h-5 text-[#8b17c9]" />
                 Informations de l&apos;entreprise
               </h3>
               <div className="grid gap-4">
@@ -544,7 +544,7 @@ export default function ParametresPage() {
                     type="text"
                     value={settings.company_name}
                     onChange={(e) => setSettings({ ...settings, company_name: e.target.value })}
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                   />
                 </div>
                 <div>
@@ -556,7 +556,7 @@ export default function ParametresPage() {
                     type="text"
                     value={settings.company_address}
                     onChange={(e) => setSettings({ ...settings, company_address: e.target.value })}
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                   />
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -569,7 +569,7 @@ export default function ParametresPage() {
                       type="tel"
                       value={settings.company_phone}
                       onChange={(e) => setSettings({ ...settings, company_phone: e.target.value })}
-                      className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                      className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                     />
                   </div>
                   <div>
@@ -581,7 +581,7 @@ export default function ParametresPage() {
                       type="email"
                       value={settings.company_email}
                       onChange={(e) => setSettings({ ...settings, company_email: e.target.value })}
-                      className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                      className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                     />
                   </div>
                 </div>
@@ -596,7 +596,7 @@ export default function ParametresPage() {
             {/* SEO Image */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-[#2563EB]" />
+                <ImageIcon className="w-5 h-5 text-[#8b17c9]" />
                 Image SEO (Open Graph)
               </h3>
               <div className="flex items-start gap-6">
@@ -638,7 +638,7 @@ export default function ParametresPage() {
             {/* SEO Info */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Search className="w-5 h-5 text-[#2563EB]" />
+                <Search className="w-5 h-5 text-[#8b17c9]" />
                 Référencement (SEO)
               </h3>
               <div className="grid gap-4">
@@ -650,7 +650,7 @@ export default function ParametresPage() {
                     type="text"
                     value={settings.seo_title}
                     onChange={(e) => setSettings({ ...settings, seo_title: e.target.value })}
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                   />
                   <p className="text-slate-400 text-xs mt-1">
                     {settings.seo_title.length}/60 caractères (recommandé)
@@ -664,7 +664,7 @@ export default function ParametresPage() {
                     value={settings.seo_description}
                     onChange={(e) => setSettings({ ...settings, seo_description: e.target.value })}
                     rows={3}
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB] resize-none"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9] resize-none"
                   />
                   <p className="text-slate-400 text-xs mt-1">
                     {settings.seo_description.length}/160 caractères (recommandé)
@@ -678,7 +678,7 @@ export default function ParametresPage() {
                     type="text"
                     value={settings.seo_keywords}
                     onChange={(e) => setSettings({ ...settings, seo_keywords: e.target.value })}
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                   />
                 </div>
               </div>
@@ -692,7 +692,7 @@ export default function ParametresPage() {
             {/* Currency */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-[#2563EB]" />
+                <DollarSign className="w-5 h-5 text-[#8b17c9]" />
                 Devise
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
@@ -703,7 +703,7 @@ export default function ParametresPage() {
                     className={`
                       flex items-center gap-3 p-4 rounded-2xl border transition-all
                       ${settings.currency === currency.code
-                        ? 'border-[#2563EB] bg-[#2563EB]/10 text-slate-800 dark:text-white'
+                        ? 'border-[#8b17c9] bg-[#8b17c9]/10 text-slate-800 dark:text-white'
                         : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 text-slate-600 dark:text-slate-400 hover:text-slate-800'
                       }
                     `}
@@ -713,7 +713,7 @@ export default function ParametresPage() {
                     </span>
                     <span className="text-sm">{currency.name}</span>
                     {settings.currency === currency.code && (
-                      <CheckCircle className="w-5 h-5 text-[#2563EB] ml-auto" />
+                      <CheckCircle className="w-5 h-5 text-[#8b17c9] ml-auto" />
                     )}
                   </button>
                 ))}
@@ -723,7 +723,7 @@ export default function ParametresPage() {
             {/* Languages */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Languages className="w-5 h-5 text-[#2563EB]" />
+                <Languages className="w-5 h-5 text-[#8b17c9]" />
                 Langues disponibles
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
@@ -737,7 +737,7 @@ export default function ParametresPage() {
                       className={`
                         flex items-center gap-3 p-3 rounded-2xl border transition-all
                         ${isActive
-                          ? 'border-[#2563EB] bg-[#2563EB]/10 text-slate-800 dark:text-white'
+                          ? 'border-[#8b17c9] bg-[#8b17c9]/10 text-slate-800 dark:text-white'
                           : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 text-slate-400 dark:text-slate-500 hover:text-slate-600'
                         }
                       `}
@@ -761,7 +761,7 @@ export default function ParametresPage() {
                 <select
                   value={settings.default_language}
                   onChange={(e) => setSettings({ ...settings, default_language: e.target.value })}
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                 >
                   {AVAILABLE_LANGUAGES.filter(lang => settings.languages.split(',').includes(lang.code)).map((lang) => (
                     <option key={lang.code} value={lang.code}>
@@ -780,7 +780,7 @@ export default function ParametresPage() {
             {/* Provider Selection */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Server className="w-5 h-5 text-[#2563EB]" />
+                <Server className="w-5 h-5 text-[#8b17c9]" />
                 Fournisseur Email
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
@@ -791,7 +791,7 @@ export default function ParametresPage() {
                     className={`
                       flex items-start gap-4 p-4 rounded-2xl border transition-all text-left
                       ${emailSettings.provider === provider.id
-                        ? 'border-[#2563EB] bg-[#2563EB]/10'
+                        ? 'border-[#8b17c9] bg-[#8b17c9]/10'
                         : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                       }
                     `}
@@ -801,7 +801,7 @@ export default function ParametresPage() {
                       <div className="flex items-center gap-2">
                         <h4 className="text-slate-800 dark:text-white font-semibold">{provider.name}</h4>
                         {emailSettings.provider === provider.id && (
-                          <CheckCircle className="w-5 h-5 text-[#2563EB]" />
+                          <CheckCircle className="w-5 h-5 text-[#8b17c9]" />
                         )}
                       </div>
                       <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{provider.description}</p>
@@ -814,7 +814,7 @@ export default function ParametresPage() {
             {/* Sender Settings */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-[#2563EB]" />
+                <Mail className="w-5 h-5 text-[#8b17c9]" />
                 Expéditeur & Destinataire
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
@@ -827,7 +827,7 @@ export default function ParametresPage() {
                     value={emailSettings.fromEmail}
                     onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
                     placeholder="noreply@votredomaine.com"
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                   />
                 </div>
                 <div>
@@ -839,7 +839,7 @@ export default function ParametresPage() {
                     value={emailSettings.fromName}
                     onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
                     placeholder="QRBag"
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -851,7 +851,7 @@ export default function ParametresPage() {
                     value={emailSettings.recipientEmail || ''}
                     onChange={(e) => setEmailSettings({ ...emailSettings, recipientEmail: e.target.value || null })}
                     placeholder="admin@votredomaine.com — L'email qui reçoit les notifications (bagages perdus/trouvés, messages de contact...)"
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                   />
                   <p className="mt-1.5 text-xs text-slate-400">
                     Si vide, les notifications seront envoyées à l'email expéditeur ({emailSettings.fromEmail})
@@ -864,7 +864,7 @@ export default function ParametresPage() {
             {emailSettings.provider === 'smtp' && (
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                  <Server className="w-5 h-5 text-[#2563EB]" />
+                  <Server className="w-5 h-5 text-[#8b17c9]" />
                   Configuration SMTP
                 </h3>
                 <div className="grid gap-4">
@@ -878,7 +878,7 @@ export default function ParametresPage() {
                         value={emailSettings.smtpHost || ''}
                         onChange={(e) => setEmailSettings({ ...emailSettings, smtpHost: e.target.value || null })}
                         placeholder="smtp.example.com"
-                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                       />
                     </div>
                     <div>
@@ -890,7 +890,7 @@ export default function ParametresPage() {
                         value={emailSettings.smtpPort || ''}
                         onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: e.target.value ? parseInt(e.target.value) : null })}
                         placeholder="587"
-                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                       />
                     </div>
                   </div>
@@ -904,7 +904,7 @@ export default function ParametresPage() {
                         value={emailSettings.smtpUser || ''}
                         onChange={(e) => setEmailSettings({ ...emailSettings, smtpUser: e.target.value || null })}
                         placeholder="user@example.com"
-                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                       />
                     </div>
                     <div>
@@ -917,7 +917,7 @@ export default function ParametresPage() {
                           value={emailSettings.smtpPassword || ''}
                           onChange={(e) => setEmailSettings({ ...emailSettings, smtpPassword: e.target.value || null })}
                           placeholder="••••••••"
-                          className="w-full px-4 py-3 pr-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                          className="w-full px-4 py-3 pr-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                         />
                         <button
                           type="button"
@@ -941,7 +941,7 @@ export default function ParametresPage() {
                           className={`
                             px-4 py-2 rounded-xl border transition-all text-sm
                             ${emailSettings.smtpEncryption === option.id
-                              ? 'border-[#2563EB] bg-[#2563EB]/10 text-slate-800 dark:text-white'
+                              ? 'border-[#8b17c9] bg-[#8b17c9]/10 text-slate-800 dark:text-white'
                               : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 text-slate-600 dark:text-slate-400'
                             }
                           `}
@@ -958,7 +958,7 @@ export default function ParametresPage() {
             {/* Test Email Section */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Send className="w-5 h-5 text-[#2563EB]" />
+                <Send className="w-5 h-5 text-[#8b17c9]" />
                 Tester la configuration
               </h3>
               <div className="flex gap-4">
@@ -967,12 +967,12 @@ export default function ParametresPage() {
                   value={testEmail}
                   onChange={(e) => setTestEmail(e.target.value)}
                   placeholder="votre@email.com"
-                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#2563EB]"
+                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#8b17c9]"
                 />
                 <button
                   onClick={handleTestEmail}
                   disabled={sendingTest}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#2563EB] text-white rounded-xl font-medium hover:bg-[#ff6600] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-[#8b17c9] text-white rounded-xl font-medium hover:bg-[#ff6600] transition-colors disabled:opacity-50"
                 >
                   {sendingTest ? (
                     <>
@@ -992,15 +992,15 @@ export default function ParametresPage() {
               {testResult && (
                 <div className={`mt-4 p-4 rounded-xl flex items-start gap-3 ${
                   testResult.warning
-                    ? 'bg-amber-50 dark:bg-blue-600/10 border border-amber-200 dark:border-amber-800'
+                    ? 'bg-amber-50 dark:bg-violet-600/10 border border-amber-200 dark:border-amber-800'
                     : testResult.success 
-                    ? 'bg-emerald-50 dark:bg-blue-600/10 border border-emerald-200 dark:border-emerald-800' 
+                    ? 'bg-emerald-50 dark:bg-violet-600/10 border border-emerald-200 dark:border-emerald-800' 
                     : 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-800'
                 }`}>
                   {testResult.warning ? (
-                    <AlertCircle className="w-5 h-5 text-amber-600 dark:text-blue-500 mt-0.5 flex-shrink-0" />
+                    <AlertCircle className="w-5 h-5 text-amber-600 dark:text-violet-500 mt-0.5 flex-shrink-0" />
                   ) : testResult.success ? (
-                    <CheckCircle className="w-5 h-5 text-blue-700 dark:text-blue-500" />
+                    <CheckCircle className="w-5 h-5 text-violet-700 dark:text-violet-500" />
                   ) : (
                     <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
                   )}
@@ -1025,7 +1025,7 @@ export default function ParametresPage() {
                 className={`
                   flex items-center gap-2 px-6 py-3 rounded-2xl font-bold shadow-lg transition-all
                   ${emailSaved
-                    ? 'bg-blue-700 text-white'
+                    ? 'bg-violet-700 text-white'
                     : 'bg-black text-white hover:bg-slate-800 hover:scale-105'
                   }
                 `}
@@ -1067,7 +1067,7 @@ export default function ParametresPage() {
               className={`
                 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold shadow-lg transition-all
                 ${saved
-                  ? 'bg-blue-700 text-white'
+                  ? 'bg-violet-700 text-white'
                   : 'bg-black text-white hover:bg-slate-800 hover:scale-105'
                 }
               `}

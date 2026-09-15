@@ -175,7 +175,7 @@ export default function PhoneInput({
                       onClick={() => handleCountrySelect(c)}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                         c.code === selected.code
-                          ? (dark ? 'bg-blue-500/20 text-blue-600' : 'bg-[#e9dcc0] text-[#16234e] font-bold')
+                          ? (dark ? 'bg-violet-500/20 text-violet-600' : 'bg-[#e9dcc0] text-[#16234e] font-bold')
                           : (dark ? 'text-white/80 hover:bg-white/10' : 'text-[#16234e] hover:bg-[#f3ecdc]')
                       }`}
                     >

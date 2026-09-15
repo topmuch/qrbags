@@ -8,8 +8,14 @@ import {
   Home,
   RefreshCw,
   Shield,
-  AlertTriangle
-} from "lucide-react";
+  AlertTriangle,
+} from 'lucide-react';
+import {
+  BrandShell,
+  BrandCard,
+  BrandIconRing,
+  brandBtnNavy,
+} from '@/components/brand/BrandShell';
 
 function ExpiredContent() {
   const searchParams = useSearchParams();
@@ -40,7 +46,7 @@ function ExpiredContent() {
       return date.toLocaleDateString('fr-FR', {
         day: '2-digit',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
       });
     } catch {
       return dateStr;
@@ -50,110 +56,131 @@ function ExpiredContent() {
   const handleWhatsApp = () => {
     const message = encodeURIComponent(
       `Bonjour,\n\n` +
-      `J'ai scanné un QR code QRBag qui a expiré.\n\n` +
-      `📦 Référence: ${reference}\n` +
-      `📅 Expiré le: ${formatDate(expiredAt)}\n\n` +
-      `Je souhaite renouveler la protection de ce bagage.`
+        `J'ai scanné un QR code QRBag qui a expiré.\n\n` +
+        `📦 Référence: ${reference}\n` +
+        `📅 Expiré le: ${formatDate(expiredAt)}\n\n` +
+        `Je souhaite renouveler la protection de ce bagage.`
     );
     window.open(`https://wa.me/33745349339?text=${message}`, '_blank');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#080c1a] to-[#0d1220] flex flex-col items-center justify-center p-6 text-center">
-      <div className="max-w-md w-full">
-        {/* Icon */}
-        <div className="w-20 h-20 bg-[#7a1e1e]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Clock className="w-10 h-10 text-red-400" />
-        </div>
-
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-white mb-2">
-          Ce QR code est expiré
-        </h1>
-        
-        <p className="text-[#a0a8b8] mb-8">
-          Le bagage associé à{' '}
-          <span className="font-mono bg-slate-800 px-2 py-1 rounded text-blue-500">
-            {reference || 'ce code'}
-          </span>
-          {expiredAt && (
-            <>
-              {' '}n'est plus protégé depuis le{' '}
-              <span className="text-white font-medium">{formatDate(expiredAt)}</span>.
-            </>
-          )}
-        </p>
-
-        {/* Warning Box */}
-        <div className="bg-blue-600/10 border border-blue-600/30 rounded-xl p-4 mb-6 text-left">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-amber-300 font-medium text-sm">Que faire ?</p>
-              <p className="text-amber-200/70 text-sm mt-1">
-                Si vous êtes le propriétaire, contactez votre agence pour générer un nouveau QR code. 
-                Si vous avez trouvé ce bagage, vous pouvez nous contacter pour aider à le retrouver.
-              </p>
+    <BrandShell>
+      <main className="min-h-screen flex items-center justify-center p-4 sm:p-6">
+        <div className="max-w-md w-full py-10">
+          {/* ═══ Carte principale (coins viewfinder QR) ═══ */}
+          <BrandCard corners className="p-6 sm:p-8 text-center">
+            {/* Icône horloge — anneau dégradé signature */}
+            <div className="flex justify-center mb-5">
+              <BrandIconRing size="w-20 h-20" glow="#e6216e">
+                <Clock className="w-10 h-10 text-[#e6216e]" />
+              </BrandIconRing>
             </div>
-          </div>
-        </div>
 
-        {/* Actions */}
-        <div className="space-y-3">
-          <button
-            onClick={handleWhatsApp}
-            className="w-full py-3.5 bg-[#25D366] text-white rounded-xl font-bold hover:bg-[#128C7E] transition-colors flex items-center justify-center gap-2 shadow-lg"
-          >
-            <MessageCircle className="w-5 h-5" />
-            Contacter via WhatsApp
-          </button>
+            {/* Titre */}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#16234e] mb-3">
+              Ce QR code est expiré
+            </h1>
 
-          {agencyName && (
-            <p className="text-sm text-[#a0a8b8]">
-              Agence : <span className="text-white font-medium">{agencyName}</span>
+            <p className="text-[#16234e]/70 leading-relaxed mb-6">
+              Le bagage associé à{' '}
+              <span className="font-mono font-bold text-[#16234e] bg-[#16234e]/5 border border-[#16234e]/10 px-2 py-0.5 rounded-md break-all">
+                {reference || 'ce code'}
+              </span>
+              {expiredAt && (
+                <>
+                  {' '}
+                  n&apos;est plus protégé depuis le{' '}
+                  <span className="text-[#16234e] font-semibold">
+                    {formatDate(expiredAt)}
+                  </span>
+                  .
+                </>
+              )}
             </p>
-          )}
 
-          <button
-            onClick={() => router.push('/')}
-            className="w-full py-3.5 bg-slate-800 text-white rounded-xl font-medium hover:bg-slate-700 transition-colors flex items-center justify-center gap-2 border border-slate-700"
-          >
-            <Home className="w-5 h-5" />
-            Retour à l'accueil
-          </button>
-        </div>
-
-        {/* Help Text */}
-        <div className="mt-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
-          <div className="flex items-start gap-3">
-            <RefreshCw className="w-5 h-5 text-slate-400 shrink-0" />
-            <div className="text-left">
-              <p className="text-slate-300 font-medium text-sm">Comment renouveler ?</p>
-              <p className="text-slate-400 text-xs mt-1">
-                Contactez votre agence de voyage ou rendez-vous sur QRBag.com pour générer un nouveau QR code. 
-                La protection standard dure 7 jours, et jusqu'à 1 an avec un tag premium.
-              </p>
+            {/* Encart info — violet doux (couleur « renouvellement » de la charte) */}
+            <div className="bg-[#8b17c9]/5 border border-[#8b17c9]/15 rounded-xl p-4 mb-6 text-left">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-[#8b17c9] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[#8b17c9] font-bold text-sm">Que faire ?</p>
+                  <p className="text-[#16234e]/70 text-sm mt-1">
+                    Si vous êtes le propriétaire, contactez votre agence pour générer un
+                    nouveau QR code. Si vous avez trouvé ce bagage, vous pouvez nous
+                    contacter pour aider à le retrouver.
+                  </p>
+                </div>
+              </div>
             </div>
+
+            {/* Actions */}
+            <div className="space-y-3">
+              {/* WhatsApp — vert de marque WhatsApp (#25D366), inchangé */}
+              <button
+                onClick={handleWhatsApp}
+                aria-label="Contacter QRBag via WhatsApp pour renouveler la protection"
+                className="w-full min-h-[48px] py-3.5 bg-[#25D366] text-white rounded-2xl font-bold hover:bg-[#128C7E] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/25 cursor-pointer"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Contacter via WhatsApp
+              </button>
+
+              {agencyName && (
+                <p className="text-sm text-[#16234e]/60">
+                  Agence :{' '}
+                  <span className="text-[#16234e] font-semibold">{agencyName}</span>
+                </p>
+              )}
+
+              <button
+                onClick={() => router.push('/')}
+                aria-label="Retour à la page d'accueil QRBag"
+                className={`${brandBtnNavy} w-full min-h-[48px] py-3.5 flex items-center justify-center gap-2 cursor-pointer`}
+              >
+                <Home className="w-5 h-5" />
+                Retour à l&apos;accueil
+              </button>
+            </div>
+          </BrandCard>
+
+          {/* ═══ Encart « Comment renouveler » ═══ */}
+          <BrandCard className="p-4 mt-4">
+            <div className="flex items-start gap-3">
+              <RefreshCw className="w-5 h-5 text-[#2f9bff] shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[#16234e] font-bold text-sm">
+                  Comment renouveler ?
+                </p>
+                <p className="text-[#16234e]/60 text-xs mt-1 leading-relaxed">
+                  Contactez votre agence de voyage ou rendez-vous sur QRBag.com pour
+                  générer un nouveau QR code. La protection standard dure 7 jours, et
+                  jusqu&apos;à 1 an avec un tag premium.
+                </p>
+              </div>
+            </div>
+          </BrandCard>
+
+          {/* Footer */}
+          <div className="mt-8 text-center text-[#16234e]/50 text-xs">
+            <Shield className="w-4 h-4 inline mr-1" />
+            QRBag – Protégez vos bagages, en toute sérénité
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="mt-8 text-center text-[#a0a8b8]/70 text-xs">
-          <Shield className="w-4 h-4 inline mr-1" />
-          QRBag – Protégez vos bagages, en toute sérénité
-        </div>
-      </div>
-    </div>
+      </main>
+    </BrandShell>
   );
 }
 
 export default function ExpiredQRPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-[#080c1a] to-[#0d1220] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-600/30 border-t-blue-600 rounded-full"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-2 border-[#16234e]/15 border-t-[#e6216e] rounded-full"></div>
+        </div>
+      }
+    >
       <ExpiredContent />
     </Suspense>
   );

@@ -172,8 +172,8 @@ export function getBaggageStatusInfo(status: string) {
     },
     scanned: {
       label: 'Scanné',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
+      color: 'text-violet-600',
+      bgColor: 'bg-violet-100'
     },
     lost: {
       label: 'Perdu',
@@ -182,7 +182,7 @@ export function getBaggageStatusInfo(status: string) {
     },
     found: {
       label: 'Retrouvé',
-      color: 'text-blue-700',
+      color: 'text-violet-700',
       bgColor: 'bg-emerald-100'
     },
     blocked: {

@@ -1,9 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import PublicLayout from '@/components/public/PublicLayout';
-import { Button } from "@/components/ui/button";
+import {
+  brandBadge,
+  brandBtnGradient,
+  brandBtnNavy,
+  brandInput,
+  brandLabel,
+  BrandCard,
+} from '@/components/brand/BrandShell';
 import {
   Mail,
   Phone,
@@ -48,13 +54,19 @@ function ContactContent() {
 
   return (
     <>
-      {/* Hero section */}
-      <section className="text-center py-16 bg-gradient-to-r from-[#080c1a] via-[#1e3a2e] to-[#080c1a]">
-        <div className="max-w-4xl mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+      {/* Hero section — bandeau navy étiquette QRBag */}
+      <section className="relative overflow-hidden bg-[#16234e] text-center">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
+        <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[#e6216e]/20 blur-[110px] pointer-events-none" aria-hidden />
+        <div className="absolute -bottom-28 -left-24 w-80 h-80 rounded-full bg-[#2f9bff]/15 blur-[110px] pointer-events-none" aria-hidden />
+
+        <div className="relative max-w-4xl mx-auto px-4 py-16 md:py-20">
+          <span className={brandBadge}>Contact</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 mt-6">
             Contactez-nous
           </h1>
-          <p className="text-[#a0a8b8] max-w-2xl mx-auto text-xl leading-relaxed">
+          <p className="text-white/70 max-w-2xl mx-auto text-xl leading-relaxed">
             Une question ? Un projet ? Notre équipe est là pour vous accompagner.
           </p>
         </div>
@@ -66,75 +78,75 @@ function ContactContent() {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Informations de contact */}
             <div>
-              <h2 className="text-2xl font-bold text-white mb-8">Nos coordonnées</h2>
+              <h2 className="text-2xl font-bold text-[#16234e] mb-8">Nos coordonnées</h2>
 
               <div className="space-y-6">
                 {/* Adresse */}
-                <div className="flex items-start gap-4 p-4 bg-[#0a0f2c] rounded-xl border border-[#1a1a3a]">
-                  <div className="w-12 h-12 rounded-lg bg-[#1E40AF]/20 flex items-center justify-center border border-[#1E40AF]/30 shrink-0">
-                    <MapPinned className="w-6 h-6 text-[#1E40AF]" />
+                <div className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-[#16234e]/10 shadow-lg shadow-[#16234e]/5 hover:shadow-xl hover:shadow-[#16234e]/10 hover:-translate-y-0.5 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-[#8b17c9]/10 flex items-center justify-center shrink-0">
+                    <MapPinned className="w-6 h-6 text-[#8b17c9]" aria-hidden />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-1 text-white">Adresse</h3>
-                    <p className="text-[#a0a8b8]">43 Rue Maryse Bastié</p>
-                    <p className="text-[#a0a8b8]">78300 Poissy, France</p>
+                    <h3 className="font-semibold text-lg mb-1 text-[#16234e]">Adresse</h3>
+                    <p className="text-[#16234e]/70">43 Rue Maryse Bastié</p>
+                    <p className="text-[#16234e]/70">78300 Poissy, France</p>
                   </div>
                 </div>
 
                 {/* Téléphone */}
-                <div className="flex items-start gap-4 p-4 bg-[#0a0f2c] rounded-xl border border-[#1a1a3a]">
-                  <div className="w-12 h-12 rounded-lg bg-[#1E40AF]/20 flex items-center justify-center border border-[#1E40AF]/30 shrink-0">
-                    <Phone className="w-6 h-6 text-[#1E40AF]" />
+                <div className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-[#16234e]/10 shadow-lg shadow-[#16234e]/5 hover:shadow-xl hover:shadow-[#16234e]/10 hover:-translate-y-0.5 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-[#2f9bff]/10 flex items-center justify-center shrink-0">
+                    <Phone className="w-6 h-6 text-[#2f9bff]" aria-hidden />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-1 text-white">Téléphone</h3>
-                    <a href="tel:+33745349339" className="text-[#a0a8b8] hover:text-[#1E40AF] transition-colors">
+                    <h3 className="font-semibold text-lg mb-1 text-[#16234e]">Téléphone</h3>
+                    <a href="tel:+33745349339" className="text-[#16234e]/70 hover:text-[#2f9bff] transition-colors">
                       +33 7 45 34 93 39
                     </a>
                   </div>
                 </div>
 
                 {/* Email */}
-                <div className="flex items-start gap-4 p-4 bg-[#0a0f2c] rounded-xl border border-[#1a1a3a]">
-                  <div className="w-12 h-12 rounded-lg bg-[#1E40AF]/20 flex items-center justify-center border border-[#1E40AF]/30 shrink-0">
-                    <Mail className="w-6 h-6 text-[#1E40AF]" />
+                <div className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-[#16234e]/10 shadow-lg shadow-[#16234e]/5 hover:shadow-xl hover:shadow-[#16234e]/10 hover:-translate-y-0.5 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-[#f8921f]/15 flex items-center justify-center shrink-0">
+                    <Mail className="w-6 h-6 text-[#f8921f]" aria-hidden />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-1 text-white">Email</h3>
-                    <a href="mailto:contact@qrbag.com" className="text-[#a0a8b8] hover:text-[#1E40AF] transition-colors">
+                    <h3 className="font-semibold text-lg mb-1 text-[#16234e]">Email</h3>
+                    <a href="mailto:contact@qrbag.com" className="text-[#16234e]/70 hover:text-[#f8921f] transition-colors">
                       contact@qrbag.com
                     </a>
                   </div>
                 </div>
 
                 {/* Horaires */}
-                <div className="flex items-start gap-4 p-4 bg-[#0a0f2c] rounded-xl border border-[#1a1a3a]">
-                  <div className="w-12 h-12 rounded-lg bg-[#1E40AF]/20 flex items-center justify-center border border-[#1E40AF]/30 shrink-0">
-                    <Clock className="w-6 h-6 text-[#1E40AF]" />
+                <div className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-[#16234e]/10 shadow-lg shadow-[#16234e]/5 hover:shadow-xl hover:shadow-[#16234e]/10 hover:-translate-y-0.5 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-[#e6216e]/10 flex items-center justify-center shrink-0">
+                    <Clock className="w-6 h-6 text-[#e6216e]" aria-hidden />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-1 text-white">Horaires</h3>
-                    <p className="text-[#a0a8b8]">Lundi - Vendredi : 9h - 18h</p>
-                    <p className="text-[#a0a8b8]">Support 24/7 pour les urgences</p>
+                    <h3 className="font-semibold text-lg mb-1 text-[#16234e]">Horaires</h3>
+                    <p className="text-[#16234e]/70">Lundi - Vendredi : 9h - 18h</p>
+                    <p className="text-[#16234e]/70">Support 24/7 pour les urgences</p>
                   </div>
                 </div>
 
                 {/* WhatsApp */}
-                <div className="flex items-start gap-4 p-4 bg-[#0a0f2c] rounded-xl border border-[#1a1a3a]">
-                  <div className="w-12 h-12 rounded-lg bg-[#25D366]/20 flex items-center justify-center border border-[#25D366]/30 shrink-0">
-                    <MessageCircle className="w-6 h-6 text-[#25D366]" />
+                <div className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-[#16234e]/10 shadow-lg shadow-[#16234e]/5 hover:shadow-xl hover:shadow-[#16234e]/10 hover:-translate-y-0.5 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-[#8b17c9]/10 flex items-center justify-center shrink-0">
+                    <MessageCircle className="w-6 h-6 text-[#8b17c9]" aria-hidden />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-1 text-white">WhatsApp</h3>
+                    <h3 className="font-semibold text-lg mb-1 text-[#16234e]">WhatsApp</h3>
                     <a
                       href="https://wa.me/33745349339"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#a0a8b8] hover:text-[#25D366] transition-colors"
+                      className="text-[#16234e]/70 hover:text-[#8b17c9] transition-colors"
                     >
                       +33 7 45 34 93 39
                     </a>
-                    <p className="text-[#a0a8b8] text-sm mt-1">Réponse rapide garantie</p>
+                    <p className="text-[#16234e]/60 text-sm mt-1">Réponse rapide garantie</p>
                   </div>
                 </div>
               </div>
@@ -142,106 +154,113 @@ function ContactContent() {
 
             {/* Formulaire de contact */}
             <div>
-              <h2 className="text-2xl font-bold text-white mb-8">Envoyez-nous un message</h2>
+              <h2 className="text-2xl font-bold text-[#16234e] mb-8">Envoyez-nous un message</h2>
 
-              <div className="bg-[#0a0f2c] rounded-xl p-6 border border-[#1a1a3a]">
+              <BrandCard corners className="p-6 sm:p-8">
                 {submitted ? (
                   <div className="text-center py-12">
-                    <CheckCircle className="w-20 h-20 text-[#1E40AF] mx-auto mb-6" />
-                    <h3 className="text-2xl font-semibold mb-3 text-white">Message envoyé !</h3>
-                    <p className="text-[#a0a8b8] mb-6">
+                    <CheckCircle className="w-20 h-20 text-[#2f9bff] mx-auto mb-6" aria-hidden />
+                    <h3 className="text-2xl font-semibold mb-3 text-[#16234e]">Message envoyé !</h3>
+                    <p className="text-[#16234e]/70 mb-6">
                       Nous avons bien reçu votre message et vous répondrons dans les plus brefs délais.
                     </p>
-                    <Button
+                    <button
                       onClick={() => {
                         setSubmitted(false);
                         setFormData({ name: '', email: '', subject: '', message: '' });
                       }}
-                      className="bg-[#1E40AF] hover:bg-[#e01e5a] text-white"
+                      className={`${brandBtnNavy} px-6 py-3 min-h-[48px]`}
                     >
                       Envoyer un autre message
-                    </Button>
+                    </button>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2 text-white">Nom *</label>
+                        <label htmlFor="contact-name" className={brandLabel}>Nom *</label>
                         <input
+                          id="contact-name"
                           type="text"
                           placeholder="Votre nom"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full px-4 py-3 rounded-lg bg-[#080c1a] border border-[#1a1a3a] text-white placeholder-[#a0a8b8] focus:outline-none focus:border-[#1E40AF]"
+                          className={brandInput}
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2 text-white">Email *</label>
+                        <label htmlFor="contact-email" className={brandLabel}>Email *</label>
                         <input
+                          id="contact-email"
                           type="email"
                           placeholder="votre@email.com"
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full px-4 py-3 rounded-lg bg-[#080c1a] border border-[#1a1a3a] text-white placeholder-[#a0a8b8] focus:outline-none focus:border-[#1E40AF]"
+                          className={brandInput}
                           required
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-white">Sujet</label>
+                      <label htmlFor="contact-subject" className={brandLabel}>Sujet</label>
                       <input
+                        id="contact-subject"
                         type="text"
                         placeholder="Objet de votre message"
                         value={formData.subject}
                         onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg bg-[#080c1a] border border-[#1a1a3a] text-white placeholder-[#a0a8b8] focus:outline-none focus:border-[#1E40AF]"
+                        className={brandInput}
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-white">Message *</label>
+                      <label htmlFor="contact-message" className={brandLabel}>Message *</label>
                       <textarea
+                        id="contact-message"
                         placeholder="Décrivez votre demande..."
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="w-full px-4 py-3 rounded-lg bg-[#080c1a] border border-[#1a1a3a] text-white placeholder-[#a0a8b8] focus:outline-none focus:border-[#1E40AF] min-h-[160px]"
+                        className={`${brandInput} resize-none`}
+                        style={{ minHeight: '10rem' }}
                         required
                       />
                     </div>
 
-                    <Button
+                    <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full bg-[#1E40AF] hover:bg-[#e01e5a] text-white py-4 font-bold text-lg disabled:opacity-50"
+                      className={`${brandBtnGradient} w-full py-4 text-lg min-h-[52px]`}
                     >
                       {submitting ? 'Envoi en cours...' : 'Envoyer le message'}
-                    </Button>
+                    </button>
 
-                    <p className="text-[#a0a8b8] text-sm text-center">
+                    <p className="text-[#16234e]/60 text-sm text-center">
                       Nous répondons généralement sous 24h ouvrées.
                     </p>
                   </form>
                 )}
-              </div>
+              </BrandCard>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Map section */}
-      <section className="py-16 px-4 bg-[#0a0f2c]">
-        <div className="max-w-6xl mx-auto text-center">
+      {/* Map section — bandeau navy */}
+      <section className="relative overflow-hidden bg-[#16234e] py-16 px-4">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
+        <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
+        <div className="relative max-w-6xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-white mb-6">Nous trouver</h2>
-          <p className="text-[#a0a8b8] mb-8">Notre bureau est situé à Poissy, dans les Yvelines (78).</p>
+          <p className="text-white/70 mb-8">Notre bureau est situé à Poissy, dans les Yvelines (78).</p>
           <a
             href="https://maps.google.com/?q=43+Rue+Maryse+Bastié+78300+Poissy+France"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#1E40AF] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#e01e5a] transition-colors"
+            className={`${brandBtnGradient} inline-flex items-center gap-2 px-6 py-3 min-h-[48px]`}
           >
-            <MapPinned className="w-5 h-5" />
+            <MapPinned className="w-5 h-5" aria-hidden />
             Voir sur Google Maps
           </a>
         </div>

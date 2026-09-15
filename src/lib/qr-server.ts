@@ -46,8 +46,8 @@ export async function generateQRCodeImage(options: QRCodeImageOptions): Promise<
   } = options;
 
   const scanUrl = baseUrl ? `${baseUrl}/scan/${reference}` : `/scan/${reference}`;
-  const qrColor = type === 'hajj' ? '#0d5e34' : '#1D4ED8';
-  const labelColor = type === 'hajj' ? '#0d5e34' : '#1D4ED8';
+  const qrColor = type === 'hajj' ? '#101b3f' : '#6d28d9';
+  const labelColor = type === 'hajj' ? '#101b3f' : '#6d28d9';
 
   // Load qrcode (dynamic import, bypasses Turbopack bundling)
   const QRCode = await loadQRCode();

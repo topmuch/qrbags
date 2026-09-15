@@ -45,11 +45,11 @@ interface Message {
 
 // Type labels
 const TYPE_LABELS: Record<string, { label: string; icon: string; color: string }> = {
-  contact: { label: 'Contact', icon: '📩', color: 'text-blue-600 dark:text-blue-400' },
+  contact: { label: 'Contact', icon: '📩', color: 'text-violet-600 dark:text-violet-400' },
   partenaire: { label: 'Partenaire', icon: '🤝', color: 'text-violet-600 dark:text-violet-400' },
-  commande_agence: { label: 'Commande', icon: '📦', color: 'text-amber-600 dark:text-blue-500' },
-  assistance_agence: { label: 'Assistance', icon: '💬', color: 'text-amber-600 dark:text-blue-500' },
-  reponse_assistance: { label: 'Réponse', icon: '↩️', color: 'text-blue-700 dark:text-blue-500' },
+  commande_agence: { label: 'Commande', icon: '📦', color: 'text-amber-600 dark:text-violet-500' },
+  assistance_agence: { label: 'Assistance', icon: '💬', color: 'text-amber-600 dark:text-violet-500' },
+  reponse_assistance: { label: 'Réponse', icon: '↩️', color: 'text-violet-700 dark:text-violet-500' },
   message_superadmin: { label: 'SuperAdmin', icon: '👑', color: 'text-red-600 dark:text-red-400' },
 };
 
@@ -57,7 +57,7 @@ const TYPE_LABELS: Record<string, { label: string; icon: string; color: string }
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   non_lu: { label: 'Non lu', className: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' },
   lu: { label: 'Lu', className: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300' },
-  traite: { label: 'Traité', className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-blue-500' },
+  traite: { label: 'Traité', className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-violet-500' },
 };
 
 // Format message content for display
@@ -293,8 +293,8 @@ export default function MessagesPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Total messages</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.total === 0 ? '—' : stats.total}</p>
               </div>
-              <div className="w-12 h-12 bg-[#2563EB]/10 dark:bg-[#2563EB]/20 rounded-xl flex items-center justify-center">
-                <Inbox className="w-6 h-6 text-[#2563EB]" />
+              <div className="w-12 h-12 bg-[#8b17c9]/10 dark:bg-[#8b17c9]/20 rounded-xl flex items-center justify-center">
+                <Inbox className="w-6 h-6 text-[#8b17c9]" />
               </div>
             </div>
           </CardContent>
@@ -322,7 +322,7 @@ export default function MessagesPage() {
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.processed === 0 ? '—' : stats.processed}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                <CheckCheck className="w-6 h-6 text-blue-700 dark:text-blue-500" />
+                <CheckCheck className="w-6 h-6 text-violet-700 dark:text-violet-500" />
               </div>
             </div>
           </CardContent>
@@ -335,8 +335,8 @@ export default function MessagesPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Assistance</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{messages.filter(m => m.type === 'assistance_agence').length === 0 ? '—' : messages.filter(m => m.type === 'assistance_agence').length}</p>
               </div>
-              <div className="w-12 h-12 bg-amber-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <MessageSquare className="w-6 h-6 text-amber-600 dark:text-blue-500" />
+              <div className="w-12 h-12 bg-amber-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-amber-600 dark:text-violet-500" />
               </div>
             </div>
           </CardContent>
@@ -389,7 +389,7 @@ export default function MessagesPage() {
       {loading ? (
         <div className="text-center py-12">
           <div className="flex items-center justify-center gap-3">
-            <div className="w-6 h-6 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
             <span className="text-slate-500 dark:text-slate-400">Chargement...</span>
           </div>
         </div>
@@ -440,7 +440,7 @@ export default function MessagesPage() {
                   <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-slate-700">
                     <button
                       onClick={() => openMessageDetails(message)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-[#2563EB]/10 hover:text-[#2563EB] dark:hover:bg-[#2563EB]/20 dark:hover:text-[#2563EB] transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-[#8b17c9]/10 hover:text-[#8b17c9] dark:hover:bg-[#8b17c9]/20 dark:hover:text-[#8b17c9] transition-colors"
                       title="Voir détails"
                     >
                       <Eye className="w-3.5 h-3.5" aria-hidden="true" />
@@ -449,7 +449,7 @@ export default function MessagesPage() {
                     {message.status === 'non_lu' && (
                       <button
                         onClick={() => handleMarkAsRead(message.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 hover:text-blue-700 dark:hover:bg-emerald-900/20 dark:hover:text-blue-500 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 hover:text-violet-700 dark:hover:bg-emerald-900/20 dark:hover:text-violet-500 transition-colors"
                         title="Marquer comme lu"
                       >
                         <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
@@ -559,7 +559,7 @@ export default function MessagesPage() {
                     setShowModal(false);
                     setShowReplyModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors"
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
                   Répondre à l'agence
@@ -568,7 +568,7 @@ export default function MessagesPage() {
               {selectedMessage.senderEmail && selectedMessage.type !== 'assistance_agence' && (
                 <a
                   href={`mailto:${selectedMessage.senderEmail}?subject=Re: Votre message sur QRBag`}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white rounded-xl hover:bg-[#ff9f00] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#8b17c9] text-white rounded-xl hover:bg-[#ff9f00] transition-colors"
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
                   Répondre par email
@@ -580,7 +580,7 @@ export default function MessagesPage() {
                     handleMarkAsProcessed(selectedMessage.id);
                     setShowModal(false);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-xl hover:bg-emerald-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-violet-700 text-white rounded-xl hover:bg-emerald-700 transition-colors"
                 >
                   <CheckCircle className="w-4 h-4" aria-hidden="true" />
                   Marquer comme traité
@@ -637,7 +637,7 @@ export default function MessagesPage() {
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 rows={6}
-                className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#2563EB] resize-none"
+                className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-4 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#8b17c9] resize-none"
                 placeholder="Écrivez votre réponse ici..."
               />
               
@@ -684,7 +684,7 @@ export default function MessagesPage() {
                     }
                   }}
                   disabled={replySubmitting || !replyContent.trim()}
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-3 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {replySubmitting ? (
                     <>

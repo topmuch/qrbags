@@ -336,7 +336,7 @@ export default function AgencesPage() {
           </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+              <Button className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl">
                 <Plus className="w-4 h-4 mr-2" />
                 Nouvelle agence
               </Button>
@@ -420,7 +420,7 @@ export default function AgencesPage() {
                   </div>
                 </div>
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl"
                   onClick={handleCreateAgency}
                   disabled={agencyCreating}
                 >
@@ -565,7 +565,7 @@ export default function AgencesPage() {
             </div>
 
             <Button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl"
               onClick={handleSaveEdit}
               disabled={editSaving}
             >
@@ -584,7 +584,7 @@ export default function AgencesPage() {
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mb-6 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-blue-500 px-4 py-3 rounded-xl flex items-center gap-2">
+        <div className="mb-6 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-violet-500 px-4 py-3 rounded-xl flex items-center gap-2">
           <CheckCircle className="w-5 h-5" />
           {successMessage}
         </div>
@@ -599,8 +599,8 @@ export default function AgencesPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Total agences</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{agencies.length}</p>
               </div>
-              <div className="w-12 h-12 bg-[#2563EB]/10 dark:bg-[#2563EB]/20 rounded-xl flex items-center justify-center">
-                <Building className="w-6 h-6 text-[#2563EB]" />
+              <div className="w-12 h-12 bg-[#8b17c9]/10 dark:bg-[#8b17c9]/20 rounded-xl flex items-center justify-center">
+                <Building className="w-6 h-6 text-[#8b17c9]" />
               </div>
             </div>
           </CardContent>
@@ -614,7 +614,7 @@ export default function AgencesPage() {
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{agencies.filter(a => a.active).length}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-blue-700 dark:text-blue-500" />
+                <CheckCircle className="w-6 h-6 text-violet-700 dark:text-violet-500" />
               </div>
             </div>
           </CardContent>
@@ -624,7 +624,7 @@ export default function AgencesPage() {
       {/* Agencies Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
         </div>
       ) : agencies.length === 0 ? (
         <div className="text-center py-12 text-slate-500 dark:text-slate-400">Aucune agence</div>
@@ -635,7 +635,7 @@ export default function AgencesPage() {
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                  <Building className="w-6 h-6 text-blue-700 dark:text-blue-500" />
+                  <Building className="w-6 h-6 text-violet-700 dark:text-violet-500" />
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -645,7 +645,7 @@ export default function AgencesPage() {
                   >
                     <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform duration-300 ${agency.active ? 'translate-x-5' : 'translate-x-0.5'}`} />
                   </button>
-                  <Badge className={agency.active ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-blue-500' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'}>
+                  <Badge className={agency.active ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-violet-500' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'}>
                     {agency.active ? 'Actif' : 'Inactif'}
                   </Badge>
                 </div>
@@ -682,7 +682,7 @@ export default function AgencesPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl flex-1"
+                  className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl flex-1"
                   onClick={() => handleOpenEdit(agency)}
                 >
                   <Edit className="w-4 h-4 mr-1" />

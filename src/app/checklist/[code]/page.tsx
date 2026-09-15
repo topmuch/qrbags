@@ -217,7 +217,7 @@ export default function ChecklistViewPage() {
         {/* Loading state */}
         {view.status === 'loading' && (
           <div className="bg-white border-2 border-solid border-[#0f172a] rounded-2xl p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#2563eb] mb-3" />
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#8b17c9] mb-3" />
             <p className="text-[#0f172a]/70 text-sm">Chargement...</p>
           </div>
         )}
@@ -237,7 +237,7 @@ export default function ChecklistViewPage() {
         {view.status === 'locked' && (
           <div className="bg-white border-2 border-solid border-[#0f172a] rounded-2xl p-6 md:p-8 shadow-md">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-[#2563eb] flex items-center justify-center border-2 border-[#0f172a]">
+              <div className="w-16 h-16 rounded-full bg-[#8b17c9] flex items-center justify-center border-2 border-[#0f172a]">
                 <Lock className="w-8 h-8 text-[#0f172a]" />
               </div>
             </div>
@@ -250,7 +250,7 @@ export default function ChecklistViewPage() {
 
             {/* Attestation identity hint */}
             {view.firstName && view.createdAt && (
-              <div className="bg-[#eff6ff] border border-[#2563eb] rounded-lg p-3 mb-5 text-center">
+              <div className="bg-[#f5f3ff] border border-[#8b17c9] rounded-lg p-3 mb-5 text-center">
                 <p className="text-xs text-[#0f172a]/70">
                   Attestation de <strong className="text-[#0f172a]">{view.firstName}</strong> · Code <strong className="font-mono text-[#0f172a]">{view.code}</strong>
                 </p>
@@ -264,7 +264,7 @@ export default function ChecklistViewPage() {
               value={keyInput}
               onChange={(e) => setKeyInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
-              className="w-full px-4 py-3 bg-[#f8fafc] border-2 border-[#0f172a] rounded-xl text-[#0f172a] text-base font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-[#2563eb] min-h-[48px] uppercase"
+              className="w-full px-4 py-3 bg-[#f8fafc] border-2 border-[#0f172a] rounded-xl text-[#0f172a] text-base font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-[#8b17c9] min-h-[48px] uppercase"
               placeholder={t('checklist.view_key_placeholder')}
               maxLength={8}
               autoFocus
@@ -273,7 +273,7 @@ export default function ChecklistViewPage() {
             <button
               onClick={handleVerify}
               disabled={verifying || !keyInput.trim()}
-              className="w-full mt-3 py-3 px-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-[#0f172a] rounded-xl font-bold flex items-center justify-center gap-2 border-2 border-[#0f172a] disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] transition-colors"
+              className="w-full mt-3 py-3 px-4 bg-[#8b17c9] hover:bg-[#6d28d9] text-[#0f172a] rounded-xl font-bold flex items-center justify-center gap-2 border-2 border-[#0f172a] disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] transition-colors"
             >
               {verifying ? (
                 <>
@@ -311,12 +311,12 @@ export default function ChecklistViewPage() {
                       onChange={(e) => setHistoryEmail(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleHistorySearch()}
                       placeholder={t('checklist.view_history_email')}
-                      className="flex-1 px-3 py-2 bg-white border-2 border-[#0f172a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] min-h-[40px]"
+                      className="flex-1 px-3 py-2 bg-white border-2 border-[#0f172a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#8b17c9] min-h-[40px]"
                     />
                     <button
                       onClick={handleHistorySearch}
                       disabled={historyLoading}
-                      className="px-3 py-2 bg-[#0f172a] text-[#2563eb] rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-black transition-colors disabled:opacity-50"
+                      className="px-3 py-2 bg-[#0f172a] text-[#8b17c9] rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-black transition-colors disabled:opacity-50"
                     >
                       {historyLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
                       {t('checklist.view_history_search')}
@@ -333,7 +333,7 @@ export default function ChecklistViewPage() {
                             <Link
                               key={h.code}
                               href={`/checklist/${h.code}`}
-                              className="block bg-white border border-[#0f172a]/20 rounded-lg p-3 hover:border-[#2563eb] transition-colors"
+                              className="block bg-white border border-[#0f172a]/20 rounded-lg p-3 hover:border-[#8b17c9] transition-colors"
                             >
                               <div className="flex items-center justify-between">
                                 <div>
@@ -364,7 +364,7 @@ export default function ChecklistViewPage() {
           <div className="space-y-4">
             {/* Header card */}
             <div className="bg-white border-2 border-solid border-[#0f172a] rounded-2xl overflow-hidden shadow-md">
-              <div className="bg-[#2563eb] border-b-2 border-[#0f172a] px-5 py-4 flex items-center justify-between">
+              <div className="bg-[#8b17c9] border-b-2 border-[#0f172a] px-5 py-4 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-[#0f172a] text-lg">🎒 QRBag</div>
                   <div className="text-xs text-[#0f172a]/75">Attestation d'inventaire de voyage</div>
@@ -430,7 +430,7 @@ export default function ChecklistViewPage() {
                   <div className="space-y-3">
                     {groupedItems.map(({ cat, items }) => (
                       <div key={cat.id}>
-                        <div className="bg-[#2563eb] border border-[#0f172a] rounded-md px-2 py-1 inline-block">
+                        <div className="bg-[#8b17c9] border border-[#0f172a] rounded-md px-2 py-1 inline-block">
                           <span className="text-xs font-bold text-[#0f172a]">{cat.emoji} {cat.label[lang as keyof typeof cat.label] || cat.label.fr}</span>
                         </div>
                         <div className="mt-1.5 pl-2 space-y-1">
@@ -465,12 +465,12 @@ export default function ChecklistViewPage() {
               <div className="bg-white border-2 border-solid border-[#0f172a] rounded-2xl overflow-hidden shadow-md mb-4">
                 <div className="bg-[#0f172a] px-4 py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Camera className="w-4 h-4 text-[#2563eb]" />
-                    <span className="text-xs font-bold text-[#2563eb]">Photo de la valise</span>
+                    <Camera className="w-4 h-4 text-[#8b17c9]" />
+                    <span className="text-xs font-bold text-[#8b17c9]">Photo de la valise</span>
                   </div>
                   <button
                     onClick={handleDownloadPhoto}
-                    className="text-xs text-[#2563eb] hover:text-white flex items-center gap-1 transition-colors"
+                    className="text-xs text-[#8b17c9] hover:text-white flex items-center gap-1 transition-colors"
                   >
                     <Download className="w-3 h-3" /> Télécharger
                   </button>
@@ -489,7 +489,7 @@ export default function ChecklistViewPage() {
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 onClick={handleDownloadPdf}
-                className="py-3 px-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-[#0f172a] rounded-xl font-bold flex items-center justify-center gap-2 border-2 border-[#0f172a] transition-colors min-h-[48px]"
+                className="py-3 px-4 bg-[#8b17c9] hover:bg-[#6d28d9] text-[#0f172a] rounded-xl font-bold flex items-center justify-center gap-2 border-2 border-[#0f172a] transition-colors min-h-[48px]"
               >
                 <Download className="w-4 h-4" />
                 {t('checklist.view_download_pdf')}
@@ -506,10 +506,10 @@ export default function ChecklistViewPage() {
             {/* Embedded PDF preview */}
             <div className="bg-white border-2 border-solid border-[#0f172a] rounded-2xl overflow-hidden shadow-md">
               <div className="bg-[#0f172a] px-4 py-2 flex items-center justify-between">
-                <span className="text-xs font-bold text-[#2563eb]">📄 Aperçu du PDF</span>
+                <span className="text-xs font-bold text-[#8b17c9]">📄 Aperçu du PDF</span>
                 <button
                   onClick={handleDownloadPdf}
-                  className="text-xs text-[#2563eb] hover:text-white flex items-center gap-1"
+                  className="text-xs text-[#8b17c9] hover:text-white flex items-center gap-1"
                 >
                   <ExternalLink className="w-3 h-3" /> Ouvrir
                 </button>
@@ -533,7 +533,7 @@ export default function ChecklistViewPage() {
             <p className="text-[#0f172a]">{view.error || t('checklist.error')}</p>
             <button
               onClick={() => fetchChecklist()}
-              className="mt-4 px-4 py-2 bg-[#2563eb] text-[#0f172a] rounded-lg font-bold border-2 border-[#0f172a]"
+              className="mt-4 px-4 py-2 bg-[#8b17c9] text-[#0f172a] rounded-lg font-bold border-2 border-[#0f172a]"
             >
               Réessayer
             </button>
@@ -541,7 +541,7 @@ export default function ChecklistViewPage() {
         )}
       </section>
 
-      <footer className="bg-[#0f172a] text-[#2563eb] text-center py-3 mt-auto">
+      <footer className="bg-[#0f172a] text-[#8b17c9] text-center py-3 mt-auto">
         <p className="text-xs">QRBag — Protection intelligente des bagages • qrbags.com</p>
       </footer>
     </main>

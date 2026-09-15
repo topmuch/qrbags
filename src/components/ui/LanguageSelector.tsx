@@ -10,7 +10,7 @@ interface Props {
   lang: Language;
   setLang: (l: Language) => void;
   /** 'mustard' = yellow #c5a643 + ink #1a1a1a (legacy /scan, /suivi).
-   *  'blue' = blue-600 #2563eb + slate-900 (homepage /checklist theme).
+   *  'blue' = violet-600 #8b17c9 + slate-900 (homepage /checklist theme).
    *  Defaults to 'mustard' for backward compatibility. */
   variant?: Variant;
 }
@@ -34,10 +34,10 @@ const THEMES: Record<Variant, {
   blue: {
     border: 'border-slate-300',
     text: 'text-slate-700',
-    hoverBg: 'hover:bg-blue-600 hover:text-white hover:border-blue-600',
-    activeBg: 'bg-blue-600',
+    hoverBg: 'hover:bg-violet-600 hover:text-white hover:border-violet-600',
+    activeBg: 'bg-violet-600',
     activeText: 'text-white',
-    hoverActiveBg: 'hover:bg-blue-50',
+    hoverActiveBg: 'hover:bg-violet-50',
   },
 };
 
@@ -46,7 +46,7 @@ const THEMES: Record<Variant, {
  * Used by public pages: /scan, /suivi, /checklist, /checklist/[code].
  *
  * variant='mustard' (default): yellow #c5a643 + ink #1a1a1a — for /scan, /suivi.
- * variant='blue': blue-600 + slate — matches the homepage theme, for /checklist.
+ * variant='blue': violet-600 + slate — matches the homepage theme, for /checklist.
  */
 export function LanguageSelector({ lang, setLang, variant = 'mustard' }: Props) {
   const [isOpen, setIsOpen] = useState(false);

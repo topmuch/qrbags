@@ -54,7 +54,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
         <div className="max-w-5xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#2563EB] to-[#ff9f00] rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#8b17c9] to-[#ff9f00] rounded-2xl flex items-center justify-center shadow-lg">
                 <QrCode className="w-8 h-8 text-white" />
               </div>
               <div>
@@ -66,8 +66,8 @@ export default async function PublicAgencyPage({ params }: PageProps) {
               </div>
             </div>
             <div className="hidden sm:flex items-center gap-3">
-              <div className="px-4 py-2 bg-emerald-100 dark:bg-blue-600/10 rounded-xl">
-                <span className="text-blue-700 dark:text-blue-500 font-medium text-sm">
+              <div className="px-4 py-2 bg-emerald-100 dark:bg-violet-600/10 rounded-xl">
+                <span className="text-violet-700 dark:text-violet-500 font-medium text-sm">
                   Partenaire QRBag
                 </span>
               </div>
@@ -80,22 +80,22 @@ export default async function PublicAgencyPage({ params }: PageProps) {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-xl flex items-center justify-center mb-3">
-              <Luggage className="w-5 h-5 text-blue-500" />
+            <div className="w-10 h-10 bg-violet-100 dark:bg-violet-500/20 rounded-xl flex items-center justify-center mb-3">
+              <Luggage className="w-5 h-5 text-violet-500" />
             </div>
             <p className="text-2xl font-bold text-slate-800 dark:text-white">{totalBaggages}</p>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages protégés</p>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="w-10 h-10 bg-emerald-100 dark:bg-blue-600/20 rounded-xl flex items-center justify-center mb-3">
-              <CheckCircle className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-emerald-100 dark:bg-violet-600/20 rounded-xl flex items-center justify-center mb-3">
+              <CheckCircle className="w-5 h-5 text-violet-600" />
             </div>
             <p className="text-2xl font-bold text-slate-800 dark:text-white">{activeBaggages}</p>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Actifs</p>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="w-10 h-10 bg-amber-100 dark:bg-blue-600/20 rounded-xl flex items-center justify-center mb-3">
-              <Clock className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-amber-100 dark:bg-violet-600/20 rounded-xl flex items-center justify-center mb-3">
+              <Clock className="w-5 h-5 text-violet-600" />
             </div>
             <p className="text-2xl font-bold text-slate-800 dark:text-white">{scannedBaggages}</p>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Scannés</p>
@@ -139,8 +139,8 @@ export default async function PublicAgencyPage({ params }: PageProps) {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-[#2563EB]/10 to-[#2563EB]/5 rounded-xl flex items-center justify-center">
-                        <QrCode className="w-5 h-5 text-[#2563EB]" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#8b17c9]/10 to-[#8b17c9]/5 rounded-xl flex items-center justify-center">
+                        <QrCode className="w-5 h-5 text-[#8b17c9]" />
                       </div>
                       <div>
                         <p className="font-mono font-medium text-slate-800 dark:text-white">
@@ -149,7 +149,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                           {baggage.travelerFirstName} {baggage.travelerLastName}
                           {baggage.type === 'hajj' && (
-                            <span className="ml-2 px-2 py-0.5 bg-emerald-100 dark:bg-blue-600/20 text-blue-700 dark:text-blue-500 rounded-full text-xs">
+                            <span className="ml-2 px-2 py-0.5 bg-emerald-100 dark:bg-violet-600/20 text-violet-700 dark:text-violet-500 rounded-full text-xs">
                               Hajj
                             </span>
                           )}
@@ -159,10 +159,10 @@ export default async function PublicAgencyPage({ params }: PageProps) {
                     <div className="flex items-center gap-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         baggage.status === 'active' 
-                          ? 'bg-emerald-100 dark:bg-blue-600/20 text-blue-700 dark:text-blue-500' 
+                          ? 'bg-emerald-100 dark:bg-violet-600/20 text-violet-700 dark:text-violet-500' 
                           : baggage.status === 'found'
                           ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400'
-                          : 'bg-amber-100 dark:bg-blue-600/20 text-amber-600 dark:text-blue-500'
+                          : 'bg-amber-100 dark:bg-violet-600/20 text-amber-600 dark:text-violet-500'
                       }`}>
                         {baggage.status === 'active' ? 'Actif' : baggage.status === 'found' ? 'Retrouvé' : 'Scanné'}
                       </span>
@@ -188,8 +188,8 @@ export default async function PublicAgencyPage({ params }: PageProps) {
                 href={`tel:${agency.phone}`}
                 className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
-                <div className="w-10 h-10 bg-[#2563EB]/10 rounded-xl flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-[#2563EB]" />
+                <div className="w-10 h-10 bg-[#8b17c9]/10 rounded-xl flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-[#8b17c9]" />
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Téléphone</p>
@@ -202,8 +202,8 @@ export default async function PublicAgencyPage({ params }: PageProps) {
                 href={`mailto:${agency.email}`}
                 className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
-                <div className="w-10 h-10 bg-[#2563EB]/10 rounded-xl flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-[#2563EB]" />
+                <div className="w-10 h-10 bg-[#8b17c9]/10 rounded-xl flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-[#8b17c9]" />
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Email</p>
@@ -212,12 +212,12 @@ export default async function PublicAgencyPage({ params }: PageProps) {
               </a>
             )}
             <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
-              <div className="w-10 h-10 bg-[#2563EB]/10 rounded-xl flex items-center justify-center">
-                <Globe className="w-5 h-5 text-[#2563EB]" />
+              <div className="w-10 h-10 bg-[#8b17c9]/10 rounded-xl flex items-center justify-center">
+                <Globe className="w-5 h-5 text-[#8b17c9]" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Statut</p>
-                <p className="text-blue-700 dark:text-blue-500 font-medium">Partenaire vérifié</p>
+                <p className="text-violet-700 dark:text-violet-500 font-medium">Partenaire vérifié</p>
               </div>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
         <footer className="mt-8 text-center text-slate-400 dark:text-slate-500 text-sm pb-8">
           <p className="flex items-center justify-center gap-2">
             <QrCode className="w-4 h-4" />
-            Propulsé par <span className="font-semibold text-[#2563EB]">QRBag</span>
+            Propulsé par <span className="font-semibold text-[#8b17c9]">QRBag</span>
           </p>
           <p className="mt-1 text-xs">
             Protection intelligente des bagages

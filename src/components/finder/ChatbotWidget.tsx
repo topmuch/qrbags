@@ -57,9 +57,9 @@ function renderContentWithLinks(content: string, locale: string) {
         ))}
         {otherUrls.map((link, i) => (
           <a key={`url-${i}`} href={link} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-xl text-sm font-medium border border-blue-500/30 transition-all duration-200 hover:scale-[1.02] no-underline">
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-xl text-sm font-medium border border-violet-500/30 transition-all duration-200 hover:scale-[1.02] no-underline">
             <span>{link.replace(/^https?:\/\//, '')}</span>
-            <ExternalLink className="w-3 h-3 text-blue-600" />
+            <ExternalLink className="w-3 h-3 text-violet-600" />
           </a>
         ))}
       </div>
@@ -75,9 +75,9 @@ function renderContentWithLinks(content: string, locale: string) {
       {textContent && <span className="whitespace-pre-wrap">{textContent}</span>}
       {uniqueUrls.map((link, i) => (
         <a key={`url-${i}`} href={link} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-xl text-sm font-medium border border-blue-500/30 transition-all duration-200 hover:scale-[1.02] no-underline">
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-xl text-sm font-medium border border-violet-500/30 transition-all duration-200 hover:scale-[1.02] no-underline">
           <span>{link.replace(/^https?:\/\//, '')}</span>
-          <ExternalLink className="w-3 h-3 text-blue-600" />
+          <ExternalLink className="w-3 h-3 text-violet-600" />
         </a>
       ))}
     </div>
@@ -233,7 +233,7 @@ export default function ChatbotWidget({
         <button
           onClick={() => setIsOpen(true)}
           aria-label={t('chatbot.aria_open')}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white rounded-full shadow-lg shadow-blue-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-[#6613e3]"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-violet-500 hover:bg-violet-700 active:bg-violet-800 text-white rounded-full shadow-lg shadow-violet-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 focus:ring-2 focus:ring-violet-600 focus:ring-offset-2 focus:ring-offset-[#6613e3]"
         >
           <Bot className="w-7 h-7" />
         </button>
@@ -250,7 +250,7 @@ export default function ChatbotWidget({
           {/* ─── Header ─── */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#6613e3] to-[#4b0082] border-b border-white/10">
             <div className="flex items-center gap-2">
-              <Bot className="w-5 h-5 text-blue-300" />
+              <Bot className="w-5 h-5 text-violet-300" />
               <span className="text-white font-semibold text-sm">{t('chatbot.title')}</span>
             </div>
             <button
@@ -279,11 +279,11 @@ export default function ChatbotWidget({
               >
                 {/* Avatar */}
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  msg.role === 'user' ? 'bg-blue-500' : 'bg-white/10'
+                  msg.role === 'user' ? 'bg-violet-500' : 'bg-white/10'
                 }`}>
                   {msg.role === 'user'
                     ? <User className="w-3.5 h-3.5 text-white" />
-                    : <Bot className="w-3.5 h-3.5 text-blue-300" />
+                    : <Bot className="w-3.5 h-3.5 text-violet-300" />
                   }
                 </div>
 
@@ -291,7 +291,7 @@ export default function ChatbotWidget({
                 <div
                   className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-blue-500 text-white rounded-tr-md'
+                      ? 'bg-violet-500 text-white rounded-tr-md'
                       : 'bg-white/10 text-white rounded-tl-md'
                   }`}
                   role="log"
@@ -309,7 +309,7 @@ export default function ChatbotWidget({
             {isLoading && (
               <div className="flex gap-2">
                 <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-white/10">
-                  <Bot className="w-3.5 h-3.5 text-blue-300 animate-pulse" />
+                  <Bot className="w-3.5 h-3.5 text-violet-300 animate-pulse" />
                 </div>
                 <div className="bg-white/10 text-white/70 px-3 py-2 rounded-2xl rounded-tl-md text-sm">
                   {t('chatbot.thinking')}
@@ -349,14 +349,14 @@ export default function ChatbotWidget({
               disabled={isLoading}
               maxLength={500}
               aria-label={t('chatbot.placeholder')}
-              className="flex-1 bg-white/10 text-white placeholder:text-white/40 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-transparent disabled:opacity-50 transition-all min-h-[40px]"
+              className="flex-1 bg-white/10 text-white placeholder:text-white/40 text-sm px-3 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-600 focus:border-transparent disabled:opacity-50 transition-all min-h-[40px]"
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
               aria-label={t('chatbot.send')}
               // CHATBOT-KB: Touch target increased from 40px to 44px for accessibility
-              className="w-11 h-11 bg-blue-500 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
+              className="w-11 h-11 bg-violet-500 hover:bg-violet-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>

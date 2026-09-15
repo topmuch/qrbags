@@ -282,8 +282,8 @@ export default function PublicitesPage() {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, { bg: string; text: string; icon: React.ElementType }> = {
-      active: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-blue-500', icon: Play },
-      paused: { bg: 'bg-amber-100 dark:bg-blue-900/30', text: 'text-amber-700 dark:text-blue-500', icon: Pause },
+      active: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-violet-500', icon: Play },
+      paused: { bg: 'bg-amber-100 dark:bg-violet-900/30', text: 'text-amber-700 dark:text-violet-500', icon: Pause },
       draft: { bg: 'bg-slate-100 dark:bg-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: Edit },
       expired: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400', icon: AlertCircle }
     };
@@ -316,7 +316,7 @@ export default function PublicitesPage() {
     }
     if (scope === 'agents') {
       return (
-        <span className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+        <span className="inline-flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400">
           <Users className="w-3 h-3" />
           Agents commerciaux
         </span>
@@ -358,7 +358,7 @@ export default function PublicitesPage() {
           </Button>
           <Button
             onClick={openCreateModal}
-            className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-white rounded-xl"
+            className="bg-[#8b17c9] hover:bg-[#8b17c9]/90 text-white rounded-xl"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle publicité
@@ -377,13 +377,13 @@ export default function PublicitesPage() {
           </Card>
           <Card className="bg-white dark:bg-slate-800 border-emerald-200 dark:border-emerald-800 shadow-sm rounded-2xl">
             <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-blue-700 dark:text-blue-500">{stats.activeAds}</p>
+              <p className="text-3xl font-bold text-violet-700 dark:text-violet-500">{stats.activeAds}</p>
               <p className="text-slate-500 dark:text-slate-400 text-sm">Actives</p>
             </CardContent>
           </Card>
           <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">
             <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.totalImpressions.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-violet-600 dark:text-violet-400">{stats.totalImpressions.toLocaleString()}</p>
               <p className="text-slate-500 dark:text-slate-400 text-sm">Impressions</p>
             </CardContent>
           </Card>
@@ -396,7 +396,7 @@ export default function PublicitesPage() {
           {showStats && (
             <Card className="bg-white dark:bg-slate-800 border-amber-200 dark:border-amber-800 shadow-sm rounded-2xl">
               <CardContent className="p-4 text-center">
-                <p className="text-3xl font-bold text-amber-600 dark:text-blue-500">{stats.avgCtr}%</p>
+                <p className="text-3xl font-bold text-amber-600 dark:text-violet-500">{stats.avgCtr}%</p>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">CTR Moyen</p>
               </CardContent>
             </Card>
@@ -419,7 +419,7 @@ export default function PublicitesPage() {
                     <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                       index === 0 ? 'bg-amber-100 text-amber-700' :
                       index === 1 ? 'bg-slate-200 text-slate-600' :
-                      'bg-blue-100 text-blue-800'
+                      'bg-violet-100 text-violet-800'
                     }`}>
                       {index + 1}
                     </span>
@@ -432,7 +432,7 @@ export default function PublicitesPage() {
                     <span className="text-purple-600 dark:text-purple-400 font-medium">
                       {ad.clicks.toLocaleString()} clics
                     </span>
-                    <span className="text-blue-700 dark:text-blue-500 font-medium">
+                    <span className="text-violet-700 dark:text-violet-500 font-medium">
                       {ad.ctr}% CTR
                     </span>
                   </div>
@@ -511,7 +511,7 @@ export default function PublicitesPage() {
                 <tr>
                   <td colSpan={6} className="px-5 py-12 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="w-8 h-8 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+                      <div className="w-8 h-8 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
                     </div>
                   </td>
                 </tr>
@@ -524,7 +524,7 @@ export default function PublicitesPage() {
                       <Button
                         onClick={openCreateModal}
                         variant="link"
-                        className="text-[#2563EB] mt-2"
+                        className="text-[#8b17c9] mt-2"
                       >
                         Créer la première publicité
                       </Button>
@@ -587,7 +587,7 @@ export default function PublicitesPage() {
                           <MousePointer className="w-3 h-3" />
                           {ad.clicks.toLocaleString()}
                         </span>
-                        <span className="text-blue-700 dark:text-blue-500 font-medium">
+                        <span className="text-violet-700 dark:text-violet-500 font-medium">
                           {calculateCtr(ad)}%
                         </span>
                       </div>
@@ -602,9 +602,9 @@ export default function PublicitesPage() {
                           title={ad.status === 'active' ? 'Mettre en pause' : 'Activer'}
                         >
                           {ad.status === 'active' ? (
-                            <Pause className="w-4 h-4 text-blue-600" />
+                            <Pause className="w-4 h-4 text-violet-600" />
                           ) : (
-                            <Play className="w-4 h-4 text-blue-600" />
+                            <Play className="w-4 h-4 text-violet-600" />
                           )}
                         </Button>
                         <Button
@@ -744,8 +744,8 @@ export default function PublicitesPage() {
                   <Label className="text-slate-700 dark:text-slate-300">Emplacement</Label>
                   <div className="mt-1 p-3 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-[#2563EB]/20 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-8 h-8 rounded-lg bg-[#8b17c9]/20 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-[#8b17c9]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                       </div>
@@ -878,7 +878,7 @@ export default function PublicitesPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-white"
+                  className="bg-[#8b17c9] hover:bg-[#8b17c9]/90 text-white"
                 >
                   {saving ? (
                     <RefreshCw className="w-4 h-4 animate-spin mr-2" />

@@ -73,11 +73,11 @@ export default function NotificationBell() {
       case 'baggage_declared_lost':
         return <AlertTriangle className="w-5 h-5 text-red-500" />;
       case 'baggage_found':
-        return <CheckCircle className="w-5 h-5 text-blue-600" />;
+        return <CheckCircle className="w-5 h-5 text-violet-600" />;
       case 'urgent_scan':
-        return <AlertTriangle className="w-5 h-5 text-blue-600" />;
+        return <AlertTriangle className="w-5 h-5 text-violet-600" />;
       default:
-        return <Bell className="w-5 h-5 text-[#2563EB]" />;
+        return <Bell className="w-5 h-5 text-[#8b17c9]" />;
     }
   };
 
@@ -116,14 +116,14 @@ export default function NotificationBell() {
           {/* Header */}
           <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[#2563EB]" />
+              <Bell className="w-4 h-4 text-[#8b17c9]" />
               <h3 className="font-bold text-slate-800 dark:text-white">Notifications</h3>
             </div>
             <div className="flex items-center gap-2">
               {notifications.length > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs text-[#2563EB] hover:text-[#2563EB]/80 transition-colors font-medium"
+                  className="text-xs text-[#8b17c9] hover:text-[#8b17c9]/80 transition-colors font-medium"
                 >
                   Tout marquer lu
                 </button>
@@ -141,7 +141,7 @@ export default function NotificationBell() {
           <div className="max-h-[400px] overflow-y-auto">
             {loading ? (
               <div className="p-8 text-center">
-                <div className="w-6 h-6 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin mx-auto mb-3" />
+                <div className="w-6 h-6 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin mx-auto mb-3" />
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Chargement...</p>
               </div>
             ) : notifications.length === 0 ? (
@@ -180,7 +180,7 @@ export default function NotificationBell() {
                           {notification.baggageId && (
                             <button
                               onClick={() => handleViewBaggage(notification)}
-                              className="flex items-center gap-1 text-[#2563EB] text-xs font-medium hover:text-[#2563EB]/80 transition-colors"
+                              className="flex items-center gap-1 text-[#8b17c9] text-xs font-medium hover:text-[#8b17c9]/80 transition-colors"
                             >
                               <ExternalLink className="w-3 h-3" />
                               Voir le bagage

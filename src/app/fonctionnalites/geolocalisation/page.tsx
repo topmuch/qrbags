@@ -119,7 +119,7 @@ export default function GeolocalisationPage() {
                 icon: MapPin,
                 title: 'Alerte avec carte',
                 description: 'Vous recevez un message WhatsApp avec un lien vers une carte interactive montrant la position exacte de votre bagage. Un clic suffit pour lancer l\'itinéraire GPS vers votre bagage.',
-                color: 'from-cyan-500 to-blue-600',
+                color: 'from-cyan-500 to-violet-600',
               },
             ].map((item, i) => (
               <FadeIn key={item.step} delay={i * 0.12}>

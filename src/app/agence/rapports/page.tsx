@@ -99,7 +99,7 @@ export default function AgencyReportsPage() {
           <select
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+            className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#8b17c9]"
           >
             <option value="week">7 derniers jours</option>
             <option value="month">Ce mois</option>
@@ -109,7 +109,7 @@ export default function AgencyReportsPage() {
           {/* Share Public Page */}
           <button
             onClick={handleSharePublicPage}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-xl text-sm font-medium transition-colors"
           >
             <Share2 className="w-4 h-4" />
             Partager
@@ -118,7 +118,7 @@ export default function AgencyReportsPage() {
           {/* Export Button */}
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium transition-colors"
           >
             <Download className="w-4 h-4" />
             Exporter CSV
@@ -128,7 +128,7 @@ export default function AgencyReportsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
         </div>
       ) : data ? (
         <div className="space-y-6">
@@ -172,7 +172,7 @@ export default function AgencyReportsPage() {
             {/* Daily Evolution Chart */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-[#2563EB]" />
+                <Calendar className="w-5 h-5 text-[#8b17c9]" />
                 Évolution quotidienne
               </h3>
               <div className="space-y-3">
@@ -181,7 +181,7 @@ export default function AgencyReportsPage() {
                     <span className="text-sm text-slate-500 dark:text-slate-400 w-20">{day.label}</span>
                     <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-[#2563EB] to-[#ff9f00] rounded-full transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-[#8b17c9] to-[#ff9f00] rounded-full transition-all duration-500"
                         style={{ width: `${(day.count / maxDaily) * 100}%` }}
                       />
                     </div>
@@ -194,7 +194,7 @@ export default function AgencyReportsPage() {
             {/* Weekly Evolution Chart */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#2563EB]" />
+                <TrendingUp className="w-5 h-5 text-[#8b17c9]" />
                 Évolution hebdomadaire
               </h3>
               <div className="space-y-3">
@@ -203,7 +203,7 @@ export default function AgencyReportsPage() {
                     <span className="text-sm text-slate-500 dark:text-slate-400 w-24">{week.label}</span>
                     <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-violet-500 to-violet-600 rounded-full transition-all duration-500"
                         style={{ width: `${(week.count / maxWeekly) * 100}%` }}
                       />
                     </div>
@@ -232,27 +232,27 @@ export default function AgencyReportsPage() {
             <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Par type</h3>
               <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-emerald-50 dark:bg-blue-600/10 rounded-xl">
-                  <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center">
-                    <Plane className="w-6 h-6 text-blue-600" />
+                <div className="flex items-center gap-4 p-4 bg-emerald-50 dark:bg-violet-600/10 rounded-xl">
+                  <div className="w-12 h-12 bg-violet-600/20 rounded-xl flex items-center justify-center">
+                    <Plane className="w-6 h-6 text-violet-600" />
                   </div>
                   <div className="flex-1">
                     <p className="text-slate-500 dark:text-slate-400 text-sm">Hajj</p>
                     <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.stats.hajj}</p>
                   </div>
-                  <span className="text-sm text-blue-600 font-medium">
+                  <span className="text-sm text-violet-600 font-medium">
                     {data.stats.total > 0 ? Math.round((data.stats.hajj / data.stats.total) * 100) : 0}%
                   </span>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-blue-600/10 rounded-xl">
-                  <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center">
-                    <Luggage className="w-6 h-6 text-blue-600" />
+                <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-violet-600/10 rounded-xl">
+                  <div className="w-12 h-12 bg-violet-600/20 rounded-xl flex items-center justify-center">
+                    <Luggage className="w-6 h-6 text-violet-600" />
                   </div>
                   <div className="flex-1">
                     <p className="text-slate-500 dark:text-slate-400 text-sm">Voyageur</p>
                     <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.stats.voyageur}</p>
                   </div>
-                  <span className="text-sm text-blue-600 font-medium">
+                  <span className="text-sm text-violet-600 font-medium">
                     {data.stats.total > 0 ? Math.round((data.stats.voyageur / data.stats.total) * 100) : 0}%
                   </span>
                 </div>
@@ -266,17 +266,17 @@ export default function AgencyReportsPage() {
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-slate-500 dark:text-slate-400 text-sm">Taux de récupération</span>
-                    <TrendingUp className="w-4 h-4 text-blue-600" />
+                    <TrendingUp className="w-4 h-4 text-violet-600" />
                   </div>
-                  <p className="text-3xl font-bold text-blue-600">{data.recoveryRate}%</p>
+                  <p className="text-3xl font-bold text-violet-600">{data.recoveryRate}%</p>
                   <p className="text-xs text-slate-400 mt-1">Bagages retrouvés / perdus</p>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-slate-500 dark:text-slate-400 text-sm">Scans enregistrés</span>
-                    <QrCode className="w-4 h-4 text-[#2563EB]" />
+                    <QrCode className="w-4 h-4 text-[#8b17c9]" />
                   </div>
-                  <p className="text-3xl font-bold text-[#2563EB]">{data.scanLogsCount}</p>
+                  <p className="text-3xl font-bold text-[#8b17c9]">{data.scanLogsCount}</p>
                   <p className="text-xs text-slate-400 mt-1">Total sur la période</p>
                 </div>
               </div>
@@ -284,10 +284,10 @@ export default function AgencyReportsPage() {
           </div>
 
           {/* Public Page Info */}
-          <div className="bg-gradient-to-r from-[#2563EB]/10 to-[#ff9f00]/10 rounded-2xl p-6 border border-[#2563EB]/20">
+          <div className="bg-gradient-to-r from-[#8b17c9]/10 to-[#ff9f00]/10 rounded-2xl p-6 border border-[#8b17c9]/20">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-[#2563EB]/20 rounded-xl flex items-center justify-center">
-                <Share2 className="w-6 h-6 text-[#2563EB]" />
+              <div className="w-12 h-12 bg-[#8b17c9]/20 rounded-xl flex items-center justify-center">
+                <Share2 className="w-6 h-6 text-[#8b17c9]" />
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
@@ -296,13 +296,13 @@ export default function AgencyReportsPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">
                   Partagez ce lien avec vos clients pour leur montrer les bagages que vous protégez :
                 </p>
-                <code className="bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg text-sm text-[#2563EB] border border-slate-200 dark:border-slate-700">
+                <code className="bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg text-sm text-[#8b17c9] border border-slate-200 dark:border-slate-700">
                   {typeof window !== 'undefined' ? window.location.origin : ''}/agency/{agencyData?.slug || 'agency'}
                 </code>
               </div>
               <button
                 onClick={handleSharePublicPage}
-                className="px-4 py-2 bg-[#2563EB] hover:bg-[#ff9f00] text-white rounded-xl text-sm font-medium transition-colors"
+                className="px-4 py-2 bg-[#8b17c9] hover:bg-[#ff9f00] text-white rounded-xl text-sm font-medium transition-colors"
               >
                 Copier le lien
               </button>
@@ -322,9 +322,9 @@ export default function AgencyReportsPage() {
 function StatusRow({ label, count, total, color }: { label: string; count: number; total: number; color: string }) {
   const percentage = total > 0 ? (count / total) * 100 : 0;
   const colorClasses: Record<string, string> = {
-    amber: 'bg-blue-600',
-    emerald: 'bg-blue-600',
-    blue: 'bg-blue-500',
+    amber: 'bg-violet-600',
+    emerald: 'bg-violet-600',
+    blue: 'bg-violet-500',
     rose: 'bg-rose-500',
     green: 'bg-green-500',
     slate: 'bg-slate-400',

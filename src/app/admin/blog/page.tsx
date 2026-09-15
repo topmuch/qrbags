@@ -235,7 +235,7 @@ export default function BlogAdminPage() {
   const getStatusBadge = (status: string) => {
     if (status === 'published') {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-blue-500">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-violet-500">
           <Globe className="w-3 h-3" />
           Publié
         </span>
@@ -320,7 +320,7 @@ export default function BlogAdminPage() {
         </div>
         <Button
           onClick={openCreateModal}
-          className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-white rounded-xl"
+          className="bg-[#8b17c9] hover:bg-[#8b17c9]/90 text-white rounded-xl"
         >
           <Plus className="w-4 h-4 mr-2" />
           Nouvel article
@@ -337,13 +337,13 @@ export default function BlogAdminPage() {
         </Card>
         <Card className="bg-white dark:bg-slate-800 border-emerald-200 dark:border-emerald-800 shadow-sm rounded-2xl">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-blue-700 dark:text-blue-500">{stats.published}</p>
+            <p className="text-3xl font-bold text-violet-700 dark:text-violet-500">{stats.published}</p>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Publiés</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl">
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-amber-600 dark:text-blue-500">{stats.draft}</p>
+            <p className="text-3xl font-bold text-amber-600 dark:text-violet-500">{stats.draft}</p>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Brouillons</p>
           </CardContent>
         </Card>
@@ -393,7 +393,7 @@ export default function BlogAdminPage() {
       {/* Posts Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-[#2563EB]/30 border-t-[#2563EB] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#8b17c9]/30 border-t-[#8b17c9] rounded-full animate-spin" />
         </div>
       ) : data?.posts.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 border border-slate-200 dark:border-slate-700 text-center">
@@ -403,7 +403,7 @@ export default function BlogAdminPage() {
             <Button
               onClick={openCreateModal}
               variant="link"
-              className="text-[#2563EB] mt-2"
+              className="text-[#8b17c9] mt-2"
             >
               Créer le premier article
             </Button>
@@ -477,9 +477,9 @@ export default function BlogAdminPage() {
                     title={post.status === 'published' ? 'Dépublier' : 'Publier'}
                   >
                     {post.status === 'published' ? (
-                      <FileText className="w-3.5 h-3.5 text-blue-600 mr-1" />
+                      <FileText className="w-3.5 h-3.5 text-violet-600 mr-1" />
                     ) : (
-                      <Globe className="w-3.5 h-3.5 text-blue-600 mr-1" />
+                      <Globe className="w-3.5 h-3.5 text-violet-600 mr-1" />
                     )}
                     {post.status === 'published' ? 'Dépublier' : 'Publier'}
                   </Button>
@@ -689,7 +689,7 @@ export default function BlogAdminPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-[#2563EB] hover:bg-[#2563EB]/90 text-white"
+                  className="bg-[#8b17c9] hover:bg-[#8b17c9]/90 text-white"
                 >
                   {saving ? (
                     <RefreshCw className="w-4 h-4 animate-spin mr-2" />

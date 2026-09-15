@@ -284,9 +284,9 @@ export default function BaggagesPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      pending_activation: { label: 'En attente', className: 'bg-amber-100 dark:bg-blue-600/10 text-amber-700 dark:text-blue-500' },
-      active: { label: 'Actif', className: 'bg-emerald-100 dark:bg-blue-600/10 text-emerald-700 dark:text-blue-500' },
-      scanned: { label: 'Scanné', className: 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400' },
+      pending_activation: { label: 'En attente', className: 'bg-amber-100 dark:bg-violet-600/10 text-amber-700 dark:text-violet-500' },
+      active: { label: 'Actif', className: 'bg-emerald-100 dark:bg-violet-600/10 text-emerald-700 dark:text-violet-500' },
+      scanned: { label: 'Scanné', className: 'bg-violet-100 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400' },
       lost: { label: 'Perdu', className: 'bg-rose-100 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400' },
       found: { label: 'Retrouvé', className: 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400' },
       blocked: { label: 'Bloqué', className: 'bg-slate-100 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400' },
@@ -409,7 +409,7 @@ export default function BaggagesPage() {
             placeholder="Rechercher par nom ou référence..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all"
           />
         </div>
       </div>
@@ -422,7 +422,7 @@ export default function BaggagesPage() {
             onClick={() => setStatusFilter(btn.id)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
               statusFilter === btn.id
-                ? 'bg-blue-600 text-white shadow-lg'
+                ? 'bg-violet-600 text-white shadow-lg'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -436,7 +436,7 @@ export default function BaggagesPage() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
           <div className="text-center py-12">
             <div className="flex items-center justify-center gap-3">
-              <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
               <span className="text-slate-500">Chargement...</span>
             </div>
           </div>
@@ -457,9 +457,9 @@ export default function BaggagesPage() {
           {/* Section 1 — Bagages activés */}
           {activatedBaggages.length > 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden mb-6">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-emerald-50/50 dark:bg-blue-600/5">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-emerald-50/50 dark:bg-violet-600/5">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-600" />
+                  <div className="w-3 h-3 rounded-full bg-violet-600" />
                   <h2 className="text-sm font-semibold text-slate-800 dark:text-white">
                     Bagages activés ({activatedBaggages.length})
                   </h2>
@@ -502,8 +502,8 @@ export default function BaggagesPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-blue-600/10 flex items-center justify-center">
-                              <QrCode className="w-4 h-4 text-blue-600" />
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-violet-600/10 flex items-center justify-center">
+                              <QrCode className="w-4 h-4 text-violet-600" />
                             </div>
                             <span className="text-slate-800 dark:text-white font-mono font-medium">
                               {baggage.reference}
@@ -516,7 +516,7 @@ export default function BaggagesPage() {
                               {baggage.travelerFirstName} {baggage.travelerLastName}
                             </span>
                           ) : (
-                            <span className="px-2 py-1 bg-amber-100 dark:bg-blue-600/20 text-amber-600 dark:text-blue-500 rounded-full text-xs font-medium">
+                            <span className="px-2 py-1 bg-amber-100 dark:bg-violet-600/20 text-amber-600 dark:text-violet-500 rounded-full text-xs font-medium">
                               Non assigné
                             </span>
                           )}
@@ -551,13 +551,13 @@ export default function BaggagesPage() {
                               <button
                                 onClick={() => handleMarkFound(baggage.id)}
                                 disabled={actionLoading === baggage.id}
-                                className="p-2 rounded-lg bg-emerald-100 dark:bg-blue-600/10 hover:bg-emerald-200 dark:hover:bg-blue-600/20 transition-colors group"
+                                className="p-2 rounded-lg bg-emerald-100 dark:bg-violet-600/10 hover:bg-emerald-200 dark:hover:bg-violet-600/20 transition-colors group"
                                 title="Marquer retrouvé"
                               >
                                 {actionLoading === baggage.id ? (
-                                  <div className="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+                                  <div className="w-4 h-4 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
                                 ) : (
-                                  <CheckCircle className="w-4 h-4 text-blue-600" />
+                                  <CheckCircle className="w-4 h-4 text-violet-600" />
                                 )}
                               </button>
                             )}
@@ -569,7 +569,7 @@ export default function BaggagesPage() {
                               className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
                               title="Voir détails"
                             >
-                              <Eye className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                              <Eye className="w-4 h-4 text-slate-400 group-hover:text-violet-600" />
                             </button>
                           </div>
                         </td>
@@ -589,10 +589,10 @@ export default function BaggagesPage() {
           {/* Section 2 — QR en attente d'activation */}
           {pendingBaggages.length > 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-amber-200 dark:border-amber-800 overflow-hidden">
-              <div className="px-6 py-4 border-b border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-blue-600/5">
+              <div className="px-6 py-4 border-b border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-violet-600/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-600" />
+                    <div className="w-3 h-3 rounded-full bg-violet-600" />
                     <h2 className="text-sm font-semibold text-slate-800 dark:text-white">
                       QR en attente d'activation ({pendingBaggages.length})
                     </h2>
@@ -648,8 +648,8 @@ export default function BaggagesPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-blue-600/10 flex items-center justify-center">
-                              <QrCode className="w-4 h-4 text-blue-600" />
+                            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-violet-600/10 flex items-center justify-center">
+                              <QrCode className="w-4 h-4 text-violet-600" />
                             </div>
                             <span className="text-slate-800 dark:text-white font-mono font-medium">
                               {baggage.reference}
@@ -657,7 +657,7 @@ export default function BaggagesPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="px-2 py-1 bg-amber-100 dark:bg-blue-600/20 text-amber-600 dark:text-blue-500 rounded-full text-xs font-medium">
+                          <span className="px-2 py-1 bg-amber-100 dark:bg-violet-600/20 text-amber-600 dark:text-violet-500 rounded-full text-xs font-medium">
                             Non assigné
                           </span>
                         </td>
@@ -681,7 +681,7 @@ export default function BaggagesPage() {
                               className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
                               title="Voir détails"
                             >
-                              <Eye className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                              <Eye className="w-4 h-4 text-slate-400 group-hover:text-violet-600" />
                             </button>
                           </div>
                         </td>
@@ -764,8 +764,8 @@ export default function BaggagesPage() {
             </div>
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-amber-100 dark:bg-blue-600/10 rounded-xl flex items-center justify-center">
-                  <QrCode className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-amber-100 dark:bg-violet-600/10 rounded-xl flex items-center justify-center">
+                  <QrCode className="w-6 h-6 text-violet-600" />
                 </div>
                 <div>
                   <p className="text-slate-800 dark:text-white font-mono font-bold">{selectedBaggage.reference}</p>
@@ -779,7 +779,7 @@ export default function BaggagesPage() {
                   {selectedBaggage.travelerFirstName || selectedBaggage.travelerLastName ? (
                     <p className="text-slate-800 dark:text-white font-medium">{selectedBaggage.travelerFirstName} {selectedBaggage.travelerLastName}</p>
                   ) : (
-                    <span className="px-2 py-1 bg-amber-100 dark:bg-blue-600/20 text-amber-600 dark:text-blue-500 rounded-full text-xs font-medium">
+                    <span className="px-2 py-1 bg-amber-100 dark:bg-violet-600/20 text-amber-600 dark:text-violet-500 rounded-full text-xs font-medium">
                       À attribuer
                     </span>
                   )}
@@ -814,8 +814,8 @@ export default function BaggagesPage() {
 
               {/* Attribuer edit form for unassigned baggages */}
               {(!selectedBaggage.travelerFirstName && !selectedBaggage.travelerLastName) && (
-                <div className="p-4 bg-amber-50 dark:bg-blue-600/10 border border-amber-200 dark:border-amber-800 rounded-xl">
-                  <h4 className="text-amber-700 dark:text-blue-500 font-medium mb-3">Attribuer ce bagage</h4>
+                <div className="p-4 bg-amber-50 dark:bg-violet-600/10 border border-amber-200 dark:border-amber-800 rounded-xl">
+                  <h4 className="text-amber-700 dark:text-violet-500 font-medium mb-3">Attribuer ce bagage</h4>
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <input
@@ -858,7 +858,7 @@ export default function BaggagesPage() {
                           console.error('Error updating baggage:', error);
                         }
                       }}
-                      className="w-full py-2 bg-[#2563EB] hover:bg-[#ff9f00] text-white rounded-lg text-sm font-medium transition-colors"
+                      className="w-full py-2 bg-[#8b17c9] hover:bg-[#ff9f00] text-white rounded-lg text-sm font-medium transition-colors"
                     >
                       Enregistrer
                     </button>
@@ -889,7 +889,7 @@ export default function BaggagesPage() {
                   <button
                     onClick={() => handleMarkFound(selectedBaggage.id)}
                     disabled={actionLoading === selectedBaggage.id}
-                    className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full py-3 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {actionLoading === selectedBaggage.id ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -904,7 +904,7 @@ export default function BaggagesPage() {
 
                 <Link
                   href={`/scan/${selectedBaggage.reference}`}
-                  className="block w-full text-center py-3 bg-blue-600 text-white rounded-xl hover:bg-amber-600 transition-colors font-medium"
+                  className="block w-full text-center py-3 bg-violet-600 text-white rounded-xl hover:bg-amber-600 transition-colors font-medium"
                 >
                   Tester le scan
                 </Link>

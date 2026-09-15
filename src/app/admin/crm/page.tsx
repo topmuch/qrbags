@@ -66,9 +66,9 @@ interface Lead {
 
 // Extended status configuration
 const STATUS_CONFIG: Record<LeadStatus, { label: string; className: string }> = {
-  new: { label: 'Nouveau', className: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' },
+  new: { label: 'Nouveau', className: 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300' },
   contacted: { label: 'Contacté', className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300' },
-  in_discussion: { label: 'En discussion', className: 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300' },
+  in_discussion: { label: 'En discussion', className: 'bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-300' },
   qualified: { label: 'Qualifié', className: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' },
   converted: { label: 'Converti', className: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' },
   lost: { label: 'Perdu', className: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' },
@@ -290,13 +290,13 @@ export default function CRMPage() {
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <CardContent className="p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400">Nouveaux</p>
-            <p className="text-2xl font-bold text-blue-600">{leads.filter(l => l.status === 'new').length}</p>
+            <p className="text-2xl font-bold text-violet-600">{leads.filter(l => l.status === 'new').length}</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <CardContent className="p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400">En discussion</p>
-            <p className="text-2xl font-bold text-blue-700">{leads.filter(l => l.status === 'in_discussion').length}</p>
+            <p className="text-2xl font-bold text-violet-700">{leads.filter(l => l.status === 'in_discussion').length}</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
@@ -470,7 +470,7 @@ export default function CRMPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg h-8 w-8 p-0"
+                          className="text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-lg h-8 w-8 p-0"
                           onClick={() => router.push(`/admin/crm/leads/${lead.id}`)}
                           title="Voir les détails"
                         >
@@ -481,7 +481,7 @@ export default function CRMPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-blue-600 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-blue-600/10 rounded-lg h-8 w-8 p-0"
+                              className="text-violet-600 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-violet-600/10 rounded-lg h-8 w-8 p-0"
                               onClick={() => openEditDialog(lead)}
                               title="Modifier"
                             >
@@ -613,14 +613,14 @@ export default function CRMPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-slate-400" />
-                  <a href={`mailto:${selectedLead.email}`} className="text-blue-500 hover:underline">
+                  <a href={`mailto:${selectedLead.email}`} className="text-violet-500 hover:underline">
                     {selectedLead.email}
                   </a>
                 </div>
                 {selectedLead.phone && (
                   <div className="flex items-center gap-3">
                     <Phone className="w-4 h-4 text-slate-400" />
-                    <a href={`tel:${selectedLead.phone}`} className="text-blue-500 hover:underline">
+                    <a href={`tel:${selectedLead.phone}`} className="text-violet-500 hover:underline">
                       {selectedLead.phone}
                     </a>
                   </div>
@@ -733,7 +733,7 @@ export default function CRMPage() {
               />
             </div>
             <Button
-              className="w-full bg-blue-600 hover:bg-amber-600 text-white rounded-xl"
+              className="w-full bg-violet-600 hover:bg-amber-600 text-white rounded-xl"
               onClick={handleUpdateLead}
             >
               Enregistrer les modifications

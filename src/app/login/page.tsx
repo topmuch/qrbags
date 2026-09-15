@@ -21,7 +21,7 @@ function LoginRedirect() {
   return (
     <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center">
       <div className="flex items-center gap-3">
-        <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
         <span className="text-slate-500">Redirection...</span>
       </div>
     </div>
@@ -33,7 +33,7 @@ function LoadingFallback() {
   return (
     <div className="min-h-screen bg-[#f9fafb] flex items-center justify-center">
       <div className="flex items-center gap-3">
-        <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
         <span className="text-slate-500">Chargement...</span>
       </div>
     </div>

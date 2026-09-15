@@ -97,14 +97,14 @@ export default function Activez30SecondesPage() {
                 icon: User,
                 title: 'Remplissez vos infos',
                 description: 'Entrez votre nom, votre numéro WhatsApp et votre destination. C\'est tout. Pas d\'email obligatoire, pas de mot de passe, pas de vérification complexe. Juste l\'essentiel pour vous contacter.',
-                color: 'from-purple-500 to-indigo-600',
+                color: 'from-purple-500 to-violet-600',
               },
               {
                 step: '3',
                 icon: CheckCircle,
                 title: 'C\'est activé !',
                 description: 'Votre QR code est immédiatement actif. Collez l\'autocollant sur votre bagage et voyagez en toute sérénité. Si quelqu\'un scanne votre QR code, vous recevez instantanément une alerte WhatsApp.',
-                color: 'from-indigo-500 to-blue-600',
+                color: 'from-violet-500 to-violet-600',
               },
             ].map((item, i) => (
               <FadeIn key={item.step} delay={i * 0.12}>
@@ -149,7 +149,7 @@ export default function Activez30SecondesPage() {
       </section>
 
       {/* Prochaine étape */}
-      <section className="py-20 lg:py-28 px-5 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 relative overflow-hidden">
+      <section className="py-20 lg:py-28 px-5 bg-gradient-to-br from-violet-600 via-purple-600 to-violet-700 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <FadeIn>
