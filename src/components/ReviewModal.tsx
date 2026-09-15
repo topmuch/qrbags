@@ -89,39 +89,39 @@ export function ReviewModal({ show, onClose, reference, lang }: ReviewModalProps
 
   return (
     <div className="fixed inset-0 bg-black/60 z-[60] flex items-end sm:items-center justify-center p-4" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="bg-white border-2 border-[#1a1a1a] rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-3xl border border-[#16234e]/10 p-5 max-w-sm w-full shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-[#1a1a1a]">⭐ {labels.heading}</h3>
-          <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-[#c5a643]/30 flex items-center justify-center" aria-label="Fermer">
+          <h3 className="text-lg font-bold text-[#16234e]">⭐ {labels.heading}</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-[#16234e]/5 flex items-center justify-center text-[#16234e]" aria-label="Fermer">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           {/* Name */}
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={labels.name} required className="w-full px-3 py-2.5 bg-[#f8fafc] border-2 border-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#c5a643] min-h-[44px]" />
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={labels.name} required className="w-full px-3 py-2.5 bg-white border-2 border-[#16234e]/15 rounded-xl text-sm text-[#16234e] focus:outline-none focus:ring-4 focus:ring-[#2f9bff]/15 focus:border-[#2f9bff] min-h-[44px] transition-all" />
 
           {/* Location */}
-          <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={labels.location} className="w-full px-3 py-2.5 bg-[#f8fafc] border-2 border-[#1a1a1a]/30 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#c5a643] min-h-[44px]" />
+          <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={labels.location} className="w-full px-3 py-2.5 bg-white border-2 border-[#16234e]/15 rounded-xl text-sm text-[#16234e] focus:outline-none focus:ring-4 focus:ring-[#2f9bff]/15 focus:border-[#2f9bff] min-h-[44px] transition-all" />
 
           {/* Rating */}
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHoveredRating(star)} onMouseLeave={() => setHoveredRating(0)} className="p-0.5" aria-label={`${star} étoiles`}>
-                <Star className={`w-7 h-7 transition-colors ${star <= (hoveredRating || rating) ? 'fill-[#c5a643] text-[#c5a643]' : 'text-[#1a1a1a]/20'}`} />
+                <Star className={`w-7 h-7 transition-colors ${star <= (hoveredRating || rating) ? 'fill-[#f8921f] text-[#f8921f]' : 'text-[#16234e]/20'}`} />
               </button>
             ))}
-            {rating > 0 && <span className="text-xs text-[#1a1a1a]/60 ml-2">{rating}/5</span>}
+            {rating > 0 && <span className="text-xs text-[#16234e]/60 ml-2">{rating}/5</span>}
           </div>
 
           {/* Title */}
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={labels.title} className="w-full px-3 py-2.5 bg-[#f8fafc] border-2 border-[#1a1a1a]/30 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#c5a643] min-h-[44px]" />
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={labels.title} className="w-full px-3 py-2.5 bg-white border-2 border-[#16234e]/15 rounded-xl text-sm text-[#16234e] focus:outline-none focus:ring-4 focus:ring-[#2f9bff]/15 focus:border-[#2f9bff] min-h-[44px] transition-all" />
 
           {/* Content */}
-          <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={labels.placeholder} required rows={3} className="w-full px-3 py-2.5 bg-[#f8fafc] border-2 border-[#1a1a1a] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#c5a643] resize-none" />
+          <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={labels.placeholder} required rows={3} className="w-full px-3 py-2.5 bg-white border-2 border-[#16234e]/15 rounded-xl text-sm text-[#16234e] focus:outline-none focus:ring-4 focus:ring-[#2f9bff]/15 focus:border-[#2f9bff] resize-none transition-all" />
 
           {/* Submit */}
-          <button type="submit" disabled={submitting || !name.trim() || rating === 0 || content.trim().length < 10} className="w-full bg-[#c5a643] hover:bg-[#b8942f] text-[#1a1a1a] py-3 px-4 rounded-xl font-bold transition-colors min-h-[48px] disabled:opacity-50 flex items-center justify-center gap-2">
+          <button type="submit" disabled={submitting || !name.trim() || rating === 0 || content.trim().length < 10} className="w-full bg-gradient-qrbag text-white py-3 px-4 rounded-2xl font-bold shadow-lg shadow-[#e6216e]/25 hover:shadow-xl hover:shadow-[#e6216e]/40 hover:-translate-y-0.5 active:translate-y-0 transition-all min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2">
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             {labels.submit}
           </button>

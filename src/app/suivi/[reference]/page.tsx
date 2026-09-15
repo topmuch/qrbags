@@ -15,6 +15,7 @@ import {
   MessageCircle,
   MapPin,
   Globe,
+  ArrowLeft,
   ArrowRight,
   ChevronDown,
   X,
@@ -40,10 +41,19 @@ import { generatePreFilledMessage, buildWhatsAppUrl } from '@/lib/whatsapp-messa
 import { safeTransportMode, getTransportImage } from '@/lib/transport';
 import type { TransportMode } from '@/lib/transport';
 import { useAudioAlert, POLL_INTERVAL_MS } from '@/hooks/useAudioAlert';
+import {
+  BrandShell,
+  BrandCard,
+  BrandIconRing,
+  BrandLogo,
+  brandBtnGradient,
+  brandBtnNavy,
+  brandBtnOutline,
+} from '@/components/brand/BrandShell';
 
-// ─── Brand constants (QRBag palette : bleu foncé + beige or) ───
-// NAVY #16234e · BEIGE #f3ecdc · GOLD_SOFT #e9dcc0 · GOLD #b8975a · encart clair #faf6ec
-// Sémantique conservée : urgence #EF4444 (#FEF2F2) · succès/WhatsApp #25D366
+// ─── Constantes page suivi (design system officiel QRBag — voir src/components/brand/BrandShell.tsx) ───
+// Palette : Navy #16234e · Azure #2f9bff · Orange #f8921f · Rouge #ef4036 · Magenta #e6216e · Violet #8b17c9
+// Sémantique conservée : urgence rouge #ef4036 · succès/WhatsApp #25D366 (seule exception verte)
 const QRBAG_SUPPORT_PHONE = '+33745349339';
 
 // ═══════════════════════════════════════════════════════
@@ -178,7 +188,7 @@ function usePWAInstallPrompt() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  LANGUAGE SELECTOR (light theme — navy sur blanc, hover beige or)
+//  LANGUAGE SELECTOR (pilule blanche — design system QRBag)
 // ═══════════════════════════════════════════════════════
 
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
@@ -190,14 +200,14 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border-2 border-[#16234e] rounded-full text-[#16234e] hover:bg-[#e9dcc0] transition-colors text-xs sm:text-sm md:text-base font-medium shadow-sm min-h-[36px] sm:min-h-[40px] md:min-h-[44px]"
+        className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border-2 border-[#16234e]/15 rounded-full text-[#16234e] hover:border-[#2f9bff] hover:text-[#2f9bff] transition-colors text-xs sm:text-sm md:text-base font-medium shadow-sm min-h-[44px]"
       >
         <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
         <span>{LANGUAGE_NAMES[lang]}</span>
       </button>
 
       {isOpen && (
-        <div role="listbox" aria-label="Language" className="absolute top-full right-0 mt-1 sm:mt-2 bg-white border-2 border-[#16234e] rounded-xl shadow-lg overflow-hidden z-50 min-w-[140px] sm:min-w-[160px]">
+        <div role="listbox" aria-label="Language" className="absolute top-full right-0 mt-1 sm:mt-2 bg-white border border-[#16234e]/10 rounded-xl shadow-xl overflow-hidden z-50 min-w-[140px] sm:min-w-[160px]">
           {(['fr', 'en', 'ar'] as Language[]).map((l) => (
             <button
               key={l}
@@ -209,8 +219,8 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
               }}
               className={`w-full px-4 py-2.5 sm:px-5 sm:py-3 text-left text-xs sm:text-sm md:text-base font-medium transition-colors ${
                 lang === l
-                  ? 'bg-[#e9dcc0] text-[#16234e]'
-                  : 'text-[#16234e] hover:bg-[#f3ecdc]'
+                  ? 'bg-[#2f9bff]/10 text-[#16234e] font-bold'
+                  : 'text-[#16234e] hover:bg-[#16234e]/5'
               }`}
             >
               {LANGUAGE_NAMES[l]}
@@ -223,12 +233,12 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
 }
 
 // ═══════════════════════════════════════════════════════
-//  DASHED ENCART (variante claire : pointillés navy sur encart beige)
+//  SOFT ENCART (fond azure doux + bordure navy discrète — design system QRBag)
 // ═══════════════════════════════════════════════════════
 
-function DashedEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function SoftEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`border-2 border-dashed border-[#16234e]/50 bg-[#faf6ec] rounded-xl p-3 mb-2.5 last:mb-0 ${className}`}>
+    <div className={`bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl p-3 mb-2.5 last:mb-0 ${className}`}>
       {children}
     </div>
   );
@@ -240,9 +250,9 @@ function DashedEncart({ children, className = '' }: { children: React.ReactNode;
 
 function MapSkeleton() {
   return (
-    <div className="w-full h-full bg-[#b8975a]/15 rounded-xl flex items-center justify-center animate-pulse">
+    <div className="w-full h-full bg-[#2f9bff]/5 rounded-xl flex items-center justify-center animate-pulse">
       <div className="text-center">
-        <MapPin className="w-8 h-8 text-[#b8975a]/60 mx-auto mb-2" />
+        <MapPin className="w-8 h-8 text-[#2f9bff]/60 mx-auto mb-2" />
         <p className="text-sm text-[#16234e]/40">Chargement de la carte...</p>
       </div>
     </div>
@@ -250,22 +260,24 @@ function MapSkeleton() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  LOADING SCREEN (recoloré)
+//  LOADING SCREEN (BrandShell blanc — design system QRBag)
 // ═══════════════════════════════════════════════════════
 
 function LoadingScreen({ t }: { t: (key: string) => string }) {
   return (
-    <main className="min-h-screen bg-[#16234e] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin w-12 h-12 border-4 border-white/20 border-t-[#b8975a] rounded-full mx-auto mb-4"></div>
-        <p className="text-lg text-white">{t('common.loading')}</p>
-      </div>
-    </main>
+    <BrandShell>
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-[#16234e]/15 border-t-[#e6216e] rounded-full mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-[#16234e]">{t('common.loading')}</p>
+        </div>
+      </main>
+    </BrandShell>
   );
 }
 
 // ═══════════════════════════════════════════════════════
-//  ERROR SCREEN (recoloré)
+//  ERROR SCREEN (BrandCard corners + BrandIconRing — design system QRBag)
 // ═══════════════════════════════════════════════════════
 
 function ErrorScreen({
@@ -281,22 +293,26 @@ function ErrorScreen({
 }) {
   const errorConfig = {
     not_found: {
-      icon: <AlertCircle className="w-12 h-12 text-red-500" />,
+      icon: <AlertCircle className="w-10 h-10 text-[#2f9bff]" />,
+      glow: '#2f9bff',
       title: t('tracking.baggage_not_found'),
       message: t('tracking.baggage_not_found_desc'),
     },
     blocked: {
-      icon: <Shield className="w-12 h-12 text-[#16234e]/40" />,
+      icon: <Shield className="w-10 h-10 text-[#8b17c9]" />,
+      glow: '#8b17c9',
       title: t('errors.baggage_blocked'),
       message: t('tracking.baggage_blocked_desc'),
     },
     expired: {
-      icon: <Clock className="w-12 h-12 text-[#16234e]/40" />,
+      icon: <Clock className="w-10 h-10 text-[#f8921f]" />,
+      glow: '#f8921f',
       title: t('errors.protection_expired'),
       message: t('tracking.baggage_expired_desc'),
     },
     pending_activation: {
-      icon: <AlertCircle className="w-12 h-12 text-[#b8975a]" />,
+      icon: <AlertCircle className="w-10 h-10 text-[#e6216e]" />,
+      glow: '#e6216e',
       title: t('tracking.baggage_not_found'),
       message: t('tracking.baggage_pending_desc'),
     },
@@ -305,27 +321,33 @@ function ErrorScreen({
   const config = errorConfig[type as keyof typeof errorConfig] || errorConfig.not_found;
 
   return (
-    <main className="min-h-screen bg-[#f3ecdc] flex items-center justify-center p-5 md:p-8 relative">
-      <div className="absolute top-4 right-4">
-        <LanguageSelector lang={lang} setLang={setLang} />
-      </div>
+    <BrandShell>
+      <main className="min-h-screen flex items-center justify-center p-5 md:p-8">
+        <div className="max-w-md w-full">
+          <div className="flex justify-end mb-3">
+            <LanguageSelector lang={lang} setLang={setLang} />
+          </div>
 
-      <div className="max-w-md w-full bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-6 md:p-8 text-center shadow-xl">
-        <div className="w-20 h-20 bg-[#e9dcc0] border-2 border-dashed border-[#16234e] rounded-full flex items-center justify-center mx-auto mb-6">
-          {config.icon}
+          <BrandCard corners className="p-6 md:p-8 text-center">
+            <div className="flex justify-center mb-5">
+              <BrandIconRing size="w-20 h-20" glow={config.glow}>
+                {config.icon}
+              </BrandIconRing>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#16234e] mb-3">{config.title}</h1>
+            <p className="text-[#16234e]/70 text-base md:text-lg mb-6">{config.message}</p>
+            <div className="bg-[#2f9bff]/5 border border-[#16234e]/10 text-[#16234e]/80 rounded-xl text-center text-sm font-medium min-h-[56px] flex items-center justify-center px-4">
+              {t('tracking.trust_note')}
+            </div>
+          </BrandCard>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#16234e] mb-3">{config.title}</h1>
-        <p className="text-[#16234e] text-base md:text-lg mb-6">{config.message}</p>
-        <div className="w-full py-4 px-6 bg-[#f3ecdc] border-2 border-dashed border-[#16234e] text-[#16234e] rounded-xl text-center text-base font-medium min-h-[56px]">
-          {t('tracking.trust_note')}
-        </div>
-      </div>
-    </main>
+      </main>
+    </BrandShell>
   );
 }
 
 // ═══════════════════════════════════════════════════════
-//  GOOGLE MAPS IFRAME (recoloré fallback)
+//  GOOGLE MAPS IFRAME (fallback repliable — design system QRBag)
 // ═══════════════════════════════════════════════════════
 
 function MapEmbed({
@@ -349,8 +371,8 @@ function MapEmbed({
 
   if (!mapSrc) {
     return (
-      <div className="bg-[#f3ecdc] border-2 border-dashed border-[#16234e] rounded-xl p-4 text-center text-[#16234e]">
-        <MapPin className="w-6 h-6 mx-auto mb-2" />
+      <div className="bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl p-4 text-center text-[#16234e]">
+        <MapPin className="w-6 h-6 mx-auto mb-2 text-[#2f9bff]" />
         <p className="text-base font-medium">{address || t('tracking.no_location')}</p>
         <p className="text-sm text-[#16234e]/70 mt-1">{t('tracking.map_unavailable')}</p>
       </div>
@@ -358,7 +380,7 @@ function MapEmbed({
   }
 
   return (
-    <div className="rounded-xl overflow-hidden border-2 border-[#16234e]">
+    <div className="rounded-xl overflow-hidden border border-[#16234e]/10">
       <iframe
         src={mapSrc}
         width="100%"
@@ -377,7 +399,6 @@ function MapEmbed({
 // ═══════════════════════════════════════════════════════
 //  CONTEXT BADGE (conservé — fallback navy)
 // ═══════════════════════════════════════════════════════
-
 function ContextBadge({ context, t }: { context: string; t: (key: string) => string }) {
   const scanContext = context as ScanContext;
   const icon = CONTEXT_ICONS[scanContext] || '📍';
@@ -422,7 +443,7 @@ function IOSInstallModal({
       aria-modal="true"
     >
       <div
-        className="bg-white border-2 border-[#16234e] rounded-2xl p-5 max-w-sm w-full shadow-2xl"
+        className="bg-white rounded-3xl border border-[#16234e]/10 p-5 max-w-sm w-full shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-3">
@@ -430,13 +451,13 @@ function IOSInstallModal({
           <button
             onClick={onClose}
             aria-label={t('tracking.close')}
-            className="w-8 h-8 rounded-full hover:bg-[#e9dcc0] flex items-center justify-center"
+            className="w-8 h-8 rounded-full hover:bg-[#16234e]/5 flex items-center justify-center text-[#16234e]"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
         <ol className="space-y-2 text-sm text-[#16234e]">
-          <li className="flex gap-2"><span>1.</span><span>{t('tracking.install_ios_step1')} <span className="inline-block px-1.5 py-0.5 bg-[#e9dcc0] rounded text-xs font-bold">⬆️</span></span></li>
+          <li className="flex gap-2"><span>1.</span><span>{t('tracking.install_ios_step1')} <span className="inline-block px-1.5 py-0.5 bg-[#2f9bff]/10 rounded text-xs font-bold">⬆️</span></span></li>
           <li className="flex gap-2"><span>2.</span><span>{t('tracking.install_ios_step2')}</span></li>
           <li className="flex gap-2"><span>3.</span><span>{t('tracking.install_ios_step3')}</span></li>
         </ol>
@@ -688,27 +709,27 @@ export default function SuiviPage() {
     if (isDeclaredLost) {
       return {
         title: `🚨 ${t('tracking.badge_lost')}`,
-        badgeClass: 'bg-red-600 text-white animate-pulse',
+        badgeClass: 'bg-[#ef4036] text-white animate-pulse shadow-lg shadow-[#ef4036]/25',
         desc: t('tracking.lost_description'),
       };
     }
     if (isFound) {
       return {
         title: `✅ ${t('tracking.badge_found')}`,
-        badgeClass: 'bg-[#b8975a] text-white',
+        badgeClass: 'bg-gradient-qrbag text-white shadow-md shadow-[#e6216e]/25',
         desc: t('tracking.found_description'),
       };
     }
     if (isScanned) {
       return {
         title: t('tracking.bagage_localise'),
-        badgeClass: 'bg-[#b8975a] text-white',
+        badgeClass: 'bg-[#2f9bff] text-white shadow-md shadow-[#2f9bff]/25',
         desc: t('tracking.found_description'),
       };
     }
     return {
       title: t('tracking.bagage_protege'),
-      badgeClass: 'bg-[#16234e] text-[#e9dcc0]',
+      badgeClass: 'bg-gradient-qrbag text-white shadow-md shadow-[#e6216e]/25',
       desc: t('tracking.active_description'),
     };
   })();
@@ -733,30 +754,33 @@ export default function SuiviPage() {
   // ═══════════════════════════════════════════════════════
 
   return (
-    <main
-      className="min-h-screen bg-[#f3ecdc] flex flex-col"
-      dir={dir}
-    >
-      {/* ─── Sticky Header ─── */}
-      <header className="sticky top-0 z-40 bg-[#16234e] border-b-2 border-[#b8975a]/40 pt-[env(safe-area-inset-top,0px)] px-4 sm:px-5 md:px-8 py-2 sm:py-3">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <button
-            onClick={() => window.history.back()}
-            className="flex items-center gap-1 text-white hover:text-[#e9dcc0] transition-colors text-sm font-medium min-h-[40px] px-2"
-            aria-label={t('tracking.back_to_scan')}
-          >
-            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-            <span>{t('tracking.back_to_scan')}</span>
-          </button>
+    <BrandShell>
+      <main
+        className="relative min-h-screen flex flex-col"
+        dir={dir}
+      >
+      {/* ─── Sticky Header (blanc translucide — design system QRBag) ─── */}
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-[#16234e]/10 pt-[env(safe-area-inset-top,0px)] px-4 sm:px-5 md:px-8 py-2 sm:py-3">
+        <div className="max-w-md mx-auto flex items-center justify-between gap-2">
+          <BrandLogo className="h-8 sm:h-9 w-auto" />
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={() => window.history.back()}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white border-2 border-[#16234e]/15 text-[#16234e] hover:border-[#2f9bff] hover:text-[#2f9bff] transition-colors"
+              aria-label={t('tracking.back_to_scan')}
+              title={t('tracking.back_to_scan')}
+            >
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+            </button>
+
             {/* Audio alert toggle */}
             <button
               onClick={toggleAudio}
-              className={`flex items-center justify-center w-9 h-9 rounded-full border-2 transition-colors min-h-[40px] ${
+              className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
                 audioEnabled
-                  ? 'border-[#b8975a] bg-[#b8975a] text-white'
-                  : 'border-white/40 text-white hover:bg-white/10'
+                  ? 'border-[#2f9bff] bg-[#2f9bff]/10 text-[#2f9bff]'
+                  : 'bg-white border-[#16234e]/15 text-[#16234e] hover:border-[#2f9bff] hover:text-[#2f9bff]'
               }`}
               aria-label={t('tracking.audio_alert_toggle_aria')}
               title={audioEnabled ? t('tracking.audio_alert_enabled') : t('tracking.audio_alert_disabled')}
@@ -766,7 +790,7 @@ export default function SuiviPage() {
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-white/40 text-white hover:bg-white/10 transition-colors disabled:opacity-50"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white border-2 border-[#16234e]/15 text-[#16234e] hover:border-[#2f9bff] hover:text-[#2f9bff] transition-colors disabled:opacity-50"
               aria-label={t('common.refresh')}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -778,31 +802,31 @@ export default function SuiviPage() {
 
       {/* ─── Refresh Toast ─── */}
       {refreshToast && (
-        <div className="fixed top-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(4rem+env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2 bg-[#16234e] text-[#e9dcc0] px-4 py-2 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-300 text-sm font-medium flex items-center gap-1.5">
-          <CheckCircle className="w-4 h-4" />
+        <div className="fixed top-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(4rem+env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2 bg-[#16234e] text-white px-4 py-2 rounded-full shadow-lg shadow-[#16234e]/25 z-50 animate-in fade-in slide-in-from-top-2 duration-300 text-sm font-medium flex items-center gap-1.5">
+          <CheckCircle className="w-4 h-4 text-[#2f9bff]" />
           {t('tracking.refresh_success')}
         </div>
       )}
 
       {/* ─── Status Toast ─── */}
       {statusToast && (
-        <div className="fixed top-[calc(5.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(6rem+env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-300 text-sm font-medium flex items-center gap-1.5">
-          <CheckCircle className="w-4 h-4" />
+        <div className="fixed top-[calc(5.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(6rem+env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2 bg-[#16234e] text-white px-4 py-2 rounded-full shadow-lg shadow-[#16234e]/25 z-50 animate-in fade-in slide-in-from-top-2 duration-300 text-sm font-medium flex items-center gap-1.5">
+          <CheckCircle className="w-4 h-4 text-[#2f9bff]" />
           {t('tracking.status_updated')}
         </div>
       )}
 
       {/* ─── Audio Alert Banner (show when not enabled AND baggage not yet scanned) ─── */}
       {!audioEnabled && data && data.scans.length === 0 && (
-        <div className="sticky top-[52px] sm:top-[56px] z-30 bg-[#f3ecdc] px-4 sm:px-5 md:px-8 py-2">
+        <div className="sticky top-[57px] sm:top-[61px] z-30 bg-white/70 backdrop-blur-sm px-4 sm:px-5 md:px-8 py-2">
           <div className="max-w-md mx-auto">
-            <div className="bg-[#e9dcc0] border-2 border-[#16234e] rounded-2xl p-4 text-center">
+            <div className="bg-white border border-[#16234e]/10 rounded-2xl p-4 text-center shadow-xl shadow-[#16234e]/5">
               <p className="font-bold text-[#16234e] text-base mb-2">
                 🔔 {t('tracking.audio_alert_banner_title')}
               </p>
               <button
                 onClick={enableAudio}
-                className="bg-[#16234e] hover:bg-[#0f1838] text-[#f3ecdc] py-2.5 px-6 rounded-xl font-bold transition-colors text-sm min-h-[44px] inline-flex items-center gap-2"
+                className={`${brandBtnGradient} py-2.5 px-6 text-sm min-h-[44px] inline-flex items-center gap-2`}
               >
                 <Volume2 className="w-4 h-4" />
                 {t('tracking.audio_alert_activate_btn')}
@@ -817,10 +841,10 @@ export default function SuiviPage() {
 
       {/* ─── Scanning indicator (show when audio is enabled AND no scans yet) ─── */}
       {audioEnabled && data && data.scans.length === 0 && (
-        <div className="sticky top-[52px] sm:top-[56px] z-30 bg-[#f3ecdc] px-4 sm:px-5 md:px-8 py-2">
+        <div className="sticky top-[57px] sm:top-[61px] z-30 bg-white/70 backdrop-blur-sm px-4 sm:px-5 md:px-8 py-2">
           <div className="max-w-md mx-auto">
-            <div className="bg-[#e9dcc0]/60 border-2 border-dashed border-[#b8975a] rounded-xl px-4 py-2.5 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#b8975a] animate-pulse flex-shrink-0" />
+            <div className="bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl px-4 py-2.5 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-[#2f9bff] animate-pulse flex-shrink-0" />
               <span className="text-sm font-medium text-[#16234e]">{t('tracking.audio_alert_scanning')}</span>
             </div>
           </div>
@@ -829,9 +853,9 @@ export default function SuiviPage() {
 
       {/* ─── Interactive Map (Leaflet — trajectory + markers) ─── */}
       {data.lastPosition && (data.lastPosition.hasCoordinates || data.lastPosition.address) && (
-        <section className="sticky top-[52px] sm:top-[56px] z-30 bg-[#f3ecdc] px-4 sm:px-5 md:px-8 py-3">
+        <section className="sticky top-[57px] sm:top-[61px] z-30 bg-white/70 backdrop-blur-sm px-4 sm:px-5 md:px-8 py-3">
           <div className="max-w-md mx-auto">
-            <div className="bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-2.5 shadow-sm">
+            <div className="bg-white border border-[#16234e]/10 rounded-3xl p-2.5 shadow-xl shadow-[#16234e]/5">
               <div className="flex items-center justify-between mb-2 px-1">
                 <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold flex items-center gap-1.5">
                   <span>🗺️</span> {showTrajectoryMap ? t('tracking.trajectory_map') || 'Trajectoire complète' : t('tracking.last_location')}
@@ -854,13 +878,13 @@ export default function SuiviPage() {
                 <div className="flex gap-2 mb-2 px-1">
                   <button
                     onClick={() => setShowTrajectoryMap(false)}
-                    className={`text-xs px-3 py-1 rounded-full font-medium transition-colors min-h-[28px] ${!showTrajectoryMap ? 'bg-[#16234e] text-[#e9dcc0]' : 'bg-[#e9dcc0] text-[#16234e]/70 hover:bg-[#e9dcc0]/70'}`}
+                    className={`text-xs px-3 py-1 rounded-full font-medium transition-colors min-h-[28px] ${!showTrajectoryMap ? 'bg-[#16234e] text-white' : 'bg-[#16234e]/5 text-[#16234e]/70 hover:bg-[#16234e]/10'}`}
                   >
                     📍 Dernière position
                   </button>
                   <button
                     onClick={() => setShowTrajectoryMap(true)}
-                    className={`text-xs px-3 py-1 rounded-full font-medium transition-colors min-h-[28px] ${showTrajectoryMap ? 'bg-[#16234e] text-[#e9dcc0]' : 'bg-[#e9dcc0] text-[#16234e]/70 hover:bg-[#e9dcc0]/70'}`}
+                    className={`text-xs px-3 py-1 rounded-full font-medium transition-colors min-h-[28px] ${showTrajectoryMap ? 'bg-[#16234e] text-white' : 'bg-[#16234e]/5 text-[#16234e]/70 hover:bg-[#16234e]/10'}`}
                   >
                     🛤️ Trajectoire ({data.scans.filter(s => s.latitude && s.longitude).length})
                   </button>
@@ -935,7 +959,7 @@ export default function SuiviPage() {
 
         {/* ═══ EN-TÊTE DYNAMIQUE SELON STATUT ═══ */}
         <div className="text-center pt-2">
-          <span className={`inline-flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-bold ${statusConfig.badgeClass}`}>
+          <span className={`inline-flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider ${statusConfig.badgeClass}`}>
             {statusConfig.title}
           </span>
           <p className="mt-3 text-sm md:text-base text-[#16234e]/90 leading-relaxed">
@@ -951,12 +975,12 @@ export default function SuiviPage() {
         {/* ═══ PANNEAU URGENCE (mode perdu uniquement) ═══ */}
         {isDeclaredLost && (
           <div
-            className="bg-[#FEF2F2] border-2 border-[#EF4444] rounded-2xl p-6 space-y-5"
+            className="bg-[#ef4036]/5 border border-[#ef4036]/30 rounded-3xl p-6 space-y-5 shadow-xl shadow-[#ef4036]/5"
             role="alert"
           >
             {/* Titre */}
             <div className="text-center">
-              <h2 className="text-xl md:text-2xl font-bold text-[#EF4444]">
+              <h2 className="text-xl md:text-2xl font-bold text-[#ef4036]">
                 {t('tracking.urgent_title')}
               </h2>
             </div>
@@ -964,13 +988,13 @@ export default function SuiviPage() {
             {/* Instructions numérotées */}
             <ol className="space-y-3">
               <li className="flex gap-3 items-start">
-                <span className="flex-shrink-0 w-7 h-7 bg-[#EF4444] text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</span>
+                <span className="flex-shrink-0 w-7 h-7 bg-[#ef4036] text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</span>
                 <p className="text-sm md:text-base text-[#16234e] leading-relaxed">
                   {t('tracking.urgent_step1', { company: transportCompany })}
                 </p>
               </li>
               <li className="flex gap-3 items-start">
-                <span className="flex-shrink-0 w-7 h-7 bg-[#EF4444] text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</span>
+                <span className="flex-shrink-0 w-7 h-7 bg-[#ef4036] text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</span>
                 <p className="text-sm md:text-base text-[#16234e] leading-relaxed">
                   {t('tracking.urgent_step2')}
                 </p>
@@ -982,7 +1006,7 @@ export default function SuiviPage() {
               {hasFinderPhone && (
                 <button
                   onClick={handleWhatsApp}
-                  className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe57] text-white py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px]"
+                  className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white py-3.5 px-4 rounded-2xl font-bold shadow-lg shadow-[#25D366]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all text-base min-h-[48px]"
                 >
                   <MessageCircle className="w-5 h-5" />
                   {t('tracking.urgent_contact_finder')}
@@ -990,7 +1014,7 @@ export default function SuiviPage() {
               )}
               <button
                 onClick={handleSupportWhatsApp}
-                className="w-full flex items-center justify-center gap-2 bg-[#EF4444] hover:bg-[#DC2626] text-white py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px]"
+                className="w-full flex items-center justify-center gap-2 bg-[#ef4036] hover:bg-[#d63127] text-white py-3.5 px-4 rounded-2xl font-bold shadow-lg shadow-[#ef4036]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all text-base min-h-[48px]"
               >
                 <AlertTriangle className="w-5 h-5" />
                 {t('tracking.urgent_support')}
@@ -1001,7 +1025,7 @@ export default function SuiviPage() {
             <button
               onClick={() => handleStatusToggle('mark-found')}
               disabled={isTogglingStatus}
-              className="w-full flex items-center justify-center gap-2 bg-white border-2 border-green-600 text-green-700 hover:bg-green-50 py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px] disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 bg-white border-2 border-[#25D366]/60 text-[#1ebe5d] hover:bg-[#25D366]/10 rounded-2xl font-bold transition-colors text-base min-h-[48px] disabled:opacity-50"
             >
               {isTogglingStatus ? (
                 <RefreshCw className="w-5 h-5 animate-spin" />
@@ -1013,15 +1037,15 @@ export default function SuiviPage() {
           </div>
         )}
 
-        {/* ═══ CARTE TROUVEUR (white + dashed, lecture seule) ═══ */}
+        {/* ═══ CARTE TROUVEUR (BrandCard blanche — lecture seule) ═══ */}
         {data.lastFinder && (data.lastFinder.name || data.lastFinder.phone) ? (
-          <div className="bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-5 shadow-sm">
+          <div className="bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 p-5">
             <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
               <span>🔍</span> {t('tracking.finder_info')}
             </h2>
 
             {data.lastFinder.name && (
-              <DashedEncart>
+              <SoftEncart>
                 <div className="flex items-center gap-3">
                   <span className="text-xl">👤</span>
                   <div>
@@ -1029,11 +1053,11 @@ export default function SuiviPage() {
                     <p className="text-base font-bold text-[#16234e]">{data.lastFinder.name}</p>
                   </div>
                 </div>
-              </DashedEncart>
+              </SoftEncart>
             )}
 
             {data.lastFinder.phone && (
-              <DashedEncart className="mb-0">
+              <SoftEncart className="mb-0">
                 <div className="flex items-center gap-3">
                   <span className="text-xl">📱</span>
                   <div>
@@ -1041,43 +1065,43 @@ export default function SuiviPage() {
                     <p className="text-base font-bold text-[#16234e]" dir="ltr">{data.lastFinder.phone}</p>
                   </div>
                 </div>
-              </DashedEncart>
+              </SoftEncart>
             )}
           </div>
         ) : (
-          <div className="bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-5 shadow-sm text-center">
-            <div className="w-14 h-14 bg-[#e9dcc0] border-2 border-dashed border-[#16234e] rounded-full flex items-center justify-center mx-auto mb-3">
-              <Clock className="w-7 h-7 text-[#16234e]/60" />
+          <div className="bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 p-5 text-center">
+            <div className="w-14 h-14 bg-[#2f9bff]/10 border border-[#2f9bff]/25 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Clock className="w-7 h-7 text-[#2f9bff]/70" />
             </div>
             <p className="text-[#16234e]/70 text-sm">{t('tracking.no_finder')}</p>
           </div>
         )}
 
-        {/* ═══ CTA CHECKLIST (beige or + dashed navy) ═══ */}
-        <div className="bg-[#e9dcc0] border-2 border-dashed border-[#16234e] rounded-2xl p-4 shadow-sm">
+        {/* ═══ CTA CHECKLIST (BrandCard + dégradé signature) ═══ */}
+        <div className="bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 p-4">
           <h3 className="text-base font-bold text-[#16234e] mb-1">{t('tracking.checklist_title')}</h3>
           <p className="text-sm text-[#16234e]/80 mb-3 leading-relaxed">{t('tracking.checklist_desc')}</p>
           <a
             href={checklistHref}
-            className="block w-full text-center py-3 px-4 bg-[#16234e] hover:bg-[#0f1838] text-[#f3ecdc] rounded-xl font-bold transition-colors min-h-[44px]"
+            className={`${brandBtnGradient} flex w-full items-center justify-center text-center py-3 px-4 min-h-[44px]`}
           >
             {t('tracking.checklist_cta')}
           </a>
         </div>
 
         {/* ═══ CTA PASSEPORT QRBAGS (carte numérique du bagage) ═══ */}
-        <div className="bg-[#f3ecdc] border-2 border-dashed border-[#16234e] rounded-2xl p-4 shadow-sm">
+        <div className="bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 p-4">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="text-lg" aria-hidden="true">🛂</span>
             <h3 className="text-base font-bold text-[#16234e]">{t('passport.cta_title')}</h3>
-            <span className="px-2 py-0.5 rounded-full bg-[#b8975a] text-white text-[10px] font-extrabold uppercase tracking-wide">
+            <span className="px-2 py-0.5 rounded-full bg-gradient-qrbag text-white text-[10px] font-extrabold uppercase tracking-wide shadow-sm shadow-[#e6216e]/25">
               {t('passport.cta_new')}
             </span>
           </div>
           <p className="text-sm text-[#16234e]/80 mb-3 leading-relaxed">{t('passport.cta_desc')}</p>
           <a
             href={`/passeport/${reference}`}
-            className="block w-full text-center py-3 px-4 bg-[#b8975a] hover:bg-[#a5834a] text-white rounded-xl font-bold transition-colors min-h-[44px]"
+            className={`${brandBtnNavy} flex w-full items-center justify-center text-center py-3 px-4 min-h-[44px]`}
           >
             {t('passport.cta_button')}
           </a>
@@ -1085,7 +1109,7 @@ export default function SuiviPage() {
 
         {/* ═══ HISTORIQUE (ACCORDION) ═══ */}
         {data.scans.length > 0 && (
-          <div className="bg-white border-2 border-dashed border-[#16234e] rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 overflow-hidden">
             <button
               onClick={() => setHistoryOpen(!historyOpen)}
               className="w-full flex items-center justify-between px-5 py-4 text-left"
@@ -1101,7 +1125,7 @@ export default function SuiviPage() {
             {historyOpen && (
               <div className="px-5 pb-4 space-y-2.5">
                 {visibleScans.map((scan, index) => (
-                  <DashedEncart key={scan.id} className={index === visibleScans.length - 1 && !showAllScans ? 'mb-0' : ''}>
+                  <SoftEncart key={scan.id} className={index === visibleScans.length - 1 && !showAllScans ? 'mb-0' : ''}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -1121,17 +1145,17 @@ export default function SuiviPage() {
                           </p>
                         )}
                       </div>
-                      <div className="w-7 h-7 rounded-full bg-[#e9dcc0] border border-[#16234e]/40 flex items-center justify-center flex-shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center flex-shrink-0">
                         <span className="text-xs font-bold text-[#16234e]">{index + 1}</span>
                       </div>
                     </div>
-                  </DashedEncart>
+                  </SoftEncart>
                 ))}
 
                 {hiddenScansCount > 0 && !showAllScans && (
                   <button
                     onClick={() => setShowAllScans(true)}
-                    className="w-full py-2.5 text-center text-sm font-medium text-[#16234e] hover:text-[#b8975a] border-2 border-dashed border-[#16234e]/40 rounded-xl transition-colors min-h-[40px]"
+                    className="w-full py-2.5 text-center text-sm font-medium text-[#16234e]/80 hover:text-[#2f9bff] border border-[#16234e]/15 rounded-xl bg-white hover:border-[#2f9bff] transition-colors min-h-[44px]"
                   >
                     {t('tracking.see_more', { count: String(hiddenScansCount) })} ▼
                   </button>
@@ -1139,7 +1163,7 @@ export default function SuiviPage() {
                 {showAllScans && hiddenScansCount > 0 && (
                   <button
                     onClick={() => setShowAllScans(false)}
-                    className="w-full py-2.5 text-center text-sm font-medium text-[#16234e]/70 hover:text-[#b8975a] transition-colors min-h-[40px]"
+                    className="w-full py-2.5 text-center text-sm font-medium text-[#16234e]/70 hover:text-[#2f9bff] transition-colors min-h-[44px]"
                   >
                     ▲ Réduire
                   </button>
@@ -1150,7 +1174,7 @@ export default function SuiviPage() {
         )}
 
         {/* ═══ INFOS BAGAGE (COLLAPSIBLE, replié par défaut) ═══ */}
-        <div className="bg-white border-2 border-dashed border-[#16234e] rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 overflow-hidden">
           <button
             onClick={() => setBaggageOpen(!baggageOpen)}
             className="w-full flex items-center justify-between px-5 py-4 text-left"
@@ -1165,7 +1189,7 @@ export default function SuiviPage() {
           {baggageOpen && (
             <div className="px-5 pb-5">
               {/* Reference */}
-              <DashedEncart>
+              <SoftEncart>
                 <div className="flex items-center gap-3">
                   <span className="text-xl">🏷️</span>
                   <div>
@@ -1173,10 +1197,10 @@ export default function SuiviPage() {
                     <p className="text-base font-bold text-[#16234e] font-mono tracking-widest">{baggage.reference}</p>
                   </div>
                 </div>
-              </DashedEncart>
+              </SoftEncart>
 
               {/* Traveler Name */}
-              <DashedEncart>
+              <SoftEncart>
                 <div className="flex items-center gap-3">
                   <span className="text-xl">👤</span>
                   <div>
@@ -1184,7 +1208,7 @@ export default function SuiviPage() {
                     <p className="text-base font-bold text-[#16234e]">{baggage.travelerName || t('finder.notSet')}</p>
                   </div>
                 </div>
-              </DashedEncart>
+              </SoftEncart>
 
               {/* TRANSPORT-FEATURE: Conditional transport info with real PNG images */}
               {(() => {
@@ -1193,7 +1217,7 @@ export default function SuiviPage() {
 
                 if (mode === 'flight' && (baggage.airlineName || baggage.flightNumber)) {
                   return (
-                    <DashedEncart>
+                    <SoftEncart>
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           {baggage.airlineName && (
@@ -1209,16 +1233,16 @@ export default function SuiviPage() {
                             </div>
                           )}
                         </div>
-                        <div className="h-12 w-12 rounded-full bg-[#e9dcc0] border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                        <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                           <Image src={transportImg} alt="flight" width={28} height={28} className="mix-blend-multiply" />
                         </div>
                       </div>
-                    </DashedEncart>
+                    </SoftEncart>
                   );
                 }
                 if (mode === 'train' && (baggage.trainCompany || baggage.trainNumber)) {
                   return (
-                    <DashedEncart>
+                    <SoftEncart>
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           {baggage.trainCompany && (
@@ -1234,16 +1258,16 @@ export default function SuiviPage() {
                             </div>
                           )}
                         </div>
-                        <div className="h-12 w-12 rounded-full bg-[#e9dcc0] border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                        <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                           <Image src={transportImg} alt="train" width={28} height={28} className="mix-blend-multiply" />
                         </div>
                       </div>
-                    </DashedEncart>
+                    </SoftEncart>
                   );
                 }
                 if (mode === 'boat' && (baggage.shipName || baggage.shipCabin)) {
                   return (
-                    <DashedEncart>
+                    <SoftEncart>
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           {baggage.shipName && (
@@ -1259,16 +1283,16 @@ export default function SuiviPage() {
                             </div>
                           )}
                         </div>
-                        <div className="h-12 w-12 rounded-full bg-[#e9dcc0] border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                        <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                           <Image src={transportImg} alt="boat" width={28} height={28} className="mix-blend-multiply" />
                         </div>
                       </div>
-                    </DashedEncart>
+                    </SoftEncart>
                   );
                 }
                 if (mode === 'bus' && (baggage.busCompany || baggage.busLineNumber)) {
                   return (
-                    <DashedEncart>
+                    <SoftEncart>
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           {baggage.busCompany && (
@@ -1284,11 +1308,11 @@ export default function SuiviPage() {
                             </div>
                           )}
                         </div>
-                        <div className="h-12 w-12 rounded-full bg-[#e9dcc0] border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                        <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                           <Image src={transportImg} alt="bus" width={28} height={28} className="mix-blend-multiply" />
                         </div>
                       </div>
-                    </DashedEncart>
+                    </SoftEncart>
                   );
                 }
                 return null;
@@ -1296,7 +1320,7 @@ export default function SuiviPage() {
 
               {/* Destination */}
               {baggage.destination && (
-                <DashedEncart>
+                <SoftEncart>
                   <div className="flex items-center gap-3">
                     <span className="text-xl">📍</span>
                     <div>
@@ -1304,12 +1328,12 @@ export default function SuiviPage() {
                       <p className="text-base font-bold text-[#16234e]">{baggage.destination}</p>
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
 
               {/* Departure Date */}
               {(baggage.departureDate || baggage.createdAt) && (
-                <DashedEncart className="mb-0">
+                <SoftEncart className="mb-0">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">📅</span>
                     <div>
@@ -1319,7 +1343,7 @@ export default function SuiviPage() {
                       </p>
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
             </div>
           )}
@@ -1329,24 +1353,24 @@ export default function SuiviPage() {
         <div className="text-center py-2">
           <a
             href={supportHref}
-            className="text-sm text-[#b8975a] underline hover:text-[#16234e] transition-colors"
+            className="text-sm text-[#2f9bff] underline hover:text-[#16234e] transition-colors"
           >
             {t('tracking.support_cta')}
           </a>
         </div>
 
-        {/* ═══ LAISSER UN AVIS (beige or plein + texte navy) ═══ */}
+        {/* ═══ LAISSER UN AVIS (pilule outline — design system QRBag) ═══ */}
         {data.scans.length > 0 && (
           <button
             onClick={() => setShowReviewModal(true)}
-            className="w-full flex items-center justify-center gap-2 bg-[#e9dcc0] hover:bg-[#16234e] text-[#16234e] hover:text-[#f3ecdc] border-2 border-[#16234e] py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px]"
+            className={`${brandBtnOutline} w-full flex items-center justify-center gap-2 py-3.5 px-4 text-base min-h-[48px]`}
           >
             <Star className="w-5 h-5" />
             {lang === 'ar' ? 'تقييم تجربتك' : lang === 'en' ? 'Rate your experience' : 'Laisser un avis'}
           </button>
         )}
 
-        {/* ═══ PWA INSTALL BUTTON (beige or plein + texte navy) ═══ */}
+        {/* ═══ PWA INSTALL BUTTON (pilule outline — design system QRBag) ═══ */}
         {showInstallButton && (
           <div className="text-center">
             <button
@@ -1357,7 +1381,7 @@ export default function SuiviPage() {
                   handleInstall();
                 }
               }}
-              className="inline-flex items-center gap-2 bg-[#e9dcc0] hover:bg-[#16234e] text-[#16234e] hover:text-[#f3ecdc] border-2 border-[#16234e] py-2.5 px-5 rounded-lg text-sm font-bold transition-colors min-h-[44px]"
+              className={`${brandBtnOutline} inline-flex items-center gap-2 py-2.5 px-5 text-sm min-h-[44px]`}
             >
               <span>{isIOS ? '📱' : '⬇️'}</span>
               <span>{isIOS ? t('tracking.install_app_ios') : t('tracking.install_app')}</span>
@@ -1365,12 +1389,12 @@ export default function SuiviPage() {
           </div>
         )}
 
-        {/* ═══ BOUTON DÉCLARER PERDU (rouge fond + texte blanc) ═══ */}
+        {/* ═══ BOUTON DÉCLARER PERDU (rouge marque #ef4036 + texte blanc) ═══ */}
         {!isDeclaredLost && (
           <button
             onClick={() => handleStatusToggle('mark-lost')}
             disabled={isTogglingStatus}
-            className="w-full flex items-center justify-center gap-2 bg-[#EF4444] hover:bg-[#DC2626] text-white py-3.5 px-4 rounded-xl font-bold transition-colors text-base min-h-[48px] disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 bg-[#ef4036] hover:bg-[#d63127] text-white py-3.5 px-4 rounded-2xl font-bold shadow-lg shadow-[#ef4036]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all text-base min-h-[48px] disabled:opacity-50"
           >
             {isTogglingStatus ? (
               <RefreshCw className="w-5 h-5 animate-spin" />
@@ -1383,18 +1407,18 @@ export default function SuiviPage() {
 
         {/* ─── Trust Note (footer discret) ─── */}
         <div className="text-center text-xs text-[#16234e]/70 tracking-wide flex items-center justify-center gap-1.5 pt-2">
-          <Shield className="w-4 h-4 inline" />
+          <Shield className="w-4 h-4 inline text-[#2f9bff]" />
           <span>{t('tracking.trust_note')}</span>
         </div>
       </div>
 
       {/* ═══ STICKY BOTTOM BAR (Appeler + WhatsApp) — only if finder phone AND NOT in lost mode ═══ */}
       {hasFinderPhone && !isDeclaredLost && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-[#16234e] p-3 sm:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-[#16234e]/10 shadow-[0_-8px_30px_rgba(22,35,78,0.08)] p-3 sm:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
           <div className="max-w-md mx-auto flex gap-3">
             <button
               onClick={handlePhoneCall}
-              className="flex-1 bg-[#16234e] hover:bg-[#0f1838] text-[#f3ecdc] py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[48px]"
+              className={`${brandBtnNavy} flex-1 py-3 flex items-center justify-center gap-2 text-base min-h-[48px]`}
               aria-label={t('tracking.by_phone')}
             >
               <Phone className="w-5 h-5" />
@@ -1402,7 +1426,7 @@ export default function SuiviPage() {
             </button>
             <button
               onClick={handleWhatsApp}
-              className="flex-1 bg-[#25D366] hover:bg-[#1ebe57] text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[48px]"
+              className="flex-1 bg-[#25D366] hover:bg-[#1ebe5d] text-white py-3 rounded-2xl font-bold shadow-lg shadow-[#25D366]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 text-base min-h-[48px]"
               aria-label={t('tracking.by_whatsapp')}
             >
               <MessageCircle className="w-5 h-5" />
@@ -1422,6 +1446,7 @@ export default function SuiviPage() {
         reference={reference}
         lang={lang}
       />
-    </main>
+      </main>
+    </BrandShell>
   );
 }

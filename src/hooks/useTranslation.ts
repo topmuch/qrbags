@@ -21,7 +21,7 @@ interface UseTranslationReturn {
   countryCode: string;
 }
 
-// Store for translations
+// Store module-level (compat : fonction t() autonome hors React)
 let translations: Record<string, string> = {};
 let currentLang: Language = 'fr';
 
@@ -29,6 +29,12 @@ export function useTranslation(): UseTranslationReturn {
   const [lang, setLangState] = useState<Language>('fr');
   const [isLoading, setIsLoading] = useState(true);
   const [countryCode, setCountryCode] = useState('FR');
+
+  // ⚠️ Le dictionnaire est une VRAIE state React (et non un simple module var) :
+  // garantit un re-render de tous les composants consommant t() à chaque
+  // changement de langue — un module var seul est invisible pour React
+  // (bug observé : retour EN→FR sans re-render, textes restés en anglais).
+  const [dict, setDict] = useState<Record<string, string>>({});
 
   // Detect language on mount
   useEffect(() => {
@@ -80,10 +86,18 @@ export function useTranslation(): UseTranslationReturn {
 
   // Load translations when language changes
   useEffect(() => {
+    let cancelled = false;
     const load = async () => {
       setIsLoading(true);
-      translations = await loadTranslations(lang);
+      const loaded = await loadTranslations(lang);
+
+      // Ignore les résultats obsolètes (course entre changements de langue rapides) :
+      // sinon un chargement FR lent peut écraser les traductions EN déjà affichées.
+      if (cancelled) return;
+
+      translations = loaded;
       currentLang = lang;
+      setDict(loaded); // ← state React : déclenche le re-render de t()
 
       // Set HTML lang attribute
       if (typeof document !== 'undefined') {
@@ -95,11 +109,14 @@ export function useTranslation(): UseTranslationReturn {
     };
 
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [lang]);
 
-  // Translation function
+  // Translation function — dépend de dict : recréée à chaque nouveau dictionnaire
   const t = useCallback((key: string, params?: Record<string, string>): string => {
-    let text = translations[key] || key;
+    let text = dict[key] || key;
 
     // Replace parameters
     if (params) {
@@ -109,7 +126,7 @@ export function useTranslation(): UseTranslationReturn {
     }
 
     return text;
-  }, [lang, isLoading]);
+  }, [dict]);
 
   // Set language
   const setLang = useCallback((newLang: Language) => {

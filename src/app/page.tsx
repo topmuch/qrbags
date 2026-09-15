@@ -354,7 +354,7 @@ function HeroSection() {
               {/* Coins viewfinder (motif étiquette QR) */}
               <CornerBrackets inset="-18px" size="w-14 h-14 sm:w-16 sm:h-16" border="border-[6px]" />
 
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-[#16234e]/25 border-4 border-white bg-[#16234e]">
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl shadow-[#16234e]/25 border-4 border-white bg-white">
                 <AnimatePresence mode="popLayout">
                   <motion.div
                     key={current}

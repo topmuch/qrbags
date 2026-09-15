@@ -74,13 +74,13 @@ export function LossAlertBanner({ reference, departureDate, hasScans, lang }: Lo
   // Proactive check (no scans, departure passed)
   if (proactiveMessage && alerts.length === 0) {
     return (
-      <div className="bg-[#FEF3C7] border-2 border-[#c5a643] rounded-2xl p-4 flex items-start gap-3">
-        <Clock className="w-5 h-5 text-[#c5a643] flex-shrink-0 mt-0.5" />
+      <div className="bg-[#f8921f]/5 border border-[#f8921f]/30 rounded-2xl p-4 flex items-start gap-3">
+        <Clock className="w-5 h-5 text-[#f8921f] flex-shrink-0 mt-0.5" />
         <div className="flex-1">
-          <p className="text-sm font-bold text-[#1a1a1a] mb-0.5">
+          <p className="text-sm font-bold text-[#16234e] mb-0.5">
             {lang === 'fr' ? 'Aucune activité détectée' : lang === 'en' ? 'No activity detected' : 'لم يتم رصد أي نشاط'}
           </p>
-          <p className="text-sm text-[#1a1a1a]/80">{proactiveMessage}</p>
+          <p className="text-sm text-[#16234e]/80">{proactiveMessage}</p>
         </div>
       </div>
     );
@@ -91,18 +91,18 @@ export function LossAlertBanner({ reference, departureDate, hasScans, lang }: Lo
   return (
     <div className="space-y-2">
       {alerts.map((alert) => (
-        <div key={alert.id} className="bg-[#FEF2F2] border-2 border-[#EF4444] rounded-2xl p-4 flex items-start gap-3" role="alert">
-          <AlertTriangle className="w-5 h-5 text-[#EF4444] flex-shrink-0 mt-0.5" />
+        <div key={alert.id} className="bg-[#ef4036]/5 border border-[#ef4036]/30 rounded-2xl p-4 flex items-start gap-3" role="alert">
+          <AlertTriangle className="w-5 h-5 text-[#ef4036] flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-bold text-[#EF4444]">
+            <p className="text-sm font-bold text-[#ef4036]">
               {lang === 'fr' ? 'Alerte anti-perte' : lang === 'en' ? 'Loss Alert' : 'تنبيه فقدان'}
             </p>
-            <p className="text-sm text-[#1a1a1a]/80">{alert.message}</p>
+            <p className="text-sm text-[#16234e]/80">{alert.message}</p>
           </div>
           <button
             onClick={() => dismissAlert(alert.id)}
             disabled={dismissing === alert.id}
-            className="w-8 h-8 rounded-full hover:bg-[#1a1a1a]/10 flex items-center justify-center flex-shrink-0"
+            className="w-8 h-8 rounded-full hover:bg-[#16234e]/10 flex items-center justify-center flex-shrink-0 text-[#16234e]"
             aria-label="Ignorer"
           >
             {dismissing === alert.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}

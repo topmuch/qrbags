@@ -30,6 +30,7 @@ const DEMO_BAGGAGE_DATA = {
   airlineName: 'Air France',
   flightNumber: 'AF 726',
   destination: 'Dakar (AIBD)',
+  reward: '50 €', // mise en valeur de la récompense sur la page trouveur
 };
 
 // Lieux proposés pour la simulation de scan
@@ -67,11 +68,18 @@ async function ensureDemoBaggage() {
         status: 'active',
       },
     });
-  } else if (baggage.status === 'pending_activation' || baggage.status === 'blocked') {
-    // Garantit que le bagage démo reste utilisable
+  } else if (
+    baggage.status === 'pending_activation' ||
+    baggage.status === 'blocked' ||
+    !baggage.reward
+  ) {
+    // Garantit que le bagage démo reste utilisable + récompense toujours présente
     baggage = await db.baggage.update({
       where: { reference: DEMO_REFERENCE },
-      data: { status: 'active' },
+      data: {
+        status: 'active',
+        ...( !baggage.reward && { reward: DEMO_BAGGAGE_DATA.reward }),
+      },
     });
   }
 

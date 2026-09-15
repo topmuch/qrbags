@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import {
   BrandShell,
   BrandCard,
@@ -23,6 +24,12 @@ import {
   Globe,
   Phone,
   MessageCircle,
+  PartyPopper,
+  Gift,
+  Handshake,
+  Megaphone,
+  BadgeCheck,
+  Lock,
 } from "lucide-react";
 import { useTranslation } from '@/hooks/useTranslation';
 import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
@@ -617,41 +624,126 @@ export default function ScanPage() {
       {/* ─── Container ─── */}
       <div className="w-full max-w-md mx-auto flex-1 flex flex-col py-4 sm:py-6 md:py-2">
 
-        {/* ═══ 🏷️ TITRE : ✅ BAGAGE TROUVÉ ═══ */}
-        <div className="text-center mb-5 sm:mb-6">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-[#16234e] leading-tight">
-            {isDeclaredLost
-              ? `🚨 ${t('finder.lost_badge')}`
-              : `✅ ${t('finder.success_badge')}`}
-          </h1>
-          <p className="mt-2 text-sm md:text-base text-[#16234e]/70 leading-relaxed max-w-md mx-auto">
-            {isDeclaredLost
-              ? t('finder.lost_description')
-              : t('finder.bagage_trouve_desc')}
-          </p>
-        </div>
+        {/* ═══ 🎉 HERO CÉLÉBRATION — wahoo effect (dégradé signature + 3 étapes) ═══ */}
+        <motion.div
+          initial={{ opacity: 0, y: 18, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="mb-5 sm:mb-6"
+        >
+          <BrandCard corners className="w-full overflow-hidden">
+            {/* Bandeau dégradé signature */}
+            <div className="relative bg-gradient-qrbag px-5 pt-6 pb-5 text-center overflow-hidden">
+              <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
+              <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
+              <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
+              <span className="absolute bottom-4 left-4 text-lg" aria-hidden>🎉</span>
 
-        {/* ═══ 🟨 RÉCOMPENSE PROMISE (BrandCard coins + encart violet doux — incitation trouveur) ═══ */}
+              <motion.div
+                animate={{ rotate: [0, -6, 6, 0], scale: [1, 1.06, 1] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center"
+              >
+                {isDeclaredLost ? (
+                  <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-[#8b17c9]" aria-hidden />
+                ) : (
+                  <PartyPopper className="w-8 h-8 sm:w-10 sm:h-10 text-[#e6216e]" aria-hidden />
+                )}
+              </motion.div>
+
+              <h1 className="relative text-2xl md:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                {isDeclaredLost ? t('finder.hero_lost_title') : t('finder.hero_bravo_title')}
+              </h1>
+              <p className="relative mt-2 text-sm md:text-base text-white/90 leading-relaxed max-w-md mx-auto font-medium">
+                {isDeclaredLost ? t('finder.hero_lost_subtitle') : t('finder.hero_bravo_subtitle')}
+              </p>
+              <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
+                <Luggage className="w-3.5 h-3.5" aria-hidden />
+                {reference}
+              </p>
+            </div>
+
+            {/* Bandeau 3 étapes — guide engageant pour le trouveur */}
+            <div className="px-4 py-4 bg-white">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#16234e]/50 text-center mb-2.5">
+                {t('finder.steps_title')}
+              </p>
+              <ol className="grid grid-cols-3 gap-2">
+                {[
+                  { icon: Megaphone, color: '#2f9bff', title: t('finder.step1_title'), desc: t('finder.step1_desc') },
+                  { icon: Handshake, color: '#f8921f', title: t('finder.step2_title'), desc: t('finder.step2_desc') },
+                  { icon: Gift, color: '#8b17c9', title: t('finder.step3_title'), desc: t('finder.step3_desc') },
+                ].map((s, i) => (
+                  <li key={i} className="relative text-center px-1">
+                    <div
+                      className="w-10 h-10 mx-auto mb-1.5 rounded-2xl flex items-center justify-center shadow-md"
+                      style={{ backgroundColor: `${s.color}1A`, border: `1.5px solid ${s.color}55` }}
+                    >
+                      <s.icon className="w-5 h-5" style={{ color: s.color }} aria-hidden />
+                    </div>
+                    <p className="text-[11px] md:text-xs font-extrabold text-[#16234e] leading-tight">{s.title}</p>
+                    <p className="hidden sm:block text-[10px] text-[#16234e]/55 leading-snug mt-0.5">{s.desc}</p>
+                    {i < 2 && (
+                      <ArrowRight className="hidden sm:block absolute top-4 -right-2 w-3.5 h-3.5 text-[#16234e]/20" aria-hidden />
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </BrandCard>
+        </motion.div>
+
+        {/* ═══ 🎁 RÉCOMPENSE — spotlight premium (halo pulsant, wahoo effect) ═══ */}
         {baggage?.reward && (
-          <div
+          <motion.div
             role="status"
-            aria-label={t('finder.reward_title')}
-            className="mb-4"
+            aria-label={t('finder.reward_spotlight_title')}
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5, type: 'spring', bounce: 0.4 }}
+            className="relative mb-4"
           >
-            <BrandCard corners className="w-full p-5 md:p-6">
-              <div className="bg-[#8b17c9]/5 border-2 border-dashed border-[#8b17c9]/30 rounded-xl p-4 text-center">
-                <p className="text-xs uppercase tracking-widest text-[#8b17c9] font-bold mb-1.5 flex items-center justify-center gap-2">
-                  <span aria-hidden="true">🎁</span> {t('finder.reward_title')}
+            {/* Halo pulsant dégradé signature */}
+            <div className="absolute -inset-1.5 bg-gradient-qrbag rounded-[2.2rem] opacity-50 blur-xl animate-pulse" aria-hidden />
+            {/* Cadre dégradé */}
+            <div className="relative rounded-[2rem] p-[3px] bg-gradient-qrbag shadow-2xl shadow-[#8b17c9]/30">
+              <div className="relative bg-[#16234e] rounded-[1.85rem] px-5 py-6 text-center overflow-hidden">
+                {/* étincelles décoratives */}
+                <Sparkles className="absolute top-4 left-5 w-4 h-4 text-[#ffd200]/70" aria-hidden />
+                <Sparkles className="absolute bottom-5 right-5 w-5 h-5 text-[#2f9bff]/60" aria-hidden />
+                <span className="absolute top-6 right-10 w-1.5 h-1.5 rounded-full bg-[#ffd200]/80" aria-hidden />
+                <span className="absolute top-12 left-12 w-1 h-1 rounded-full bg-[#e6216e]/80" aria-hidden />
+                <span className="absolute bottom-8 left-8 w-1.5 h-1.5 rounded-full bg-[#f8921f]/70" aria-hidden />
+
+                <p className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#ffd200] text-[#16234e] text-[10px] md:text-xs font-black uppercase tracking-[0.15em] shadow-md">
+                  <Gift className="w-3.5 h-3.5" aria-hidden />
+                  {t('finder.reward_spotlight_title')}
                 </p>
-                <p className="text-2xl md:text-3xl font-black text-[#16234e] leading-tight break-words">
+
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  className="text-4xl mt-3"
+                  aria-hidden
+                >
+                  🎁
+                </motion.div>
+
+                <p className="mt-2 text-3xl md:text-4xl font-black text-white leading-tight break-words drop-shadow">
                   {baggage.reward}
                 </p>
-                <p className="mt-1.5 text-xs md:text-sm text-[#16234e]/60">
-                  {t('finder.reward_help')}
+
+                <p className="mt-3 text-[11px] md:text-sm text-white/75 font-medium leading-relaxed max-w-xs mx-auto">
+                  {t('finder.reward_spotlight_guarantee')}
+                </p>
+
+                <p className="mt-3 inline-flex items-center gap-1.5 text-[#ffd200] text-xs font-bold">
+                  <BadgeCheck className="w-4 h-4" aria-hidden />
+                  {t('finder.reward_spotlight_badge')}
                 </p>
               </div>
-            </BrandCard>
-          </div>
+            </div>
+          </motion.div>
         )}
 
         {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (BrandCard corners — bloc clé identité) ═══ */}
@@ -899,13 +991,26 @@ export default function ScanPage() {
 
           {/* ─── 1. BIG "📞 Contacter le propriétaire" CTA button (FIRST) ─── */}
           {!showForm && (
-            <button
-              onClick={() => setShowForm(true)}
-              className={`${brandBtnGradient} w-full py-4 px-6 flex items-center justify-center gap-2 text-lg md:text-xl min-h-[56px] cursor-pointer`}
-            >
-              <Phone className="w-5 h-5" />
-              <span>{t('finder.contact_owner_cta')}</span>
-            </button>
+            <>
+              <div className="text-center mb-4">
+                <h2 className="text-lg md:text-xl font-black text-[#16234e]">
+                  {t('finder.cta_ready_title')}
+                </h2>
+                <p className="text-xs md:text-sm text-[#16234e]/60 mt-1 flex items-center justify-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-[#2f9bff] flex-shrink-0" aria-hidden />
+                  <span>{t('finder.cta_ready_subtitle')}</span>
+                </p>
+              </div>
+              <motion.button
+                onClick={() => setShowForm(true)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`${brandBtnGradient} w-full py-4 px-6 flex items-center justify-center gap-2 text-lg md:text-xl min-h-[60px] cursor-pointer`}
+              >
+                <Phone className="w-5 h-5" />
+                <span>{t('finder.contact_owner_cta')}</span>
+              </motion.button>
+            </>
           )}
 
           {/* ─── 2 + 3. Form (revealed when CTA clicked): GPS button + form fields ─── */}

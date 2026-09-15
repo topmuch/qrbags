@@ -839,3 +839,53 @@ Work Log:
 Stage Summary:
 - GitHub synchronisé avec la version locale (origine/main à jour)
 - Rappel déploiement : Coolify nécessite un redéploiement manuel pour prendre la nouvelle version
+
+---
+Task ID: 2
+Agent: suivi-redesign
+Task: Refonte design page suivi /suivi/[reference] de l'ancien design beige/or vers le design system officiel QRBag (restyle pur, logique 100% conservée)
+
+Work Log:
+- Lecture worklog (entrées précédentes), BrandShell.tsx (tokens brandBtn*/BrandCard/BrandIconRing/BrandLogo/BrandShell), page /scan/[reference] (LanguageSelector/LoadingScreen/ErrorScreen/SoftEncart comme référence convertie), puis /suivi/[reference]/page.tsx en entier (1428 lignes)
+- src/app/suivi/[reference]/page.tsx — restyle complet, zéro changement de logique (fetch/polling/websocket/audio/toggle statut/PWA/RTL dir intacts, toutes les clés t('...') conservées) :
+  - Fond beige #f3ecdc → <BrandShell> (blanc + dotted-map + liseré dégradé + halos + arcs) autour du <main dir={dir}> ; LoadingScreen → BrandShell blanc + spinner border-[#16234e]/15 border-t-[#e6216e] ; ErrorScreen (not_found/blocked/expired/pending_activation) → BrandCard corners + BrandIconRing avec glows azure #2f9bff / violet #8b17c9 / orange #f8921f / magenta #e6216e + encart trust note bg-[#2f9bff]/5
+  - Header navy+bordure or → sticky blanc bg-white/85 backdrop-blur-md border-b-[#16234e]/10 : BrandLogo h-8/9 à gauche, boutons retour/audio/refresh en pilules blanches border-2 border-[#16234e]/15 hover:border-[#2f9bff] (audio actif = pastille azure), LanguageSelector copié du style /scan (cible 44px)
+  - DashedEncart (beige #faf6ec + pointillés navy) → SoftEncart bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl (22 usages renommés) ; skeleton carte #b8975a → bg-[#2f9bff]/5 + icônes azure ; MapEmbed fallback et conteneur carte → bordures border-[#16234e]/10 ; section carte sticky → bande bg-white/70 backdrop-blur + carte rounded-3xl shadow-xl, toggles trajectoire navy/white
+  - Badge statut : Protégé/Retrouvé → bg-gradient-qrbag blanc uppercase tracking-wider (shadow #e6216e/25) ; Localisé → azure #2f9bff ; Perdu → rouge marque #ef4036 animate-pulse (fini bg-red-600/or)
+  - Cartes (trouveur, historique, infos bagage, CTA checklist, CTA passeport, bandeaux audio) → bg-white rounded-3xl border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 ; pastilles numéros + icônes transport → bg-[#2f9bff]/10 border-[#2f9bff]/25
+  - Boutons : checklist → brandBtnGradient, passeport + Appeler → brandBtnNavy, avis + install PWA + voir plus → brandBtnOutline/pilule outline, activer alertes sonores → brandBtnGradient ; Déclarer perdu → bg-[#ef4036] rounded-2xl shadow-[#ef4036]/25 hover:-translate-y-0.5 ; boutons urgence harmonisés rounded-2xl (WhatsApp garde le vert #25D366, seul vert autorisé) ; barre basse fixe → bg-white/90 backdrop-blur border-t-[#16234e]/10
+  - Panneau urgence → bg-[#ef4036]/5 border-[#ef4036]/30 rounded-3xl ; modale iOS → rounded-3xl border-[#16234e]/10 + pastille azure ; toasts → pilules navy text-white + CheckCircle azure ; lien support → text-[#2f9bff]
+- src/components/LossAlertBanner.tsx (en scope : couleurs or #c5a643 présentes) — encart proactif ambre/or → orange marque bg-[#f8921f]/5 border-[#f8921f]/30 + texte navy #16234e ; alertes rouges #EF4444/#FEF2F2 → #ef4036 doux border-[#ef4036]/30 ; close hover navy
+- src/components/ReviewModal.tsx (en scope : or #c5a643 + noir #1a1a1a) — carte rounded-3xl border-[#16234e]/10, inputs blancs bordure navy/15 + focus ring azure, étoiles or → orange #f8921f, submit → bg-gradient-qrbag rounded-2xl shadow-[#e6216e]/25
+- Aucun autre fichier touché, aucune dépendance, aucune clé i18n modifiée ; grep des 3 fichiers → 0 résidu #b8975a/#e9dcc0/#f3ecdc/#faf6ec/#c5a643/#1a1a1a/#EF4444/border-dashed ; HTML rendu contient dotted-map + bg-gradient-qrbag et 0 couleur héritée
+- Validation : GET /suivi/DEMO-QRBAG → 200, GET /suivi/VOL26-3UZRED → 200, dev.log sans erreur de compile (api loss-alerts 200) ; bun run lint → 0 erreur ; tsc --noEmit → 0 erreur sur les 3 fichiers modifiés (2 erreurs préexistantes hors scope dans api/baggage-status/route.ts, fichier non touché)
+
+Stage Summary:
+- /suivi/[reference] 100% design system « étiquette » : BrandShell + BrandCard corners + BrandIconRing + SoftEncart azure + brandBtn*, palette navy/azure/orange/rouge/magenta/violet uniquement, beige/or/bordures pointillées totalement éliminés
+- Badges statut sémantiques (dégradé=protégé/retrouvé, azure=localisé, #ef4036=perdu), bandeaux carte/alertes sticky sur fond blanc translucide, barre d'action basse glassmorphism
+- LossAlertBanner et ReviewModal harmonisés (fini l'or #c5a643 et le noir #1a1a1a) ; accessibilité conservée (aria, 44px) et RTL dir intact
+- Lint 0 erreur ; /suivi/DEMO-QRBAG et /suivi/VOL26-3UZRED → 200
+
+---
+Task ID: 8
+Agent: Main Orchestrator
+Task: Refonte page trouveur (wahoo effect), refonte page profil bagage /suivi (suppression ancien design beige/or), suppression fond navy de transition du slide accueil, récompense démo + fix race condition i18n
+
+Work Log:
+- Page trouveur /scan/[reference] : nouveau hero célébration (bandeau dégradé signature orange→magenta→violet, icône PartyPopper animée, sous-titre engageant, pill référence bagage) + guide « 3 ÉTAPES SIMPLES » (Signalez → Coordonnez → Récompense, icônes azure/orange/violet)
+- Récompense en vedette : carte spotlight premium (cadre dégradé + halo pulsant animé, fond navy #16234e, badge jaune « RÉCOMPENSE PROMISE », cadeau 🎁 animé, montant géant, badge « Pour celui qui le rend ») — effet wahoo demandé
+- CTA trouveur enrichi : titre « Prêt à prévenir le propriétaire ? » + note cadenas (coordonnées sécurisées) + bouton dégradé animé (motion)
+- Page profil bagage /suivi/[reference] (déléguée au subagent suivi-redesign, Task ID 2) : BrandShell complet (fond blanc + dotted-map + arcs arc-en-ciel), en-tête sticky blanc/pills, BrandCard, SoftEncart azure, boutons brand (gradient/navy/outline/rouge), LossAlertBanner + ReviewModal harmonisés — ancien design beige/or (#f3ecdc/#b8975a/#e9dcc0) totalement éliminé
+- Accueil : slide hero `bg-[#16234e]` → `bg-white` (plus de fond noir/navy pendant la transition des slides)
+- Démo : récompense « 50 € » ajoutée au bagage DEMO-QRBAG (création + auto-réparation si absente) pour montrer le spotlight
+- i18n : nouvelles clés finder.* (hero_bravo/lost, reward_spotlight, steps, cta_ready) dans fr/en/ar.json
+- FIX bug réel : useTranslation — le dictionnaire passé en state React (dict) au lieu d'un module var invisible pour React ; + garde anti-course (cancelled) sur les chargements de langue. Avant : retour EN→FR sans re-render (textes restés anglais) ; après : FR↔EN↔AR tous opérationnels (vérifié navigateur)
+- Fix icône retour page suivi : ArrowRight → ArrowLeft
+- Vérifications : lint 0 erreur, 5 pages 200, screenshots mobile 390×844 + desktop, accordéon infos bagage + formulaire trouveur testés au navigateur, console sans erreur
+
+Stage Summary:
+- Page trouveur redessinée avec hero célébration + récompense spotlight (wahoo effect) — mêmes coloris marque
+- Page profil bagage /suivi alignée sur la charte QRBag officielle (fini l'ancien design beige/or)
+- Slide accueil sans fond sombre de transition
+- Bug i18n de changement de langue corrigé de façon structurelle (state React)
+- Fichiers : scan/[reference]/page.tsx, suivi/[reference]/page.tsx, page.tsx, api/demo/route.ts, hooks/useTranslation.ts, components/LossAlertBanner.tsx, components/ReviewModal.tsx, locales fr/en/ar.json
