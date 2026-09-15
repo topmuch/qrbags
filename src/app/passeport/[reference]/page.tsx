@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   AlertCircle,
   Check,
-  Luggage,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
@@ -247,7 +246,11 @@ function PassportContent() {
                         <p className="text-[10px] text-white/70">{t('passport.subtitle')}</p>
                       </div>
                     </div>
-                    <Luggage className="w-6 h-6 text-white/80" />
+                    <img
+                      src="/logo.png"
+                      alt="Logo QRBag"
+                      className="w-9 h-9 object-contain rounded-xl bg-white/10 border border-white/20 p-1"
+                    />
                   </div>
                   <p
                     className="mt-3 inline-block px-3 py-1 rounded-full font-mono font-bold text-sm tracking-widest"

@@ -113,6 +113,7 @@ export async function POST(request: NextRequest) {
         photoSizeBytes: photoBlob?.size ?? null,
         reward: validatedData.reward?.trim() || null,
         status: 'active',
+        activatedAt: new Date(), // tri « dernier activé en premier » côté agence
         expiresAt,
       }
     });
@@ -160,6 +161,7 @@ export async function POST(request: NextRequest) {
               photoSizeBytes: photoBlob?.size ?? null,
               reward: validatedData.reward?.trim() || null,
               status: 'active',
+              activatedAt: new Date(), // même horodatage d'activation pour tout le set
               expiresAt,
             }
           });

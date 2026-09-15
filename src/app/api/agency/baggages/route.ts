@@ -39,9 +39,11 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // Tri « dernier activé en premier » : activatedAt d'abord (les QR en attente,
+    // sans activatedAt, passent en dernier), puis createdAt en tie-breaker.
     const baggages = await db.baggage.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ activatedAt: 'desc' }, { createdAt: 'desc' }],
     });
 
     // Normalize statuses in response (frontend always gets English format)

@@ -11,7 +11,8 @@ import {
   X,
   Search,
   Bell,
-  XCircle
+  XCircle,
+  AlertTriangle
 } from "lucide-react";
 import { useAgency } from '../layout';
 
@@ -26,18 +27,34 @@ interface Baggage {
   baggageType: string;
   status: string;
   createdAt: string;
+  declaredLostAt: string | null;
+  foundAt: string | null;
+  founderAt: string | null;
   lastScanDate: string | null;
   lastLocation: string | null;
   founderName: string | null;
   founderPhone: string | null;
-  foundAt: string | null;
 }
+
+// Filtres de l'onglet : tous / retrouvés / perdus
+type TrouvaillesFilter = 'all' | 'found' | 'lost';
+
+/** Date de l'événement le plus récent (base du tri « plus récents en premier ») */
+const eventDate = (b: Baggage): number => {
+  const ts = b.foundAt || b.founderAt || b.declaredLostAt || b.lastScanDate || b.createdAt;
+  const t = ts ? new Date(ts).getTime() : 0;
+  return Number.isNaN(t) ? 0 : t;
+};
+
+const isFoundBag = (b: Baggage) => b.status === 'found';
+const isLostBag = (b: Baggage) => b.status === 'lost';
 
 export default function TrouvaillesPage() {
   const { agencyId } = useAgency();
   const [baggages, setBaggages] = useState<Baggage[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<TrouvaillesFilter>('all');
   const [selectedBaggage, setSelectedBaggage] = useState<Baggage | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
@@ -60,20 +77,28 @@ export default function TrouvaillesPage() {
 
       const response = await fetch(`/api/agency/baggages?${params}`);
       const data = await response.json();
-      // Filter only found baggages
-      const foundBaggages = (data.baggages || []).filter((b: Baggage) => b.status === 'found');
-      setBaggages(foundBaggages);
+      // FIX : inclure à la fois les bagages RETROUVÉS (status 'found') et les
+      // bagages PERDUS (status 'lost') — y compris les nouveaux signalements.
+      // Un bagage perdu scanné par un trouveur (founderAt renseigné) reste
+      // 'lost' jusqu'à confirmation : il doit aussi apparaître ici.
+      const relevantBaggages = (data.baggages || []).filter(
+        (b: Baggage) => isFoundBag(b) || isLostBag(b) || b.founderAt
+      );
+      // Tri : événement le plus récent en premier (nouvelles trouvailles / pertes en haut)
+      relevantBaggages.sort((a: Baggage, b: Baggage) => eventDate(b) - eventDate(a));
+      setBaggages(relevantBaggages);
 
       // Check if there are new found baggages
       const savedCount = localStorage.getItem(`trouvailles-count-${agencyId}`);
       const prevCount = savedCount ? parseInt(savedCount, 10) : 0;
       
-      if (foundBaggages.length > prevCount && prevCount > 0) {
+      const foundCount = relevantBaggages.filter(isFoundBag).length;
+      if (foundCount > prevCount && prevCount > 0) {
         setShowNotification(true);
       }
 
       // Save current count
-      localStorage.setItem(`trouvailles-count-${agencyId}`, foundBaggages.length.toString());
+      localStorage.setItem(`trouvailles-count-${agencyId}`, foundCount.toString());
 
     } catch (error) {
       console.error('Error fetching baggages:', error);
@@ -82,10 +107,15 @@ export default function TrouvaillesPage() {
     }
   };
 
-  const filteredBaggages = baggages.filter(b =>
-    b.reference.toLowerCase().includes(search.toLowerCase()) ||
-    `${b.travelerFirstName || ''} ${b.travelerLastName || ''}`.toLowerCase().includes(search.toLowerCase())
+  const filteredBaggages = baggages
+    .filter(b => (statusFilter === 'found' ? isFoundBag(b) : statusFilter === 'lost' ? !isFoundBag(b) : true))
+    .filter(b =>
+      b.reference.toLowerCase().includes(search.toLowerCase()) ||
+      `${b.travelerFirstName || ''} ${b.travelerLastName || ''}`.toLowerCase().includes(search.toLowerCase())
   );
+
+  const foundTotal = baggages.filter(isFoundBag).length;
+  const lostTotal = baggages.length - foundTotal;
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-';
@@ -104,8 +134,8 @@ export default function TrouvaillesPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Bagages retrouvés</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste des bagages qui ont été marqués comme retrouvés</p>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Trouvailles &amp; pertes</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Bagages retrouvés et bagages signalés perdus — les plus récents en premier</p>
       </div>
 
       {/* Success Notification */}
@@ -129,17 +159,51 @@ export default function TrouvaillesPage() {
         </div>
       )}
 
-      {/* Stats Card */}
-      <div className="kpi-card kpi-card-green p-6 mb-8 max-w-xs">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-            <CheckCircle className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <p className="text-3xl font-bold text-white">{baggages.length}</p>
-            <p className="text-sm text-white/80">Bagages retrouvés</p>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 max-w-xl">
+        <div className="kpi-card kpi-card-green p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white">{foundTotal}</p>
+              <p className="text-sm text-white/80">Retrouvés</p>
+            </div>
           </div>
         </div>
+        <div className="kpi-card kpi-card-red p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-white">{lostTotal}</p>
+              <p className="text-sm text-white/80">Perdus / en recherche</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter chips */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {([
+          { id: 'all' as TrouvaillesFilter, label: `Tous (${baggages.length})` },
+          { id: 'found' as TrouvaillesFilter, label: `Retrouvés (${foundTotal})` },
+          { id: 'lost' as TrouvaillesFilter, label: `Perdus (${lostTotal})` },
+        ]).map(btn => (
+          <button
+            key={btn.id}
+            onClick={() => setStatusFilter(btn.id)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+              statusFilter === btn.id
+                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            {btn.label}
+          </button>
+        ))}
       </div>
 
       {/* Search */}
@@ -164,7 +228,8 @@ export default function TrouvaillesPage() {
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                 <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Référence</th>
                 <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Pèlerin</th>
-                <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hidden md:table-cell">Retrouvé le</th>
+                <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Statut</th>
+                <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hidden md:table-cell">Dernier événement</th>
                 <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hidden lg:table-cell">Localisation</th>
                 <th className="text-left px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Actions</th>
               </tr>
@@ -172,7 +237,7 @@ export default function TrouvaillesPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12">
+                  <td colSpan={6} className="text-center py-12">
                     <div className="flex items-center justify-center gap-3">
                       <div className="w-6 h-6 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin" />
                       <span className="text-slate-500">Chargement...</span>
@@ -181,26 +246,35 @@ export default function TrouvaillesPage() {
                 </tr>
               ) : filteredBaggages.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12">
+                  <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center">
                       <div className="w-16 h-16 bg-emerald-100 dark:bg-violet-600/10 rounded-full flex items-center justify-center mb-4">
                         <CheckCircle className="w-8 h-8 text-violet-600" />
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400">Aucun bagage retrouvé</p>
-                      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Les bagages retrouvés apparaîtront ici</p>
+                      <p className="text-slate-500 dark:text-slate-400">Aucun bagage retrouvé ou perdu</p>
+                      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Les trouvailles et les nouvelles déclarations de perte apparaîtront ici</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredBaggages.map((baggage) => (
+                filteredBaggages.map((baggage) => {
+                  const found = isFoundBag(baggage);
+                  const finderReported = !found && !!baggage.founderAt;
+                  return (
                   <tr
                     key={baggage.id}
-                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors bg-emerald-50/30 dark:bg-violet-600/5"
+                    className={`border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${
+                      found
+                        ? 'bg-emerald-50/30 dark:bg-violet-600/5'
+                        : 'bg-rose-50/40 dark:bg-rose-500/5'
+                    }`}
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-violet-600/10 flex items-center justify-center">
-                          <QrCode className="w-4 h-4 text-violet-600" />
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          found ? 'bg-emerald-100 dark:bg-violet-600/10' : 'bg-rose-100 dark:bg-rose-500/10'
+                        }`}>
+                          <QrCode className={`w-4 h-4 ${found ? 'text-violet-600' : 'text-rose-500'}`} />
                         </div>
                         <span className="text-slate-800 dark:text-white font-mono font-medium">
                           {baggage.reference}
@@ -217,10 +291,28 @@ export default function TrouvaillesPage() {
                         <span className="text-slate-400 dark:text-slate-500 text-sm italic">Non assigné</span>
                       )}
                     </td>
+                    <td className="px-6 py-4">
+                      {found ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-semibold">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          Retrouvé
+                        </span>
+                      ) : finderReported ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-full text-xs font-semibold">
+                          <Bell className="w-3.5 h-3.5" />
+                          Vu par un trouveur
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-full text-xs font-semibold">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          Perdu
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 hidden md:table-cell">
                       <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <Clock className="w-4 h-4 text-slate-400" />
-                        {formatDate(baggage.lastScanDate)}
+                        {formatDate(new Date(eventDate(baggage)).toISOString())}
                       </div>
                     </td>
                     <td className="px-6 py-4 hidden lg:table-cell">
@@ -246,7 +338,8 @@ export default function TrouvaillesPage() {
                       </button>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -271,12 +364,28 @@ export default function TrouvaillesPage() {
             </div>
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-emerald-100 dark:bg-violet-600/10 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-violet-600" />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  isFoundBag(selectedBaggage)
+                    ? 'bg-emerald-100 dark:bg-violet-600/10'
+                    : 'bg-rose-100 dark:bg-rose-500/10'
+                }`}>
+                  {isFoundBag(selectedBaggage) ? (
+                    <CheckCircle className="w-6 h-6 text-emerald-600" />
+                  ) : (
+                    <AlertTriangle className="w-6 h-6 text-rose-500" />
+                  )}
                 </div>
                 <div>
                   <p className="text-slate-800 dark:text-white font-mono font-bold">{selectedBaggage.reference}</p>
-                  <p className="text-violet-600 text-sm font-medium">Bagage retrouvé</p>
+                  <p className={`text-sm font-medium ${
+                    isFoundBag(selectedBaggage) ? 'text-emerald-600' : 'text-rose-500'
+                  }`}>
+                    {isFoundBag(selectedBaggage)
+                      ? 'Bagage retrouvé'
+                      : selectedBaggage.founderAt
+                        ? 'Perdu — vu par un trouveur'
+                        : 'Bagage signalé perdu'}
+                  </p>
                 </div>
               </div>
 
@@ -297,8 +406,22 @@ export default function TrouvaillesPage() {
               </div>
 
               <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Retrouvé le</p>
-                <p className="text-slate-800 dark:text-white">{formatDate(selectedBaggage.lastScanDate)}</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Dernier événement</p>
+                <p className="text-slate-800 dark:text-white">
+                  {formatDate(new Date(eventDate(selectedBaggage)).toISOString())}
+                </p>
+                {selectedBaggage.declaredLostAt && !isFoundBag(selectedBaggage) && (
+                  <p className="text-rose-500 text-sm flex items-center gap-1 mt-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Déclaré perdu le {formatDate(selectedBaggage.declaredLostAt)}
+                  </p>
+                )}
+                {isFoundBag(selectedBaggage) && selectedBaggage.foundAt && (
+                  <p className="text-emerald-600 text-sm flex items-center gap-1 mt-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Retrouvé le {formatDate(selectedBaggage.foundAt)}
+                  </p>
+                )}
                 {selectedBaggage.lastLocation && (
                   <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1 mt-1">
                     <MapPin className="w-3 h-3" />

@@ -32,6 +32,7 @@ interface Baggage {
   baggageType: string;
   status: string;
   createdAt: string;
+  activatedAt: string | null;
   expiresAt: string | null;
   lastScanDate: string | null;
   lastLocation: string | null;
@@ -800,6 +801,13 @@ export default function BaggagesPage() {
                   <p className="text-slate-800 dark:text-white">{formatDate(selectedBaggage.createdAt)}</p>
                 </div>
               </div>
+
+              {selectedBaggage.activatedAt && (
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">Activé le</p>
+                  <p className="text-slate-800 dark:text-white">{formatDateTime(selectedBaggage.activatedAt)}</p>
+                </div>
+              )}
 
               <div>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">Dernier scan</p>

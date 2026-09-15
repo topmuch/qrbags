@@ -682,7 +682,7 @@ export default function ScanPage() {
                 {isDeclaredLost ? (
                   <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-[#8b17c9]" aria-hidden />
                 ) : (
-                  <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
+                  <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl" aria-hidden />
                 )}
               </motion.div>
 

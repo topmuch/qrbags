@@ -110,6 +110,7 @@ model Baggage {
   departureDate     DateTime? // Date de départ saisie lors de l'activation
   departureTime     String?   // Heure de départ saisie lors de l'activation (ex: "08:30")
   createdAt         DateTime  @default(now())
+  activatedAt       DateTime? // Date/heure d'activation par le voyageur (tri « dernier activé en premier » côté agence)
   expiresAt         DateTime?
   lastScanDate      DateTime?
   lastLocation      String?

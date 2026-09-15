@@ -6,11 +6,9 @@ import {
   Mail,
   Phone,
   MapPin,
-  Building,
   Save,
   CheckCircle,
   AlertCircle,
-  Key,
   ShieldCheck,
   Calendar,
   Crown
@@ -107,7 +105,7 @@ export default function ProfilPage() {
         <div className={cardCls}>
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#8b17c9]/10">
-              <Building className="w-5 h-5 text-[#8b17c9]" />
+              <img src="/logo.png" alt="Logo QRBag" className="w-7 h-7 object-contain rounded-lg" aria-hidden />
             </div>
             <div>
               <h2 className="text-lg font-bold text-[#16234e]">Informations de l&apos;agence</h2>
@@ -198,7 +196,7 @@ export default function ProfilPage() {
         <div className={cardCls}>
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#2f9bff]/10">
-              <Key className="w-5 h-5 text-[#2f9bff]" />
+              <img src="/logo.png" alt="Logo QRBag" className="w-7 h-7 object-contain rounded-lg" aria-hidden />
             </div>
             <div>
               <h2 className="text-lg font-bold text-[#16234e]">Changer le mot de passe</h2>

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  CheckCircle,
   Luggage,
   Calendar,
   Backpack,
@@ -202,7 +201,7 @@ function SuccessContent() {
           <BrandCard corners className="max-w-md w-full p-8 text-center">
             <div className="flex justify-center mb-4">
               <BrandIconRing size="w-16 h-16">
-                <CheckCircle className="w-8 h-8 text-[#e6216e]" />
+                <img src="/logo.png" alt="Logo QRBag" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
               </BrandIconRing>
             </div>
             <h1 className="text-[#16234e] text-2xl font-bold mb-2">
@@ -254,7 +253,7 @@ function SuccessContent() {
                 {/* Pluie de confettis signature */}
                 <ConfettiBurst />
 
-                {/* Grand cercle animé — CheckCircle blanc sur anneau dégradé */}
+                {/* Grand cercle animé — logo QRBag (coins arrondis) sur anneau dégradé */}
                 <div className="relative w-20 h-20 mx-auto mb-3">
                   <motion.div
                     animate={{ scale: [1, 1.06, 1] }}
@@ -267,7 +266,7 @@ function SuccessContent() {
                       transition={{ type: 'spring', bounce: 0.5, delay: 0.15 }}
                       className="flex"
                     >
-                      <CheckCircle className="w-11 h-11 text-white" strokeWidth={2.2} aria-hidden />
+                      <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 object-contain rounded-2xl bg-white shadow-md" aria-hidden />
                     </motion.span>
                   </motion.div>
                   <span

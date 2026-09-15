@@ -117,6 +117,7 @@ async function generateBaggagesWithTraveler(options: {
       baggageIndex: i + 1,
       baggageType: 'soute',
       status: 'active',
+      activatedAt: new Date(), // QR généré déjà actif — horodaté pour le tri agence
       expiresAt,
     })),
   });
@@ -213,7 +214,7 @@ export async function GET(request: NextRequest) {
     const baggages = await db.baggage.findMany({
       where,
       include: { agency: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ activatedAt: 'desc' }, { createdAt: 'desc' }],
       take: limit
     });
 
