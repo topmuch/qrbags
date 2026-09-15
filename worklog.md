@@ -784,3 +784,23 @@ Work Log:
 
 Stage Summary:
 - Aucun identifiant réel n'est plus affiché sur les écrans de connexion ; saisie manuelle inchangée
+
+---
+Task ID: 6
+Agent: Main Orchestrator (vérification finale + push)
+Task: Vérification end-to-end navigateur de l'ensemble des correctifs, puis commit/push
+
+Work Log:
+- Flow activation complet validé : QR pending VOL26-TESTACT créé → scan API retourne pending_activation (avec no-store) → POST /api/activate 200 → re-scan retourne « active » (headers no-store + corps actif) → QR test ensuite supprimé
+- Navigateur (agent-browser, 1440×900 + 390×844) :
+  - /scan/VOL26-3UZRED mobile + desktop : BrandShell, arcs, brackets, CTA dégradé, formulaire trouveur (prénom/téléphone/lieu) fonctionnel, WhatsApp vert conservé
+  - /passeport/VOL26-3UZRED mobile + desktop : carte navy/violet, badge PROTÉGÉ, QR vérification, boutons navy/outline
+  - /agence/connexion + /admin/connexion : carte « Compte démo » absente, 0 résidu admin123/agency123/adresses email (grep HTML), placeholder « votre@email.com »
+  - /agence/profil (connecté agency@qrbag.com) : BrandCard + brandInput + bouton dégradé ; sauvegarde RÉELLE vérifiée en base (adresse « Dakar, Sénégal » persistée via PUT /api/agency/profile, UPDATE Prisma dans dev.log) ; sidebar agence navy harmonisée
+  - Accueil : nouvelle étiquette ori2 affichée dans les 2 sections (images chargées)
+  - Générateur : PNG API 1049×1499 @381 DPI avec QR centré vérifié visuellement + décodé jsqr ; PDF 200 (338 Ko)
+- Nettoyage : QR test VOL26-TESTACT supprimé, jsqr retiré des dépendances, .bak exclus du commit via .gitignore
+- bun run lint → 0 erreur ; commit 6051acc poussé sur origin/main (topmuch/qrbags)
+
+Stage Summary:
+- Les 5 demandes du client sont livrées et vérifiées en navigateur ; rappel : redeploy Coolify à déclencher manuellement pour refléter le site en production
