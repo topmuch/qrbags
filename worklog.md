@@ -1058,3 +1058,23 @@ Stage Summary:
 - Page publique premium alignée sur le PDF (facture, cachet, empreinte) + auto-unlock par URL
 - Catalogue orienté voyageurs : Femmes / Hommes / Enfant / Accessoires électroniques en tête
 - Rappel : redéploiement Coolify manuel requis (push GitHub f537316)
+
+---
+Task ID: 3-fix (fix erreur serveur PDF)
+Agent: Z.ai Code (main)
+Task: Diagnostiquer et corriger « LA GENERATION DU PDF AFFICHE ERREUR SERVEUR »
+
+Work Log:
+- Lecture dev.log : requêtes `GET /api/checklist/RXANEB/pdf?key=…` → 404 « Attestation introuvable ». Le générateur PDF lui-même fonctionne (test curl direct sur 5PH4W4 → HTTP 200, PDF valide 95 Ko).
+- Cause racine : la checklist RXANEB de l'utilisateur a disparu de SQLite — la table Checklist a été recréée lors de la migration Prisma (ajout flightNumber, `prisma db push`), effaçant les anciennes lignes. Le clic sur « Télécharger le PDF » depuis un ancien onglet ouvrait un JSON brut `{"error":"Attestation introuvable"}`, perçu comme une erreur serveur.
+- Fix UX : réécriture de `src/app/api/checklist/[code]/pdf/route.ts` — toutes les erreurs (401/403/404/429/500) retournent désormais une page HTML au design QRBag (fond navy dégradé, carte blanche arrondie, badge QR·BAG, CTA « Créer une nouvelle checklist ») au lieu de JSON.
+- Test e2e complet via curl : POST /api/checklist (avec flightNumber + items Femmes/Électronique) → code CCXEJN créé, email envoyé, PDF 93 Ko téléchargé.
+- Vérification visuelle du PDF (pdftoppm) : logo à coins arrondis, QR en haut de page 1, tableau facture (N°/DÉSIGNATION/CATÉGORIE/QTÉ), 6 champs voyageur+vol, cachet rond CERTIFIÉ, empreinte SHA-256.
+- Vérification agent-browser mobile 390×844 : wizard 3 étapes complet (date via value-tracker React), champ N° de vol présent, catalogue enrichi (Femmes 16 articles, Électronique), écran succès (code 95UHPH / clé xGxuqmMc), page publique premium (hero dégradé, cachet CERTIFIÉ, tableau facture, TOTAL, boutons PDF/Imprimer), téléchargement PDF depuis le navigateur OK, page 404 de marque OK.
+- Vue desktop 1440×900 OK, lint bun clean, commit 87cdc20 poussé sur main.
+
+Stage Summary:
+- Le PDF n'a JAMAIS été cassé : c'est la checklist de test de l'utilisateur qui a été effacée de la DB par la migration du schéma. Toute checklist créée AVANT cette session doit être recréée.
+- Désormais, tout code invalide/expiré affiche une page d'erreur premium avec CTA au lieu d'un JSON brut.
+- Artefacts de test laissés en DB sandbox : 95UHPH/xGxuqmMc (wizard complet), CCXEJN/ddyF3vya (curl), 5PH4W4/T4iuzZ64.
+- Rappel : redéploiement Coolify manuel requis (push main déjà fait) — la DB de prod sera migrée au démarrage du conteneur.
