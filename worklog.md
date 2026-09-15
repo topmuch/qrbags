@@ -823,3 +823,19 @@ Stage Summary:
 - Page démo réellement connectée au système (ScanLog réels, page /scan/DEMO-QRBAG fonctionnelle, reset total)
 - Aucun WhatsApp réel ne peut partir depuis la démo (double garde-fou API demo + notify)
 - Pages légales lisibles sur fond blanc, logo connexion arrondi
+
+---
+Task ID: 7-finale
+Agent: Main Orchestrator
+Task: Vérification finale images hero + purge cache Next dev + push GitHub
+
+Work Log:
+- 3 images hero régénérées via CLI z-ai (864×1152) : voyageuse noire hijab orange + valise navy étiquette QR violette, homme noir chemise violette scannant son téléphone, famille noire joyeuse à l'aéroport
+- Diagnostic image obsolète : le cache optimiseur Next dev vit dans .next/dev/cache/images (pas .next/cache/images) — purge + redémarrage serveur (double-fork setsid) résout le problème ; variante w=1080 vérifiée côté serveur
+- Vérifié dans le navigateur (sessions vierges) : carrousel accueil affiche les 3 nouvelles images ; /cgu lisible ; /demo scan→notification→reset OK
+- Lint : 0 erreur, 0 warning
+- Push GitHub : 6dd61b2..013496d main → main (284 fichiers : images hero, API démo, page démo, garde-fou DEMO notify, pages légales corrigées, logo arrondi, worklog)
+
+Stage Summary:
+- GitHub synchronisé avec la version locale (origine/main à jour)
+- Rappel déploiement : Coolify nécessite un redéploiement manuel pour prendre la nouvelle version
