@@ -1189,3 +1189,22 @@ Work Log:
 Stage Summary:
 - 4 pages brandées avec logo arrondi ; tri « dernier activé en premier » opérationnel en prod après redéploiement Coolify (le backfill prod devra être relancé : UPDATE activatedAt = expiresAt − durée) ; trouvailles affiche désormais pertes + trouvailles récentes
 - NOTE PROD : après déploiement, exécuter le backfill activatedAt sur la DB prod (2 UPDATE SQLite, cf. worklog) pour que les QR déjà activés soient triés correctement
+
+---
+Task ID: logo-cards-inscription
+Agent: Z.ai Code (main)
+Task: Remplacer toutes les icônes des cards des pages INSCRIPTION par le logo QRBag (bords arrondis)
+
+Work Log:
+- Inventaire des pages inscription : /inscrire, /hajj/activate, /commander, /success (celle-ci avait déjà le logo)
+- /inscrire : hero card — Luggage remplacé par logo (cercle blanc rounded-full + overflow-hidden + img object-contain)
+- /hajj/activate : card bienvenue (Sparkles -> logo rounded-xl) + en-tête principal (Plane -> logo rounded-xl) dans BrandIconRing
+- /commander : hero (ShoppingBag -> logo, même pattern cercle) + écran de succès (CheckCircle2 -> logo rounded-2xl dans BrandIconRing)
+- Imports inutilisés supprimés : Luggage (/inscrire), Plane + Sparkles (/hajj/activate), CheckCircle2 (/commander)
+- Lint OK ; vérification agent-browser mobile 390x844 (4 pages) + desktop 1280x800 (/inscrire) : logo affiché partout, aucune erreur console
+- Commande de test créée pendant la vérification du formulaire /commander supprimée de la base (Message cmu36pbb60000rcma5mc6rz0a)
+- Commit a0182ff poussé sur main
+
+Stage Summary:
+- Toutes les cards des pages inscription affichent désormais le logo QRBag arrondi (même pattern validé que la page trouveur)
+- Artifacts : commits 0e39a1f (trouveur, session précédente) + a0182ff (inscription) ; redéploiement Coolify toujours requis
