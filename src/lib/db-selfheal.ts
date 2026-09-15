@@ -126,6 +126,9 @@ export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
     C('"founderPhone" TEXT'),
     C('"founderAt" DATETIME'),
     C('"photoPath" TEXT'),
+    C('"photoData" BLOB'),
+    C('"photoMime" TEXT'),
+    C('"photoSizeBytes" INTEGER'),
     C('"reward" TEXT'),
   ]),
   table('ScanLog', [
@@ -373,6 +376,8 @@ export const EXPECTED_SCHEMA: Record<string, ColumnDef[]> = Object.fromEntries([
     C('"items" TEXT NOT NULL'),
     C('"itemsCount" INTEGER NOT NULL DEFAULT 0'),
     C('"photoPath" TEXT'),
+    C('"photoData" BLOB'),
+    C('"photoMime" TEXT'),
     C('"photoSizeBytes" INTEGER DEFAULT 0'),
     C('"pdfPath" TEXT'),
     C('"pdfSizeBytes" INTEGER DEFAULT 0'),

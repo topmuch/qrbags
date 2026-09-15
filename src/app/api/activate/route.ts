@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { calculateExpirationDate } from '@/lib/qr';
 import { z } from 'zod';
+import { readPhotoFromDisk } from '@/lib/photo-storage';
 
 // Validation schema for activation
 const activateSchema = z.object({
@@ -58,6 +59,17 @@ export async function POST(request: NextRequest) {
     // Calculate expiration date
     const expiresAt = calculateExpirationDate(baggage.type as 'hajj' | 'voyageur', subtype);
 
+    // PHOTO-STORAGE : la photo est copiée en base (BLOB) pour survivre aux
+    // redéploiements (le disque du conteneur est éphémère). Le fichier disque
+    // n'est plus qu'un cache de staging — la source de vérité est la DB.
+    let photoBlob: { data: Buffer; mime: string; size: number } | null = null;
+    if (validatedData.photoPath) {
+      photoBlob = await readPhotoFromDisk(validatedData.photoPath);
+      if (!photoBlob) {
+        console.warn(`[ACTIVATE] Photo introuvable sur disque pour ${baggage.reference} : ${validatedData.photoPath}`);
+      }
+    }
+
     // Update baggage with traveler info
     const updatedBaggage = await db.baggage.update({
       where: { id: baggage.id },
@@ -78,8 +90,11 @@ export async function POST(request: NextRequest) {
         shipCabin: validatedData.shipCabin || null,
         busCompany: validatedData.busCompany || null,
         busLineNumber: validatedData.busLineNumber || null,
-        // PHOTO + REWARD FEATURE
+        // PHOTO + REWARD FEATURE (photo stockée en DB — durable)
         photoPath: validatedData.photoPath || null,
+        photoData: photoBlob?.data ?? null,
+        photoMime: photoBlob?.mime ?? null,
+        photoSizeBytes: photoBlob?.size ?? null,
         reward: validatedData.reward?.trim() || null,
         status: 'active',
         expiresAt,
@@ -121,8 +136,11 @@ export async function POST(request: NextRequest) {
               shipCabin: validatedData.shipCabin || null,
               busCompany: validatedData.busCompany || null,
               busLineNumber: validatedData.busLineNumber || null,
-              // PHOTO + REWARD FEATURE (copiés vers tout le set)
+              // PHOTO + REWARD FEATURE (copiés vers tout le set, photo stockée en DB)
               photoPath: validatedData.photoPath || null,
+              photoData: photoBlob?.data ?? null,
+              photoMime: photoBlob?.mime ?? null,
+              photoSizeBytes: photoBlob?.size ?? null,
               reward: validatedData.reward?.trim() || null,
               status: 'active',
               expiresAt,

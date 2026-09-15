@@ -889,3 +889,30 @@ Stage Summary:
 - Slide accueil sans fond sombre de transition
 - Bug i18n de changement de langue corrigé de façon structurelle (state React)
 - Fichiers : scan/[reference]/page.tsx, suivi/[reference]/page.tsx, page.tsx, api/demo/route.ts, hooks/useTranslation.ts, components/LossAlertBanner.tsx, components/ReviewModal.tsx, locales fr/en/ar.json
+
+---
+Task ID: photo-durable
+Agent: Main Orchestrator
+Task: Fix image cassée sur page trouveur — photo d'inscription visible puis cassée après un temps
+
+Work Log:
+- Diagnostic : 2 causes — (1) endpoint /api/baggage-photo/upload supprimé lors du reset d25d6a4 (la page /inscrire l'appelle toujours → upload photo en échec silencieux) ; (2) photos stockées uniquement sur le disque éphémère du conteneur (uploads/baggage-photos/) → redéploiement Coolify = fichiers supprimés, photoPath en DB pointe vers rien → 404 → image cassée
+- prisma/schema.prisma : Baggage + photoData Bytes? / photoMime String? / photoSizeBytes Int? (photoPath devient fallback legacy) ; Checklist + photoData Bytes? / photoMime String? ; db:push OK
+- src/lib/db-selfheal.ts : colonnes photoData BLOB / photoMime / photoSizeBytes ajoutées aux définitions Baggage et Checklist
+- src/lib/photo-storage.ts (nouveau) : helpers readPhotoFromDisk / writePhotoToDisk / safePhotoAbsolutePath / photoMimeFromPath + PHOTO_MAX_BYTES (10 Mo)
+- src/app/api/baggage-photo/upload/route.ts : endpoint restauré (contrat identique {photoPath, photoSizeBytes}) — écrit sur disque (staging), validation types/taille/rate-limit
+- src/app/api/activate/route.ts : à l'activation, la photo du disque est copiée en base (photoData/photoMime/photoSizeBytes) pour le bagage ET tout le set groupé — best-effort avec warn log
+- src/app/api/baggage-photo/[reference]/route.ts : lecture 1) BLOB en base (source de vérité) 2) fallback disque + migration automatique vers la DB au premier GET (les photos legacy deviennent durables)
+- src/app/api/scan/[reference]/route.ts : hasPhoto = photoPath OU photoData non vide
+- Checklist harmonisée : /api/checklist (POST) copie la photo en base à la création ; /api/checklist/[code]/photo GET en DB-first + migration auto ; /api/checklist/[code] hasPhoto inclut photoData
+- Prisma client régénéré + redémarrage serveur dev (l'ancien process gardait le client sans colonnes photoData → 500 sur /api/activate)
+- Tests API complets : upload → activate → GET 200 ; suppression du fichier disque (simulation redéploiement) → GET toujours 200 depuis la BLOB ; photo legacy (photoPath seul) → GET 200 + auto-migration BLOB vérifiée en DB → suppression fichier → GET 200
+- Agent-browser mobile 390×844 : /scan/DEMO-QRBAG — img /api/baggage-photo/DEMO-QRBAG chargée (photoLoaded=true, 0 image cassée), section « PHOTO DE LA VALISE » affichée ; bagage démo enrichi d'une photo stockée 100% en DB (photoPath=null) qui charge → preuve du chemin DB pur
+- Nettoyage : bagage test VOL26-TESTPHOTO supprimé, fichiers test supprimés ; lint 0 erreur ; dev.log sans nouvelle erreur (seules erreurs préexistantes : IP API indisponible)
+
+Stage Summary:
+- La photo d'inscription est désormais stockée en BLOB SQLite (source de vérité) → survit aux redéploiements Coolify et aux purges de fichiers
+- Endpoint d'upload restauré (il manquait depuis le reset) — l'ajout de photo sur /inscrire fonctionne à nouveau
+- Rétrocompatible : photos legacy sur disque sont servies puis migrées automatiquement en base au premier affichage
+- Les photos déjà perdues en production (fichiers effacés avant ce fix) sont irrécupérables — seules les nouvelles activations sont durables
+- Fichiers : prisma/schema.prisma, src/lib/db-selfheal.ts, src/lib/photo-storage.ts (nouveau), api/baggage-photo/upload (nouveau), api/activate, api/baggage-photo/[reference], api/scan/[reference], api/checklist, api/checklist/[code], api/checklist/[code]/photo

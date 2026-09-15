@@ -120,8 +120,13 @@ model Baggage {
   founderAt         DateTime? // Timestamp when founder info was submitted
 
   // PHOTO + REWARD FEATURE: Photo de la valise & récompense proposée en cas de perte
-  photoPath         String?   // Chemin de la photo de la valise (uploads/baggage-photos/xxx.jpg)
-  reward            String?   // Récompense offerte au trouveur (ex: "50 000 FCFA")
+  // Photo upload — stockage durable : le contenu binaire vit en DB (survit aux redéploiements),
+  // photoPath n'est qu'un cache disque optionnel (fallback lecture + migration auto vers la DB)
+  photoData        Bytes?    // Contenu binaire de la photo de la valise
+  photoMime        String?   // MIME type (image/jpeg, image/png, image/webp, image/gif)
+  photoSizeBytes   Int?      // Taille de la photo en octets
+  photoPath        String?   // Chemin disque legacy (uploads/baggage-photos/xxx.jpg) — fallback
+  reward           String?   // Récompense offerte au trouveur (ex: "50 000 FCFA")
   agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   scanLogs          ScanLog[]
 }
@@ -489,8 +494,11 @@ model Checklist {
   // Selected items (JSON array of {category, name, qty, checked})
   items           String   // JSON string
   itemsCount      Int      @default(0)
-  // Photo upload
-  photoPath       String?  // Path to uploaded suitcase photo on disk
+  // Photo upload — stockage durable : le contenu binaire vit en DB (survit aux redéploiements),
+  // photoPath n'est qu'un cache disque optionnel (fallback lecture + migration auto vers la DB)
+  photoData       Bytes?   // Contenu binaire de la photo de la valise
+  photoMime       String?  // MIME type (image/jpeg, image/png, image/webp, image/gif)
+  photoPath       String?  // Path to uploaded suitcase photo on disk (fallback)
   photoSizeBytes  Int?     @default(0)
   // PDF generation metadata
   pdfPath         String?  // Optional on-disk path; null = generate on-demand

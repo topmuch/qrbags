@@ -9,6 +9,7 @@ import {
 } from '@/lib/checklist';
 import { sendEmail, getChecklistEmailTemplate } from '@/lib/email';
 import { rateLimit } from '@/lib/rate-limit';
+import { readPhotoFromDisk } from '@/lib/photo-storage';
 
 /**
  * GET /api/checklist?email=foo@bar.com
@@ -179,6 +180,18 @@ export async function POST(request: NextRequest) {
         photoSizeBytes: typeof photoSizeBytes === 'number' ? photoSizeBytes : 0,
       },
     });
+
+    // PHOTO-STORAGE : la photo est copiée en base (BLOB) pour survivre aux redéploiements
+    // (le disque du conteneur est éphémère). Best-effort : la checklist reste créée sinon.
+    if (checklist.photoPath) {
+      const photoBlob = await readPhotoFromDisk(checklist.photoPath);
+      if (photoBlob) {
+        await db.checklist.update({
+          where: { id: checklist.id },
+          data: { photoData: photoBlob.data, photoMime: photoBlob.mime, photoSizeBytes: photoBlob.size },
+        }).catch((err) => console.warn('[checklist] migration photo BLOB échouée:', err));
+      }
+    }
 
     // ─── Generate PDF ───
     let pdfBuffer: Buffer;

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, stat } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { stat } from 'fs/promises';
 import { db } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
+import { readPhotoFromDisk, safePhotoAbsolutePath } from '@/lib/photo-storage';
 
+// PHOTO-FEATURE: Sert la photo de la checklist (attestation PDF / page checklist).
+// Ordre de lecture : 1) BLOB en base (source de vérité — survit aux redéploiements),
+// 2) fallback fichier disque (ancien stockage) avec migration automatique vers la DB.
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
@@ -28,7 +30,7 @@ export async function GET(
 
     const checklist = await db.checklist.findUnique({
       where: { code: code.toUpperCase() },
-      select: { code: true, verificationKey: true, photoPath: true },
+      select: { code: true, verificationKey: true, photoPath: true, photoData: true, photoMime: true },
     });
 
     if (!checklist) {
@@ -39,33 +41,45 @@ export async function GET(
       return NextResponse.json({ error: 'Clé de vérification incorrecte' }, { status: 403 });
     }
 
-    if (!checklist.photoPath) {
-      return NextResponse.json({ error: 'Aucune photo associée' }, { status: 404 });
+    // 1) Source de vérité : photo stockée en base (durable, survit aux redéploiements)
+    if (checklist.photoData && checklist.photoData.length > 0) {
+      const buffer = Buffer.from(checklist.photoData);
+      const contentType = checklist.photoMime || 'image/jpeg';
+      return new NextResponse(new Uint8Array(buffer), {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          'Content-Length': String(buffer.length),
+          'Content-Disposition': `inline; filename="photo-valise-${checklist.code}"`,
+          'Cache-Control': 'private, max-age=3600',
+        },
+      });
     }
 
-    const absolutePath = join(process.cwd(), checklist.photoPath);
-    if (!existsSync(absolutePath)) {
-      return NextResponse.json({ error: 'Fichier photo introuvable' }, { status: 404 });
+    // 2) Fallback legacy : fichier disque (photoPath) + migration automatique vers la DB
+    if (checklist.photoPath) {
+      const blob = await readPhotoFromDisk(checklist.photoPath);
+      if (blob) {
+        // Migration en arrière-plan (best-effort) : la prochaine lecture viendra de la DB
+        void db.checklist.update({
+          where: { code: checklist.code },
+          data: { photoData: blob.data, photoMime: blob.mime, photoSizeBytes: blob.size },
+        }).catch((err) => console.warn('[checklist/[code]/photo] migration BLOB échouée:', err));
+
+        const fileStat = await stat(safePhotoAbsolutePath(checklist.photoPath));
+        return new NextResponse(new Uint8Array(blob.data), {
+          status: 200,
+          headers: {
+            'Content-Type': blob.mime,
+            'Content-Length': String(fileStat.size),
+            'Content-Disposition': `inline; filename="photo-valise-${checklist.code}"`,
+            'Cache-Control': 'private, max-age=3600',
+          },
+        });
+      }
     }
 
-    const fileBuffer = await readFile(absolutePath);
-    const fileStat = await stat(absolutePath);
-
-    const ext = absolutePath.split('.').pop()?.toLowerCase();
-    const contentType = ext === 'png' ? 'image/png'
-      : ext === 'gif' ? 'image/gif'
-      : ext === 'webp' ? 'image/webp'
-      : 'image/jpeg';
-
-    return new NextResponse(fileBuffer, {
-      status: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Content-Length': String(fileStat.size),
-        'Content-Disposition': `inline; filename="photo-valise-${checklist.code}.${ext}"`,
-        'Cache-Control': 'private, max-age=3600',
-      },
-    });
+    return NextResponse.json({ error: 'Aucune photo associée' }, { status: 404 });
   } catch (error) {
     console.error('[checklist/[code]/photo] GET error:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
