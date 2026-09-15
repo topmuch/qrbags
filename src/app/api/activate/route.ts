@@ -4,6 +4,7 @@ import { calculateExpirationDate } from '@/lib/qr';
 import { z } from 'zod';
 import { readPhotoFromDisk } from '@/lib/photo-storage';
 import { rateLimit } from '@/lib/rate-limit';
+import { sendEmail, getDocsEmailTemplate } from '@/lib/email';
 
 // Validation schema for activation
 const activateSchema = z.object({
@@ -172,6 +173,55 @@ export async function POST(request: NextRequest) {
       if (activatedReferences.length > 1) {
         console.log(`[ACTIVATE] Activation groupée (${baggage.type}) du set ${baggage.setId}: ${activatedReferences.join(', ')}`);
       }
+    }
+
+    // ─── 📧 Envoi automatique des documents (Passeport + lien de suivi) ───
+    // Si l'email voyageur est renseigné à l'inscription, le passager reçoit
+    // immédiatement ses documents SANS avoir à les redemander sur /success.
+    // Fire-and-forget : ne ralentit ni ne fait échouer l'activation si le SMTP
+    // est indisponible — la page /success reste un filet de sécurité (re-envoi).
+    const autoDocsEmail = validatedData.travelerEmail?.trim().toLowerCase();
+    if (autoDocsEmail) {
+      // URLs construites côté serveur (headers de la requête, jamais le body — anti-phishing)
+      const protocol = request.headers.get('x-forwarded-proto') || 'http';
+      const host = request.headers.get('host') || 'qrbags.com';
+      const baseUrl = `${protocol}://${host}`;
+
+      const travelerName = [validatedData.travelerFirstName, validatedData.travelerLastName]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+
+      const expiresLabel = expiresAt
+        ? new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(expiresAt)
+        : undefined;
+
+      const docsTemplate = getDocsEmailTemplate({
+        reference: updatedBaggage.reference,
+        travelerName,
+        passportUrl: `${baseUrl}/passeport/${updatedBaggage.reference}`,
+        trackingUrl: `${baseUrl}/suivi/${updatedBaggage.reference}`,
+        expiresLabel,
+      });
+
+      void sendEmail({
+        to: autoDocsEmail,
+        subject: `🧳 Vos documents QRBag — bagage ${updatedBaggage.reference}`,
+        html: docsTemplate.html,
+        text: docsTemplate.text,
+        type: 'success_docs',
+        data: { reference: updatedBaggage.reference },
+      })
+        .then((result) => {
+          if (result.success) {
+            console.log(`[ACTIVATE] 📧 Documents auto-envoyés : ${updatedBaggage.reference} → ${autoDocsEmail}`);
+          } else {
+            console.error(`[ACTIVATE] Échec envoi auto documents ${updatedBaggage.reference} :`, result.error);
+          }
+        })
+        .catch((err) => {
+          console.error(`[ACTIVATE] Erreur envoi auto documents ${updatedBaggage.reference} :`, err);
+        });
     }
 
     return NextResponse.json({
