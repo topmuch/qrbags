@@ -1,5 +1,5 @@
-import AdminLoginPage from '@/components/auth/AdminLoginPage';
+import LoginPage from '@/components/auth/LoginPage';
 
 export default function AdminConnexionPage() {
-  return <AdminLoginPage />;
+  return <LoginPage variant="superadmin" />;
 }

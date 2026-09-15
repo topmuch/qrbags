@@ -491,3 +491,96 @@ Stage Summary:
 - API HTTP validée : /api/admin/baggages/label/VOL26-3UZRED?format=png|pdf → 200, fichiers conformes (452 Ko / 304 Ko)
 - Browser check : les 2 emplacements homepage (section checklist + Comment ça marche) affichent le nouveau design officiel ; responsive mobile OK ; lint 0 erreur
 - L'étiquette imprimée générée est visuellement IDENTIQUE à l'artwork fourni avec un QR réellement scannable
+
+---
+Task ID: 2-c
+Agent: Z.ai Code (subagent 2-c)
+Task: Rebrand Agence/SuperAdmin LoginPage.tsx with official QRBag étiquette design
+
+Work Log:
+- Lu worklog.md, BrandShell.tsx et la section « QRBAG BRAND » de globals.css pour caler les tokens (navy #16234e, dégradé signature .bg-gradient-qrbag, .dotted-map-light, azure #2f9bff)
+- Vérifié par grep que accentColor/accentHover ne sont référencés QUE dans l'interface LoginConfig et les 2 objets CONFIGS (jamais dans le JSX) → suppression des 2 champs (interface + configs) pour propreté
+- Supprimé aussi les imports d'icônes inutilisés (CheckCircle, KeyRound, Plane, Luggage, Globe, Sparkles) et `import Image from 'next/image'` (jamais utilisé — le fichier rend <img>) ; LOGIC 100% conservée : CONFIGS (emails/passwords/rôles/redirectPath/switch/stats/testimonials), useAuth, useEffect de redirection, rotation testimonials 5s, handleSubmit fetch('/api/auth/login'), fillDemo, error/loading/focusedField/showPassword/rememberMe
+- LEFT PANEL (immersif) : fond bg-[#16234e] + texture .dotted-map-light (remplace la grille générique) ; orbes recolorées marque (#8b17c9/20, #e6216e/15, #f8921f/15 + nouvelle azure #2f9bff/15, animate-pulse conservé) ; carte logo Link conservée avec border-white/15 ; tuile QR passée de from-blue-500/to-blue-700 à bg-gradient-qrbag + shadow-[#e6216e]/40, points flottants recolorés (#ffd200/80, #2f9bff/70) ; titre h2 text-white avec span surligné en dégradé clair from-[#ffd200] via-[#f8921f] to-[#e6216e] (lisible sur navy) ; sous-titre text-white/60 ; stats valeurs text-white / labels text-white/50 ; témoignage border-l-2 border-[#f8921f]/60, avatar bg-gradient-qrbag, name text-white/90, role text-white/40, dots actifs bg-[#f8921f] w-4 / inactifs bg-white/25 (+ aria-label)
+- RIGHT PANEL (formulaire blanc) : liseré top h-1 bg-gradient-qrbag ; logo mobile bg-[#16234e] ; badge Agence/Admin via brandBadge (pilule dégradée signature, BadgeIcon conservé) ; h1 text-[#16234e], sous-titre text-[#16234e]/60 ; box erreur rouge conservée avec pastille « ! » bg-[#e6216e] ; labels via brandLabel ; champs Email/Mot de passe restylés brandInput-style : focus border-[#2f9bff] bg-white ring-4 ring-[#2f9bff]/15 + icône text-[#2f9bff], repos border-[#16234e]/15 bg-[#f6f9ff]/60 hover:border-[#16234e]/30 + icône text-[#16234e]/35, texte text-[#16234e] placeholder:text-[#16234e]/35, toggle œil hover:text-[#2f9bff] ; checkbox accent-[#e6216e] + label text-[#16234e]/60 ; lien « Mot de passe oublié ? » text-[#2f9bff] font-semibold ; bouton submit = brandBtnGradient w-full py-3.5 (Loader2/ArrowRight/disabled conservés) ; carte compte démo bg-[#2f9bff]/5 border-[#2f9bff]/15 avec tuile Fingerprint bg-gradient-qrbag, bouton « Remplir » bg-[#16234e] hover:bg-[#0f1838], ornée de BrandCorners (brackets viewfinder orange/violet/magenta/azure — motif étiquette) ; ligne switch text-[#16234e]/60 + lien font-bold hover:text-[#2f9bff] ; liens bas text-[#16234e]/40 hover:text-[#2f9bff]
+- Accessibilité : html_for sur les 2 champs (login-email / login-password) via brandLabel, aria-hidden sur icônes décoratives, aria-label sur dots et toggle œil
+- ESLint : 0 erreur, 0 warning sur LoginPage.tsx (fix des 2 directives eslint-disable img devenues inutiles) ; les 3 warnings restants du repo sont dans d'autres fichiers (inscrire/page.tsx, BrandShell.tsx) — non touchés
+- dev.log : « ✓ Compiled » sans erreur
+- NOTE ORCHESTRATEUR : les routes /agence/connexion et /admin/connexion importent actuellement AgenceLoginPage/AdminLoginPage (composants séparés) et non LoginPage.tsx — ce fichier partagé est prêt et rebrandé, le câblage des routes vers LoginPage variant="agence|superadmin" relève d'une autre tâche
+
+Stage Summary:
+- LoginPage.tsx (465 → ~390 lignes) rebrandée aux couleurs de l'étiquette officielle QRBag : navy #16234e + dégradé signature orange→rouge→magenta→violet + azure #2f9bff, texture dotted-map-light, orbes marque, badge/bouton/labels via design system BrandShell, brackets viewfinder sur la carte démo
+- Aucune modification logique : CONFIGS, auth, redirections, rotation testimonials, fetch login, fillDemo intacts ; seuls champs supprimés : accentColor/accentHover (confirmés inutilisés)
+- Layout split-screen (panneau immersif caché mobile + panneau formulaire) et toutes les classes responsive conservés ; lint propre sur le fichier
+
+---
+Task ID: 2-b
+Agent: QRBag Brand Restyler (Z.ai Code)
+Task: Apply official QRBag design to forgot-password, reset-password, verify-email
+
+Work Log:
+- Lu worklog.md (historique), BrandShell.tsx (design system) et la section « QRBAG BRAND » de globals.css pour caler les tokens (navy #16234e, azure #2f9bff, dégradé signature, brandInput/brandLabel/brandBadge/brandBtnGradient/brandBtnNavy/BrandCard/BrandLogo/BrandIconRing/BrandShell)
+- forgot-password/page.tsx : refonte visuelle complète — BrandShell (liseré dégradé + dotted-map + halos + arcs arc-en-ciel), BrandLogo h-14, badge dégradé KeyRound « Récupération d'accès », BrandCard corners p-7/p-8, tuile icône bg-[#2f9bff]/10 text-[#2f9bff], h2 navy / p navy/60, champ email brandInput avec icône Mail (focus-within azure, couleur icône pilotée par focusedField conservé), bouton submit brandBtnGradient (spinner RefreshCw gardé), écran succès BrandIconRing CheckCircle émeraude + « Renvoyer un autre email » en azure, back link ArrowLeft navy/60→azure hover, tagline footer « Solution intelligente de suivi de bagages »
+- reset-password/page.tsx : même coquille — badge ShieldCheck « Nouveau mot de passe », 2 champs mot de passe brandInput + Lock/Eye/EyeOff (toggle conservé, aria-label ajouté), encart erreur rouge adouci conservé (bg-red-50 border-red-100 text-red-700), bouton brandBtnGradient, succès BrandIconRing émeraude (setTimeout → /login intact), Suspense fallback spinner blanc border-[#16234e]/15 border-t-[#e6216e]
+- verify-email/page.tsx : même coquille — badge MailCheck « Vérification email », état loading tuile azure RefreshCw, succès BrandIconRing émeraude + CTA « Se connecter » brandBtnGradient (router.push('/login') intact), erreur BrandIconRing XCircle rouge + « Retour à la connexion » brandBtnNavy, formulaire code : email brandInput + icône Mail, input 6 chiffres avec classes prescrites (border-2 navy/15, focus azure ring-4, text-2xl tracking-[0.5em] font-mono, sanitize onChange + maxLength inchangés), bouton Vérifier brandBtnGradient + spinner, « Renvoyer le code » azure hover:underline (disabled conservé), Suspense fallback spinner blanc navy/magenta
+- LOGIC 100% PRÉSERVÉ : handlers (handleSubmit, verifyWithToken, verifyWithCode, resendVerification), fetch /api/auth/forgot-password, /api/auth/reset-password, /api/auth/verify-email, /api/auth/resend-verification, états, disabled conditions, router.push, setTimeout, useEffect [token], wrappers Suspense — aucun changement fonctionnel
+- Validation : bun run lint → 0 erreur, 0 warning sur MES 3 fichiers (3 warnings préexistants dans LoginPage.tsx et BrandShell.tsx = fichiers d'autres agents, non touchés) ; bunx tsc --noEmit → seule remontée sur verify-email est TS2367 PRÉEXISTANT (vérifié par git stash : la ligne originale avait la même comparaison status !== 'success' redondante) — laissé tel quel conformément à la règle « logique EXACTEMENT inchangée »
+- Aucun lancement de dev server, aucun curl (vérification navigateur laissée à l'orchestrateur) ; aucun commit
+
+Stage Summary:
+- Les 3 pages auth secondaires (mot de passe oublié, réinitialisation, vérification email) adoptent l'identité étiquette QRBag : shell complet (liseré dégradé signature, fond pointillés, halos, arcs arc-en-ciel), cartes blanches à coins viewfinder, navy #16234e + accents azure #2f9bff, boutons dégradé signature, anneaux succès/erreur, tagline footer
+- Zéro régression logique : tous les appels API, gardes de soumission, redirections et Suspense sont bit-à-bit identiques ; lint propre sur les 3 fichiers
+- TS2367 sur verify-email est préexistant (confirmé par stash) et non introduit par cette tâche
+
+---
+Task ID: 2-a
+Agent: Brand-Restyle Agent (Z.ai Code)
+Task: Apply official QRBag étiquette design to /inscrire and /success
+
+Work Log:
+- Lu worklog.md, BrandShell.tsx (design system étiquette) et la section « QRBAG BRAND » de globals.css avant toute modification
+- src/app/inscrire/page.tsx (654 → ~640 lignes) — refonte visuelle uniquement, logique 100% conservée (states, doSubmit, compressAndUpload, sessionStorage, fetch /api/activate, PhoneInput, CountryRegionSelect, i18n, dir={dir}, Suspense) :
+  - Supprimé les constantes NAVY/NAVY_HOVER/BEIGE/GOLD/GOLD_SOFT et tous leurs usages inline style
+  - Page enveloppée dans <BrandShell> (fond blanc + dotted-map + halos + arcs arc-en-ciel + liseré dégradé) ; safe-area paddings conservés sur <main dir={dir}>
+  - Header max-w-5xl : retour « ← Retour » navy→hover azure, logo h-12/sm:h-14 centré, LanguageSelector restylé (bouton blanc bordure navy/15 hover azure ; dropdown : sélection bg-[#2f9bff]/10 au lieu de l'or, logique inchangée)
+  - Hero : badge pilule dégradé brandBadge « Activation de votre bagage » (Sparkles), h1 text-4xl/5xl navy, sous-titre navy/70, barre dégradée bg-gradient-qrbag h-1.5 w-24
+  - Indicateur étape 2 : pilule blanche bordure navy/10 avec point dégradé bg-gradient-qrbag (animate-pulse blanc supprimé)
+  - Carte : <BrandCard corners> (brackets viewfinder QR) dans max-w-md, plus aucune bande navy — chevauchement -mt-2 conservé
+  - Étape 1 : note référence détectée en azure #2f9bff (CheckCircle) + bouton Continuer brandBtnGradient
+  - Étape 2 : DashedEncart restylé (border-[#16234e]/15, fond azur pâle #f6f9ff/80, rounded-2xl) ; tous les inputs texte/date/heure/récompense → constante partagée brandInput ; labels navy inchangés ; PhoneInput/CountryRegionSelect intacts
+  - Warning référence manquante : encart azur (bg-[#2f9bff]/5, bordure pointillée #2f9bff/30, lien « commandez un autocollant » azure gras souligné)
+  - Photo : caméra → brandBtnNavy, upload/changer → brandBtnOutline, bordure photo navy/15, X suppression magenta #e6216e hover #c11a5d ; badge récompense optionnelle violet #8b17c9/30
+  - Submit → brandBtnGradient (spinner + disabled conservés) ; section aide : texte navy/70 + lien azure
+  - Fallback Suspense : fond blanc, spinner border-[#16234e]/15 border-t-[#e6216e], texte navy/60
+- src/app/success/page.tsx (299 lignes) — refonte visuelle, logique 100% conservée (sessionStorage, SuccessOverlay, handleShare, formatDate/formatExpiration, liens/a aria-labels, QRCodeSVG) :
+  - Constantes NAVY_HOVER/BEIGE/GOLD/GOLD_SOFT/INK supprimées ; conservé const NAVY = '#16234e' pour fgColor du QRCodeSVG
+  - Les deux vues (empty state + succès) enveloppées dans <BrandShell> — plus aucun fond navy plein écran
+  - Empty state : BrandCard corners centrée, BrandIconRing w-16 (CheckCircle magenta), titre navy ✅, lien « Revenir à l'inscription » en brandBtnGradient
+  - Vue succès : BrandIconRing w-20 navy (ancien ping doré supprimé, glow pulse du ring le remplace) ; carte QR en BrandCard corners (QR blanc/navy inchangé, référence mono navy, nom navy/60) ; résumé en BrandCard (icônes Luggage/Calendar azure, emojis 🧳/⏰ conservés) ; boutons « Suivre » brandBtnGradient + « Partager » brandBtnNavy (swaps JS onMouseEnter/Leave supprimés, hover CSS) ; Passeport brandBtnOutline (swaps JS supprimés) ; encart checklist BrandCard (Backpack magenta, CTA brandBtnGradient)
+  - Ajout tagline bas de colonne : « Solution intelligente de suivi de bagages » (navy/50 text-xs)
+- Validation : bun run lint → 0 erreur (2 warnings d'eslint-disable inutiles dans inscrire/page.tsx corrigés ; le warning restant est dans BrandShell.tsx, fichier hors périmètre) ; dev.log → compilation ✓ sans erreur
+
+Stage Summary:
+- /inscrire et /success adoptent le design étiquette officiel QRBag : BrandShell (arcs arc-en-ciel, carte pointillée, halos, liseré dégradé), BrandCard corners (brackets viewfinder QR), palette navy #16234e + azure #2f9bff + dégradé signature orange→rouge→magenta→violet
+- Ancien design « navy + beige or » totalement éliminé des deux pages ; toute la logique métier, les traductions et l'accessibilité inchangées
+- Prêt pour vérification navigateur par l'orchestrateur (pages /inscrire et /success)
+
+---
+Task ID: brand-design-system
+Agent: Main Orchestrator (+ 3 subagents 2-a/2-b/2-c)
+Task: Appliquer le design officiel QRBag (étiquette) à toutes les pages inscription/succès/connexion
+
+Work Log:
+- Créé src/components/brand/BrandShell.tsx : design system partagé (BRAND palette étiquette #16234e/#2f9bff/#f8921f/#ef4036/#e6216e/#8b17c9, brandInput, brandLabel, brandBtnGradient/Navy/Outline, brandBadge, BrandCorners viewfinder, BrandShell avec arcs arc-en-ciel + liseré dégradé + carte pointillée + halos, BrandCard, BrandLogo, BrandIconRing)
+- Task 2-a (subagent) : /inscrire + /success rebrandés (suppression beige or, BrandShell + BrandCard corners + boutons dégradés, logique 100% conservée)
+- Task 2-b (subagent) : forgot-password + reset-password + verify-email rebrandés (même pattern)
+- Task 2-c (subagent) : LoginPage.tsx (agence + superadmin) rebrandé (panneau navy + dotted-map-light + dégradés, formulaire white + liseré + brackets sur carte démo)
+- Câblé /agence/connexion et /admin/connexion vers le LoginPage partagé rebrandé ; supprimé AgenceLoginPage.tsx + AdminLoginPage.tsx (1459 lignes dupliquées non-brandées)
+- Bug corrigé : identifiants démo agence étaient faux (agence@qrbag.com → agency@qrbag.com, agence123 → agency123 selon prisma/seed.ts)
+- Fix lint BrandShell (directive eslint inutile)
+
+Stage Summary:
+- 7 pages partagent désormais le design officiel étiquette QRBag : arcs arc-en-ciel, brackets viewfinder, dégradé signature, navy/azure
+- Vérifié navigateur : 6 pages desktop + 2 mobile OK ; login agence end-to-end fonctionnel (API 200 + redirect /agence/tableau-de-bord) ; /inscrire étape 1→2 OK
+- Note environnement : le sandbox reprend les processus next entre les appels shell (tests réussis en appels monolithiques) ; OOM constaté si Chromium + compile simultanés
+- Lint 0 erreur 0 warning
