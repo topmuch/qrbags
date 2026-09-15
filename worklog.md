@@ -804,3 +804,22 @@ Work Log:
 
 Stage Summary:
 - Les 5 demandes du client sont livrées et vérifiées en navigateur ; rappel : redeploy Coolify à déclencher manuellement pour refléter le site en production
+
+---
+Task ID: 7
+Agent: Main Orchestrator
+Task: Sync GitHub + images header (voyageurs noirs) + vraie page démo réinitialisable + fix texte blanc pages légales + logo arrondi connexion
+
+Work Log:
+- Pages légales (/confidentialite, /cgu, /mentions-legales) : remplacé text-white/text-[#e0e6f0] (invisibles sur fond blanc PublicLayout) par text-[#16234e]/75 + liens text-[#e07c0a] + bordures slate-200
+- LoginPage.tsx : logo /logo.png arrondi (h-9 w-auto rounded-xl) sur les 2 emplacements (desktop gauche + mobile centre) — /admin/connexion et /agence/connexion utilisent ce composant
+- Nouvelle API /api/demo (GET état, POST scan simulé → vrai ScanLog en DB avec whatsappStatus='demo', DELETE reset complet : scanLogs.deleteMany + bag remis à active)
+- Garde-fou DEMO dans /api/scan/notify : références DEMO-* ne déclenchent ni Groq ni envoi Wakit réel (whatsappStatus='demo')
+- Page /demo réécrite : vrai bagage DEMO-QRBAG (Ahmed Diallo, AF 726 → Dakar), QR réel scannable (QRCodeSVG → /scan/DEMO-QRBAG), formulaire simulation trouveur (lieu/nom/tél/message), aperçu bulle WhatsApp côté propriétaire, journal des scans réels depuis la DB, bouton Réinitialiser + Démarrer qui remet à zéro
+- Scripts/gen-hero-images.ts + scripts/gen-hero-cli.sh : régénération des 3 images hero (864×1152) avec voyageurs noirs à l'aéroport (femme voyageuse, homme scannant QR, famille)
+- Vérifié via agent-browser : démo complète (scan → notification → reset), confidentialite lisible, logo arrondi, mobile 390×844 OK
+
+Stage Summary:
+- Page démo réellement connectée au système (ScanLog réels, page /scan/DEMO-QRBAG fonctionnelle, reset total)
+- Aucun WhatsApp réel ne peut partir depuis la démo (double garde-fou API demo + notify)
+- Pages légales lisibles sur fond blanc, logo connexion arrondi

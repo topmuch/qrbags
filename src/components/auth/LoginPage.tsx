@@ -171,8 +171,8 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
           {/* Top: Logo */}
           <div className="flex items-center justify-between">
             <Link href="/" className="group">
-              <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm p-2 border border-white/15 flex items-center justify-center group-hover:bg-white/15 transition-all">
-                <img src="/logo.png" alt="QRBag" className="w-full h-full object-contain" />
+              <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex items-center justify-center group-hover:bg-white/15 transition-all">
+                <img src="/logo.png" alt="QRBag" className="h-9 w-auto rounded-xl" />
               </div>
             </Link>
           </div>
@@ -254,8 +254,8 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
         <div className="w-full max-w-[400px] relative z-10">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center mb-10">
-            <div className="w-20 h-20 rounded-2xl bg-[#16234e] p-2.5 flex items-center justify-center">
-              <img src="/logo.png" alt="QRBag" className="w-full h-full object-contain" />
+            <div className="w-20 h-20 rounded-2xl bg-[#16234e] flex items-center justify-center">
+              <img src="/logo.png" alt="QRBag" className="h-9 w-auto rounded-xl" />
             </div>
           </div>
 

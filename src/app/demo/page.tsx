@@ -1,124 +1,185 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import PublicLayout from '@/components/public/PublicLayout';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   brandBadge,
   brandBtnGradient,
   brandInput,
   brandLabel,
 } from '@/components/brand/BrandShell';
+import { toast } from '@/hooks/use-toast';
 import {
   QrCode,
   MapPin,
   MessageCircle,
-  CheckCircle,
+  CheckCircle2,
   Smartphone,
-  Battery,
-  Zap,
-  ArrowRight,
+  Plane,
   RefreshCw,
   Send,
-  Clock
-} from "lucide-react";
+  ScanLine,
+  Clock,
+  ShieldCheck,
+  Loader2,
+  ExternalLink,
+  BellRing,
+  History,
+  RotateCcw,
+  Sparkles,
+} from 'lucide-react';
 
-// Types
-type Step = 'intro' | 'scan' | 'location' | 'whatsapp' | 'success';
+// ─── Types ───
+interface DemoScan {
+  id: string;
+  location: string | null;
+  city: string | null;
+  country: string | null;
+  message: string | null;
+  finderName: string | null;
+  finderPhone: string | null;
+  whatsappStatus: string | null;
+  createdAt: string;
+}
 
-// Demo Page Component
-export default function DemoPage() {
-  const [currentStep, setCurrentStep] = useState<Step>('intro');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [scanComplete, setScanComplete] = useState(false);
-  const [locationShared, setLocationShared] = useState(false);
-  const [messageSent, setMessageSent] = useState(false);
-  const [formData, setFormData] = useState({
-    name: 'Ahmed',
-    phone: '+221 77 123 45 67'
+interface DemoBag {
+  reference: string;
+  status: string;
+  travelerName: string;
+  airlineName: string | null;
+  flightNumber: string | null;
+  destination: string | null;
+  baggageType: string | null;
+  lastScanDate: string | null;
+  lastLocation: string | null;
+}
+
+const DEMO_REFERENCE = 'DEMO-QRBAG';
+
+function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
   });
-  const [elapsedTime, setElapsedTime] = useState(0);
+}
 
-  // Timer
-  useEffect(() => {
-    if (currentStep !== 'intro' && currentStep !== 'success') {
-      const timer = setInterval(() => {
-        setElapsedTime(prev => prev + 1);
-      }, 1000);
-      return () => clearInterval(timer);
+// ─── Page Démo réelle ───
+export default function DemoPage() {
+  const [bag, setBag] = useState<DemoBag | null>(null);
+  const [scans, setScans] = useState<DemoScan[]>([]);
+  const [locations, setLocations] = useState<string[]>([]);
+  const [whatsappMessage, setWhatsappMessage] = useState<string | null>(null);
+  const [scanUrl, setScanUrl] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [scanning, setScanning] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  // Formulaire de simulation
+  const [location, setLocation] = useState('');
+  const [finderName, setFinderName] = useState('');
+  const [finderPhone, setFinderPhone] = useState('');
+  const [scanMessage, setScanMessage] = useState('');
+
+  /** Charge l'état réel du bagage démo depuis l'API */
+  const loadDemo = useCallback(async () => {
+    try {
+      const res = await fetch('/api/demo', { cache: 'no-store' });
+      const data = await res.json();
+      if (data.success) {
+        setBag(data.bag);
+        setScans(data.scans || []);
+        setLocations(data.locations || []);
+        setLocation((prev) => prev || data.locations?.[0] || '');
+      }
+    } catch {
+      toast({ title: 'Erreur', description: 'Impossible de charger la démo.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-  }, [currentStep]);
+  }, []);
 
-  // Handle Scan
-  const handleScan = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setScanComplete(true);
-      setIsAnimating(false);
-      setTimeout(() => {
-        setCurrentStep('location');
-      }, 1500);
-    }, 2000);
+  useEffect(() => {
+    setScanUrl(`${window.location.origin}/scan/${DEMO_REFERENCE}`);
+    loadDemo();
+  }, [loadDemo]);
+
+  /** Réinitialise la démo (supprime scans + remet le bagage à neuf) */
+  const resetDemo = useCallback(async (announce = true) => {
+    setResetting(true);
+    try {
+      const res = await fetch('/api/demo', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setScans([]);
+        setWhatsappMessage(null);
+        setFinderName('');
+        setFinderPhone('');
+        setScanMessage('');
+        setBag((prev) => (prev ? { ...prev, status: 'active', lastLocation: null, lastScanDate: null } : prev));
+        if (announce) {
+          toast({ title: 'Démo réinitialisée ✨', description: 'Le bagage démo est redevenu comme neuf.' });
+        }
+      } else {
+        throw new Error(data.error);
+      }
+    } catch {
+      toast({ title: 'Erreur', description: 'La réinitialisation a échoué.', variant: 'destructive' });
+    } finally {
+      setResetting(false);
+    }
+  }, []);
+
+  /** Démarrer la démo = remise à zéro garantie puis rechargement */
+  const startDemo = async () => {
+    await resetDemo(false);
+    await loadDemo();
+    toast({ title: 'Démo prête !', description: 'Un vrai bagage QRBag vous attend.' });
   };
 
-  // Handle Location
-  const handleLocation = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setLocationShared(true);
-      setIsAnimating(false);
-      setTimeout(() => {
-        setCurrentStep('whatsapp');
-      }, 1500);
-    }, 2000);
+  /** Simule un scan trouveur → crée un VRAI ScanLog en base */
+  const simulateScan = async () => {
+    setScanning(true);
+    try {
+      const res = await fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: location || locations[0],
+          finderName: finderName || undefined,
+          finderPhone: finderPhone || undefined,
+          message: scanMessage || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setScans(data.scans || []);
+        setWhatsappMessage(data.whatsappMessage || null);
+        setBag((prev) =>
+          prev
+            ? { ...prev, status: 'scanned', lastLocation: location || locations[0], lastScanDate: new Date().toISOString() }
+            : prev
+        );
+        toast({ title: 'Scan enregistré !', description: 'Le propriétaire a été « notifié » (démo).' });
+      } else {
+        throw new Error(data.error);
+      }
+    } catch {
+      toast({ title: 'Erreur', description: 'La simulation du scan a échoué.', variant: 'destructive' });
+    } finally {
+      setScanning(false);
+    }
   };
 
-  // Handle WhatsApp
-  const handleWhatsApp = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setMessageSent(true);
-      setIsAnimating(false);
-      setTimeout(() => {
-        setCurrentStep('success');
-      }, 1000);
-    }, 1500);
-  };
-
-  // Reset Demo
-  const resetDemo = () => {
-    setCurrentStep('intro');
-    setScanComplete(false);
-    setLocationShared(false);
-    setMessageSent(false);
-    setElapsedTime(0);
-  };
-
-  // Format time
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Timer display for header
-  const headerExtra = currentStep !== 'intro' && currentStep !== 'success' ? (
-    <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/15">
-      <Clock className="w-4 h-4 text-[#f8921f]" aria-hidden />
-      <span className="text-white font-mono">{formatTime(elapsedTime)}</span>
-    </div>
-  ) : null;
+  const statusLabel =
+    bag?.status === 'scanned' ? 'Scanné' : bag?.status === 'active' ? 'Actif' : bag?.status || '—';
 
   return (
     <PublicLayout paddingTop="pt-20">
-      {/* Timer Display */}
-      {headerExtra && (
-        <div className="fixed top-20 right-4 z-40">
-          {headerExtra}
-        </div>
-      )}
-
-      {/* Panneau démo — bandeau navy étiquette QRBag */}
+      {/* Panneau principal — bandeau navy étiquette QRBag */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#0e1734] to-[#16234e]">
         {/* Liseré dégradé signature + texture pointillée + halos */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
@@ -126,436 +187,332 @@ export default function DemoPage() {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#e6216e]/15 rounded-full blur-3xl pointer-events-none" aria-hidden />
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#2f9bff]/15 rounded-full blur-3xl pointer-events-none" aria-hidden />
 
-        <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
-
-          {/* INTRO STEP */}
-          {currentStep === 'intro' && (
-            <div className="text-center py-16 animate-fade-in">
-              <div className="inline-flex items-center gap-2 mb-6">
-                <span className={brandBadge}>✨ Découverte interactive</span>
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                <span className="text-gradient-qrbag">
-                  Essayez QRBag
-                </span>
-                <br />
-                <span className="text-white">en 60 secondes</span>
-              </h1>
-
-              <p className="text-white/70 max-w-2xl mx-auto mb-8 text-lg">
-                Aucun compte, aucune application. Juste un QR code… et magie.
-                Découvrez comment protéger vos bagages en moins d&apos;une minute.
-              </p>
-
-              {/* Features Pills */}
-              <div className="flex flex-wrap justify-center gap-4 mb-12">
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/15">
-                  <Smartphone className="w-4 h-4 text-[#2f9bff]" aria-hidden />
-                  <span className="text-white/80 text-sm">Sans application</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/15">
-                  <Battery className="w-4 h-4 text-[#f8921f]" aria-hidden />
-                  <span className="text-white/80 text-sm">Sans batterie</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/15">
-                  <Zap className="w-4 h-4 text-[#e6216e]" aria-hidden />
-                  <span className="text-white/80 text-sm">30 secondes</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setCurrentStep('scan')}
-                className={`${brandBtnGradient} px-10 py-5 text-xl min-h-[56px] inline-flex items-center gap-3`}
-              >
-                <span className="text-2xl" aria-hidden>▶️</span>
-                Démarrer la démo
-              </button>
-
-              <p className="mt-6 text-white/60 text-sm">
-                Simulation interactive • Aucune donnée réelle requise
-              </p>
+        <div className="max-w-6xl mx-auto px-4 py-10 relative z-10">
+          {/* ─── HERO ─── */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 mb-5">
+              <span className={brandBadge}>
+                <Sparkles className="w-3.5 h-3.5" aria-hidden />
+                Démonstration réelle — rien de simulé
+              </span>
             </div>
-          )}
 
-          {/* SCAN STEP */}
-          {currentStep === 'scan' && (
-            <div className="text-center py-8 animate-fade-in">
-              {/* Progress */}
-              <div className="flex items-center justify-center gap-2 mb-8" aria-hidden>
-                {[1, 2, 3].map((step) => (
-                  <div
-                    key={step}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      step === 1 ? 'bg-gradient-qrbag w-8' : step < 1 ? 'bg-[#2f9bff]' : 'bg-white/20'
-                    }`}
-                  />
-                ))}
-              </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5">
+              <span className="text-gradient-qrbag">Essayez QRBag</span>
+              <br />
+              <span className="text-white">en conditions réelles</span>
+            </h1>
 
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                Étape 1 : Scannez le QR
-              </h2>
-              <p className="text-white/70 mb-8">
-                Imaginez que vous scannez le QR code sur votre bagage
-              </p>
+            <p className="text-white/70 max-w-2xl mx-auto mb-8 text-lg">
+              Un vrai bagage est enregistré dans notre système : <strong className="text-white font-mono">{DEMO_REFERENCE}</strong>.
+              Scannez son QR avec votre téléphone, jouez le rôle d&apos;un trouveur,
+              et voyez ce que reçoit le propriétaire. La démo se réinitialise à tout moment.
+            </p>
 
-              {/* QR Code Display */}
-              <div className="flex justify-center mb-8">
-                <div className={`relative ${isAnimating ? 'animate-pulse' : ''}`}>
-                  {/* Glow */}
-                  <div className="absolute inset-0 bg-[#e6216e]/25 blur-3xl rounded-full" aria-hidden />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                onClick={startDemo}
+                disabled={resetting}
+                className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px] inline-flex items-center gap-2`}
+              >
+                {resetting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" aria-hidden />
+                    Préparation…
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="w-5 h-5" aria-hidden />
+                    Démarrer / Réinitialiser la démo
+                  </>
+                )}
+              </button>
+              <Link
+                href={`/scan/${DEMO_REFERENCE}`}
+                className="inline-flex items-center gap-2 px-6 py-4 min-h-[52px] rounded-2xl border-2 border-white/25 text-white font-semibold hover:bg-white/10 transition-all"
+              >
+                <ExternalLink className="w-5 h-5" aria-hidden />
+                Ouvrir la page trouveur
+              </Link>
+            </div>
 
-                  {/* QR Card */}
-                  <div className={`relative bg-white/10 backdrop-blur rounded-3xl p-8 border-2 transition-all duration-500 ${
-                    scanComplete ? 'border-[#2f9bff]/60 bg-[#2f9bff]/10' : 'border-white/15'
-                  }`}>
-                    <div className="w-56 h-56 max-w-full bg-white rounded-2xl flex flex-col items-center justify-center relative overflow-hidden border border-[#16234e]/10">
-                      {/* Scan Animation */}
-                      {isAnimating && (
-                        <div className="absolute inset-0 bg-[#2f9bff]/10 flex items-center justify-center">
-                          <div className="w-full h-1 bg-gradient-qrbag animate-scan" />
-                        </div>
-                      )}
+            <p className="mt-5 text-white/50 text-sm flex items-center justify-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#2f9bff]" aria-hidden />
+              Aucun SMS ni WhatsApp réel n&apos;est envoyé pendant la démo.
+            </p>
+          </div>
 
-                      {scanComplete ? (
-                        <div className="flex flex-col items-center animate-bounce">
-                          <CheckCircle className="w-24 h-24 text-[#16234e]" aria-hidden />
-                          <span className="text-[#16234e] font-bold mt-2">Activé !</span>
-                        </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-20 text-white/70">
+              <Loader2 className="w-8 h-8 animate-spin mr-3" aria-hidden />
+              Chargement du bagage démo…
+            </div>
+          ) : (
+            <>
+              {/* ─── 3 CARTES ─── */}
+              <div className="grid md:grid-cols-3 gap-5 mb-8">
+                {/* Carte 1 — Le bagage + QR réel */}
+                <div className="bg-white rounded-3xl p-6 border border-[#16234e]/10 shadow-2xl shadow-[#16234e]/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-qrbag flex items-center justify-center shrink-0">
+                      <Plane className="w-5 h-5 text-white" aria-hidden />
+                    </div>
+                    <div>
+                      <h2 className="text-[#16234e] font-bold leading-tight">Le bagage du voyageur</h2>
+                      <p className="text-[#16234e]/50 text-xs">Enregistré réellement dans QRBag</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-sm mb-5">
+                    <div className="flex items-center gap-2 text-[#16234e]/80">
+                      <QrCode className="w-4 h-4 text-[#8b17c9]" aria-hidden />
+                      <span className="font-mono font-bold">{bag?.reference}</span>
+                      <span
+                        className={`ml-auto text-xs px-2 py-0.5 rounded-full font-semibold ${
+                          bag?.status === 'scanned'
+                            ? 'bg-[#f8921f]/15 text-[#e07c0a]'
+                            : 'bg-emerald-500/15 text-emerald-600'
+                        }`}
+                      >
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <p className="text-[#16234e]/70 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#2f9bff]" aria-hidden />
+                      {bag?.travelerName}
+                    </p>
+                    <p className="text-[#16234e]/70 flex items-center gap-2">
+                      <Plane className="w-4 h-4 text-[#e6216e]" aria-hidden />
+                      {bag?.airlineName} {bag?.flightNumber} → {bag?.destination}
+                    </p>
+                    <p className="text-[#16234e]/70 flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-[#f8921f]" aria-hidden />
+                      Bagage {bag?.baggageType === 'soute' ? 'en soute' : 'cabine'}
+                    </p>
+                  </div>
+
+                  {/* QR réel scannable */}
+                  <div className="bg-white border-2 border-[#16234e]/10 rounded-2xl p-4 flex flex-col items-center">
+                    {scanUrl && (
+                      <QRCodeSVG
+                        value={scanUrl}
+                        size={140}
+                        bgColor="#ffffff"
+                        fgColor="#16234e"
+                        level="M"
+                        aria-label={`QR code du bagage démo ${DEMO_REFERENCE}`}
+                      />
+                    )}
+                    <p className="text-[#16234e]/60 text-xs mt-3 text-center">
+                      Scannez ce QR avec votre téléphone pour ouvrir la <strong>vraie</strong> page trouveur
+                    </p>
+                  </div>
+                </div>
+
+                {/* Carte 2 — Simuler un scan */}
+                <div className="bg-white rounded-3xl p-6 border border-[#16234e]/10 shadow-2xl shadow-[#16234e]/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-qrbag flex items-center justify-center shrink-0">
+                      <ScanLine className="w-5 h-5 text-white" aria-hidden />
+                    </div>
+                    <div>
+                      <h2 className="text-[#16234e] font-bold leading-tight">Jouer le trouveur</h2>
+                      <p className="text-[#16234e]/50 text-xs">Simulez la personne qui trouve le bagage</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label htmlFor="demo-location" className={brandLabel}>
+                        Où le bagage a été trouvé ?
+                      </label>
+                      <select
+                        id="demo-location"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        className={brandInput}
+                      >
+                        {locations.map((loc) => (
+                          <option key={loc} value={loc}>
+                            {loc}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="demo-finder-name" className={brandLabel}>
+                        Votre nom (optionnel)
+                      </label>
+                      <input
+                        id="demo-finder-name"
+                        type="text"
+                        value={finderName}
+                        onChange={(e) => setFinderName(e.target.value)}
+                        className={brandInput}
+                        placeholder="Ex : Fatou Ndiaye"
+                        maxLength={60}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="demo-finder-phone" className={brandLabel}>
+                        Votre WhatsApp (optionnel)
+                      </label>
+                      <input
+                        id="demo-finder-phone"
+                        type="tel"
+                        value={finderPhone}
+                        onChange={(e) => setFinderPhone(e.target.value)}
+                        className={brandInput}
+                        placeholder="+221 77 000 00 00"
+                        maxLength={30}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="demo-message" className={brandLabel}>
+                        Message au propriétaire (optionnel)
+                      </label>
+                      <input
+                        id="demo-message"
+                        type="text"
+                        value={scanMessage}
+                        onChange={(e) => setScanMessage(e.target.value)}
+                        className={brandInput}
+                        placeholder="Je garde votre bagage en sécurité"
+                        maxLength={300}
+                      />
+                    </div>
+
+                    <button
+                      onClick={simulateScan}
+                      disabled={scanning}
+                      className={`${brandBtnGradient} w-full min-h-[52px] inline-flex items-center justify-center gap-2`}
+                    >
+                      {scanning ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" aria-hidden />
+                          Enregistrement…
+                        </>
                       ) : (
                         <>
-                          <QrCode className="w-36 h-36 text-[#16234e]" aria-hidden />
-                          <p className="text-[#16234e] font-mono text-lg mt-2 font-bold">DEMO-001</p>
+                          <Send className="w-5 h-5" aria-hidden />
+                          Simuler le scan du trouveur
                         </>
                       )}
-                    </div>
-
-                    <div className="mt-6 text-center">
-                      {scanComplete ? (
-                        <div className="flex items-center justify-center gap-2 text-[#2f9bff]">
-                          <CheckCircle className="w-5 h-5" aria-hidden />
-                          <span className="font-medium">Bagage activé avec succès !</span>
-                        </div>
-                      ) : (
-                        <p className="text-white/60">Référence: DEMO-001</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {!scanComplete && (
-                <button
-                  onClick={handleScan}
-                  disabled={isAnimating}
-                  className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px] inline-flex items-center gap-2`}
-                >
-                  {isAnimating ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
-                      Scan en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Smartphone className="w-5 h-5" aria-hidden />
-                      Simuler le scan
-                    </>
-                  )}
-                </button>
-              )}
-
-              {scanComplete && (
-                <div className="animate-fade-in">
-                  <p className="text-white/70 mb-4">Préparation de la localisation...</p>
-                  <ArrowRight className="w-6 h-6 text-[#f8921f] animate-bounce mx-auto" aria-hidden />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* LOCATION STEP */}
-          {currentStep === 'location' && (
-            <div className="text-center py-8 animate-fade-in">
-              {/* Progress */}
-              <div className="flex items-center justify-center gap-2 mb-8" aria-hidden>
-                {[1, 2, 3].map((step) => (
-                  <div
-                    key={step}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      step === 2 ? 'bg-gradient-qrbag w-8' : step < 2 ? 'bg-[#2f9bff]' : 'bg-white/20'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                Étape 2 : Localisez-le
-              </h2>
-              <p className="text-white/70 mb-8">
-                Partagez votre position pour faciliter la récupération
-              </p>
-
-              {/* Map Display */}
-              <div className="flex justify-center mb-8">
-                <div className="relative">
-                  <div className="bg-white/10 backdrop-blur rounded-3xl p-4 border border-white/15 overflow-hidden">
-                    {/* Map Placeholder */}
-                    <div className={`w-80 max-w-full h-64 bg-[#f6f9ff] rounded-2xl relative overflow-hidden transition-all ${
-                      locationShared ? 'ring-2 ring-[#2f9bff]' : ''
-                    }`}>
-                      {/* Grid Pattern */}
-                      <div className="absolute inset-0 opacity-60">
-                        <div className="grid grid-cols-8 grid-rows-6 h-full gap-px">
-                          {[...Array(48)].map((_, i) => (
-                            <div key={i} className="bg-[#16234e]/5" />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Roads */}
-                      <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#16234e]/10" aria-hidden />
-                      <div className="absolute top-0 bottom-0 left-1/3 w-1 bg-[#16234e]/10" aria-hidden />
-                      <div className="absolute top-0 bottom-0 right-1/3 w-1 bg-[#16234e]/10" aria-hidden />
-
-                      {/* Location Pin */}
-                      {locationShared && (
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-bounce">
-                          <div className="relative">
-                            <div className="w-8 h-8 bg-gradient-qrbag rounded-full flex items-center justify-center shadow-lg shadow-[#e6216e]/40">
-                              <MapPin className="w-5 h-5 text-white" aria-hidden />
-                            </div>
-                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#e6216e]/40 rounded-full animate-ping" aria-hidden />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Center Point */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        {!locationShared && (
-                          <div className="w-4 h-4 bg-[#e6216e] rounded-full animate-pulse" aria-hidden />
-                        )}
-                      </div>
-
-                      {/* Location Label */}
-                      {locationShared && (
-                        <div className="absolute bottom-4 left-4 right-4 bg-white/90 rounded-lg p-3">
-                          <p className="text-[#16234e] text-sm font-medium">Position enregistrée</p>
-                          <p className="text-[#16234e]/60 text-xs">Aéroport de Paris CDG, France</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {!locationShared && (
-                <button
-                  onClick={handleLocation}
-                  disabled={isAnimating}
-                  className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px] inline-flex items-center gap-2`}
-                >
-                  {isAnimating ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
-                      Localisation...
-                    </>
-                  ) : (
-                    <>
-                      <MapPin className="w-5 h-5" aria-hidden />
-                      Partager ma position
-                    </>
-                  )}
-                </button>
-              )}
-
-              {locationShared && (
-                <div className="animate-fade-in">
-                  <div className="flex items-center justify-center gap-2 text-[#2f9bff] mb-4">
-                    <CheckCircle className="w-5 h-5" aria-hidden />
-                    <span className="font-medium">Position enregistrée avec succès !</span>
-                  </div>
-                  <ArrowRight className="w-6 h-6 text-[#f8921f] animate-bounce mx-auto" aria-hidden />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* WHATSAPP STEP */}
-          {currentStep === 'whatsapp' && (
-            <div className="text-center py-8 animate-fade-in">
-              {/* Progress */}
-              <div className="flex items-center justify-center gap-2 mb-8" aria-hidden>
-                {[1, 2, 3].map((step) => (
-                  <div
-                    key={step}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      step === 3 ? 'bg-gradient-qrbag w-8' : step < 3 ? 'bg-[#2f9bff]' : 'bg-white/20'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                Étape 3 : Envoyer au propriétaire
-              </h2>
-              <p className="text-white/70 mb-8">
-                Recevez une notification si quelqu&apos;un trouve votre bagage
-              </p>
-
-              {/* WhatsApp Card */}
-              <div className="max-w-md mx-auto mb-8">
-                <div className="bg-white rounded-3xl p-6 border border-[#16234e]/10 shadow-2xl shadow-[#16234e]/10">
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="demo-name" className={brandLabel}>Prénom</label>
-                      <input
-                        id="demo-name"
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className={brandInput}
-                        placeholder="Votre prénom"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="demo-phone" className={brandLabel}>WhatsApp</label>
-                      <input
-                        id="demo-phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className={brandInput}
-                        placeholder="+33 6 00 00 00 00"
-                      />
-                    </div>
-
-                    {/* Message Preview */}
-                    <div className="bg-[#2f9bff]/10 rounded-xl p-4 border border-[#2f9bff]/30">
-                      <div className="flex items-start gap-3">
-                        <MessageCircle className="w-5 h-5 text-[#2f9bff] shrink-0 mt-1" aria-hidden />
-                        <div className="text-left">
-                          <p className="text-[#16234e] text-sm font-medium mb-1">Aperçu du message :</p>
-                          <p className="text-[#16234e]/60 text-xs italic">
-                            &quot;Bonjour {formData.name}, votre bagage DEMO-001 a été scanné.
-                            Cliquez ici pour voir sa localisation : [Lien sécurisé]&quot;
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {!messageSent && (
-                <button
-                  onClick={handleWhatsApp}
-                  disabled={isAnimating}
-                  className={`${brandBtnGradient} px-8 py-4 text-lg min-h-[52px] inline-flex items-center gap-2`}
-                >
-                  {isAnimating ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden />
-                      Envoi en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5" aria-hidden />
-                      Envoyer la notification
-                    </>
-                  )}
-                </button>
-              )}
-
-              {messageSent && (
-                <div className="animate-fade-in">
-                  <div className="flex items-center justify-center gap-2 text-[#2f9bff] mb-4">
-                    <CheckCircle className="w-5 h-5" aria-hidden />
-                    <span className="font-medium">Message envoyé !</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* SUCCESS STEP */}
-          {currentStep === 'success' && (
-            <div className="py-8 animate-fade-in">
-              <div className="text-center bg-gradient-qrbag rounded-3xl p-12 relative overflow-hidden shadow-2xl shadow-[#e6216e]/25">
-                {/* Confetti Effect */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-                  {[...Array(20)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-2 h-2 bg-white/30 rounded-full animate-confetti"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        animationDelay: `${Math.random() * 2}s`,
-                        animationDuration: `${2 + Math.random() * 2}s`
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Success Icon */}
-                <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce shadow-2xl">
-                  <span className="text-6xl" aria-hidden>🎉</span>
-                </div>
-
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                  Wahoo !
-                </h2>
-
-                <p className="text-white/90 max-w-lg mx-auto mb-4 text-lg">
-                  Vous venez de protéger un bagage en <span className="font-bold">{formatTime(elapsedTime)}</span> secondes.
-                </p>
-
-                <p className="text-white/70 max-w-lg mx-auto mb-8">
-                  Sans application, sans batterie, sans GPS.
-                  Juste un simple QR code.
-                </p>
-
-                {/* Stats */}
-                <div className="flex flex-wrap justify-center gap-4 mb-8">
-                  <div className="bg-white/20 rounded-xl px-6 py-3">
-                    <div className="text-2xl font-bold text-white">{formatTime(elapsedTime)}</div>
-                    <div className="text-white/70 text-sm">Secondes</div>
-                  </div>
-                  <div className="bg-white/20 rounded-xl px-6 py-3">
-                    <div className="text-2xl font-bold text-white">3</div>
-                    <div className="text-white/70 text-sm">Étapes</div>
-                  </div>
-                  <div className="bg-white/20 rounded-xl px-6 py-3">
-                    <div className="text-2xl font-bold text-white">100%</div>
-                    <div className="text-white/70 text-sm">Sécurisé</div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button
-                    onClick={resetDemo}
-                    className="bg-white text-[#16234e] px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/90 transition-all min-h-[52px] inline-flex items-center justify-center gap-2"
-                  >
-                    <RefreshCw className="w-5 h-5" aria-hidden />
-                    Recommencer
-                  </button>
-                  <Link href="/contact">
-                    <button className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all min-h-[52px] inline-flex items-center justify-center gap-2">
-                      <span aria-hidden>📦</span>
-                      Commander maintenant
                     </button>
-                  </Link>
+                  </div>
+                </div>
+
+                {/* Carte 3 — Notification propriétaire */}
+                <div className="bg-white rounded-3xl p-6 border border-[#16234e]/10 shadow-2xl shadow-[#16234e]/10 flex flex-col">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-qrbag flex items-center justify-center shrink-0">
+                      <BellRing className="w-5 h-5 text-white" aria-hidden />
+                    </div>
+                    <div>
+                      <h2 className="text-[#16234e] font-bold leading-tight">Côté propriétaire</h2>
+                      <p className="text-[#16234e]/50 text-xs">Ce qu&apos;Ahmed reçoit instantanément</p>
+                    </div>
+                  </div>
+
+                  {whatsappMessage ? (
+                    <div className="flex-1 flex flex-col">
+                      {/* Bulle style WhatsApp */}
+                      <div className="flex-1 bg-[#e7ffdb] rounded-2xl p-4 border border-[#25d366]/30 relative">
+                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#25d366]/20">
+                          <MessageCircle className="w-4 h-4 text-[#128c4b]" aria-hidden />
+                          <span className="text-[#128c4b] text-xs font-semibold">QRBag • maintenant</span>
+                        </div>
+                        <p className="text-[#16234e] text-sm whitespace-pre-line leading-relaxed">
+                          {whatsappMessage}
+                        </p>
+                      </div>
+                      <p className="text-[#16234e]/40 text-xs mt-3 text-center">
+                        En version réelle, ce message part sur WhatsApp en quelques secondes.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+                      <div className="w-16 h-16 rounded-full bg-[#16234e]/5 flex items-center justify-center mb-4">
+                        <Smartphone className="w-8 h-8 text-[#16234e]/30" aria-hidden />
+                      </div>
+                      <p className="text-[#16234e]/50 text-sm max-w-[220px]">
+                        Simulez un scan ci-contre pour voir la notification du propriétaire apparaître ici.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Features Recap */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+              {/* ─── JOURNAL DES SCANS RÉELS ─── */}
+              <div className="bg-white/5 backdrop-blur rounded-3xl p-6 border border-white/10 mb-8">
+                <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+                  <h2 className="text-white font-bold text-lg flex items-center gap-2">
+                    <History className="w-5 h-5 text-[#f8921f]" aria-hidden />
+                    Journal des scans — données réelles
+                    <span className="text-white/40 text-sm font-normal">
+                      ({scans.length} scan{scans.length > 1 ? 's' : ''})
+                    </span>
+                  </h2>
+                  <button
+                    onClick={() => resetDemo()}
+                    disabled={resetting}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/20 text-white/80 text-sm hover:bg-white/10 hover:text-white transition-all min-h-[44px] disabled:opacity-50"
+                  >
+                    {resetting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+                    ) : (
+                      <RefreshCw className="w-4 h-4" aria-hidden />
+                    )}
+                    Réinitialiser la démo
+                  </button>
+                </div>
+
+                {scans.length === 0 ? (
+                  <div className="text-center py-10">
+                    <ScanLine className="w-10 h-10 text-white/20 mx-auto mb-3" aria-hidden />
+                    <p className="text-white/50 text-sm">
+                      Aucun scan pour le moment. Simulez un scan ou scannez le QR avec votre téléphone.
+                    </p>
+                  </div>
+                ) : (
+                  <ul className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    {scans.map((scan) => (
+                      <li
+                        key={scan.id}
+                        className="flex items-start gap-3 bg-white/5 rounded-2xl p-4 border border-white/10"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-gradient-qrbag flex items-center justify-center shrink-0">
+                          <MapPin className="w-4 h-4 text-white" aria-hidden />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-white font-semibold text-sm">{scan.location || scan.city}</p>
+                            <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#2f9bff]/20 text-[#2f9bff] font-bold">
+                              {scan.whatsappStatus === 'demo' ? 'démo' : scan.whatsappStatus || 'scan'}
+                            </span>
+                          </div>
+                          <p className="text-white/50 text-xs mt-1">
+                            {formatDateTime(scan.createdAt)}
+                            {scan.finderName ? ` • Trouvé par ${scan.finderName}` : ''}
+                            {scan.finderPhone ? ` • ${scan.finderPhone}` : ''}
+                          </p>
+                          {scan.message && (
+                            <p className="text-white/70 text-xs mt-1 italic">« {scan.message} »</p>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* ─── RÉCAP ─── */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 {[
-                  { icon: Smartphone, label: "Sans application", color: "#2f9bff" },
-                  { icon: Battery, label: "Sans batterie", color: "#f8921f" },
-                  { icon: MapPin, label: "Sans GPS", color: "#8b17c9" },
-                  { icon: Zap, label: "30 secondes", color: "#e6216e" },
+                  { icon: Smartphone, label: 'Sans application', color: '#2f9bff' },
+                  { icon: ScanLine, label: 'Scan = notification', color: '#f8921f' },
+                  { icon: MapPin, label: 'Position du trouveur', color: '#8b17c9' },
+                  { icon: ShieldCheck, label: 'Données protégées', color: '#e6216e' },
                 ].map((item, index) => (
                   <div
                     key={index}
@@ -566,42 +523,10 @@ export default function DemoPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </>
           )}
-
         </div>
       </section>
-
-      {/* CSS for animations */}
-      <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes scan {
-          0% { transform: translateY(0); }
-          50% { transform: translateY(200px); }
-          100% { transform: translateY(0); }
-        }
-
-        @keyframes confetti {
-          0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(500px) rotate(720deg); opacity: 0; }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out forwards;
-        }
-
-        .animate-scan {
-          animation: scan 1.5s ease-in-out infinite;
-        }
-
-        .animate-confetti {
-          animation: confetti 3s linear infinite;
-        }
-      `}</style>
     </PublicLayout>
   );
 }

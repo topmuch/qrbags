@@ -187,6 +187,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // TRANSPORT-NOTIFY: Extraire le mode de transport après null check
     const transportMode = safeTransportMode(baggage.transportMode);
 
+    // DEMO-GUARD : les bagages de démonstration (DEMO-*) n'envoient jamais de messages réels
+    const isDemoBaggage = reference.startsWith('DEMO');
+
     if (!baggage.whatsappOwner) {
       return NextResponse.json(
         { success: false, error: 'Aucun numéro WhatsApp configuré pour ce bagage.' },
@@ -224,7 +227,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     try {
       // Double check: env var (kill switch) + DB feature flag
-      if (GROQ_AI_ENABLED) {
+      if (GROQ_AI_ENABLED && !isDemoBaggage) {
         const groqFlag = await db.featureFlag.findUnique({
           where: { key: 'groq_api' },
           select: { enabled: true },
@@ -356,7 +359,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         location?.country
       );
 
-      const wakitResult = await sendWakitMessage({
+      // DEMO-GUARD : bagage de démonstration → aucun envoi WhatsApp réel
+      const wakitResult = isDemoBaggage
+        ? { success: false, fallback: true, error: 'demo_no_real_send' } as const
+        : await sendWakitMessage({
         to: baggage.whatsappOwner,
         template: 'baggage_scan_alert',
         variables: {
@@ -383,6 +389,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           key: baggage.reference,
           details: wakitResult.error || 'unknown',
         });
+      }
+
+      if (isDemoBaggage) {
+        // DEMO-GUARD : statut "demo" — aucun message WhatsApp réel n'a été envoyé
+        whatsappStatus = 'demo';
       }
     } catch (error) {
       whatsappStatus = 'failed';
