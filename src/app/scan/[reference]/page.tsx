@@ -3,7 +3,15 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Badge } from "@/components/ui/badge";
+import {
+  BrandShell,
+  BrandCard,
+  BrandIconRing,
+  brandInput,
+  brandBtnGradient,
+  brandBtnNavy,
+  brandBadge,
+} from '@/components/brand/BrandShell';
 import {
   Luggage,
   AlertCircle,
@@ -39,12 +47,9 @@ const ChatbotWidget = dynamic(() => import('@/components/finder/ChatbotWidget'),
   loading: () => null,
 });
 
-// ─── Brand constants — Refonte « bleu foncé + beige or » ───
-const NAVY = '#16234e';      // bleu foncé — fond principal, boutons, bordures
-const BEIGE = '#f3ecdc';     // beige or clair — encart finder, cartes douces
-const GOLD = '#b8975a';      // or — accents
-const GOLD_SOFT = '#e9dcc0'; // beige or — survols, badges
-
+// Design system QRBag « étiquette 7×10 » appliqué via BrandShell/BrandCard
+// (palette navy #16234e / azure #2f9bff / orange #f8921f / rouge #ef4036 /
+//  magenta #e6216e / violet #8b17c9 — voir src/components/brand/BrandShell.tsx)
 const FALLBACK_PHONE = '33745349339';
 
 interface BaggageData {
@@ -84,7 +89,7 @@ interface BaggageData {
   };
 }
 
-// ─── Language Selector Component (light theme, brand-aware) ───
+// ─── Language Selector Component (carte blanche — design system QRBag) ───
 function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Language) => void }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -94,14 +99,14 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border-2 border-[#16234e] rounded-full text-[#16234e] hover:bg-[#e9dcc0] transition-colors text-xs sm:text-sm md:text-base font-medium shadow-sm min-h-[36px] sm:min-h-[40px] md:min-h-[44px]"
+        className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border-2 border-[#16234e]/15 rounded-full text-[#16234e] hover:border-[#2f9bff] hover:text-[#2f9bff] transition-colors text-xs sm:text-sm md:text-base font-medium shadow-sm min-h-[44px]"
       >
         <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
         <span>{LANGUAGE_NAMES[lang]}</span>
       </button>
 
       {isOpen && (
-        <div role="listbox" aria-label="Language" className="absolute top-full right-0 mt-1 sm:mt-2 bg-white border-2 border-[#16234e] rounded-xl shadow-lg overflow-hidden z-50 min-w-[140px] sm:min-w-[160px]">
+        <div role="listbox" aria-label="Language" className="absolute top-full right-0 mt-1 sm:mt-2 bg-white border border-[#16234e]/10 rounded-xl shadow-xl overflow-hidden z-50 min-w-[140px] sm:min-w-[160px]">
           {(['fr', 'en', 'ar'] as Language[]).map((l) => (
             <button
               key={l}
@@ -113,8 +118,8 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
               }}
               className={`w-full px-4 py-2.5 sm:px-5 sm:py-3 text-left text-xs sm:text-sm md:text-base font-medium transition-colors ${
                 lang === l
-                  ? 'bg-[#e9dcc0] text-[#16234e] font-bold'
-                  : 'text-[#16234e] hover:bg-[#e9dcc0]/50'
+                  ? 'bg-[#2f9bff]/10 text-[#16234e] font-bold'
+                  : 'text-[#16234e] hover:bg-[#16234e]/5'
               }`}
             >
               {LANGUAGE_NAMES[l]}
@@ -126,7 +131,7 @@ function LanguageSelector({ lang, setLang }: { lang: Language; setLang: (l: Lang
   );
 }
 
-// ─── Activation Redirect Component (recolored with brand) ───
+// ─── Activation Redirect Component (design system QRBag) ───
 // ACTIVATION-FLOW: redirection directe vers /inscrire?qr=REF — le sélecteur de
 // mode de transport (avion/train/bus/bateau) a été supprimé ; l'API applique
 // son mode par défaut ('flight') à l'activation.
@@ -149,82 +154,88 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   };
 
   return (
-    <main className="min-h-screen bg-[#16234e] flex items-center justify-center p-5 md:p-8">
-      <div className="relative max-w-md w-full bg-[#f3ecdc] border-2 border-dashed border-[#16234e] rounded-2xl p-6 md:p-8 text-center shadow-xl">
-        <div className="absolute top-4 right-4">
-          <LanguageSelector lang={lang} setLang={setLang} />
-        </div>
-
-        <div className="relative inline-block mb-5 mt-6">
-          <div className="w-16 h-16 bg-white border-2 border-[#16234e] rounded-full flex items-center justify-center">
-            <Luggage className="w-8 h-8 text-[#16234e]" />
+    <BrandShell>
+      <main className="min-h-screen flex items-center justify-center p-5 md:p-8">
+        <div className="max-w-md w-full">
+          <div className="flex justify-end mb-3">
+            <LanguageSelector lang={lang} setLang={setLang} />
           </div>
-          <div className="absolute -top-1 -right-1 w-7 h-7 bg-[#b8975a] rounded-full flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-white" />
-          </div>
-        </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-[#16234e] mb-1">
-          {t('common.welcome')}
-        </h1>
-        <p className="text-[#16234e]/70 text-sm md:text-base mb-5">
-          {t('inscrire.subtitle')}
-        </p>
-
-        {isHajj && (
-          <>
-            <div className="border-2 border-dashed border-[#16234e] rounded-xl p-4 mb-5 bg-white/40">
-              <p className="text-[#16234e]/80 text-sm mb-2">{t('common.baggage_type')}</p>
-              <Badge className="bg-[#16234e] text-white text-base md:text-lg px-5 py-1.5">
-                {t('common.hajj_label')}
-              </Badge>
-            </div>
-            <button
-              className="w-full py-4 px-6 bg-[#16234e] hover:bg-[#0f1838] text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
-              onClick={handleContinue}
-            >
-              {t('common.start_activation')}
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </>
-        )}
-
-        {!isHajj && (
-          <>
-            <div className="border-2 border-dashed border-[#16234e] rounded-xl p-4 mb-5 bg-white/40">
-              <p className="text-[#16234e]/80 text-sm mb-2">{t('common.baggage_type')}</p>
-              <Badge className="bg-[#16234e] text-white text-base md:text-lg px-5 py-1.5">
-                {t('common.voyageur_label')}
-              </Badge>
+          <BrandCard corners className="p-6 md:p-8 text-center">
+            <div className="relative inline-block mb-5">
+              <BrandIconRing size="w-16 h-16" glow="#2f9bff">
+                <Luggage className="w-8 h-8 text-[#16234e]" />
+              </BrandIconRing>
+              <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-qrbag rounded-full flex items-center justify-center shadow-md shadow-[#e6216e]/30">
+                <Sparkles className="w-3.5 h-3.5 text-white" />
+              </div>
             </div>
 
-            <button
-              className="w-full py-4 px-6 bg-[#16234e] hover:bg-[#0f1838] text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px]"
-              onClick={handleContinue}
-            >
-              {t('common.start_activation')}
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </>
-        )}
-      </div>
-    </main>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#16234e] mb-1">
+              {t('common.welcome')}
+            </h1>
+            <p className="text-[#16234e]/70 text-sm md:text-base mb-5">
+              {t('inscrire.subtitle')}
+            </p>
+
+            {isHajj && (
+              <>
+                <div className="bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl p-4 mb-5">
+                  <p className="text-[#16234e]/60 text-sm mb-2">{t('common.baggage_type')}</p>
+                  <span className={`${brandBadge} text-sm md:text-base px-5 py-2`}>
+                    {t('common.hajj_label')}
+                  </span>
+                </div>
+                <button
+                  className={`${brandBtnGradient} w-full py-4 px-6 flex items-center justify-center gap-2 text-lg min-h-[56px] cursor-pointer`}
+                  onClick={handleContinue}
+                >
+                  {t('common.start_activation')}
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+
+            {!isHajj && (
+              <>
+                <div className="bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl p-4 mb-5">
+                  <p className="text-[#16234e]/60 text-sm mb-2">{t('common.baggage_type')}</p>
+                  <span className={`${brandBadge} text-sm md:text-base px-5 py-2`}>
+                    {t('common.voyageur_label')}
+                  </span>
+                </div>
+
+                <button
+                  className={`${brandBtnGradient} w-full py-4 px-6 flex items-center justify-center gap-2 text-lg min-h-[56px] cursor-pointer`}
+                  onClick={handleContinue}
+                >
+                  {t('common.start_activation')}
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </BrandCard>
+        </div>
+      </main>
+    </BrandShell>
   );
 }
 
-// ─── Loading Component (recolored) ───
+// ─── Loading Component (design system QRBag — fond blanc) ───
 function LoadingScreen({ t }: { t: (key: string) => string }) {
   return (
-    <main className="min-h-screen bg-[#16234e] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin w-12 h-12 border-4 border-white/20 border-t-[#b8975a] rounded-full mx-auto mb-4"></div>
-        <p className="text-lg text-white">{t('common.loading')}</p>
-      </div>
-    </main>
+    <BrandShell>
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-[#16234e]/15 border-t-[#e6216e] rounded-full mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-[#16234e]">{t('common.loading')}</p>
+        </div>
+      </main>
+    </BrandShell>
   );
 }
 
-// ─── Error Screen (recolored) ───
+// ─── Error Screen (design system QRBag — BrandCard corners + BrandIconRing) ───
 function ErrorScreen({
   type,
   t,
@@ -240,17 +251,20 @@ function ErrorScreen({
 
   const errorConfig = {
     not_found: {
-      icon: <AlertCircle className="w-12 h-12 text-red-500" />,
+      icon: <AlertCircle className="w-10 h-10 text-[#e6216e]" />,
+      glow: '#e6216e',
       title: t('errors.qr_not_valid'),
       message: t('errors.qr_not_valid_desc')
     },
     blocked: {
-      icon: <Shield className="w-12 h-12 text-[#16234e]/40" />,
+      icon: <Shield className="w-10 h-10 text-[#8b17c9]" />,
+      glow: '#8b17c9',
       title: t('errors.baggage_blocked'),
       message: t('errors.baggage_blocked_desc')
     },
     expired: {
-      icon: <Clock className="w-12 h-12 text-[#16234e]/40" />,
+      icon: <Clock className="w-10 h-10 text-[#f8921f]" />,
+      glow: '#f8921f',
       title: t('errors.protection_expired'),
       message: t('errors.protection_expired_desc')
     }
@@ -259,32 +273,38 @@ function ErrorScreen({
   const config = errorConfig[type as keyof typeof errorConfig] || errorConfig.not_found;
 
   return (
-    <main className="min-h-screen bg-[#16234e] flex items-center justify-center p-5 md:p-8 relative">
-      <div className="absolute top-4 right-4">
-        <LanguageSelector lang={lang} setLang={setLang} />
-      </div>
+    <BrandShell>
+      <main className="min-h-screen flex items-center justify-center p-5 md:p-8">
+        <div className="max-w-md w-full">
+          <div className="flex justify-end mb-3">
+            <LanguageSelector lang={lang} setLang={setLang} />
+          </div>
 
-      <div className="max-w-md w-full bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-6 md:p-8 text-center shadow-xl">
-        <div className="w-20 h-20 bg-[#e9dcc0] border-2 border-dashed border-[#16234e] rounded-full flex items-center justify-center mx-auto mb-6">
-          {config.icon}
+          <BrandCard corners className="p-6 md:p-8 text-center">
+            <div className="flex justify-center mb-5">
+              <BrandIconRing size="w-20 h-20" glow={config.glow}>
+                {config.icon}
+              </BrandIconRing>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#16234e] mb-3">{config.title}</h1>
+            <p className="text-[#16234e]/70 text-base md:text-lg mb-6">{config.message}</p>
+            <button
+              className={`${brandBtnNavy} w-full py-4 px-6 flex items-center justify-center gap-2 text-base min-h-[52px] cursor-pointer`}
+              onClick={() => router.push('/')}
+            >
+              {t('common.back_home')}
+            </button>
+          </BrandCard>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#16234e] mb-3">{config.title}</h1>
-        <p className="text-[#16234e] text-base md:text-lg mb-6">{config.message}</p>
-        <button
-          className="w-full py-4 px-6 bg-[#16234e] hover:bg-[#b8975a] hover:text-white transition-colors text-base font-medium min-h-[56px]"
-          onClick={() => router.push('/')}
-        >
-          {t('common.back_home')}
-        </button>
-      </div>
-    </main>
+      </main>
+    </BrandShell>
   );
 }
 
-// ─── Dashed Encart Helper (bordure bleu foncé pointillée + fond beige or) ───
-function DashedEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+// ─── Soft Encart Helper (fond azure doux + bordure navy discrète — design system QRBag) ───
+function SoftEncart({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`border-2 border-dashed border-[#16234e]/40 rounded-xl p-3 mb-2.5 last:mb-0 bg-[#faf6ec] ${className}`}>
+    <div className={`bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl p-3 mb-2.5 last:mb-0 ${className}`}>
       {children}
     </div>
   );
@@ -322,7 +342,9 @@ export default function ScanPage() {
   useEffect(() => {
     const fetchBaggage = async () => {
       try {
-        const response = await fetch(`/api/scan/${reference}`);
+        // cache:'no-store' — garantit qu'un QR rescanné après activation
+        // ne reçoive jamais une réponse « pending_activation » en cache HTTP.
+        const response = await fetch(`/api/scan/${reference}`, { cache: 'no-store' });
         const data = await response.json();
         setBaggageData(data);
       } catch (error) {
@@ -563,15 +585,16 @@ export default function ScanPage() {
   const isDeclaredLost = baggage?.declaredLostAt && !baggage?.foundAt;
 
   // ═══════════════════════════════════════════════════════════════
-  // ─── MAIN RENDER — Cream bg + White dashed cards + Yellow finder encart ───
+  // ─── MAIN RENDER — BrandShell blanc + BrandCard + encarts doux (design system QRBag) ───
   // ═══════════════════════════════════════════════════════════════
   return (
+    <BrandShell>
     <main
-      className="min-h-screen bg-[#16234e] flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
+      className="flex-1 flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
       dir={dir}
     >
       {/* ─── Header ─── */}
-      <header className="sticky top-0 z-40 flex items-center justify-end pt-[env(safe-area-inset-top,0px)] px-0 py-2 sm:py-3 md:py-4 bg-[#16234e]">
+      <header className="sticky top-0 z-40 flex items-center justify-end pt-[env(safe-area-inset-top,0px)] px-0 py-2 sm:py-3 md:py-4 bg-white/85 backdrop-blur-sm rounded-b-2xl">
         <LanguageSelector lang={lang} setLang={setLang} />
       </header>
 
@@ -582,7 +605,7 @@ export default function ScanPage() {
       {showSuccess && (
         <div className="fixed top-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:top-[calc(4rem+env(safe-area-inset-top,0px))] right-3 sm:right-5 bg-[#16234e] text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl shadow-lg z-50 animate-in slide-in-from-right duration-300 max-w-[calc(100vw-2rem)] sm:max-w-sm">
           <div className="flex items-center gap-3">
-            <CheckCircle className="w-6 h-6 text-[#e9dcc0]" />
+            <CheckCircle className="w-6 h-6 text-[#ffd200]" />
             <div>
               <div className="font-bold text-lg">{t('finder.success_title')} 🎉</div>
               <div className="text-base opacity-90">{t('finder.message_sent')}</div>
@@ -596,46 +619,50 @@ export default function ScanPage() {
 
         {/* ═══ 🏷️ TITRE : ✅ BAGAGE TROUVÉ ═══ */}
         <div className="text-center mb-5 sm:mb-6">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#16234e] leading-tight">
             {isDeclaredLost
               ? `🚨 ${t('finder.lost_badge')}`
               : `✅ ${t('finder.success_badge')}`}
           </h1>
-          <p className="mt-2 text-sm md:text-base text-white/80 leading-relaxed max-w-md mx-auto">
+          <p className="mt-2 text-sm md:text-base text-[#16234e]/70 leading-relaxed max-w-md mx-auto">
             {isDeclaredLost
               ? t('finder.lost_description')
               : t('finder.bagage_trouve_desc')}
           </p>
         </div>
 
-        {/* ═══ 🟨 RÉCOMPENSE PROMISE (incitation forte pour le trouveur) ═══ */}
+        {/* ═══ 🟨 RÉCOMPENSE PROMISE (BrandCard coins + encart violet doux — incitation trouveur) ═══ */}
         {baggage?.reward && (
           <div
-            className="w-full border-2 border-dashed border-[#b8975a] rounded-2xl p-5 md:p-6 mb-4 text-center bg-gradient-to-b from-[#e9dcc0] to-[#f3ecdc]"
             role="status"
             aria-label={t('finder.reward_title')}
+            className="mb-4"
           >
-            <p className="text-xs uppercase tracking-widest text-[#16234e]/70 font-bold mb-1.5 flex items-center justify-center gap-2">
-              <span aria-hidden="true">🎁</span> {t('finder.reward_title')}
-            </p>
-            <p className="text-2xl md:text-3xl font-black text-[#16234e] leading-tight break-words">
-              {baggage.reward}
-            </p>
-            <p className="mt-1.5 text-xs md:text-sm text-[#16234e]/60">
-              {t('finder.reward_help')}
-            </p>
+            <BrandCard corners className="w-full p-5 md:p-6">
+              <div className="bg-[#8b17c9]/5 border-2 border-dashed border-[#8b17c9]/30 rounded-xl p-4 text-center">
+                <p className="text-xs uppercase tracking-widest text-[#8b17c9] font-bold mb-1.5 flex items-center justify-center gap-2">
+                  <span aria-hidden="true">🎁</span> {t('finder.reward_title')}
+                </p>
+                <p className="text-2xl md:text-3xl font-black text-[#16234e] leading-tight break-words">
+                  {baggage.reward}
+                </p>
+                <p className="mt-1.5 text-xs md:text-sm text-[#16234e]/60">
+                  {t('finder.reward_help')}
+                </p>
+              </div>
+            </BrandCard>
           </div>
         )}
 
-        {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (white + dashed black) ═══ */}
+        {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (BrandCard corners — bloc clé identité) ═══ */}
         {baggage && (
-          <div className="w-full bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-5 md:p-6 mb-4">
+          <BrandCard corners className="w-full p-5 md:p-6 mb-4">
             <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
               <span>👤</span> {t('finder.owner_section')}
             </h2>
 
             {/* Full Name — kept */}
-            <DashedEncart>
+            <SoftEncart>
               <div className="flex items-center gap-3">
                 <span className="text-xl">👤</span>
                 <div>
@@ -643,12 +670,12 @@ export default function ScanPage() {
                   <p className="text-base md:text-lg font-bold text-[#16234e]">{baggage.travelerName || t('finder.notSet')}</p>
                 </div>
               </div>
-            </DashedEncart>
+            </SoftEncart>
 
             {/* NOTE: Agency + Baggage Type REMOVED per refonte-4 brief */}
 
             {/* Contact — Secured (NEVER show WhatsApp number) */}
-            <DashedEncart className="mb-0">
+            <SoftEncart className="mb-0">
               <div className="flex items-center gap-3">
                 <span className="text-xl">🔒</span>
                 <div>
@@ -657,13 +684,13 @@ export default function ScanPage() {
                   <p className="text-xs text-[#16234e]/60 mt-0.5">{t('finder.contact_reveal_note')}</p>
                 </div>
               </div>
-            </DashedEncart>
-          </div>
+            </SoftEncart>
+          </BrandCard>
         )}
 
-        {/* ═══ 🟦 PHOTO DE LA VALISE (aide le trouveur à identifier le bagage) ═══ */}
+        {/* ═══ 🟦 PHOTO DE LA VALISE (BrandCard — aide le trouveur à identifier le bagage) ═══ */}
         {baggage?.hasPhoto && (
-          <div className="w-full bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-5 md:p-6 mb-4">
+          <BrandCard className="w-full p-5 md:p-6 mb-4">
             <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
               <span>📸</span> {t('finder.baggage_photo')}
             </h2>
@@ -671,7 +698,7 @@ export default function ScanPage() {
               href={`/api/baggage-photo/${baggage.reference}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative block w-full aspect-[4/3] overflow-hidden rounded-xl border-2 border-[#16234e]/30 bg-[#faf6ec]"
+              className="group relative block w-full aspect-[4/3] overflow-hidden rounded-xl border border-[#16234e]/10 bg-[#2f9bff]/5"
               title={t('finder.baggage_photo_open')}
               aria-label={`${t('finder.baggage_photo')} — ${t('finder.baggage_photo_open')}`}
             >
@@ -690,17 +717,17 @@ export default function ScanPage() {
             <p className="mt-2.5 text-xs text-[#16234e]/60 text-center">
               {t('finder.baggage_photo_help')}
             </p>
-          </div>
+          </BrandCard>
         )}
 
-        {/* ═══ 🟦 BLOC 2 : DÉTAILS DU VOYAGE (white + dashed black, transport images) ═══ */}
+        {/* ═══ 🟦 BLOC 2 : DÉTAILS DU VOYAGE (BrandCard, transport images) ═══ */}
         {baggage && (() => {
           const mode = safeTransportMode(baggage.transportMode) as TransportMode;
           const transportImg = getTransportImage(mode);
           const blockHeader = getTransportBlockHeader(mode, lang);
 
           return (
-            <div className="w-full bg-white border-2 border-dashed border-[#16234e] rounded-2xl p-5 md:p-6 mb-4">
+            <BrandCard className="w-full p-5 md:p-6 mb-4">
               <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
                 <Image
                   src={transportImg}
@@ -714,7 +741,7 @@ export default function ScanPage() {
 
               {/* TRANSPORT-FEATURE: Flight info */}
               {mode === 'flight' && (baggage.airlineName || baggage.flightNumber) && (
-                <DashedEncart>
+                <SoftEncart>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       {baggage.airlineName && (
@@ -730,7 +757,7 @@ export default function ScanPage() {
                         </div>
                       )}
                     </div>
-                    <div className="h-12 w-12 rounded-full bg-[#b8975a]/15 border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                    <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                       <Image
                         src={transportImg}
                         alt="flight"
@@ -740,12 +767,12 @@ export default function ScanPage() {
                       />
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
 
               {/* TRANSPORT-FEATURE: Train info */}
               {mode === 'train' && (baggage.trainCompany || baggage.trainNumber) && (
-                <DashedEncart>
+                <SoftEncart>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       {baggage.trainCompany && (
@@ -761,7 +788,7 @@ export default function ScanPage() {
                         </div>
                       )}
                     </div>
-                    <div className="h-12 w-12 rounded-full bg-[#b8975a]/15 border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                    <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                       <Image
                         src={transportImg}
                         alt="train"
@@ -771,12 +798,12 @@ export default function ScanPage() {
                       />
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
 
               {/* TRANSPORT-FEATURE: Boat info */}
               {mode === 'boat' && (baggage.shipName || baggage.shipCabin) && (
-                <DashedEncart>
+                <SoftEncart>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       {baggage.shipName && (
@@ -792,7 +819,7 @@ export default function ScanPage() {
                         </div>
                       )}
                     </div>
-                    <div className="h-12 w-12 rounded-full bg-[#b8975a]/15 border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                    <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                       <Image
                         src={transportImg}
                         alt="boat"
@@ -802,12 +829,12 @@ export default function ScanPage() {
                       />
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
 
               {/* TRANSPORT-FEATURE: Bus info */}
               {mode === 'bus' && (baggage.busCompany || baggage.busLineNumber) && (
-                <DashedEncart>
+                <SoftEncart>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       {baggage.busCompany && (
@@ -823,7 +850,7 @@ export default function ScanPage() {
                         </div>
                       )}
                     </div>
-                    <div className="h-12 w-12 rounded-full bg-[#b8975a]/15 border border-[#16234e]/20 flex items-center justify-center ml-4 flex-shrink-0">
+                    <div className="h-12 w-12 rounded-full bg-[#2f9bff]/10 border border-[#2f9bff]/25 flex items-center justify-center ml-4 flex-shrink-0">
                       <Image
                         src={transportImg}
                         alt="bus"
@@ -833,12 +860,12 @@ export default function ScanPage() {
                       />
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
 
               {/* Destination */}
               {baggage.destination && (
-                <DashedEncart>
+                <SoftEncart>
                   <div className="flex items-center gap-3">
                     <span className="text-xl">📍</span>
                     <div>
@@ -846,12 +873,12 @@ export default function ScanPage() {
                       <p className="text-base font-bold text-[#16234e]">{baggage.destination}</p>
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
 
               {/* Departure Date */}
               {(baggage.departureDate || baggage.createdAt) && (
-                <DashedEncart className="mb-0">
+                <SoftEncart className="mb-0">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">📅</span>
                     <div>
@@ -861,20 +888,20 @@ export default function ScanPage() {
                       </p>
                     </div>
                   </div>
-                </DashedEncart>
+                </SoftEncart>
               )}
-            </div>
+            </BrandCard>
           );
         })()}
 
-        {/* ═══ 🟡 BLOC 3 : ENCART FINDER (beige or + bordure bleu foncé) ═══ */}
-        <div className="w-full bg-[#f3ecdc] border-2 border-solid border-[#16234e] rounded-2xl p-5 md:p-6 mb-4 shadow-lg">
+        {/* ═══ 🟡 BLOC 3 : ENCART FINDER (BrandCard corners — bloc clé trouveur) ═══ */}
+        <BrandCard corners className="w-full p-5 md:p-6 mb-4">
 
           {/* ─── 1. BIG "📞 Contacter le propriétaire" CTA button (FIRST) ─── */}
           {!showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="w-full py-4 px-6 bg-[#16234e] hover:bg-[#0f1838] text-white rounded-xl font-bold text-lg md:text-xl transition-colors flex items-center justify-center gap-2 min-h-[56px] shadow-md"
+              className={`${brandBtnGradient} w-full py-4 px-6 flex items-center justify-center gap-2 text-lg md:text-xl min-h-[56px] cursor-pointer`}
             >
               <Phone className="w-5 h-5" />
               <span>{t('finder.contact_owner_cta')}</span>
@@ -894,12 +921,13 @@ export default function ScanPage() {
               <input
                 type="text"
                 placeholder={t('finder.first_name')}
+                aria-label={t('finder.first_name')}
                 value={finderName}
                 onChange={(e) => setFinderName(e.target.value)}
-                className="w-full px-4 py-3 bg-white border-2 border-[#16234e] rounded-xl text-[#16234e] text-base placeholder:text-[#16234e]/40 focus:outline-none focus:ring-2 focus:ring-[#16234e] focus:border-transparent transition-all min-h-[48px]"
+                className={brandInput}
               />
 
-              {/* Phone (PhoneInput with dark=false but on yellow bg → white input) */}
+              {/* Phone (PhoneInput — carte blanche, champs brandInput du design system) */}
               <PhoneInput
                 countryCode={finderPhoneCountry}
                 onCountryChange={setFinderPhoneCountry}
@@ -915,9 +943,10 @@ export default function ScanPage() {
                 <input
                   type="text"
                   placeholder={t('finder.location_placeholder')}
+                  aria-label={t('finder.location_placeholder')}
                   value={otherLocation}
                   onChange={(e) => setOtherLocation(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border-2 border-[#16234e] rounded-xl text-[#16234e] text-base placeholder:text-[#16234e]/40 focus:outline-none focus:ring-2 focus:ring-[#16234e] focus:border-transparent transition-all min-h-[48px]"
+                  className={brandInput}
                 />
               </div>
 
@@ -931,7 +960,7 @@ export default function ScanPage() {
                   <button
                     onClick={handleWhatsApp}
                     disabled={isLocating || isSubmitting}
-                    className="py-3.5 px-4 bg-[#25D366] hover:bg-[#1ebe5d] disabled:opacity-70 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[52px]"
+                    className="py-3.5 px-4 bg-[#25D366] hover:bg-[#1ebe5d] disabled:opacity-70 text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2 text-base min-h-[52px] shadow-lg shadow-[#25D366]/25 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                   >
                     {isLocating ? (
                       <>
@@ -956,11 +985,11 @@ export default function ScanPage() {
                       </>
                     )}
                   </button>
-                  {/* Phone Button — BLACK #16234e + white text (consistent with primary CTA) */}
+                  {/* Phone Button — navy officiel (brandBtnNavy, design system QRBag) */}
                   <button
                     onClick={handlePhoneCall}
                     disabled={isLocating || isSubmitting}
-                    className="py-3.5 px-4 bg-[#16234e] hover:bg-[#0f1838] disabled:opacity-70 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-base min-h-[52px]"
+                    className={`${brandBtnNavy} py-3.5 px-4 flex items-center justify-center gap-2 text-base min-h-[52px] cursor-pointer`}
                   >
                     <Phone className="w-5 h-5" />
                     {t('finder.by_phone')}
@@ -972,11 +1001,11 @@ export default function ScanPage() {
               </div>
             </div>
           )}
-        </div>
+        </BrandCard>
 
         {/* ─── Trust Note ─── */}
-        <div className="mt-1 mb-4 text-center text-xs text-white/70 tracking-wide flex items-center justify-center gap-1.5">
-          <Shield className="w-4 h-4 inline" />
+        <div className="mt-1 mb-4 text-center text-xs text-[#16234e]/60 tracking-wide flex items-center justify-center gap-1.5">
+          <Shield className="w-4 h-4 inline text-[#2f9bff]" />
           <span>{t('finder.trust_note')}</span>
         </div>
       </div>
@@ -998,5 +1027,6 @@ export default function ScanPage() {
         />
       )}
     </main>
+    </BrandShell>
   );
 }

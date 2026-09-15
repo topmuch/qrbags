@@ -71,4 +71,4 @@ db/*.db-journal
 *.swo
 
 # OS
-Thumbs.db
+Thumbs.db*.png.bak

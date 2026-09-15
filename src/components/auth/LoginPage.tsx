@@ -11,7 +11,6 @@ import {
   Shield,
   Building2,
   ArrowRight,
-  Fingerprint,
   Mail,
   Lock,
 } from 'lucide-react';
@@ -20,7 +19,6 @@ import {
   brandLabel,
   brandBtnGradient,
   brandBadge,
-  BrandCorners,
 } from '@/components/brand/BrandShell';
 
 /* ══════════════════════════════════════════════
@@ -32,9 +30,6 @@ interface LoginConfig {
   type: LoginVariant;
   title: string;
   subtitle: string;
-  demoEmail: string;
-  demoPassword: string;
-  demoLabel: string;
   role: string;
   redirectPath: string;
   badgeText: string;
@@ -51,9 +46,6 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
     type: 'agence',
     title: 'Bienvenue',
     subtitle: 'Connectez-vous à votre espace agence pour gérer vos bagages et QR codes',
-    demoEmail: 'agency@qrbag.com',
-    demoPassword: 'agency123',
-    demoLabel: 'Agence',
     role: 'agency',
     redirectPath: '/agence/tableau-de-bord',
     badgeText: 'Agence',
@@ -76,9 +68,6 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
     type: 'superadmin',
     title: 'Administration',
     subtitle: 'Accès réservé aux administrateurs de la plateforme QRBag',
-    demoEmail: 'admin@qrbag.com',
-    demoPassword: 'admin123',
-    demoLabel: 'SuperAdmin',
     role: 'superadmin',
     redirectPath: '/admin/tableau-de-bord',
     badgeText: 'Admin',
@@ -158,11 +147,6 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillDemo = () => {
-    setEmail(config.demoEmail);
-    setPassword(config.demoPassword);
   };
 
   const BadgeIcon = config.badgeIcon;
@@ -324,7 +308,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
                   onFocus={() => setFocusedField('email')}
                   onBlur={() => setFocusedField(null)}
                   className="w-full bg-transparent border-none outline-none text-[#16234e] placeholder:text-[#16234e]/35 py-3.5 px-3 text-sm"
-                  placeholder={variant === 'agence' ? 'agency@qrbag.com' : 'admin@qrbag.com'}
+                  placeholder="votre@email.com"
                   required
                 />
               </div>
@@ -404,29 +388,6 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
               )}
             </button>
           </form>
-
-          {/* Demo Account Card */}
-          <div className="relative mt-6 p-4 rounded-xl bg-[#2f9bff]/5 border border-[#2f9bff]/15">
-            <BrandCorners inset="-8px" size="w-6 h-6" border="border-[3px]" />
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-qrbag flex items-center justify-center">
-                  <Fingerprint className="w-4 h-4 text-white" aria-hidden />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-[#16234e]">Compte démo</p>
-                  <p className="text-[10px] text-[#16234e]/55 font-mono">{config.demoEmail} / {config.demoPassword}</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={fillDemo}
-                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#16234e] text-white hover:bg-[#0f1838] transition-colors"
-              >
-                Remplir
-              </button>
-            </div>
-          </div>
 
           {/* Switch */}
           <div className="mt-8 text-center text-sm text-[#16234e]/60">

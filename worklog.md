@@ -680,3 +680,107 @@ Stage Summary:
 - Tout le site (public, auth, dashboards admin/agence, emails) est désormais à la charte officielle QRBag : violet signature en primaire, azure en focus, dégradé orange→rouge→magenta→violet en CTA, navy en fonds sombres
 - Design system consolidé : BrandShell + tokens shadcn violets + utilitaires gradient/dotted-map
 - 81 fichiers modifiés au total ; prête pour commit/push (rappel : redeploy Coolify manuel nécessaire)
+
+---
+Task ID: 3-b
+Agent: profil-passeport-restyler
+Task: Harmoniser profil agence + layout agence + page passeport au design system officiel QRBag (étiquette 7×10)
+
+Work Log:
+- Lecture worklog.md, BrandShell.tsx (tokens brandInput/brandLabel/brandBtn*), /success + /expired (références converties), globals.css (.bg-gradient-qrbag, .text-gradient-qrbag, .dotted-map) et /api/agency/profile (GET/PUT existants) avant tout code
+- src/app/agence/layout.tsx — habillage uniquement, logique intacte (contexts, auth redirects, polling messages 30s, AdvertisementBanner, useTheme, copy link) :
+  - Sidebar bg-[#0047d6] → dégradé from-[#16234e] to-[#0f1838] ; overlay mobile bg-black/50 → bg-[#0f1838]/60 (plus aucun bg-black)
+  - Items de menu bg-black → actif 'bg-white/15 text-white shadow-lg ring-1 ring-white/20', inactif transparent 'text-white/75 hover:bg-white/10 hover:text-white' ; icônes héritent (span text-white retiré) ; pastille compte bg-black/20 → bg-white/10 ; avatars sidebar/header → bg-gradient-qrbag ; liens Contacter/Blog bg-black/30 → bg-white/10 hover:bg-white/15
+  - Badge messages sidebar + cloche header bg-rose-500 → bg-[#e6216e] ; Déconnexion rose → bg-[#ef4036]/15 hover:bg-[#ef4036]/25 texte blanc
+  - Header : Trouvailles #0047d6 → violet #8b17c9 (bg/border/dark), Perdus rose → rouge #ef4036 (y compris dropdown mobile), encart Page publique from-[#0047d6]/10 to-[#fcd616]/10 → from-[#2f9bff]/10 to-[#f8921f]/10 border-[#2f9bff]/30 avec icônes/copie azure #2f9bff, avatar user → bg-gradient-qrbag, bouton Commander des QR bg-slate-900 → bg-[#16234e] hover:bg-[#0f1838] (variantes dark: conservées), spinner #0047d6 → #2f9bff, icône Sun → azure, Trouvailles dropdown mobile violet-700 → #8b17c9
+- src/app/agence/profil/page.tsx — refonte complète (constantes BRAND/ACCENT/INK supprimées, cartes jaunes #fcd616/bordure noire éliminées) :
+  - Titre navy #16234e extrabold + sous-titre navy/60 ; cartes → style BrandCard (bg-white rounded-3xl border-[#16234e]/10 shadow-xl p-6), pastilles en-tête violet #8b17c9 (Building) / azure #2f9bff (Key)
+  - Labels → brandLabel (+ htmlFor/id), inputs → brandInput, bouton Enregistrer → brandBtnGradient (spinner blanc conservé), mot de passe → brandBtnNavy type="button" sans handler (logique inchangée)
+  - BONUS LOGIQUE : vrai save branché — handleSave fait PUT fetch('/api/agency/profile', { agencyId, name, email, phone, address }) avec agencyId depuis useAgency() (exposé par le Provider du layout), gestion loading, erreur (bandeau bg-[#ef4036]/5 border-[#ef4036]/20 texte #ef4036, role="alert") et succès (bandeau bg-[#8b17c9]/5 border-[#8b17c9]/20 CheckCircle violet) ; API en échec → message réel affiché, aucun faux succès
+  - Stats Statut/Membre/Abonnement : bg-[#0047d6] → cartes blanches avec pastilles azure/violet/orange et valeurs navy extrabold ; pré-remplissage du formulaire depuis agencyData conservé
+- src/app/passeport/[reference]/page.tsx — refonte « étiquette », logique 100% conservée (fetch /api/suivi, export PNG html-to-image cardRef pixelRatio 3 cacheBust, Web Share + clipboard, détection iOS/Android, formatDate RTL, dir={dir}) :
+  - Fond beige #f3ecdc supprimé → <BrandShell> ; header transparent pattern /success : BrandLogo, bouton retour brandBtnOutline, titre 🛂 en .text-gradient-qrbag + sous-titre navy/70
+  - Carte boarding-pass intacte : perforations BEIGE → blanc #ffffff, badge Protégé or #b8975a → violet #8b17c9 blanc (Perdu #ef4036, Expiré #6b7280), bande basse or → NAVY #16234e avec textes blanc/blanc-70 et QR blanc fgColor navy (scannable), encart récompense → violet doux inline rgba(139,23,201,0.05)/bordure dashed rgba(139,23,201,0.30), bordures photo navy/30 conservées
+  - Actions : Télécharger PNG → brandBtnNavy (min-h 52px), Partager + Ajouter à l'écran d'accueil → brandBtnOutline, encart aide border-[#16234e]/20 bg-white, lien Ouvrir le suivi → text-[#2f9bff] ; états vides → carte blanche rounded-3xl border-[#16234e]/10, AlertCircle #ef4036, bouton brandBtnNavy
+  - Constantes nettoyées : BEIGE/GOLD/GOLD_SOFT supprimées, RED réaligné #ef4036, VIOLET ajouté (inline hex conservés pour l'export html-to-image)
+- Aucun autre fichier touché, aucune nouvelle dépendance ; validation : grep des 3 fichiers → 0 résidu #0047d6/#fcd616/#b8975a/#f3ecdc/bg-black ; bun run lint → exit 0 ; dev serveur → GET /passeport/VOL26-3UZRED 200 et GET /agence/profil 200 (marqueurs .text-gradient-qrbag, #ef4036, border-[#16234e] vérifiés dans le HTML)
+
+Stage Summary:
+- Layout agence 100% charte étiquette : sidebar navy dégradée + items glass white/15, accents violet/rouge/magenta de marque, plus aucun bg-black/#0047d6/#fcd616/rose ; dark mode et toute la logique (auth, polling, bannières) préservés
+- Profil agence rebrandé BrandCard + brandInput/brandLabel + boutons dégradés/navy ET sauvegarde réelle branchée sur PUT /api/agency/profile (erreurs API affichées, succès violet)
+- Passeport converti au pattern /success (BrandShell, titre dégradé) avec carte boarding-pass exportable en navy/blanc/violet, badge violet « Protégé », bande basse navy à QR scannable
+- Lint 0 erreur ; /passeport/VOL26-3UZRED → 200 ; /agence/profil → 200
+
+---
+Task ID: 3-a
+Agent: scan-finder-restyler
+Task: Harmoniser la page trouveur /scan/[reference] au design system officiel QRBag (étiquette 7×10) — refonte visuelle uniquement, logique 100% conservée
+
+Work Log:
+- Lecture worklog.md (entries 2-a/2-b/2-c/3-b), BrandShell.tsx (tokens brandInput/brandLabel/brandBtn*/BrandCard/BrandIconRing), /success + /expired (références converties) et globals.css (.bg-gradient-qrbag, .text-gradient-qrbag, .dotted-map) avant tout code
+- Constat : la page était dans un état semi-converti (LanguageSelector/ActivationRedirect/LoadingScreen/ErrorScreen/SoftEncart déjà au design system, constantes NAVY/BEIGE/GOLD déjà supprimées) MAIS le rendu principal gardait l'ancien design beige/or ET contenait du JSX cassé (2 balises déséquilibrées issues d'une passe précédente) — lint en échec avant intervention
+- src/app/scan/[reference]/page.tsx — fin de conversion visuelle, aucune logique touchée (fetch cache:'no-store', handleWhatsApp/handlePhoneCall, logScan, GPS inline, states, SuccessOverlay, ChatbotWidget, PhoneInput, useTranslation, dir RTL, formatDate intacts) :
+  - Restes or #b8975a éliminés : les 4 pastilles rondes des encarts transport (vol/train/bateau/bus) → fond azure doux bg-[#2f9bff]/10 border-[#2f9bff]/25
+  - BLOC 3 encart trouveur : beige #f3ecdc + bordure navy pleine + shadow-lg → <BrandCard corners> (bloc clé trouveur, brackets viewfinder comme /success)
+  - CTA « Contacter le propriétaire » : bouton navy plein → brandBtnGradient (min-h-[56px], dégradé signature)
+  - Champs prénom + lieu du formulaire trouveur : inputs inline (border navy pleine, focus ring navy) → brandInput (focus azure, rounded-xl, min-h-[48px]) + aria-labels ajoutés
+  - Bouton « Appeler » → brandBtnNavy (rounded-2xl, disabled intégré) ; bouton WhatsApp garde le vert de marque #25D366 (hover #1ebe5d — seule exception verte autorisée), harmonisé rounded-2xl + shadow-[#25D366]/25 + hover -translate-y
+  - Bandeau trust note : text-white/70 (invisible sur fond blanc) → text-[#16234e]/60 avec Shield azure #2f9bff
+  - LanguageSelector : cible tactile uniformisée min-h-[44px] (≥44px, règle tactile) ; style carte blanche + dropdown blanc/navy déjà conformes
+  - Toast succès bg-[#16234e] conservé (navy) ; commentaires obsolètes (« beige or », « yellow bg », « dashed black ») réalignés
+- Corrections structurelles (JSX invalide hérité de la passe partielle, bloquant lint + rendu) : BLOC 2 « Détails du voyage » <BrandCard> fermée par </div> → </BrandCard> ; rendu principal ouvert dans <BrandShell> sans fermeture → </BrandShell> ajoutée en fin de render
+- Aucun autre fichier touché, aucune dépendance, aucun nouveau fichier ; validation : grep 0 résidu #f3ecdc/#b8975a/#e9dcc0/bleu/indigo/générique (vert unique = WhatsApp) ; bun run lint → exit 0, 0 erreur 0 warning ; bunx tsc --noEmit → 0 erreur sur le fichier ; GET /scan/VOL26-3UZRED → 200 avec marqueurs brand dans le HTML (bg-gradient-qrbag, dotted-map, #8b17c9, spinner #e6216e, bg-white) et zéro couleur héritée
+
+Stage Summary:
+- /scan/[reference] 100% design system « étiquette 7×10 » : BrandShell (liseré dégradé, dotted-map, halos, arcs) sur toutes les vues, BrandCard corners sur les blocs clés (identité, récompense, trouveur), brandInput/brandBtnGradient/brandBtnNavy sur le formulaire, trust note lisible navy/azure, pastilles transport azure
+- 2 bugs JSX préexistants corrigés (balise BrandCard + fermeture BrandShell manquantes) — la page recompile et rend correctement
+- Palette propre : navy/azure/orange/rouge/magenta/violet + vert WhatsApp #25D366 uniquement ; zéro beige/or/bleu générique ; cibles tactiles ≥ 44px ; accessibilité renforcée (aria-labels champs)
+- Lint 0 erreur ; tsc 0 erreur ; GET /scan/VOL26-3UZRED → 200
+
+---
+Task ID: 1
+Agent: Main Orchestrator (fix activation/rescan)
+Task: Corriger le bug « QR rescanné après activation affiche encore la page d'inscription »
+
+Work Log:
+- Diagnostic : dans GET /api/scan/[reference], seule la réponse « active » portait des en-têtes no-cache ; les réponses précoces (pending_activation, not_found, blocked, expired, error 500) n'en avaient AUCUN → navigateur/CDN servaient une réponse « pending_activation » en cache après l'activation réelle en base
+- src/app/api/scan/[reference]/route.ts : constante NO_CACHE_HEADERS (no-store, no-cache, must-revalidate, proxy-revalidate + Pragma + Expires) appliquée aux 5 retours du GET (not_found, pending_activation, blocked, expired, erreur serveur) ; headers de la réponse « active » mutualisés sur la même constante
+- src/app/scan/[reference]/page.tsx : fetch client passé en fetch(`/api/scan/${reference}`, { cache: 'no-store' }) (ligne ~327) — double protection côté navigateur
+- Service worker vérifié : /api/ déjà en network-only (aucun changement requis)
+
+Stage Summary:
+- Un QR scanné avant activation puis activé affiche désormais la page trouveur au re-scan (plus de réponse cached « pending_activation »)
+- Aucune autre route/logique touchée
+
+---
+Task ID: 4
+Agent: Main Orchestrator (design générateur)
+Task: Remplacer le design de l'étiquette du générateur par le visuel joint ori2.png (fond clair, bande navy basse)
+
+Work Log:
+- Mesures pixel sur upload/ori2.png (1049×1499) : zone blanche QR x:232-815/y:694-1243 ; brackets viewfinder intérieurs x:274-774/y:732-1206 ; zone 100% blanc pur vérifiée x:300-740/y:760-1180 (0 pixel non blanc) ; le visuel ori2 est déjà vierge (aucun faux QR à effacer)
+- public/design/etiquette-qrbag-7x10.png remplacé par ori2.png aplati sur blanc (alpha supprimé, density 380.87) ; anciens designs sauvegardés en *-old.png.bak
+- src/lib/qr-label.ts : QR_RECT { left:312, top:705 } → { left:314, top:759, size:420 } (QR 420px centré à (524,969), marges ≥26px vers les brackets + quiet zone générateur) ; commentaires géométrie mis à jour (design v2)
+- public/design/etiquette-qrbag-preview.png régénéré (QR réel vers https://qrbags.com) — attention piège sharp : composite s'applique APRÈS resize dans le pipeline → génération en 2 étapes (composition pleine résolution puis resize 700px séparé)
+- Décodabilité vérifiée avec jsqr sur le label pleine résolution : « https://qrbags.com » ✓ ; API /api/admin/baggages/label/VOL26-3UZRED testée : PNG 1049×1499 @381 DPI 200 + QR décodé « http://localhost:3000/scan/VOL26-3UZRED » ✓, PDF 200 (338 Ko) ✓
+- La page /admin/generer consomme cette API → new design automatique ; l'accueil (2 <Image> etiquette-qrbag-preview.png) affiche le nouveau visuel sans changement de code
+
+Stage Summary:
+- Générateur d'étiquettes (PNG 7×10 cm 381 DPI + PDF page exacte) produit le design ori2.png avec QR réel centré dans l'encadré, scannable (jsqr OK)
+- Aperçu accueil à jour ; anciens designs en .bak pour rollback éventuel
+
+---
+Task ID: 5
+Agent: Main Orchestrator (suppression identifiants)
+Task: Supprimer les identifiants de connexion affichés sur les pages de connexion superadmin et admin(agence)
+
+Work Log:
+- src/components/auth/LoginPage.tsx (composant partagé par /admin/connexion et /agence/connexion) :
+  - Carte « Compte démo » entièrement retirée (email/mot de passe en clair + bouton « Remplir » + fonction fillDemo)
+  - Champs demoEmail/demoPassword/demoLabel supprimés des configs agence et superadmin
+  - Import Fingerprint et BrandCorners devenus inutiles retirés
+  - Placeholder du champ email « admin@qrbag.com »/« agency@qrbag.com » → « votre@email.com » (générique)
+- Le formulaire de connexion fonctionne toujours (POST /api/auth/login inchangé)
+
+Stage Summary:
+- Aucun identifiant réel n'est plus affiché sur les écrans de connexion ; saisie manuelle inchangée

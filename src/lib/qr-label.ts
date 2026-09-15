@@ -15,7 +15,7 @@ import path from 'path';
  *   décoratifs, avec zone de silence (quiet zone) suffisante pour le scan
  */
 
-// ─── Géométrie du design officiel 2025 (mesurée précisément sur l'artwork ori.png) ───
+// ─── Géométrie du design officiel 2025 v2 (mesurée précisément sur l'artwork ori2.png) ───
 const DESIGN_WIDTH = 1049;
 const DESIGN_HEIGHT = 1499;
 
@@ -24,14 +24,16 @@ const DESIGN_HEIGHT = 1499;
 const DESIGN_DPI = DESIGN_WIDTH / (70 / 25.4); // ≈ 380.87
 
 // Zone QR mesurée : encadré blanc intérieur aux 4 coins décoratifs (viewfinder)
-//   bracket TL : coin (248,650), bras → x:398 / y:750, épaisseur ~26 px
-//   bracket TR : coin (775,650), bras → x:663 / y:801
-//   bracket BL : coin (248,1155), bras → y:1010
-//   bracket BR : coin (799,1155), bras → x:647 / y:1011
-// Zone sûre intérieure : x:275-770, y:680-1150 (495 × 470 px)
-// QR 420 px centré (522, 915) → x:312-732, y:705-1125 (marges ≥ 25 px +
-//   quiet zone du générateur ≈ 1 module → ~3 modules de silence au total)
-const QR_RECT = { left: 312, top: 705, size: 420 };
+// Design v2 « Scannez » (fond clair, bande navy basse) :
+//   bracket TL : bras horizontal y:718-732, bras vertical x:257-272
+//   bracket TR : bras vertical x:776-791
+//   bracket BL : bras horizontal y:1206-1223, bras vertical x:254-274
+//   bracket BR : bras vertical x:774-795
+// Bords intérieurs des brackets : x:274-774, y:732-1206
+// Zone sûre (100% blanc pur vérifié pixel par pixel) : x:300-740, y:760-1180
+// QR 420 px centré (524, 969) → x:314-734, y:759-1179 (marges ≥ 26 px vers
+//   les brackets + quiet zone du générateur ≈ 1 module → ~3 modules de silence)
+const QR_RECT = { left: 314, top: 759, size: 420 };
 
 // Couleur QR : noir pur (comme l'artwork officiel), contraste maximal → scan optimal
 const QR_DARK_COLOR = '#000000';

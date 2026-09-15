@@ -8,6 +8,18 @@ import { detectLocaleFromHeaders, LANGUAGE_COOKIE_NAME, LANGUAGE_COOKIE_MAX_AGE_
 import { detectScanContext } from '@/lib/scan-context';
 import type { Language } from '@/lib/i18n';
 
+/* ─── NO-CACHE FIX ────────────────────────────────────────────────────────
+ * TOUTES les réponses de cet endpoint doivent être non-cachables (navigateur,
+ * CDN, proxys). Sans cela, une réponse « pending_activation » scannée avant
+ * l'activation restait en cache : après activation, le re-scan du QR
+ * affichait encore la page d'inscription au lieu de la page trouveur.
+ * ────────────────────────────────────────────────────────────────────────── */
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+} as const;
+
 // GET - Retrieve baggage info for scan page
 export async function GET(
   request: NextRequest,
@@ -22,44 +34,56 @@ export async function GET(
     });
 
     if (!baggage) {
-      return NextResponse.json({
-        status: 'not_found',
-        message: 'Code QR non valide',
-        theme: 'error'
-      });
+      return NextResponse.json(
+        {
+          status: 'not_found',
+          message: 'Code QR non valide',
+          theme: 'error'
+        },
+        { headers: { ...NO_CACHE_HEADERS } }
+      );
     }
 
     // Check status - redirect to activation if pending
     if (baggage.status === 'pending_activation') {
-      return NextResponse.json({
-        status: 'pending_activation',
-        type: baggage.type, // Important: return type for redirect
-        message: 'Ce bagage doit être activé',
-        theme: baggage.type === 'hajj' ? 'hajj' : 'voyageur'
-      });
+      return NextResponse.json(
+        {
+          status: 'pending_activation',
+          type: baggage.type, // Important: return type for redirect
+          message: 'Ce bagage doit être activé',
+          theme: baggage.type === 'hajj' ? 'hajj' : 'voyageur'
+        },
+        { headers: { ...NO_CACHE_HEADERS } }
+      );
     }
 
     if (baggage.status === 'blocked') {
-      return NextResponse.json({
-        status: 'blocked',
-        message: 'Ce bagage a été bloqué',
-        theme: 'error'
-      });
+      return NextResponse.json(
+        {
+          status: 'blocked',
+          message: 'Ce bagage a été bloqué',
+          theme: 'error'
+        },
+        { headers: { ...NO_CACHE_HEADERS } }
+      );
     }
 
     // Check expiration
     if (baggage.expiresAt && new Date() > baggage.expiresAt) {
-      return NextResponse.json({
-        status: 'expired',
-        message: 'Ce bagage a expiré',
-        theme: 'error',
-        expiredAt: baggage.expiresAt.toISOString(),
-        agency: baggage.agency?.name || null,
-        baggage: {
-          type: baggage.type,
-          travelerName: `${baggage.travelerFirstName} ${baggage.travelerLastName}`
-        }
-      });
+      return NextResponse.json(
+        {
+          status: 'expired',
+          message: 'Ce bagage a expiré',
+          theme: 'error',
+          expiredAt: baggage.expiresAt.toISOString(),
+          agency: baggage.agency?.name || null,
+          baggage: {
+            type: baggage.type,
+            travelerName: `${baggage.travelerFirstName} ${baggage.travelerLastName}`
+          }
+        },
+        { headers: { ...NO_CACHE_HEADERS } }
+      );
     }
 
     // Check if baggage is declared lost (but not yet found)
@@ -126,11 +150,7 @@ export async function GET(
       }
     },
     {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      },
+      headers: { ...NO_CACHE_HEADERS },
     }
     );
 
@@ -152,7 +172,7 @@ export async function GET(
     console.error('Scan error:', error);
     return NextResponse.json(
       { status: 'error', message: 'Erreur serveur' },
-      { status: 500 }
+      { status: 500, headers: { ...NO_CACHE_HEADERS } }
     );
   }
 }

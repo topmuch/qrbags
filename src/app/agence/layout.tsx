@@ -67,7 +67,7 @@ interface MenuItem {
   badge?: number;
 }
 
-// Modern Sidebar Component - Orange Theme with Black Buttons
+// Modern Sidebar Component — Navy QRBag (charte étiquette officielle)
 function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agencySlug }: { isOpen: boolean; setIsOpen: (open: boolean) => void; unreadMessages?: number; onLogout: () => void; userName: string; agencySlug: string }) {
   const pathname = usePathname();
   
@@ -85,15 +85,15 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-[#0f1838]/60 z-40 lg:hidden backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Sidebar - QRBag Blue Background */}
+      {/* Sidebar — Navy QRBag (dégradé étiquette officielle) */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-[280px] bg-[#0047d6]
+        w-[280px] bg-gradient-to-b from-[#16234e] to-[#0f1838]
         transform transition-transform duration-300
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         flex flex-col shadow-2xl
@@ -110,8 +110,8 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
 
         {/* Agency Info */}
         <div className="p-4 border-b border-white/10">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-black/20">
-            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10">
+            <div className="w-10 h-10 rounded-full bg-gradient-qrbag flex items-center justify-center">
               <span className="text-white font-semibold text-sm">{userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'AG'}</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -136,18 +136,18 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
                       relative flex items-center gap-3 px-4 py-2.5 rounded-xl
                       transition-all duration-200 group
                       ${isActive 
-                        ? 'bg-black text-white shadow-lg' 
-                        : 'bg-black text-white hover:bg-black/80'
+                        ? 'bg-white/15 text-white shadow-lg ring-1 ring-white/20' 
+                        : 'text-white/75 hover:bg-white/10 hover:text-white'
                       }
                     `}
                     onClick={() => setIsOpen(false)}
                   >
-                    <span className="shrink-0 text-white">
+                    <span className="shrink-0">
                       {item.icon}
                     </span>
                     <span className="font-medium text-sm flex-1">{item.label}</span>
                     {item.badge && item.badge > 0 && (
-                      <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                      <span className="bg-[#e6216e] text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
                         {item.badge}
                       </span>
                     )}
@@ -163,7 +163,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
             <li>
               <Link
                 href="/agence/assistance"
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/30 text-white hover:bg-black/40 transition-all duration-200"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/15 transition-all duration-200"
                 onClick={() => setIsOpen(false)}
               >
                 <HelpCircle className="w-5 h-5" />
@@ -175,7 +175,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
             <li>
               <Link
                 href="/agence/blog"
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black/30 text-white hover:bg-black/40 transition-all duration-200"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/15 transition-all duration-200"
                 onClick={() => setIsOpen(false)}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -194,7 +194,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
             <li>
               <button
                 onClick={onLogout}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-rose-500/20 text-white hover:bg-rose-500/30 transition-all duration-200 w-full"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-[#ef4036]/15 text-white hover:bg-[#ef4036]/25 transition-all duration-200 w-full"
               >
                 <LogOut className="w-5 h-5" />
                 <span className="font-medium text-sm">Déconnexion</span>
@@ -263,21 +263,21 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
                 // Trigger command modal - will be handled by parent
                 window.dispatchEvent(new CustomEvent('openCommandModal'));
               }}
-              className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#16234e] dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-medium hover:bg-[#0f1838] dark:hover:bg-slate-100 transition-colors"
             >
               <ShoppingCart className="w-4 h-4" />
               <span className="hidden xl:inline">Commander des QR</span>
             </Link>
             <Link
               href="/agence/perdus"
-              className="flex items-center gap-2 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-sm font-medium transition-colors border border-rose-200 dark:border-rose-800"
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#ef4036]/10 hover:bg-[#ef4036]/20 text-[#ef4036] dark:text-[#ef4036] rounded-xl text-sm font-medium transition-colors border border-[#ef4036]/20 dark:border-[#ef4036]/30"
             >
               <AlertTriangle className="w-4 h-4" />
               <span className="hidden xl:inline">Perdus</span>
             </Link>
             <Link
               href="/agence/trouvailles"
-              className="flex items-center gap-2 px-3 py-1.5 bg-[#0047d6]/10 hover:bg-[#0047d6]/20 text-[#0047d6] dark:text-[#0047d6] rounded-xl text-sm font-medium transition-colors border border-[#0047d6]/20 dark:border-[#0047d6]/30"
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#8b17c9]/10 hover:bg-[#8b17c9]/20 text-[#8b17c9] dark:text-[#8b17c9] rounded-xl text-sm font-medium transition-colors border border-[#8b17c9]/20 dark:border-[#8b17c9]/30"
             >
               <CheckCircle className="w-4 h-4" />
               <span className="hidden xl:inline">Trouvailles</span>
@@ -285,12 +285,12 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
           </div>
           
           {/* Public Page Button */}
-          <div className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-[#0047d6]/10 to-[#fcd616]/10 dark:from-[#0047d6]/20 dark:to-[#fcd616]/20 border border-[#0047d6]/30 rounded-xl px-3 py-1.5">
-            <Globe className="w-4 h-4 text-[#0047d6]" />
+          <div className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-[#2f9bff]/10 to-[#f8921f]/10 dark:from-[#2f9bff]/20 dark:to-[#f8921f]/20 border border-[#2f9bff]/30 rounded-xl px-3 py-1.5">
+            <Globe className="w-4 h-4 text-[#2f9bff]" />
             <span className="text-sm text-slate-600 dark:text-slate-300">Page publique</span>
             <button
               onClick={handleCopy}
-              className={`p-1 rounded-lg transition-colors ${copied ? 'text-[#0047d6]' : 'hover:bg-[#0047d6]/20 text-[#0047d6]'}`}
+              className={`p-1 rounded-lg transition-colors ${copied ? 'text-[#2f9bff]' : 'hover:bg-[#2f9bff]/20 text-[#2f9bff]'}`}
               title="Copier le lien"
             >
               {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -298,7 +298,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
             <Link
               href={`/agency/${agencySlug}`}
               target="_blank"
-              className="p-1 rounded-lg hover:bg-[#0047d6]/20 text-[#0047d6] transition-colors"
+              className="p-1 rounded-lg hover:bg-[#2f9bff]/20 text-[#2f9bff] transition-colors"
               title="Voir la page"
             >
               <ExternalLink className="w-4 h-4" />
@@ -331,7 +331,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
                 <Link
                   href="/agence/perdus"
                   onClick={() => setMobileActionsOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#ef4036] dark:text-[#ef4036] hover:bg-[#ef4036]/10 dark:hover:bg-[#ef4036]/10 transition-colors"
                 >
                   <AlertTriangle className="w-4 h-4" />
                   Bagages perdus
@@ -339,7 +339,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
                 <Link
                   href="/agence/trouvailles"
                   onClick={() => setMobileActionsOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-violet-700 dark:text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-[#8b17c9] dark:text-[#8b17c9] hover:bg-[#8b17c9]/10 dark:hover:bg-[#8b17c9]/10 transition-colors"
                 >
                   <CheckCircle className="w-4 h-4" />
                   Trouvailles
@@ -372,7 +372,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
             title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
           >
             {theme === 'dark' ? (
-              <Sun className="w-5 h-5 text-[#0047d6]" />
+              <Sun className="w-5 h-5 text-[#2f9bff]" />
             ) : (
               <Moon className="w-5 h-5 text-slate-600" />
             )}
@@ -385,7 +385,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
           >
             <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300" />
             {unreadMessages > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#e6216e] rounded-full flex items-center justify-center text-white text-xs font-bold">
                 {unreadMessages > 9 ? '9+' : unreadMessages}
               </span>
             )}
@@ -393,7 +393,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug, mobileActio
           
           {/* User */}
           <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
-            <div className="w-9 h-9 rounded-full bg-[#0047d6] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-gradient-qrbag flex items-center justify-center">
               <span className="text-white font-semibold text-sm">{userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'AG'}</span>
             </div>
             <div className="hidden sm:block">
@@ -490,7 +490,7 @@ export default function AgencyRootLayout({
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-[#0047d6]/30 border-t-[#0047d6] rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-[#2f9bff]/30 border-t-[#2f9bff] rounded-full animate-spin" />
           <span className="text-slate-500">Vérification...</span>
         </div>
       </div>
