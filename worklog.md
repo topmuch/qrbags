@@ -1036,3 +1036,25 @@ Stage Summary:
 - /checklist = parcours onboarding ludique en 3 étapes + succès wahoo avec téléchargement PDF direct
 - PDF attestation totalement rebrandé QRBag (logo, palette, cachet horodaté géant, QR code, arc-en-ciel) — design « Ouf »
 - Push GitHub + rappel redéploiement Coolify manuel
+
+---
+Task ID: pdf-facture-premium + page-publique-premium
+Agent: Main Orchestrator
+Task: PDF facture premium (logo arrondi, QR en haut, cachet pro infalsifiable, n° de vol) + page publique premium + catégories Femmes/Hommes/Enfant/Accessoires électroniques + onboarding complet
+
+Work Log:
+- [Catalogue] checklist-catalog.ts réorganisé en 9 catégories : Femmes(women)/Hommes(men)/Enfant(children)/Accessoires électroniques(electronics) + Chaussures/Toilette/Santé/Accessoires/Divers ; photos IA existantes réutilisées via itemImageSlugs en chemins complets (« /items/clothing/robes.png ») — getItemImageUrl supporte les 2 formats ; fallback « Autres » pour catégories inconnues (legacy clothing)
+- [Prisma] Champ flightNumber String? sur Checklist + db:push OK
+- [API] POST /api/checklist : accepte flightNumber + préserve color/brand dans la sanitization (avant : perdus) ; GET [code] : retourne flightNumber + security {serial, fingerprint, fingerprintShort} via computeChecklistSecurity (exportée de checklist.ts, sha256 du contenu + clé secrète) ; route PDF : passe flightNumber ; email.ts : ligne « ✈️ Vol : Compagnie — N° » dans le template
+- [PDF] generateChecklistPdf réécrit : bandeau navy h=138 avec PLAQUE LOGO ARRONDIE (drawSvgPath, r=14, axe y inversé scale(1,-1)) + TITRE « DE VOYAGE » jaune + N° code mono + PLAQUE QR ARRONDIE (96px, caption « SCANNEZ POUR VÉRIFIER ») EN HAUT DE LA 1ʳᵉ PAGE ; carte « INFORMATIONS VOYAGEUR & VOL » 2 colonnes (Nom, Prénom, Compagnie, N° de vol, Date départ, Destination, Email) ; CACHET ROND PROFESSIONNEL R=68 (2 anneaux navy/magenta, textes courbés « • PROTECTION INTELLIGENTE DES BAGAGES • » / « qrbags.com • DOCUMENT CERTIFIÉ » via drawArcText — positionnement trigonométrique caractère par caractère, CERTIFIÉ magenta, horodatage À LA SECONDE, N° série SER-CODE-AAMMJJ, empreinte courte SHA-256 groupée) ; TABLEAU FACTURE (N° mono / DÉSIGNATION + détails couleur·marque gris / CATÉGORIE pastille colorée / QTÉ, zébrures #f4f8fe, filets, en-tête répété à chaque page, ligne TOTAL navy « N articles • N unités déclarées ») ; bloc clé arrondi pointillé + empreinte SHA-256 complète 2 lignes + tag « À CONSERVER » arrondi ; footer navy + liseré arc-en-ciel sur toutes pages
+- [Wizard] Étape 1 : champ NUMÉRO DE VOL (uppercase auto, placeholder AF 0723, hint i18n) aux côtés de la compagnie ; CATEGORY_COLORS mises à jour (women magenta, men azure, children orange, electronics violet) ; flightNumber dans le submit + reset
+- [Page publique] /checklist/[code] refondue premium : header navy discret ; verrouillé = héro dégradé + icône glass + chips identité (prénom/code/date) + input clé tracking large + CTA gradient + 3 badges réassurance (ShieldCheck/QrCode/KeyRound) + historique ; déverrouillé = héro « ATTESTATION VÉRIFIÉE » avec cachet CSS double anneau + badge vérifié + code + vues ; carte « INFORMATIONS DU PASSAGER » (6 champs icônes colorées + email + barre série + empreinte) ; TABLEAU FACTURE responsive (overflow-x-auto, min-w-500, zébrures, catégories colorées localisées via catalogue, TOTAL navy) ; photo ; actions Télécharger PDF (gradient) / Imprimer ; footer navy liseré ; AUTO-DÉVERROUILLAGE si ?key= dans l'URL (clé sensible à la casse — PAS de normalisation)
+- [i18n] +15 clés checklist.* (flight_number, flight_hint, view_verified, view_flight, view_seal, view_fingerprint, view_total, view_designation, view_category, view_num, view_units, view_photo_title, view_protected, view_doc_title, view_doc_subtitle) dans fr/en/ar
+- [Tests] PDF standalone scripts/test-pdf.ts (12 articles → 1 page 93 Ko + 44 articles → 2 pages avec en-tête facture répété) ; E2E API : POST 200 (code PMEYBS, flightNumber AF 0723 persisté, security calculée, PDF 95 Ko rendu pdftoppm vérifié) ; E2E navigateur mobile 390×844 : wizard complet 3 étapes (nouvelles catégories, sélection multi-catégories, succès code+clé) ; page publique : verrouillé (mauvaise clé → toast erreur, bonne clé → déverrouillage) + auto ?key= ; desktop 1280×800 : page publique + wizard étape 2 (chips + grilles photos) ; console sans erreur runtime
+- Nettoyage : 2 checklists de test supprimées ; lint 0 erreur ; push GitHub f537316
+
+Stage Summary:
+- PDF = document « facture certifiée » premium : logo arrondi, QR en haut 1ʳᵉ page, toutes les infos demandées (nom, prénom, compagnie, N° vol, date départ, destination), cachet rond horodaté à la seconde INFALSIFIABLE (n° de série + empreinte SHA-256 liée à la clé secrète)
+- Page publique premium alignée sur le PDF (facture, cachet, empreinte) + auto-unlock par URL
+- Catalogue orienté voyageurs : Femmes / Hommes / Enfant / Accessoires électroniques en tête
+- Rappel : redéploiement Coolify manuel requis (push GitHub f537316)
