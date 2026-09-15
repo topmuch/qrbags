@@ -1244,3 +1244,21 @@ Work Log:
 Stage Summary:
 - Toutes les cards du parcours inscription (scan → inscrire → hajj/activate → success → commander) affichent désormais le logo QRBag
 - Artifacts : commit 3aef10d ; redéploiement Coolify requis
+
+---
+Task ID: success-remove-cta
+Agent: Z.ai Code (main)
+Task: Supprimer les 3 boutons secondaires de la page de confirmation /success (📍 Suivre mon bagage, 📤 Partager, 🛂 Mon Passeport QRBags)
+
+Work Log:
+- Édité src/app/success/page.tsx : suppression du bloc "Actions secondaires" (boutons track_baggage + share) et du bouton Passeport
+- Nettoyage : suppression de handleShare (Web Share API), trackingUrl, imports brandBtnNavy/brandBtnOutline devenus inutiles
+- Vérif rg : aucune référence restante (track_baggage, share, passport, handleShare, trackingUrl, brandBtnNavy/Outline)
+- bun run lint : OK
+- Vérif agent-browser (mobile 390x844 + desktop 1280x800, sessionStorage VOL26-63Q6UK injecté) : les 3 boutons ont disparu, flux = QR → résumé → Voir mon QR → email docs → checklist, aucun gap visuel
+- Commit 83f3ac7 poussé sur main
+
+Stage Summary:
+- Page confirmation épurée : seul CTA principal restant « Voir mon QR » + card email « Recevez vos documents » + checklist
+- Les clés locales success.track_baggage/share/passport conservées dans les JSON (inoffensives, réutilisables si besoin)
+- Redéploiement Coolify toujours requis pour la prod (commits en attente)
