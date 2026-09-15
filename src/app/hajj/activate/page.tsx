@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Plane, ArrowLeft, CheckCircle, Luggage, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle, Luggage } from "lucide-react";
 import {
   BrandShell,
   BrandCard,
@@ -122,7 +122,7 @@ function HajjActivateContent() {
             <BrandCard corners className="mb-10 p-6 sm:p-8 text-center animate-fade-in">
               <div className="flex justify-center mb-4">
                 <BrandIconRing size="w-14 h-14" glow="#f8921f">
-                  <Sparkles className="w-7 h-7 text-[#f8921f]" />
+                  <img src="/logo.png" alt="Logo QRBag" className="w-10 h-10 object-contain rounded-xl" aria-hidden />
                 </BrandIconRing>
               </div>
               <h2 className="text-xl font-extrabold text-[#16234e] mb-2">
@@ -141,7 +141,7 @@ function HajjActivateContent() {
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
               <BrandIconRing size="w-16 h-16" glow="#2f9bff">
-                <Plane className="w-8 h-8 text-[#16234e]" />
+                <img src="/logo.png" alt="Logo QRBag" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
               </BrandIconRing>
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-[#16234e] mb-3">

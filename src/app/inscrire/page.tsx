@@ -13,7 +13,6 @@ import {
   Camera,
   Upload,
   X,
-  Luggage,
   User,
   Plane,
   Gift,
@@ -322,9 +321,9 @@ function InscrireContent() {
                 <motion.div
                   animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center"
+                  className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
                 >
-                  <Luggage className="w-8 h-8 sm:w-10 sm:h-10 text-[#e6216e]" aria-hidden />
+                  <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
                 </motion.div>
 
                 {/* Badge pilule — activation gratuite */}

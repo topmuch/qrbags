@@ -16,7 +16,6 @@ import { motion } from 'framer-motion';
 import {
   ShoppingBag,
   Check,
-  CheckCircle2,
   ChevronRight,
   Loader2,
   Sticker,
@@ -295,9 +294,9 @@ function CommanderContent() {
                   <motion.div
                     animate={{ rotate: [0, -7, 7, 0], scale: [1, 1.08, 1] }}
                     transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-                    className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center"
+                    className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
                   >
-                    <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-[#e6216e]" aria-hidden />
+                    <img src="/logo.png" alt="Logo QRBag" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" aria-hidden />
                   </motion.div>
 
                   <h1 className="relative text-2xl md:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
@@ -724,7 +723,7 @@ function SuccessScreen({ offre, quantite, total }: { offre: Offre; quantite: num
 
       <BrandCard corners className="p-8 sm:p-12 text-center overflow-hidden">
         <BrandIconRing size="w-24 h-24" glow="#f8921f">
-          <CheckCircle2 className="w-12 h-12 text-[#e6216e]" aria-hidden />
+          <img src="/logo.png" alt="Logo QRBag" className="w-16 h-16 object-contain rounded-2xl" aria-hidden />
         </BrandIconRing>
 
         <h2 className="mt-7 text-3xl sm:text-4xl font-black text-[#16234e] tracking-tight">
