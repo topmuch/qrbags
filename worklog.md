@@ -1395,3 +1395,25 @@ Work Log:
 Stage Summary:
 - Le checklist se répare maintenant TOUT SEUL en prod : boot (selfheal + start.sh) ET à la demande (premier appel API)
 - Nécessite UN redéploiement Coolify pour prendre effet sur qrbags.com
+
+---
+Task ID: prod-checklist-p2011
+Agent: Main Orchestrator (Z.ai Code)
+Task: Diagnostiquer et réparer « erreur serveur » du checklist en production (local OK)
+
+Work Log:
+- Logs prod fournis par l'utilisateur : P2011 `Null constraint violation on the fields (reference)` sur `prisma.checklist.create()` (INSERT sans `reference` → table prod encore en ancien schéma)
+- Lecture docker/start.sh (celui réellement utilisé par le Dockerfile), start.sh racine, prisma/schema.prisma, src/lib/db-selfheal.ts, src/instrumentation.ts, src/lib/checklist-repair.ts
+- Cause racine : la table Checklist du volume persistant /app/data contient une colonne `reference` TEXT NOT NULL héritée d'un ancien schéma (remplacée par `code`). `npx prisma db push --skip-generate` SANS `--accept-data-loss` refuse de la dropper en non interactif (« There might be data loss... ») → exit 1. Le self-heal applicatif était 100 % additif et ne poussait que si des colonnes manquaient → dérive inverse (colonne en trop) jamais corrigée
+- Reproduction locale fidèle : table Checklist reconstruite avec `reference TEXT NOT NULL` + valeur legacy sur copie de db/custom.db → push sans flag = exit 1 (comme prod), push avec flag = OK, colonne droppée, données intactes (testée aussi : colonne nullable orpheline = droppée silencieusement, d'où l'absence du bug avant)
+- Fix 1 : docker/start.sh + start.sh → `npx prisma db push --skip-generate --accept-data-loss` au boot (retry x3 conservé)
+- Fix 2 : src/lib/db-selfheal.ts → tryPrismaDbPush avec `--accept-data-loss` + réconciliation à CHAQUE cycle (boot +5 s puis toutes les 5 min), pas seulement après réparation additive
+- Test E2E self-heal : dérive NOT NULL injectée sur db/custom.db réelle → redémarrage serveur → `[db-selfheal] prisma db push: Your database is now in sync` → colonne supprimée automatiquement, données intactes
+- Test E2E checklist : POST /api/checklist → 200 (code E9UGWN + verificationKey), GET /api/checklist/E9UGWN/pdf?key=… → 200, PDF 1.7 de 93 297 octets ; données de test supprimées ensuite
+- bun run lint OK ; commit ab76d5a ; push origin/main 7947d33..ab76d5a (déclenche le build Coolify)
+
+Stage Summary:
+- P2011 prod = dérive de schéma SQLite (colonne `reference` NOT NULL obsolète) que ni db push sans flag ni le self-heal additif ne pouvaient supprimer
+- Correctif double filet : db push --accept-data-loss au boot du conteneur + réconciliation périodique par le self-heal applicatif
+- Après redéploiement Coolify : au boot, la colonne `reference` sera droppée et le checklist redeviendra fonctionnel ; si l'utilisateur veut une remédiation immédiate sans attendre, il peut aussi exécuter `npx prisma db push --accept-data-loss` dans le terminal du conteneur Coolify
+- Aucune donnée métier perdue : le drop ne touche que les colonnes absentes du schéma actuel
