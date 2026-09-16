@@ -3,6 +3,7 @@ import { stat } from 'fs/promises';
 import { db } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
 import { readPhotoFromDisk, safePhotoAbsolutePath } from '@/lib/photo-storage';
+import { withChecklistSchemaRepair } from '@/lib/checklist-repair';
 
 // PHOTO-FEATURE: Sert la photo de la checklist (attestation PDF / page checklist).
 // Ordre de lecture : 1) BLOB en base (source de vérité — survit aux redéploiements),
@@ -28,10 +29,10 @@ export async function GET(
       return NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 });
     }
 
-    const checklist = await db.checklist.findUnique({
+    const checklist = await withChecklistSchemaRepair(() => db.checklist.findUnique({
       where: { code: code.toUpperCase() },
       select: { code: true, verificationKey: true, photoPath: true, photoData: true, photoMime: true },
-    });
+    }));
 
     if (!checklist) {
       return NextResponse.json({ error: 'Attestation introuvable' }, { status: 404 });

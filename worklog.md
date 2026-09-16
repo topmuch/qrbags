@@ -1377,3 +1377,21 @@ Stage Summary:
 - Checklist 100% fonctionnelle sur l'instance locale/preview : création, PDF, page publique, photo, email
 - Cause racine confirmée : serveur dev démarré AVANT la régénération du client Prisma (drift schema/client après restauration de l'environnement) — corrigé, non reproductible
 - Si l'erreur réapparaît côté preview : redémarrer le serveur (bun run dev) — la prod se corrige seule au prochain redéploiement Coolify (start.sh fait le prisma db push au boot)
+
+---
+Task ID: checklist-prod-erreur-serveur
+Agent: Z.ai Code (main)
+Task: « en local ça marche, en déploiement erreur serveur » — réparer le checklist en production
+
+Work Log:
+- Diagnostic : en prod, la DB persistante (volume Coolify) garde un schéma ancien ; le `prisma db push` au boot était silencieux (start.sh : 2>/dev/null || true) → colonnes récentes (airline, flightNumber, photo*) absentes → « no such column » → Erreur serveur
+- CRÉÉ src/lib/checklist-repair.ts : withChecklistSchemaRepair() — détecte la dérive de schéma SQLite, lance runSchemaRepair() (db-selfheal) puis retente 1 fois (max 1 réparation/10 s)
+- WRAPPÉS les 5 endpoints checklist : POST /api/checklist (create), GET list, GET [code], GET [code]/pdf, GET [code]/photo
+- start.sh : db push désormais visible dans les logs Coolify + fallback node_modules/.bin/prisma
+- package.json build : copie de pdf-lib/qrcode/pngjs/dijkstrajs dans .next/standalone/node_modules (2e cause possible d'erreur prod : libs PDF absentes du bundle standalone)
+- VALIDATION par simulation : copie de DB avec colonnes supprimées → create échoue → réparation ajoute les 6 colonnes → retry réussi (airline persisté)
+- Test E2E post-fix : création + PDF HTTP 200 (PDF 1.7 valide) ; lint OK ; données test nettoyées
+
+Stage Summary:
+- Le checklist se répare maintenant TOUT SEUL en prod : boot (selfheal + start.sh) ET à la demande (premier appel API)
+- Nécessite UN redéploiement Coolify pour prendre effet sur qrbags.com

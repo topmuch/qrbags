@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
 import { computeChecklistSecurity, type ChecklistItem } from '@/lib/checklist';
+import { withChecklistSchemaRepair } from '@/lib/checklist-repair';
 
 /**
  * GET /api/checklist/[code]?key=XXX
@@ -36,7 +37,7 @@ export async function GET(
       );
     }
 
-    const checklist = await db.checklist.findUnique({
+    const checklist = await withChecklistSchemaRepair(() => db.checklist.findUnique({
       where: { code: code.toUpperCase() },
       select: {
         id: true,
@@ -58,7 +59,7 @@ export async function GET(
         viewCount: true,
         createdAt: true,
       },
-    });
+    }));
 
     if (!checklist) {
       return NextResponse.json(

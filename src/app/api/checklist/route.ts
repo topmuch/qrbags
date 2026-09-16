@@ -10,6 +10,7 @@ import {
 import { sendEmail, getChecklistEmailTemplate } from '@/lib/email';
 import { rateLimit } from '@/lib/rate-limit';
 import { readPhotoFromDisk } from '@/lib/photo-storage';
+import { withChecklistSchemaRepair } from '@/lib/checklist-repair';
 
 /**
  * GET /api/checklist?email=foo@bar.com
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const checklists = await db.checklist.findMany({
+    const checklists = await withChecklistSchemaRepair(() =>
+      db.checklist.findMany({
       where: { email },
       select: {
         code: true,
@@ -56,7 +58,8 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
       take: 50, // safety cap
-    });
+      })
+    );
 
     return NextResponse.json({
       success: true,
@@ -165,8 +168,8 @@ export async function POST(request: NextRequest) {
     const baseUrl = `${protocol}://${host}`;
     const publicUrl = buildPublicChecklistUrl(code, baseUrl);
 
-    // ─── Persist Checklist ───
-    const checklist = await db.checklist.create({
+    // ─── Persist Checklist (auto-réparation du schéma si dérive prod) ───
+    const checklist = await withChecklistSchemaRepair(() => db.checklist.create({
       data: {
         code,
         verificationKey,
@@ -182,7 +185,7 @@ export async function POST(request: NextRequest) {
         photoPath: typeof photoPath === 'string' && photoPath.startsWith('uploads/') ? photoPath : null,
         photoSizeBytes: typeof photoSizeBytes === 'number' ? photoSizeBytes : 0,
       },
-    });
+    }));
 
     // PHOTO-STORAGE : la photo est copiée en base (BLOB) pour survivre aux redéploiements
     // (le disque du conteneur est éphémère). Best-effort : la checklist reste créée sinon.

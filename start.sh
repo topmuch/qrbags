@@ -17,7 +17,9 @@ fi
 # Run Prisma migrations on startup
 echo "🔄 Syncing database schema..."
 cd /app
-npx prisma db push --skip-generate 2>/dev/null || true
+npx prisma db push --skip-generate \
+  || node_modules/.bin/prisma db push --skip-generate \
+  || echo "⚠️  [start] prisma db push a échoué — le self-heal applicatif prendra le relais"
 
 echo "✅ Starting server..."
 exec node server.js

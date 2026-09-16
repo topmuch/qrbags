@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { generateChecklistPdf, buildPublicChecklistUrl, type ChecklistItem } from '@/lib/checklist';
 import { rateLimit } from '@/lib/rate-limit';
+import { withChecklistSchemaRepair } from '@/lib/checklist-repair';
 
 /**
  * GET /api/checklist/[code]/pdf?key=XXX
@@ -72,9 +73,11 @@ export async function GET(
       );
     }
 
-    const checklist = await db.checklist.findUnique({
-      where: { code: code.toUpperCase() },
-    });
+    const checklist = await withChecklistSchemaRepair(() =>
+      db.checklist.findUnique({
+        where: { code: code.toUpperCase() },
+      })
+    );
 
     if (!checklist) {
       return new NextResponse(
