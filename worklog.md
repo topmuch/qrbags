@@ -1417,3 +1417,21 @@ Stage Summary:
 - Correctif double filet : db push --accept-data-loss au boot du conteneur + réconciliation périodique par le self-heal applicatif
 - Après redéploiement Coolify : au boot, la colonne `reference` sera droppée et le checklist redeviendra fonctionnel ; si l'utilisateur veut une remédiation immédiate sans attendre, il peut aussi exécuter `npx prisma db push --accept-data-loss` dans le terminal du conteneur Coolify
 - Aucune donnée métier perdue : le drop ne touche que les colonnes absentes du schéma actuel
+
+---
+Task ID: ui-checklist-logo-upsell
+Agent: Main Orchestrator (Z.ai Code)
+Task: Remplacer l'icône du carré (QrCode) de l'écran succès checklist par le logo QRBags
+
+Work Log:
+- Page ciblée : src/app/checklist/page.tsx — écran succès (affiche « Télécharger mon attestation PDF » / « Voir la page publique »)
+- Élément remplacé : pastille carrée du bloc upsell « Et si votre valise était RETROUVABLE ? » (w-11 h-11 rounded-2xl) qui contenait l'icône lucide QrCode jaune sur fond orange translucide
+- Nouveau rendu : pastille blanche (rounded-2xl, shadow-sm) avec <img src="/logo.png" alt="Logo QRBags"> w-9 object-contain — lisible sur le dégradé bleu nuit
+- L'icône QrCode du bouton CTA « J'ai un QR → l'activer » conservée ; l'import lucide reste utilisé
+- Vérification E2E agent-browser : parcours complet du formulaire (étape 1 avec date injectée via setter natif + events input/change, étape 2 « Tout sélectionner », étape 3 « Générer mon attestation PDF ») → écran succès → logo affiché en desktop 1280 px ET mobile 390 px, layout responsive OK, overlay de célébration ~3,5 s respecté
+- Données de test supprimées (Checklist email test-logo@example.com) ; bun run lint OK
+- Commit 0f52fae, push origin/main (ab76d5a..0f52fae)
+
+Stage Summary:
+- Écran succès /checklist : le carré d'identification du bloc upsell porte désormais le logo QRBags au lieu de l'icône QR générique
+- Aucune donnée ni logique métier modifiée — changement purement visuel (2 lignes)
