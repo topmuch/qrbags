@@ -1358,3 +1358,22 @@ Stage Summary:
 - GitHub = local = e7ce4c1 puis commit hygiène/worklog
 - Checklist + PDF attestation 100% fonctionnels (cause racine : client Prisma obsolète en mémoire, pas de bug code)
 - ⚠️ Rappel : le champ date du formulaire utilise input[type=date] natif — le remplissage via segments month/day/year dans les tests automatisés ne met pas à jour l'état React (comportement normal navigateur)
+
+---
+Task ID: checklist-pdf-diagnostic-round2
+Agent: Z.ai Code (main)
+Task: Sync GitHub/local + diagnostic « génération PDF checklist → erreur serveur » (uniquement le checklist)
+
+Work Log:
+- Git : local = origin/main = 79eab42, déjà synchronisés (1 seul fichier modifié hors scope : scripts/gen-hero-images.ts, laissé intact)
+- Reproduction : création checklist OK (LTGX4M) → PDF HTTP 200 (93 Ko, PDF 1.7 valide)
+- Parcours page publique /checklist/{code}?key= → bouton « Télécharger le PDF » → navigue vers /api/checklist/{code}/pdf?key= → 200
+- Upload photo /api/checklist/upload-photo → 200 en 0,37 s (timeout initial = python3/PIL bloqué dans le shell de test, PAS l'API)
+- Création avec photo → PDF 200 + endpoint photo 200 + email status=sent
+- Aucune erreur 500 dans dev.log ; aucun code modifié — la réparation est l'environnement (client Prisma obsolète régénéré + serveur redémarré au tour précédent)
+- Données de test nettoyées (DB + uploads)
+
+Stage Summary:
+- Checklist 100% fonctionnelle sur l'instance locale/preview : création, PDF, page publique, photo, email
+- Cause racine confirmée : serveur dev démarré AVANT la régénération du client Prisma (drift schema/client après restauration de l'environnement) — corrigé, non reproductible
+- Si l'erreur réapparaît côté preview : redémarrer le serveur (bun run dev) — la prod se corrige seule au prochain redéploiement Coolify (start.sh fait le prisma db push au boot)
