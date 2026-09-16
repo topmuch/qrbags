@@ -543,8 +543,8 @@ function ChecklistPageContent() {
               <div className="pointer-events-none absolute -top-10 -right-10 w-36 h-36 rounded-full bg-[#f8921f]/20 blur-2xl" aria-hidden />
               <div className="pointer-events-none absolute -bottom-12 -left-8 w-28 h-28 rounded-full bg-[#e6216e]/15 blur-2xl" aria-hidden />
               <div className="relative flex items-start gap-3">
-                <div className="w-11 h-11 shrink-0 rounded-2xl bg-[#f8921f]/20 border border-[#f8921f]/40 flex items-center justify-center" aria-hidden>
-                  <QrCode className="w-6 h-6 text-[#fbbf24]" />
+                <div className="w-11 h-11 shrink-0 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                  <img src="/logo.png" alt="Logo QRBags" className="w-9 h-auto object-contain" />
                 </div>
                 <div>
                   <h3 className="font-black text-base leading-snug">{t('checklist.upsell_title')}</h3>
