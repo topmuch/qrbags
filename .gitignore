@@ -73,3 +73,4 @@ db/*.db-journal
 # OS
 Thumbs.db*.png.bak
 db/backups/
+dev-server.log

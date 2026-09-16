@@ -1338,3 +1338,23 @@ Stage Summary:
 - Sitemap désormais dynamique : nouvelles agences partenaires automatiquement référencées
 - ⚠️ Signalé à l'utilisateur : /agency/[slug] affiche prénom+nom complets des voyageurs publiquement (risque RGPD si indexé) → recommandé de masquer (ex. « Marie D. »)
 - ⚠️ Rappel : l'indexation Google réelle exige le domaine en prod + Google Search Console (soumission sitemap) — localhost non indexable
+
+---
+Task ID: sync-github-checklist-pdf-fix
+Agent: Z.ai Code (main)
+Task: 1) Synchroniser GitHub avec la version locale 2) Réparer le checklist page d'accueil / erreur serveur à la génération du PDF
+
+Work Log:
+- Diagnostic git : dépôt local rembobiné à 6dd61b2 + 1 commit-checkpoint automatique (f2a85b2 : zip, logs, chmod) ; origin/main contenait 36 commits de travail réel en avance (8 758 lignes, 149 fichiers : backup cron, photos bagages, middleware, SEO...)
+- Sync réalisée : git reset --hard origin/main → local main = origin/main = e7ce4c1 ; backup zip préservé dans /tmp/qrbag-project-backup.zip
+- db:push relancé (schéma déjà en sync, client Prisma régénéré)
+- Bug checklist reproduit : POST /api/checklist → « Erreur serveur » (PrismaClientValidationError : champs airline/flightNumber/photoData inconnus du client Prisma chargé en mémoire par le serveur dev — client généré AVANT la mise à jour du schéma)
+- Fix : redémarrage propre du serveur dev après régénération du client Prisma (aucun changement de code nécessaire)
+- Validation E2E navigateur : accueil → CTA checklist → /checklist → formulaire complet (date native input[type=date]) → sélection articles → « Générer mon attestation PDF » → « Attestation générée ! » → téléchargement PDF HTTP 200 (93 Ko, PDF 1.7 valide)
+- Validation API : création N4WE3K → PDF 200 valide → nettoyage des données de test en DB
+- Hygiène repo : git rm --cached dev-server.log + .gitignore (log runtime ne doit plus être suivi)
+
+Stage Summary:
+- GitHub = local = e7ce4c1 puis commit hygiène/worklog
+- Checklist + PDF attestation 100% fonctionnels (cause racine : client Prisma obsolète en mémoire, pas de bug code)
+- ⚠️ Rappel : le champ date du formulaire utilise input[type=date] natif — le remplissage via segments month/day/year dans les tests automatisés ne met pas à jour l'état React (comportement normal navigateur)
