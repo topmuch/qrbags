@@ -15,9 +15,15 @@ cd /app
 # 1) Synchronisation du schéma Prisma :
 #    - crée la base si absente (premier démarrage)
 #    - ajoute les colonnes manquantes (photoPath, reward...) → anti-P2022
+#    - supprime les colonnes obsolètes héritées d'un ancien schéma
+#      (ex: Checklist.reference NOT NULL → P2011 "Null constraint violation
+#      on the fields (reference)" sur la création de checklist en prod).
+#      `--accept-data-loss` est OBLIGATOIRE : en mode non interactif, sans
+#      ce flag, prisma db push refuse de dropper les colonnes orphelines
+#      et le schéma du volume persistant dérive pour toujours.
 echo "==> Synchronisation du schéma Prisma (prisma db push)..."
 tries=0
-until npx prisma db push --skip-generate; do
+until npx prisma db push --skip-generate --accept-data-loss; do
   tries=$((tries + 1))
   if [ "$tries" -ge 3 ]; then
     echo "!! prisma db push a échoué après 3 essais — arrêt du conteneur."

@@ -15,7 +15,7 @@
  *   ⚠️ Symptôme utilisateur : « les bagages ont disparu » — les QR existent
  *   toujours en base, seule la LISTE échoue (les counts restent OK).
  *
- * SOLUTION (100 % additive, sans perte de données) :
+ * SOLUTION :
  * 0. Schéma attendu dérivé DYNAMIQUEMENT du DMMF du client Prisma généré
  *    (@prisma/client) — impossible d'oublier une colonne lors d'une future
  *    migration (ex: travelerEmail oublié en sept. 2026 → P2022 récidive).
@@ -25,11 +25,18 @@
  *    sur prisma/schema.prisma, sans FK/index — les requêtes Prisma
  *    fonctionnent sans ; `prisma db push` les réconcilie ensuite)
  * 2. Colonnes manquantes → PRAGMA table_info + ALTER TABLE ADD COLUMN
- * 3. Réconciliation complète → `npx prisma db push --skip-generate`
- *    si le CLI est disponible (image Docker fixée ≥ 74685fd), non bloquant.
+ * 3. Réconciliation complète → `npx prisma db push --skip-generate
+ *    --accept-data-loss` à CHAQUE cycle si le CLI est disponible, non
+ *    bloquant. Le flag est requis pour dropper les colonnes OBSOLÈTES
+ *    héritées d'anciens schémas (ex: Checklist.reference NOT NULL en prod
+ *    → P2011 "Null constraint violation" sur checklist.create) : sans lui,
+ *    push refuse en mode non interactif et la dérive persiste. Le schéma
+ *    Prisma reste la source de vérité ; les données des colonnes conservées
+ *    ne sont jamais altérées.
  *
  * Appelé par src/instrumentation.ts : au boot (+5 s) puis toutes les 5 min.
- * Idempotent : ne modifie QUE ce qui manque, ne touche jamais aux données.
+ * Idempotent : ajoute ce qui manque, supprime via db push ce qui ne sert
+ * plus, n'altère jamais les données des colonnes conservées.
  */
 
 const CHECK_INTERVAL_MS = Number(process.env.DB_SELFHEAL_INTERVAL_MS || 300000); // 5 min
@@ -639,11 +646,13 @@ export async function runSchemaRepair(): Promise<RepairReport> {
 
     report.checked = true;
 
-    // 3) Réconciliation complète via CLI si nécessaire (index, FK, types)
-    if (report.tablesCreated.length > 0 || report.columnsAdded.length > 0 || report.errors.length > 0) {
-      report.pushAttempted = true;
-      report.pushSucceeded = await tryPrismaDbPush();
-    }
+    // 3) Réconciliation complète via CLI à CHAQUE cycle (index, FK, types et
+    //    surtout SUPPRESSION des colonnes obsolètes type Checklist.reference
+    //    NOT NULL → P2011 sur checklist.create). Effectuée même quand aucune
+    //    réparation additive n'a eu lieu : c'est justement le seul moyen de
+    //    détecter la dérive inverse (colonnes en trop dans la base).
+    report.pushAttempted = true;
+    report.pushSucceeded = await tryPrismaDbPush();
   } catch (e) {
     report.errors.push(`global: ${e instanceof Error ? e.message.slice(0, 200) : String(e)}`);
   } finally {
@@ -655,7 +664,9 @@ export async function runSchemaRepair(): Promise<RepairReport> {
   return report;
 }
 
-/** Tente `prisma db push --skip-generate` (dispo dans l'image Docker ≥ 74685fd et en dev). */
+/** Tente `prisma db push --skip-generate --accept-data-loss` (dispo dans l'image Docker ≥ 74685fd et en dev).
+ *  --accept-data-loss : autorise le DROP des colonnes obsolètes (ex: Checklist.reference
+ *  NOT NULL d'un ancien schéma → P2011) — sans lui, push refuse en non interactif. */
 async function tryPrismaDbPush(): Promise<boolean | null> {
   try {
     const { execFile } = await import('child_process');
@@ -663,7 +674,7 @@ async function tryPrismaDbPush(): Promise<boolean | null> {
     return await new Promise<boolean>((resolve) => {
       execFile(
         'npx',
-        ['prisma', 'db', 'push', '--skip-generate'],
+        ['prisma', 'db', 'push', '--skip-generate', '--accept-data-loss'],
         { cwd, timeout: 120000, env: { ...process.env } },
         (error, stdout, stderr) => {
           const out = `${stdout || ''}${stderr || ''}`.trim();
