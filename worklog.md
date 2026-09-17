@@ -1665,3 +1665,32 @@ Work Log:
 Stage Summary:
 - Deux plafonds mémoire ajoutés (workers 7→2, Turbopack Rust 1 Gio) pour faire tenir le build Coolify dans ~2 Go — l'échec précédent prouvait que le plafond V8 seul ne suffit pas
 - Script de build diagnosable : si un futur déploiement échoue, le log montrera la dernière étape atteinte au lieu d'un silence total
+
+---
+Task ID: audio-guide-qrtags
+Agent: Z.ai Code (principal)
+Task: Intégrer le système audio (guides vocaux) de QRBags sur qrtags — pages trouveur (/scan/[reference]) et confirmation (/success). Clone + install + dev + modifications. NE PAS pousser le code, ne rien modifier d'autre.
+
+Work Log:
+- Clone de github.com/topmuch/qrtags vers /home/z/qrtags (token GitHub réutilisé depuis .git/config de qrbags)
+- bun install (911 packages) + bunx prisma generate
+- Lecture du code : page trouveur = src/app/scan/[reference]/page.tsx (787 lignes, SuccessOverlay existant, CTA finder.contact_owner_cta), page confirmation = src/app/success/page.tsx (247 lignes, localStorage activationData), hook src/hooks/useTranslation.ts (flat map, clés aplaties), locales NESTED dans public/locales/{fr,en,ar}.json
+- Dev server qrtags sur port 3200 (le 3000 étant pris par qrbags). Découvert : le sandbox tue les processus détachés simples entre les commandes Bash → solution : double-fork daemonisation Python (PPID 1, comme le daemon agent-browser)
+- DB : prisma/db.sqlite du repo désynchronisée du schéma (P2022 objectCategory) → prisma db push + insertion objet test QRTAGS-TEST1 (status active)
+- Génération 6 audios Edge TTS neural adaptés QRTags (« objet » au lieu de « bagage », marque QRTags/كيو آر تاغس, citation du libellé exact « Contacter le propriétaire »/« اتصل بالمالك ») : scan-guide-{fr,en,ar}.mp3 (15/13/16 s) + confirm-guide-{fr,en,ar}.mp3 (19/19/23 s), -16 LUFS, 24 kHz mono 56k → public/audio/
+- Vérification ASR des 6 fichiers : 6/6 fidèles (seuls les noms de marque déformés par l'ASR, attendu)
+- Locales : ajout de 5 clés scan.welcome_* + nouvelle section success.welcome_* dans les 3 JSON (insertion textuelle, pas de reformatage)
+- src/app/scan/[reference]/page.tsx : imports framer-motion + Volume2, état showWelcome/isAudioPlaying/audioRef, playGuideAudio (pause/rewind + handlers silencieux), handleWelcomeStart, overlay AnimatePresence z-[70] aux couleurs QRTags (bandeau orange #F97316, carte blanche bordure dashed noire, CTA noir), bouton flottant réécouter z-40 avec ring orange
+- src/app/success/page.tsx : même pattern, fichier /audio/confirm-guide-${lang}.mp3, pilule référence conditionnelle avec icône Tag
+- Lint : seules 2 erreurs préexistantes dans scripts/create-admin.cjs (require .cjs) — mes fichiers sont propres
+- E2E agent-browser (port 3200) : overlay scan FR affiché ✅, CTA → overlay fermé + audio joue (ring orange + pulse) ✅, réécouter rejoue ✅, onended réinitialise ✅, /success EN+FR idem ✅, AR : requête Media 206 sur scan-guide-ar.mp3 + ring actif ✅, mobile 390 px : layout intact ✅
+- Découverte bug PRÉEXISTANT (non corrigé, hors périmètre) : race dans useTranslation.ts — le fetch fr initial peut résoudre après le fetch de la langue choisie et écraser la variable module `translations` (textes FR affichés avec dir=rtl). Le hook n'a pas été touché (git diff prouve le périmètre). L'audio, lui, utilise l'état lang (correct)
+- Commit LOCAL cf1dc0b « feat(audio): guides vocaux sur les pages trouveur et confirmation » (11 fichiers, 282 insertions) — PAS DE PUSH (demande explicite)
+- Restauration : qrbags relancé sur 3000 (avait été stoppé temporairement à cause d'un OOM sandbox avec 2 dev servers), qrtags laissé en écoute sur 3200, Chrome agent-browser fermé
+
+Stage Summary:
+- QRTags a maintenant le même système audio que QRBags : overlay d'accueil animé + guide vocal + bouton réécouter sur /scan/[reference] et /success
+- 6 MP3 validés ASR dans public/audio/, clés de traduction fr/en/ar, design adapté à la charte QRTags (orange #F97316 / noir / dashed)
+- Commit cf1dc0b STRICTEMENT LOCAL sur main (ahead 1 de origin/main) — l'utilisateur décidera du push
+- Périmètre strict : 2 pages + 3 locales + 6 mp3 ; rien d'autre modifié (db.sqlite de test et dev-qrtags.log exclus du commit)
+- Bug préexistant signalé (race i18n au chargement des textes) — audio non affecté
