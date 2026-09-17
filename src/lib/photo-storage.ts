@@ -24,6 +24,8 @@ export const PHOTO_MIME_BY_EXT: Record<string, string> = {
   webp: 'image/webp',
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
+  heic: 'image/heic', // photos iPhone (format natif caméra)
+  heif: 'image/heif',
 };
 
 /** Taille max acceptée pour une photo (10 Mo, aligné sur les endpoints d'upload) */

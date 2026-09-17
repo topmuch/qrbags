@@ -199,6 +199,8 @@
     "photo_remove": "Supprimer la photo",
     "photo_uploading": "Envoi en cours...",
     "photo_error": "Échec de l'envoi de la photo",
+    "photo_error_size": "Photo trop volumineuse (max 10 Mo)",
+    "photo_saved": "Photo enregistrée",
     "reward_label": "Récompense en cas de perte",
     "reward_hint": "Optionnel — motivez le retour rapide de votre bagage en proposant une récompense",
     "reward_optional": "Optionnel",

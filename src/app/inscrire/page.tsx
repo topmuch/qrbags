@@ -16,6 +16,7 @@ import {
   User,
   Plane,
   Gift,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PhoneInput from '@/components/ui/PhoneInput';
@@ -161,24 +162,94 @@ function InscrireContent() {
   const missingReference = !formData.reference;
 
   // PHOTO-FEATURE: compression client (max 1200px, JPEG 80%) puis upload vers /api/baggage-photo/upload
+  // Robustesse mobile (photo prise au téléphone) :
+  //  - chaque étape asynchrone est sous timeout (FileReader, décodage <img>, canvas.toBlob, fetch) :
+  //    sur certains téléphones le décodage d'une photo (HEIC iPhone, capteur 48 MP) ne déclenche
+  //    NI onload NI onerror → l'ancien code restait bloqué sur « Envoi en cours... » indéfiniment ;
+  //  - si la compression échoue, on envoie le fichier original tel quel (≤ 10 Mo, format image) ;
+  //  - un watchdog global garantit la fin de l'état « envoi en cours » quoi qu'il arrive.
+  const photoMaxBytes = 10 * 1024 * 1024; // 10 Mo (aligné sur PHOTO_MAX_BYTES côté serveur)
+  const photoAllowedRaw = /\.(jpe?g|png|webp|gif|heic|heif)$/i;
+
+  const uploadPhotoFile = async (blob: Blob, filename: string): Promise<string> => {
+    const fd = new FormData();
+    fd.append('file', blob, filename);
+    const controller = new AbortController();
+    const abortTimer = window.setTimeout(() => controller.abort(), 45000);
+    try {
+      const res = await fetch('/api/baggage-photo/upload', { method: 'POST', body: fd, signal: controller.signal });
+      if (!res.ok) {
+        // Message serveur explicite (type non supporté / trop volumineux) si disponible
+        let serverError = '';
+        try {
+          const errData = await res.json();
+          serverError = typeof errData?.error === 'string' ? errData.error : '';
+        } catch {
+          /* corps non JSON (page d'erreur) */
+        }
+        throw new Error(serverError || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      return data.photoPath || '';
+    } finally {
+      window.clearTimeout(abortTimer);
+    }
+  };
+
   const compressAndUpload = async (file: File) => {
     setPhotoError('');
     setPhotoUploading(true);
+    // Watchdog global : quelle que soit l'étape qui se bloque, on termine l'état « envoi en cours »
+    const watchdog = window.setTimeout(() => {
+      setPhotoUploading(false);
+      setPhotoError((prev) => prev || t('inscrire.photo_error'));
+    }, 75000);
+
+    const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
+      Promise.race([
+        promise,
+        new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error('timeout')), ms)),
+      ]);
+
     try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      // HEIC/HEIF (format natif caméra iPhone) : le canvas ne peut pas les décoder sur la
+      // plupart des navigateurs → envoi direct du fichier original, sans tentative de compression.
+      const isHeic = /heic|heif/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
+      if (isHeic) {
+        if (file.size > photoMaxBytes) {
+          setPhotoError(t('inscrire.photo_error_size'));
+          return;
+        }
+        const photoPath = await withTimeout(uploadPhotoFile(file, file.name || 'photo-valise.heic'), 60000);
+        setPhotoPath(photoPath);
+        setPhotoPreview(''); // pas d'aperçu décodable localement → placeholder « photo enregistrée »
+        setPhotoError('');
+        return;
+      }
 
+      // 1) Lecture du fichier en data URL
+      const dataUrl = await withTimeout(
+        new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error('read'));
+          reader.readAsDataURL(file);
+        }),
+        15000
+      );
+
+      // 2) Décodage de l'image (⚠️ peut ne jamais rappeler onload/onerror sur mobile → timeout)
       const img = new window.Image();
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = () => reject(new Error('image'));
-        img.src = dataUrl;
-      });
+      await withTimeout(
+        new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('image'));
+          img.src = dataUrl;
+        }),
+        10000
+      );
 
+      // 3) Redimensionnement + compression JPEG
       const maxDim = 1200;
       let { width, height } = img;
       if (width > maxDim || height > maxDim) {
@@ -193,20 +264,39 @@ function InscrireContent() {
       if (!ctx) throw new Error('canvas');
       ctx.drawImage(img, 0, 0, width, height);
 
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.8));
-      const compressed = blob ?? file;
+      const blob = await withTimeout(
+        new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.8)),
+        15000
+      );
 
-      const fd = new FormData();
-      fd.append('file', compressed, 'photo-valise.jpg');
-      const res = await fetch('/api/baggage-photo/upload', { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('upload');
-      const data = await res.json();
-
-      setPhotoPath(data.photoPath || '');
+      // 4) Upload de la version compressée
+      if (!blob) throw new Error('compress');
+      const photoPath = await withTimeout(uploadPhotoFile(blob, 'photo-valise.jpg'), 60000);
+      setPhotoPath(photoPath);
       setPhotoPreview(canvas.toDataURL('image/jpeg', 0.6));
+      setPhotoError('');
     } catch {
+      // Fallback : la compression a échoué mais le fichier original est exploitable → envoi tel quel
+      const isReadableImage =
+        photoAllowedRaw.test(file.name) && file.size > 0 && file.size <= photoMaxBytes;
+      if (isReadableImage) {
+        try {
+          const photoPath = await withTimeout(uploadPhotoFile(file, file.name || 'photo-valise.jpg'), 60000);
+          setPhotoPath(photoPath);
+          setPhotoPreview(''); // pas d'aperçu (image non décodable localement)
+          setPhotoError('');
+          return;
+        } catch (uploadErr) {
+          const msg = uploadErr instanceof Error ? uploadErr.message : '';
+          setPhotoError(
+            /volumineux|too large/i.test(msg) ? t('inscrire.photo_error_size') : t('inscrire.photo_error')
+          );
+          return;
+        }
+      }
       setPhotoError(t('inscrire.photo_error'));
     } finally {
+      window.clearTimeout(watchdog);
       setPhotoUploading(false);
     }
   };
@@ -584,14 +674,22 @@ function InscrireContent() {
                 <FormSection icon="Camera" iconColor="#e6216e" title={t('inscrire.photo_label')}>
                   <p className="text-xs text-[#16234e]/60 mb-3">{t('inscrire.photo_hint')}</p>
 
-                  {photoPreview ? (
+                  {(photoPath || photoPreview) ? (
                     <div>
                       <div className="relative">
-                        <img
-                          src={photoPreview}
-                          alt={t('inscrire.photo_label')}
-                          className="w-full max-h-56 object-cover rounded-2xl border-2 border-[#8b17c9]/25"
-                        />
+                        {photoPreview ? (
+                          <img
+                            src={photoPreview}
+                            alt={t('inscrire.photo_label')}
+                            className="w-full max-h-56 object-cover rounded-2xl border-2 border-[#8b17c9]/25"
+                          />
+                        ) : (
+                          /* Photo enregistrée mais non décodable localement (HEIC) → placeholder */
+                          <div className="w-full max-h-56 min-h-[140px] flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-[#8b17c9]/25 bg-[#8b17c9]/[0.06] py-8">
+                            <ImageIcon className="w-8 h-8 text-[#8b17c9]" aria-hidden />
+                            <p className="text-xs font-bold text-[#16234e]/70">{t('inscrire.photo_saved')}</p>
+                          </div>
+                        )}
                         <button
                           type="button"
                           onClick={() => { setPhotoPreview(''); setPhotoPath(''); }}

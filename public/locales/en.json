@@ -199,6 +199,8 @@
     "photo_remove": "Remove photo",
     "photo_uploading": "Uploading...",
     "photo_error": "Photo upload failed",
+    "photo_error_size": "Photo is too large (max 10 MB)",
+    "photo_saved": "Photo saved",
     "reward_label": "Lost & found reward",
     "reward_hint": "Optional — offer a reward to motivate a quick return of your luggage",
     "reward_optional": "Optional",
