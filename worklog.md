@@ -1512,3 +1512,27 @@ Stage Summary:
 - Cause racine bug 2 : absence totale de timeout dans le pipeline de compression client — désormais chaque étape est bornée + watchdog global + fallback fichier original
 - La photo HEIC iPhone est envoyée telle quelle (mime image/heic conservé jusqu'au BLOB DB) ; seuls les très vieux navigateurs ne l'afficheront pas sur la page trouveur
 - Push déclenche le redéploiement Coolify — à confirmer en prod par l'utilisateur
+
+---
+Task ID: scan-audio-guide-whatsapp-fix
+Agent: Z.ai Code (main)
+Task: (1) Implémenter l'option B — écran d'accueil « Appuyez pour contacter » avec guide vocal TTS pré-généré (fr/en/ar) sur la page trouveur ; (2) Corriger la redirection WhatsApp qui affichait « Télécharger WhatsApp » au lieu du chat
+
+Work Log:
+- Inspecté /scan/[reference] : page 1172 lignes, hero célébration BrandCard, formulaire trouveur (nom+téléphone), handlers handleWhatsApp/handlePhoneCall avec normalisation E.164 existante
+- Généré 3 guides vocaux TTS via CLI z-ai (voix tongtong) : script FR (23,5 s), EN (27,6 s), AR (29,6 s) — WAV → MP3 ffmpeg (l'API TTS rejette le format mp3 direct : « response_format non supporté »)
+- Fichiers : public/audio/scan-guide-{fr,en,ar}.mp3 (163-195 Ko), servis 200 audio/mpeg vérifié
+- Overlay option B dans ScanPage : état showWelcome + playGuideAudio (HTMLAudioElement, onplay/onended/onpause/onerror silencieux) + handleWelcomeStart ; bannière BrandCard dégradé signature, logo cercle blanc, badge référence mono, CTA gradient 56 px avec Volume2, mention « Instructions audio · 30 s » ; AnimatePresence fade-out au tap
+- Bouton flottant « réécouter » bottom-left z-40 (ring doré + pulse pendant lecture), visible après fermeture overlay
+- i18n : scan.welcome_title/subtitle/cta/audio_hint + scan.replay_audio ajoutés (fr/en/ar, insertion après scan.success)
+- DIAGNOSTIC WHATSAPP par tests réseau curl : (a) wa.me/{numéro}?text=%F0%9F%8E%89 → 302 Location vers api.whatsapp.com avec %EF%BFBD : wa.me corrompt les emojis 4 octets UTF-8 en U+FFFD ; (b) les accents 2 octets (%C3%A9) passent intacts ; (c) api.whatsapp.com/send préserve l'emoji dans sa page ; (d) l'URL capturée en E2E avant fix confirmait des %EF%BFBD dans le texte réel envoyé à WhatsApp
+- Fix message : strip Unicode-safe des emojis avant encodeURIComponent dans generateWhatsAppMessage (regex [\u{10000}-\u{10FFFF}\u{FE0F}\u{2600}-\u{27BF}]/gu + nettoyage espaces/lignes) — structure et accents conservés
+- Fix lien : api.whatsapp.com/send?phone= → https://wa.me/{ownerNumber}?text= (universal link officiel : ouverture directe de l'app sur mobile, plus de page intermédiaire si WhatsApp installé)
+- Filet mobile : toast d'aide après 2,5 s si document toujours visible (WhatsApp absent / navigateur in-app) — finder.whatsapp_hint_title/desc ; warn console si numéro propriétaire invalide (diagnostic prod, fallback support conservé)
+- E2E agent-browser : /scan/DEMO-QRBAG desktop 1280 px (overlay affiché EN auto, tap → overlay fermé + bouton réécouter + zéro erreur console) et mobile 390 px (bannière complète lisible) ; formulaire rempli → clic WhatsApp → URL finale wa.me→api sans AUCUN %EF%BFBD, texte intégralement préservé
+- Commit 9c8f603, push origin main
+
+Stage Summary:
+- Guide vocal trouveur opérationnel : overlay jolie bannière « Appuyez pour contacter » → tap → voix TTS dans la langue détectée + bouton réécouter ; conformité autoplay policy respectée par construction
+- Bug WhatsApp « Télécharger WhatsApp » : cause racine démontrée (corruption emojis par wa.me + universel link manquant) ; lien wa.me + message sans emojis + toast de secours
+- À surveiller en prod : si un bagage a un numéro sans indicatif pays (anciens enregistrements), le fallback support s'applique — le warn console [SCAN {ref}] permettra de les identifier et de les corriger en base
