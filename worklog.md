@@ -1558,3 +1558,22 @@ Stage Summary:
 - Le sélecteur à drapeaux existant (recherche par pays) reste la voie manuelle ; les corrections garantissent que son DÉFAUT est le bon pays au lieu d'être figé sur 🇫🇷
 - Ne casse pas la détection de langue : le pays détecté réaligne la langue uniquement si l'utilisateur n'a jamais choisi (localStorage/cookie/serveur respectés)
 - Un numéro saisi est toujours stocké en E.164 complet (+221771234567) → WhatsApp/lien wa.me fiables
+
+---
+Task ID: fix-langue-voix-guide-pays
+Agent: Z.ai Code (main)
+Task: Corriger « la bannière s'affiche mais la voix parle anglais alors que je suis en français » — guide vocal page trouveur
+
+Work Log:
+- Diagnostic en 2 volets : (1) transcrit les 3 MP3 via ASR (conversion WAV car l'ASR ne prend que WAV/WebM) → fichiers CORRECTEMENT étiquetés (fr=français « Bonjour, bagage protégé par QR Bags... », en=anglais, ar=arabe) → le contenu audio n'est pas en cause ; (2) audité la chaîne de résolution de langue : cookie qrbag_locale + detectedLang serveur dérivent de l'en-tête Accept-Language du navigateur, et le hook synchronisait ce résultat AUTO vers localStorage → verrouillé pour 7 j/re-visites
+- Cause racine : téléphones (très courant en Afrique de l'Ouest, marché cible) configurés en ANGLAIS avec utilisateur FRANCOPHONE → Accept-Language: en → site + voix en anglais, sans que l'utilisateur ait jamais choisi
+- ASR au passage : le fichier EN prononce « WeChat » au lieu de « WhatsApp » (TTS) — à régénérer plus tard, mineur
+- Réforme de la hiérarchie de langue dans useTranslation.ts : 1. choix EXPLICITE (sélecteur, désormais estampillé qrbag_lang_explicit='1') → intangible ; 2. PAYS détecté (IP/locales/fuseau via detectLanguageFromCountry : SN→fr, SA→ar, US→en) → PRIME sur la config navigateur ; 3. Accept-Language (cookie + detectedLang serveur + navigateur) ; 4. fr
+- Poison localStorage neutralisé : la sync cookie→localStorage SUPPRIMÉE (les anciennes valeurs non estampillées sont ignorées → re-détection, ce qui répare aussi les utilisateurs déjà verrouillés en 'en') ; setLang écrit le stamp
+- Nouveau flag module countryLangApplied : applyAutoDetectedLang (Accept-Language serveur) cède au pays ; le pays resynchronise aussi le cookie qrbag_locale pour cohérence serveur au scan suivant
+- E2E agent-browser : scénario du bug reproduit (headers Accept-Language: en-US + mock IP SN + storage vierge) → interface FRANÇAISE (« Bagage trouvé ! », « Appuyez pour contacter ») + tap bannière → GET /audio/scan-guide-fr.mp3 ; choix explicite English → reload (IP SN) → interface anglaise TENUE + GET /audio/scan-guide-en.mp3 ; zéro erreur console ; lint OK ; commit + push
+
+Stage Summary:
+- La voix du guide suit désormais la langue affichée, et celle-ci est déterminée par le PAYS (IP) plutôt que la config du navigateur pour tout utilisateur sans choix explicite — le profil « francophone en navigateur anglais » reçoit le site ET la voix en français
+- Le choix explicite (sélecteur de langue) reste absolu et est désormais correctement persisté/estampillé
+- Les utilisateurs déjà « empoisonnés » (qrbag_lang=en auto) sont réparés automatiquement au prochain chargement

@@ -7,7 +7,8 @@ import {
   detectLanguageFromBrowser,
   detectLanguageFromCountry,
   LANGUAGE_DIRECTION,
-  LANGUAGE_NAMES
+  LANGUAGE_NAMES,
+  LANGUAGE_COOKIE_NAME
 } from '@/lib/i18n';
 import { detectCountryClientSide, isSupportedCountry } from '@/lib/phone';
 
@@ -28,10 +29,46 @@ interface UseTranslationReturn {
 let translations: Record<string, string> = {};
 let currentLang: Language = 'fr';
 
-/** 🔔 Flag module : la langue auto-détectée serveur (page scan) a été appliquée →
- *  les heuristiques IP/navigateur de detectLanguage ne doivent PAS l'écraser
- *  (race observée : detect-country résout APRÈS le fetch du scan et réécrivait 'fr'). */
+/** 🔔 Flag module : la langue auto-détectée serveur (page scan, Accept-Language) a été
+ *  appliquée → les heuristiques navigateur ne doivent PAS l'écraser. */
 let serverLangApplied = false;
+
+/** 🔔 Flag module : la langue dérivée du PAYS détecté (IP/locales/fuseau) a été appliquée.
+ *  Hiérarchie QRBags : choix explicite utilisateur > PAYS IP > Accept-Language > navigateur > fr.
+ *  Rationale métier : en Afrique de l'Ouest (marché cible), énormément de téléphones sont
+ *  configurés en anglais alors que l'utilisateur parle français — le pays (ex. Sénégal → fr)
+ *  est un signal BEAUCOUP plus fiable que la config du navigateur. Observé en prod : trouveur
+ *  francophone avec navigateur en → bannière + guide vocal en anglais (bug #2025-11). */
+let countryLangApplied = false;
+
+const VALID_LANGS: Language[] = ['fr', 'en', 'ar'];
+
+/** 🔔 Préférence EXPLICITE = choix fait via le sélecteur de langue (stamp qrbag_lang_explicit).
+ *  ⚠️ Les anciennes valeurs qrbag_lang non estampillées étaient écrites automatiquement
+ *  (sync du cookie Accept-Language) et ont POISONNÉ des utilisateurs francophones en
+ *  navigateur anglais → elles sont désormais ignorées (traitées comme absent). */
+function hasExplicitLangPreference(): boolean {
+  if (typeof localStorage === 'undefined') return false;
+  try {
+    return (
+      localStorage.getItem('qrbag_lang_explicit') === '1' &&
+      VALID_LANGS.includes(localStorage.getItem('qrbag_lang') as Language)
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Le pays détecté a tranché → synchronise le cookie serveur pour que la prochaine
+ *  requête (detectedLang côté route scan) soit cohérente avec la langue affichée. */
+function syncLocaleCookie(lang: Language): void {
+  if (typeof document === 'undefined') return;
+  try {
+    document.cookie = `${LANGUAGE_COOKIE_NAME}=${lang}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax`;
+  } catch {
+    /* cookies bloqués → silencieux */
+  }
+}
 
 export function useTranslation(): UseTranslationReturn {
   const [lang, setLangState] = useState<Language>('fr');
@@ -52,66 +89,57 @@ export function useTranslation(): UseTranslationReturn {
   }, [lang]);
 
   /**
-   * 🔔 Réalignement langue ← pays détecté (flux indicatif téléphonique).
-   * Appliqué UNIQUEMENT sans préférence explicite (localStorage, cookie serveur
-   * qrbag_locale ou langue serveur déjà appliquée) — même contrat que
-   * applyAutoDetectedLang. Ex. : pays détecté 'SA' → langue 'ar' si l'utilisateur
-   * n'a jamais choisi sa langue.
+   * 🔔 Langue ← PAYS détecté (IP / locales / fuseau) — priorité 2 de la hiérarchie.
+   * L'EMPORTE sur Accept-Language / cookie / navigateur (seule une préférence
+   * EXPLICITE la bloque) : c'est le fix du trouveur francophone en navigateur
+   * anglais qui entendait le guide vocal en anglais.
+   * Ex. : pays détecté 'SN' → 'fr' même si le navigateur dit 'en'.
    */
   const applyDetectedLangFromCountry = useCallback((country: string) => {
-    if (serverLangApplied) return;
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('qrbag_lang')) return;
-    if (typeof document !== 'undefined' && /qrbag_locale=(fr|en|ar)/.test(document.cookie)) return;
+    if (countryLangApplied) return; // déjà tranché par le pays
+    if (hasExplicitLangPreference()) return; // choix utilisateur → intangible
     const detected = detectLanguageFromCountry(country);
-    if (detected && detected !== langRef.current) {
-      serverLangApplied = true; // évite qu'un re-render tardif écrase ce choix
+    if (!detected) return;
+    countryLangApplied = true;
+    serverLangApplied = true; // le pays prime aussi sur une application serveur ultérieure
+    syncLocaleCookie(detected);
+    if (detected !== langRef.current) {
       setLangState(detected);
     }
   }, []);
 
-  // Detect language on mount
+  // Detect language on mount — priorité 1 (explicite) puis valeur immédiate
+  // (cookie/navigateur) ; le pays résoudra ensuite et ajustera si nécessaire.
   useEffect(() => {
-    const detectLanguage = async () => {
-      // 1. Check localStorage first for explicit user preference
-      if (typeof localStorage !== 'undefined') {
-        const savedLang = localStorage.getItem('qrbag_lang') as Language | null;
-        if (savedLang && ['fr', 'en', 'ar'].includes(savedLang)) {
-          setLangState(savedLang);
-          return;
-        }
+    const detectLanguage = () => {
+      // 1. Préférence EXPLICITE (sélecteur de langue, estampillée) — intangible
+      if (hasExplicitLangPreference()) {
+        setLangState(localStorage.getItem('qrbag_lang') as Language);
+        return;
       }
 
-      // 2. Check server-set cookie (qrbag_locale) — set by /api/scan GET route
+      // 2. Cookie serveur (qrbag_locale) : valeur immédiate anti-flash — le pays
+      //    détecté pourra la corriger ensuite (plus de synchro vers localStorage :
+      //    c'est cette écriture auto qui verrouillait 'en' chez les utilisateurs
+      //    francophones en navigateur anglais).
       if (typeof document !== 'undefined') {
         const cookieMatch = document.cookie.match(/qrbag_locale=(fr|en|ar)/);
         if (cookieMatch?.[1]) {
-          const cookieLang = cookieMatch[1] as Language;
-          setLangState(cookieLang);
-          // Sync to localStorage for persistence across sessions
-          localStorage.setItem('qrbag_lang', cookieLang);
+          setLangState(cookieMatch[1] as Language);
           return;
         }
       }
 
-      // 🔔 Ne pas écraser une langue serveur déjà appliquée
-      if (serverLangApplied) return;
-
-      // 3. Fallback to browser language — la détection pays (IP) vit désormais
-      // dans SON PROPRE useEffect ci-dessous : elle s'exécute TOUJOURS
-      // (même quand une préférence de langue court-circuite ce flux) et
-      // réalignera la langue via applyDetectedLangFromCountry si pertinent.
-      const browserLang = detectLanguageFromBrowser();
-      setLangState(browserLang);
+      // 3. Langue du navigateur (dernier repli avant la résolution pays)
+      setLangState(detectLanguageFromBrowser());
     };
 
     detectLanguage();
   }, []);
 
-  // 🔔 DÉTECTION PAYS (indicatif téléphonique) — flux INDÉPENDANT de la langue :
-  // s'exécute à CHAQUE montage, même quand localStorage/cookie court-circuitent
-  // la détection de langue. Sans cela, le drapeau du sélecteur restait bloqué
-  // sur 🇫🇷 +33 pour tout utilisateur ayant une langue sauvegardée ou arrivant
-  // via un scan QR (cookie qrbag_locale posé par la route scan).
+  // 🔔 DÉTECTION PAYS (indicatif téléphonique + langue) — flux INDÉPENDANT :
+  // s'exécute à CHAQUE montage, même quand une préférence court-circuite la
+  // détection initiale. Sans cela, le drapeau restait bloqué sur 🇫🇷 +33.
   useEffect(() => {
     let cancelled = false;
 
@@ -196,25 +224,31 @@ export function useTranslation(): UseTranslationReturn {
     return text;
   }, [dict]);
 
-  // Set language
+  // Set language — choix EXPLICITE via le sélecteur : estampillé pour être
+  // traité comme intangible par toutes les détections automatiques.
   const setLang = useCallback((newLang: Language) => {
     setLangState(newLang);
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('qrbag_lang', newLang);
+      try {
+        localStorage.setItem('qrbag_lang', newLang);
+        localStorage.setItem('qrbag_lang_explicit', '1');
+      } catch {
+        /* stockage plein/bloqué → silencieux */
+      }
     }
   }, []);
 
   /**
-   * 🔔 Détection auto au premier scan : applique la langue détectée côté serveur
-   * (Accept-Language du navigateur du trouveur) SANS créer de préférence
-   * utilisateur persistante — n'écrase jamais un choix explicite (localStorage).
+   * 🔔 Détection auto serveur (Accept-Language du navigateur) — priorité 3.
+   * Appliquée par la page scan dès la réponse /api/scan. N'écrase JAMAIS un
+   * choix explicite, et CÈDE au pays détecté (applyDetectedLangFromCountry) :
+   * c'est lui la nouvelle autorité par défaut (navigateur en + pays SN → fr).
    */
   const applyAutoDetectedLang = useCallback((newLang: Language) => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('qrbag_lang')) {
-      return; // préférence explicite → ne rien changer
-    }
-    if (!['fr', 'en', 'ar'].includes(newLang)) return;
-    serverLangApplied = true; // 🔔 protège contre la race avec detect-country
+    if (countryLangApplied) return; // le pays a déjà tranché
+    if (hasExplicitLangPreference()) return; // choix explicite → intangible
+    if (!VALID_LANGS.includes(newLang)) return;
+    serverLangApplied = true; // 🔔 protège contre la race avec les heuristiques navigateur
     setLangState(newLang);
   }, []);
 
