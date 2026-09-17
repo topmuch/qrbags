@@ -52,7 +52,6 @@ import {
   Luggage,
   SlidersHorizontal,
   Download,
-  PartyPopper,
   QrCode,
   ShoppingBag,
 } from 'lucide-react';
@@ -425,7 +424,7 @@ function ChecklistPageContent() {
                   transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 0.15 }}
                   className="mx-auto mb-4 w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-xl"
                 >
-                  <PartyPopper className="w-10 h-10 text-[#e6216e]" strokeWidth={2.2} />
+                  <img src="/logo.png" alt="Logo QRBags" className="w-16 h-auto object-contain" />
                 </motion.div>
                 <h1 className="relative text-2xl md:text-3xl font-black text-white mb-1.5">
                   {t('checklist.success_title')}
