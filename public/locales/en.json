@@ -530,6 +530,11 @@
     "email_docs_error": "Unable to send the email. Check the address and try again.",
     "checklist_title": "🎒 Prepare your trip with ease",
     "checklist_cta": "Create my free checklist →",
-    "tagline": "Smart luggage tracking solution"
+    "tagline": "Smart luggage tracking solution",
+    "welcome_title": "Welcome aboard! ✨",
+    "welcome_subtitle": "Tap the button: an audio guide explains how your baggage protection works.",
+    "welcome_cta": "Listen to the guide",
+    "welcome_audio_hint": "Audio guide · 30 s",
+    "replay_audio": "Play the guide again"
   }
 }

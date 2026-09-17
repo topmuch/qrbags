@@ -1615,3 +1615,22 @@ Stage Summary:
 - Guides vocaux trouveur régénérés en qualité neuronale native fr/en/ar — l'arabe passe d'inintelligible à parfaitement articulé, le français de mumble à limpide, l'anglais corrige « WeChat »→« WhatsApp »
 - Loudness homogène et plus forte (-16 LUFS) → audible en environnement bruyant (aéroport)
 - z-ai-web-dev-sdk 0.0.18 (fix X-Token) — à retenir : TTS z-ai = zh/en OK, fr approximatif, ar inutilisable ; Edge TTS pour les autres langues
+
+---
+Task ID: guide-audio-page-confirmation
+Agent: Z.ai Code (main)
+Task: « sa marche bien merci je me disais est qu'on pourrait ça sur la page de confirmation de l'inscription » — étendre le guide vocal à la page /success
+
+Work Log:
+- Réutilisé le pattern Option B de la page trouveur (overlay z-70 + tap → débloque audio + bouton flottant réécouter z-40 ring doré)
+- Généré 3 guides de confirmation Edge TTS : fr-FR-DeniseNeural / en-US-AriaNeural / ar-SA-ZariyahNeural (rate -6%), normalisés -16 LUFS, mp3 24 kHz mono → public/audio/confirm-guide-{fr,en,ar}.mp3 (23-29 s)
+- Script audio : félicitations protection active, coller l'étiquette QR, notification WhatsApp si scan, passeport bagage par e-mail, bon voyage
+- Vérification ASR : 3/3 transcriptions fidèles (fr = intégrale, en = intégrale, ar = intégrale intelligible)
+- i18n : +5 clés success.{welcome_title,welcome_subtitle,welcome_cta,welcome_audio_hint,replay_audio} dans fr/en/ar.json
+- success/page.tsx : +useCallback/useRef, playGuideAudio (new Audio(/audio/confirm-guide-${lang}.mp3), onplay/onended/onpause/onerror silencieux), handleWelcomeStart, overlay AnimatePresence (logo animé, titre, sous-titre, pilule référence conditionnelle, CTA 56 px, hint), bouton réécouter ; lint OK
+- E2E agent-browser : sessionStorage activationData injecté + mock countryCode SN → overlay FR (« Bienvenue à bord ! ✨ ») → tap → GET confirm-guide-fr.mp3 206 ; localStorage qrbag_lang=ar explicite → overlay AR (« أهلاً بك على متن الرحلة! ✨ ») → tap → GET confirm-guide-ar.mp3 206 + bouton « إعادة تشغيل الدليل » ; mobile 390 px screenshot OK (CTA 56 px) ; zéro erreur console
+
+Stage Summary:
+- Page /success : guide vocal de confirmation actif dans la langue détectée — félicite, explique étiquette QR + notification WhatsApp + passeport e-mail, bouton réécouter flottant
+- 6 fichiers audio au total (scan-guide-* + confirm-guide-*), tous Edge TTS neural -16 LUFS
+- Fichiers : public/audio/confirm-guide-{fr,en,ar}.mp3 ; scripts : /home/z/voicetest/regen-confirm.sh

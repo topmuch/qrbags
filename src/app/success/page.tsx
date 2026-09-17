@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FormEvent } from 'react';
 import Link from 'next/link';
 import {
@@ -14,9 +14,10 @@ import {
   Mail,
   Loader2,
   CheckCircle2,
+  Volume2,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import SuccessOverlay from '@/components/ui/SuccessOverlay';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from '@/hooks/use-toast';
@@ -107,7 +108,40 @@ function SuccessContent() {
   const [activationData, setActivationData] = useState<ActivationData | null>(null);
   const [emailValue, setEmailValue] = useState('');
   const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+
+  // ─── AUDIO-GUIDE DE CONFIRMATION ───
+  // Même pattern que la page trouveur : le premier tap sur l'overlay débloque
+  // l'audio du navigateur (autoplay policy) puis lance le guide vocal
+  // pré-généré (/audio/confirm-guide-{lang}.mp3). Bouton flottant pour réécouter.
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playGuideAudio = useCallback(() => {
+    try {
+      // Stoppe toute lecture précédente (bouton « réécouter »)
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      const audio = new Audio(`/audio/confirm-guide-${lang}.mp3`);
+      audioRef.current = audio;
+      audio.onplay = () => setIsAudioPlaying(true);
+      audio.onended = () => setIsAudioPlaying(false);
+      audio.onpause = () => setIsAudioPlaying(false);
+      // Fichier manquant / refus navigateur → silencieux, la page reste fonctionnelle
+      audio.onerror = () => setIsAudioPlaying(false);
+      void audio.play().catch(() => setIsAudioPlaying(false));
+    } catch {
+      setIsAudioPlaying(false);
+    }
+  }, [lang]);
+
+  const handleWelcomeStart = useCallback(() => {
+    setShowWelcome(false);
+    playGuideAudio();
+  }, [playGuideAudio]);
 
   // Lecture unique de sessionStorage au mount — pattern légitime (storage externe non disponible au SSR)
   useEffect(() => {
@@ -239,6 +273,92 @@ function SuccessContent() {
       <main className="min-h-screen flex items-center justify-center">
         {/* SuccessOverlay — feedback premium d'activation (indépendant du thème) */}
         <SuccessOverlay show={activationConfirmed} messageKey="activation.success" t={t} />
+
+        {/* ═══ AUDIO-GUIDE — Overlay d'accueil « Écouter le guide » ═══
+            Premier tap = interaction utilisateur → débloque l'audio (autoplay policy)
+            → lance le guide vocal pré-généré (/audio/confirm-guide-{lang}.mp3) */}
+        <AnimatePresence>
+          {showWelcome && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-[#16234e]/70 backdrop-blur-md"
+              role="dialog"
+              aria-modal="true"
+              aria-label={t('success.welcome_title')}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 24, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.45, ease: 'easeOut' }}
+                className="w-full max-w-sm"
+              >
+                <BrandCard corners className="w-full overflow-hidden">
+                  {/* Bandeau dégradé signature */}
+                  <div className="relative bg-gradient-qrbag px-5 pt-7 pb-6 text-center overflow-hidden">
+                    <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
+                    <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
+                    <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
+                    <span className="absolute bottom-4 left-4 text-lg" aria-hidden>🎉</span>
+
+                    <motion.div
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                      className="relative w-20 h-20 mx-auto mb-4 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
+                    >
+                      <img src="/logo.png" alt="Logo QRBags" className="w-16 h-16 object-contain rounded-2xl" aria-hidden />
+                    </motion.div>
+
+                    <h2 className="relative text-2xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                      {t('success.welcome_title')}
+                    </h2>
+                    <p className="relative mt-2 text-sm text-white/90 leading-relaxed max-w-xs mx-auto font-medium">
+                      {t('success.welcome_subtitle')}
+                    </p>
+                    {reference && (
+                      <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
+                        <Luggage className="w-3.5 h-3.5" aria-hidden />
+                        {reference}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* CTA — le tap débloque l'audio et ferme l'overlay */}
+                  <div className="bg-white px-4 py-5">
+                    <button
+                      type="button"
+                      onClick={handleWelcomeStart}
+                      className="relative w-full py-4 rounded-2xl bg-gradient-qrbag text-white font-extrabold text-base sm:text-lg flex items-center justify-center gap-2.5 shadow-lg shadow-[#8b17c9]/30 min-h-[56px] hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                    >
+                      <Volume2 className="w-6 h-6" aria-hidden />
+                      {t('success.welcome_cta')}
+                    </button>
+                    <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#16234e]/50 text-center flex items-center justify-center gap-1.5">
+                      <Volume2 className="w-3.5 h-3.5" aria-hidden />
+                      {t('success.welcome_audio_hint')}
+                    </p>
+                  </div>
+                </BrandCard>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Bouton flottant « réécouter » — visible après fermeture de l'overlay */}
+        {!showWelcome && (
+          <button
+            type="button"
+            onClick={playGuideAudio}
+            aria-label={t('success.replay_audio')}
+            title={t('success.replay_audio')}
+            className={`fixed bottom-4 left-4 z-40 w-12 h-12 rounded-full bg-[#16234e] text-white shadow-lg flex items-center justify-center hover:bg-[#1c2d63] transition-colors ${isAudioPlaying ? 'ring-2 ring-[#ffd200] ring-offset-2' : ''}`}
+          >
+            <Volume2 className={`w-5 h-5 ${isAudioPlaying ? 'animate-pulse' : ''}`} aria-hidden />
+          </button>
+        )}
 
         <div className="max-w-md w-full py-8 px-4">
           {/* ═══ 🎉 HERO CÉLÉBRATION — bandeau dégradé + confettis + cercle Check ═══ */}

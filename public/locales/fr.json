@@ -530,6 +530,11 @@
     "email_docs_error": "Impossible d'envoyer l'email. Vérifiez l'adresse et réessayez.",
     "checklist_title": "🎒 Préparez votre voyage sereinement",
     "checklist_cta": "Créer ma checklist gratuite →",
-    "tagline": "Solution intelligente de suivi de bagages"
+    "tagline": "Solution intelligente de suivi de bagages",
+    "welcome_title": "Bienvenue à bord ! ✨",
+    "welcome_subtitle": "Appuyez sur le bouton : un guide audio vous explique le fonctionnement de la protection de votre bagage.",
+    "welcome_cta": "Écouter le guide",
+    "welcome_audio_hint": "Guide audio · 30 s",
+    "replay_audio": "Réécouter le guide"
   }
 }
