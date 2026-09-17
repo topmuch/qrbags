@@ -151,12 +151,14 @@ function InscrireContent() {
   // REWARD-FEATURE: récompense proposée en cas de perte
   const [reward, setReward] = useState('');
 
-  // Sync phoneCountry when countryCode is detected
+  // 🔔 Sync phoneCountry when countryCode is detected (IP / locales / fuseau).
+  // Garde-fous : l'utilisateur n'a ni saisi de numéro WhatsApp, ni choisi
+  // manuellement un autre pays — sinon on n'écrase JAMAIS son choix.
   useEffect(() => {
-    if ((countryCode && countryCode !== 'FR') || !phoneCountry) {
-      setPhoneCountry(countryCode);
+    if (countryCode && countryCode !== 'FR' && !formData.whatsapp) {
+      setPhoneCountry(prev => (prev === 'FR' ? countryCode : prev));
     }
-  }, [countryCode]);
+  }, [countryCode, formData.whatsapp]);
 
   // 🔒 Référence absente → activation impossible
   const missingReference = !formData.reference;

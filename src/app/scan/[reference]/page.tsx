@@ -344,6 +344,17 @@ export default function ScanPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 🔔 Indicatif préselectionné : resynchronisé quand la détection pays (IP /
+  // locales / fuseau) résout APRÈS le montage — `countryCode` vaut 'FR' au
+  // premier render. Garde-fous : l'utilisateur n'a ni saisi de numéro, ni
+  // choisi manuellement un autre pays (sinon on n'écrase pas son choix).
+  useEffect(() => {
+    if (countryCode && countryCode !== 'FR' && !finderPhone) {
+      setFinderPhoneCountry(prev => (prev === 'FR' ? countryCode : prev));
+    }
+  }, [countryCode, finderPhone]);
+
+
   // SuccessOverlay state
   const [scanConfirmed, setScanConfirmed] = useState(false);
   const hasConfirmedRef = useRef(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Language,
   loadTranslations,
@@ -9,6 +9,7 @@ import {
   LANGUAGE_DIRECTION,
   LANGUAGE_NAMES
 } from '@/lib/i18n';
+import { detectCountryClientSide, isSupportedCountry } from '@/lib/phone';
 
 interface UseTranslationReturn {
   t: (key: string, params?: Record<string, string>) => string;
@@ -43,6 +44,31 @@ export function useTranslation(): UseTranslationReturn {
   // (bug observé : retour EN→FR sans re-render, textes restés en anglais).
   const [dict, setDict] = useState<Record<string, string>>({});
 
+  // Miroir de `lang` lisible depuis les callbacks à dépendances vides
+  // (applyDetectedLangFromCountry) sans les recréer à chaque changement.
+  const langRef = useRef<Language>('fr');
+  useEffect(() => {
+    langRef.current = lang;
+  }, [lang]);
+
+  /**
+   * 🔔 Réalignement langue ← pays détecté (flux indicatif téléphonique).
+   * Appliqué UNIQUEMENT sans préférence explicite (localStorage, cookie serveur
+   * qrbag_locale ou langue serveur déjà appliquée) — même contrat que
+   * applyAutoDetectedLang. Ex. : pays détecté 'SA' → langue 'ar' si l'utilisateur
+   * n'a jamais choisi sa langue.
+   */
+  const applyDetectedLangFromCountry = useCallback((country: string) => {
+    if (serverLangApplied) return;
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('qrbag_lang')) return;
+    if (typeof document !== 'undefined' && /qrbag_locale=(fr|en|ar)/.test(document.cookie)) return;
+    const detected = detectLanguageFromCountry(country);
+    if (detected && detected !== langRef.current) {
+      serverLangApplied = true; // évite qu'un re-render tardif écrase ce choix
+      setLangState(detected);
+    }
+  }, []);
+
   // Detect language on mount
   useEffect(() => {
     const detectLanguage = async () => {
@@ -67,34 +93,63 @@ export function useTranslation(): UseTranslationReturn {
         }
       }
 
-      // 3. Try IP-based country detection
-      try {
-        const response = await fetch('/api/detect-country');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.countryCode) {
-            setCountryCode(data.countryCode.toUpperCase());
-            // 🔔 Re-check après await : la langue serveur a pu être appliquée
-            // pendant le fetch (page scan) → on ne l'écrase PAS
-            if (serverLangApplied) return;
-            const detectedLang = detectLanguageFromCountry(data.countryCode);
-            setLangState(detectedLang);
-            return;
-          }
-        }
-      } catch (error) {
-        console.log('IP detection failed, falling back to browser detection');
-      }
-
       // 🔔 Ne pas écraser une langue serveur déjà appliquée
       if (serverLangApplied) return;
 
-      // 4. Fallback to browser language
+      // 3. Fallback to browser language — la détection pays (IP) vit désormais
+      // dans SON PROPRE useEffect ci-dessous : elle s'exécute TOUJOURS
+      // (même quand une préférence de langue court-circuite ce flux) et
+      // réalignera la langue via applyDetectedLangFromCountry si pertinent.
       const browserLang = detectLanguageFromBrowser();
       setLangState(browserLang);
     };
 
     detectLanguage();
+  }, []);
+
+  // 🔔 DÉTECTION PAYS (indicatif téléphonique) — flux INDÉPENDANT de la langue :
+  // s'exécute à CHAQUE montage, même quand localStorage/cookie court-circuitent
+  // la détection de langue. Sans cela, le drapeau du sélecteur restait bloqué
+  // sur 🇫🇷 +33 pour tout utilisateur ayant une langue sauvegardée ou arrivant
+  // via un scan QR (cookie qrbag_locale posé par la route scan).
+  useEffect(() => {
+    let cancelled = false;
+
+    const detectCountry = async () => {
+      // 1. Géoloc IP côté serveur (le plus fiable quand elle aboutit vraiment)
+      try {
+        const res = await fetch('/api/detect-country');
+        if (res.ok) {
+          const data = await res.json();
+          const cc: string = typeof data?.countryCode === 'string' ? data.countryCode.toUpperCase() : '';
+          // On ne fait confiance au serveur que si la géoloc a RÉELLEMENT abouti
+          // (IP publique résolue) et que le pays est supporté par le sélecteur —
+          // sinon (quota épuisé, IP privée/VPN datacenter) on garde les replis locaux.
+          if (data?.detected && cc && isSupportedCountry(cc)) {
+            if (cancelled) return;
+            setCountryCode(cc);
+            applyDetectedLangFromCountry(cc);
+            return;
+          }
+        }
+      } catch {
+        // réseau indisponible → replis locaux ci-dessous
+      }
+
+      // 2. Repli 100 % local : région des locales navigateur → fuseau horaire
+      if (cancelled) return;
+      const localCountry = detectCountryClientSide();
+      if (localCountry) {
+        setCountryCode(localCountry);
+        applyDetectedLangFromCountry(localCountry);
+      }
+      // sinon : 'FR' (état initial) — sélecteur à drapeau disponible de toute façon
+    };
+
+    detectCountry();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Load translations when language changes

@@ -180,3 +180,101 @@ export function formatPhoneDisplay(raw: string, countryCode: string): string {
   const spaced = localPart.replace(/(\d{1,2})(?=\d)/g, '$1 ');
   return `${dial} ${spaced}`;
 }
+
+// ─── Country detection (client-side fallbacks, zéro appel réseau) ───────────
+
+/** True si le code ISO 2 lettres fait partie des pays supportés par le sélecteur. */
+export function isSupportedCountry(code: string): boolean {
+  if (!code || typeof code !== 'string') return false;
+  return !!COUNTRY_MAP[code.toUpperCase()];
+}
+
+/**
+ * Fuseau horaire principal → pays ISO pour chaque pays de COUNTRIES.
+ * Utilisé comme repli hors-ligne quand la géoloc IP échoue :
+ * 'Africa/Dakar' → 'SN', 'Asia/Riyadh' → 'SA', 'Europe/Paris' → 'FR'...
+ */
+const TIMEZONE_TO_COUNTRY: Record<string, string> = {
+  // Europe
+  'Europe/Paris': 'FR', 'Europe/Brussels': 'BE', 'Europe/Luxembourg': 'LU',
+  'Europe/Monaco': 'MC', 'Europe/Rome': 'IT', 'Europe/Madrid': 'ES',
+  'Europe/Berlin': 'DE', 'Europe/Lisbon': 'PT', 'Europe/Amsterdam': 'NL',
+  'Europe/Zurich': 'CH', 'Europe/London': 'GB', 'Europe/Dublin': 'IE',
+  'Europe/Moscow': 'RU', 'Europe/Istanbul': 'TR',
+  // Afrique francophone & anglophone
+  'Africa/Dakar': 'SN', 'Africa/Abidjan': 'CI', 'Africa/Bamako': 'ML',
+  'Africa/Ouagadougou': 'BF', 'Africa/Niamey': 'NE', 'Africa/Lome': 'TG',
+  'Africa/Porto-Novo': 'BJ', 'Africa/Bangui': 'CF', 'Africa/Ndjamena': 'TD',
+  'Africa/Brazzaville': 'CG', 'Africa/Kinshasa': 'CD', 'Africa/Lubumbashi': 'CD',
+  'Africa/Libreville': 'GA', 'Africa/Douala': 'CM', 'Africa/Kigali': 'RW',
+  'Africa/Bujumbura': 'BI', 'Africa/Djibouti': 'DJ', 'Africa/Comoro': 'KM',
+  'Africa/Conakry': 'GN', 'Africa/Nouakchott': 'MR', 'Africa/Mahe': 'SC',
+  'Africa/Casablanca': 'MA', 'Africa/Algiers': 'DZ', 'Africa/Tunis': 'TN',
+  'Africa/Tripoli': 'LY', 'Africa/Cairo': 'EG', 'Africa/Khartoum': 'SD',
+  'Africa/Nairobi': 'KE', 'Africa/Kampala': 'UG', 'Africa/Dar_es_Salaam': 'TZ',
+  'Africa/Lagos': 'NG', 'Africa/Accra': 'GH', 'Africa/Addis_Ababa': 'ET',
+  'Africa/Maputo': 'MZ', 'Africa/Harare': 'ZW', 'Africa/Lusaka': 'ZM',
+  'Africa/Windhoek': 'NA', 'Africa/Gaborone': 'BW', 'Africa/Maseru': 'LS',
+  'Africa/Mbabane': 'SZ', 'Africa/Antananarivo': 'MG', 'Africa/Freetown': 'SL',
+  'Africa/Monrovia': 'LR', 'Africa/Banjul': 'GM', 'Africa/Sao_Tome': 'ST',
+  'Africa/Malabo': 'GQ', 'Africa/Asmara': 'ER', 'Africa/Mogadishu': 'SO',
+  'Africa/Blantyre': 'MW', 'Africa/Luanda': 'AO', 'Africa/Bissau': 'GW',
+  // Moyen-Orient / monde arabe
+  'Asia/Riyadh': 'SA', 'Asia/Dubai': 'AE', 'Asia/Amman': 'JO',
+  'Asia/Beirut': 'LB', 'Asia/Damascus': 'SY', 'Asia/Baghdad': 'IQ',
+  'Asia/Kuwait': 'KW', 'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH',
+  'Asia/Muscat': 'OM', 'Asia/Aden': 'YE', 'Asia/Gaza': 'PS', 'Asia/Hebron': 'PS',
+  // Amériques, Asie, Océanie
+  'America/New_York': 'US', 'America/Chicago': 'US', 'America/Denver': 'US',
+  'America/Los_Angeles': 'US', 'America/Toronto': 'CA', 'America/Vancouver': 'CA',
+  'America/Sao_Paulo': 'BR', 'America/Mexico_City': 'MX',
+  'Australia/Sydney': 'AU', 'Australia/Melbourne': 'AU', 'Pacific/Auckland': 'NZ',
+  'Asia/Kolkata': 'IN', 'Asia/Karachi': 'PK', 'Asia/Manila': 'PH',
+  'Asia/Singapore': 'SG', 'Asia/Kuala_Lumpur': 'MY', 'Asia/Hong_Kong': 'HK',
+  'Asia/Shanghai': 'CN', 'Asia/Tokyo': 'JP', 'Asia/Seoul': 'KR',
+  'Asia/Bangkok': 'TH', 'Asia/Jakarta': 'ID', 'Asia/Ho_Chi_Minh': 'VN',
+};
+
+/** 'Africa/Dakar' → 'SN' (null si fuseau inconnu ou pays non supporté). */
+export function countryFromTimezone(tz: string): string | null {
+  if (!tz) return null;
+  const cc = TIMEZONE_TO_COUNTRY[tz];
+  return cc && isSupportedCountry(cc) ? cc : null;
+}
+
+/**
+ * Détection pays 100 % locale (aucun réseau) — repli quand l'API IP échoue.
+ * 1. Région des locales navigateur : 'fr-SN' → 'SN', 'ar-SA' → 'SA'
+ * 2. Fuseau horaire : 'Africa/Dakar' → 'SN'
+ * Retourne null si rien de fiable (l'appelant garde alors son défaut).
+ */
+export function detectCountryClientSide(): string | null {
+  if (typeof navigator === 'undefined') return null;
+
+  // 1. Région des locales (Intl.Locale gère les cas exotiques 'zh-Hant-TW')
+  const locales: string[] = [
+    ...((navigator.languages as readonly string[] | undefined) ?? []),
+    navigator.language,
+  ].filter((l): l is string => typeof l === 'string' && l.length > 0);
+  for (const loc of locales) {
+    try {
+      const region = new Intl.Locale(loc).region; // ex. 'SN'
+      if (region && isSupportedCountry(region)) return region.toUpperCase();
+    } catch {
+      // Intl.Locale indisponible / locale malformée → segment régional simple
+      const m = loc.match(/[-_]([A-Za-z]{2})$/);
+      if (m && isSupportedCountry(m[1])) return m[1].toUpperCase();
+    }
+  }
+
+  // 2. Fuseau horaire
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const cc = countryFromTimezone(tz ?? '');
+    if (cc) return cc;
+  } catch {
+    /* Intl indisponible */
+  }
+
+  return null;
+}

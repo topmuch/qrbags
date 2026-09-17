@@ -1536,3 +1536,25 @@ Stage Summary:
 - Guide vocal trouveur opérationnel : overlay jolie bannière « Appuyez pour contacter » → tap → voix TTS dans la langue détectée + bouton réécouter ; conformité autoplay policy respectée par construction
 - Bug WhatsApp « Télécharger WhatsApp » : cause racine démontrée (corruption emojis par wa.me + universel link manquant) ; lien wa.me + message sans emojis + toast de secours
 - À surveiller en prod : si un bagage a un numéro sans indicatif pays (anciens enregistrements), le fallback support s'applique — le warn console [SCAN {ref}] permettra de les identifier et de les corriger en base
+
+---
+Task ID: fix-detection-pays-indicatif
+Agent: Z.ai Code (main)
+Task: Corriger la détection du pays pour préselectionner le bon drapeau/indicatif téléphonique (IP ou repli local) sur /inscrire et /scan/[reference]
+
+Work Log:
+- Diagnostic : 3 causes racines — (1) useTranslation.ts : l'appel /api/detect-country était PIÉGÉ dans le flux de détection de langue avec des return anticipés (localStorage qrbag_lang OU cookie qrbag_locale posé par la route scan = cas de TOUS les trouveurs via QR) → countryCode restait 'FR' en permanence ; (2) page scan : finderPhoneCountry initialisé une seule fois au montage (countryCode='FR' au premier render) sans resync ; (3) API : fournisseur unique ipapi.co (quota gratuit 1000/mois, renvoie 429 — constaté en test), sans cache ni fallback
+- src/lib/phone.ts : helpers ajoutés — isSupportedCountry(), TIMEZONE_TO_COUNTRY (~75 fuseaux → pays des COUNTRIES), countryFromTimezone(), detectCountryClientSide() (région des locales via Intl.Locale ex. 'fr-SN'→'SN', puis fuseau horaire, puis null)
+- src/hooks/useTranslation.ts : détection pays EXTRAITE dans son propre useEffect (s'exécute toujours, indépendamment des préférences de langue) ; le serveur n'est cru QUE si detected===true + pays supporté, sinon repli local ; ajout applyDetectedLangFromCountry (réaligne la langue fr/en/ar depuis le pays détecté, uniquement sans préférence explicite — même contrat que applyAutoDetectedLang) + langRef
+- src/app/api/detect-country/route.ts : réécrit — header cf-ipcountry (instantané si Cloudflare), cache mémoire 24 h (5000 IP max, éviction FIFO), cascade ipapi.co → ipwho.is (timeouts 3,5 s), IP extraite de x-forwarded-for/x-real-ip/cf-connecting-ip (1er élément public), réponse honest detected:false quand rien n'est résolu (le client n'est JAMAIS forcé vers FR)
+- src/app/scan/[reference]/page.tsx : effet de resync finderPhoneCountry quand countryCode résout après montage (garde : numéro vide + pays actuel encore 'FR' → n'écrase jamais un choix manuel)
+- src/app/inscrire/page.tsx : même effet de resync pour phoneCountry (garde : formData.whatsapp vide + prev==='FR')
+- Tests curl : IP privée → detected:false ; IP sénégalaise de test 41.82.17.25 → SN via ipwho.is (ipapi.co 429 en amont = preuve du besoin du fallback) ; cf-ipcountry:SA → SA instantané ; cache → 2e appel en 12 ms
+- E2E agent-browser : mock réseau {"countryCode":"SN","detected":true} → /scan/DEMO-QRBAG affiche drapeau 🇸🇳 +221 dans le formulaire trouveur, /inscrire?qr=TEST-PAYS affiche 🇸🇳 +221 (screenshot) ; sans mock (IP privée) → repli locale navigateur en-US → 🇺🇸 +1 ; dropdown recherche « France » → 🇫🇷 +33 avec numéro local préservé ; saisie formatée en paires ; desktop 1280 px + mobile 390 px ; zéro erreur console
+- lint OK ; commit + push origin main
+
+Stage Summary:
+- Le drapeau/indicatif est désormais correctement préselectionné : géoloc IP (2 fournisseurs + cache 24 h + header Cloudflare) puis repli 100 % local (région des locales navigateur → fuseau horaire) puis FR par défaut
+- Le sélecteur à drapeaux existant (recherche par pays) reste la voie manuelle ; les corrections garantissent que son DÉFAUT est le bon pays au lieu d'être figé sur 🇫🇷
+- Ne casse pas la détection de langue : le pays détecté réaligne la langue uniquement si l'utilisateur n'a jamais choisi (localStorage/cookie/serveur respectés)
+- Un numéro saisi est toujours stocké en E.164 complet (+221771234567) → WhatsApp/lien wa.me fiables
