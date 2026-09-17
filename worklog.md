@@ -1486,3 +1486,29 @@ Stage Summary:
 - Design système logo unifié : badge arrondi blanc identique sur tous les headers (18 fichiers, ~40 pages), logo agrandi, headers rehaussés
 - Footers publics entièrement blancs, cohérents sur les 20+ pages concernées
 - Page contact enrichie d'une carte Google avec itinéraire natif
+
+---
+Task ID: fix-upload-photo-inscription
+Agent: Z.ai Code (main)
+Task: Corriger les 2 bugs d'upload de la photo de la valise lors de l'inscription — (1) « Échec de l'envoi de la photo » au téléchargement, (2) « Envoi en cours » infini à la photo prise au téléphone
+
+Work Log:
+- Localisé le flux photo : src/app/inscrire/page.tsx (compressAndUpload → POST /api/baggage-photo/upload) + src/lib/photo-storage.ts + src/app/api/baggage-photo/[reference]/route.ts
+- Diagnostic bug 1 : la route POST /api/baggage-photo/upload avait été supprimée accidentellement par le commit de reset df1d138 (elle datait de d52f396) → le client recevait un 405 (match [reference] sans export POST) → « Échec de l'envoi de la photo » systématique
+- Diagnostic bug 2 : pipeline client sans timeouts — sur mobile le décodage d'une photo (HEIC iPhone, capteur 48 MP) peut ne déclencher NI img.onload NI img.onerror → promesse jamais résolue → spinner « Envoi en cours... » infini (photoUploading restait true)
+- Recréé src/app/api/baggage-photo/upload/route.ts : rate limit 15/h, 10 Mo max, types jpg/png/webp/gif + heic/heif, tolère type mime vide (navigateurs mobiles), écrit via writePhotoToDisk('baggage-photos') (staging) ; le BLOB DB est copié à l'activation (chemin inchangé)
+- photo-storage.ts : ajouté heic → image/heic et heif → image/heif dans PHOTO_MIME_BY_EXT (lecture disque + service GET avec bon Content-Type)
+- inscrire/page.tsx : pipeline durci — withTimeout sur chaque étape (FileReader 15 s, décodage img 10 s, canvas.toBlob 15 s, fetch 45 s AbortController), watchdog global 75 s qui force la fin de l'état « envoi en cours », chemin HEIC → upload direct sans canvas, fallback d'envoi du fichier original si la compression échoue (≤ 10 Mo + extension image connue), messages d'erreur différenciés (taille vs générique)
+- UI : condition d'affichage de l'aperçu devient photoPath || photoPreview ; placeholder « Photo enregistrée » (icône ImageIcon) quand l'image n'est pas décodable localement (HEIC) ; boutons Supprimer/Changer inchangés
+- i18n : clés inscrire.photo_saved et inscrire.photo_error_size ajoutées dans fr.json / en.json / ar.json (insertion ordonnée après photo_error)
+- Tests curl : JPEG 200 OK (photoPath retourné), HEIC 200 OK (fichier .heic écrit), PDF rejeté 400 avec message, sans fichier → erreur ; photoMimeFromPath vérifié (heic → image/heic)
+- Tests E2E agent-browser : /inscrire?qr=TEST-UPLOAD → upload fichier JPEG = aperçu affiché, aucun message d'erreur, aucun spinner bloqué, nouveau fichier bien écrit dans uploads/baggage-photos/ ; upload HEIC via input caméra = placeholder « Photo enregistrée » affiché ; vérifié desktop 1280 px + mobile 390 px, zéro erreur console
+- Ajouté uploads/ au .gitignore (photos utilisateurs = données personnelles, ne doivent jamais être commitées)
+- Fichiers de test supprimés, lint OK, commit 21e7b72, push origin main (6ce9969..21e7b72)
+
+Stage Summary:
+- Les deux bugs d'upload photo de l'inscription sont corrigés et vérifiés E2E (fichier ET caméra)
+- Cause racine bug 1 : route API supprimée par un reset git passé — restaurée avec hardening (HEIC, mime vide, rate limit)
+- Cause racine bug 2 : absence totale de timeout dans le pipeline de compression client — désormais chaque étape est bornée + watchdog global + fallback fichier original
+- La photo HEIC iPhone est envoyée telle quelle (mime image/heic conservé jusqu'au BLOB DB) ; seuls les très vieux navigateurs ne l'afficheront pas sur la page trouveur
+- Push déclenche le redéploiement Coolify — à confirmer en prod par l'utilisateur
