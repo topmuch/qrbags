@@ -156,9 +156,11 @@ function Navigation() {
       {/* Liseré dégradé signature en haut */}
       <div className="h-[3px] w-full bg-gradient-qrbag" aria-hidden />
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-[68px]">
+        <div className="flex items-center justify-between h-20 lg:h-[88px]">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <img src="/logo.png" alt="QRBags" className="h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+            <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm">
+              <img src="/logo.png" alt="QRBags" className="h-14 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+            </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
@@ -984,28 +986,28 @@ function Footer() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-12">
           <div className="lg:col-span-2">
             <div className="mb-5 inline-block bg-white rounded-2xl px-4 py-2.5"><img src="/logo.png" alt="QRBags" className="h-11 w-auto object-contain" /></div>
-            <p className="text-base leading-relaxed max-w-xs text-white/60 mb-7">Solution intelligente de suivi de bagages. Scannez, retrouvez, voyagez l&apos;esprit tranquille.</p>
+            <p className="text-base leading-relaxed max-w-xs text-white mb-7">Solution intelligente de suivi de bagages. Scannez, retrouvez, voyagez l&apos;esprit tranquille.</p>
             <div className="flex items-center gap-2.5">
               {[{ icon: Facebook, href: 'https://facebook.com/qrbags', label: 'Facebook' }, { icon: Instagram, href: 'https://instagram.com/qrbags', label: 'Instagram' }, { icon: Twitter, href: 'https://twitter.com/qrbags', label: 'Twitter' }].map(s => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-gradient-qrbag rounded-xl flex items-center justify-center transition-all duration-300" aria-label={s.label}><s.icon className="w-5 h-5 text-white/70 hover:text-white transition-colors" /></a>
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-gradient-qrbag rounded-xl flex items-center justify-center transition-all duration-300" aria-label={s.label}><s.icon className="w-5 h-5 text-white" /></a>
               ))}
             </div>
           </div>
           {columns.map(col => (
             <div key={col.title}>
-              <h4 className="text-sm font-black tracking-[0.1em] uppercase text-[#f8921f] mb-5">{col.title}</h4>
-              <ul className="space-y-3">{col.links.map(link => (<li key={link.label}><Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors duration-300">{link.label}</Link></li>))}</ul>
+              <h4 className="text-sm font-black tracking-[0.1em] uppercase text-white mb-5">{col.title}</h4>
+              <ul className="space-y-3">{col.links.map(link => (<li key={link.label}><Link href={link.href} className="text-sm text-white hover:text-white/70 transition-colors duration-300">{link.label}</Link></li>))}</ul>
             </div>
           ))}
         </div>
         <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-white/40">&copy; {new Date().getFullYear()} QRBags. Tous droits réservés.</p>
+          <p className="text-sm text-white">&copy; {new Date().getFullYear()} QRBags. Tous droits réservés.</p>
           <div className="flex items-center gap-4 text-sm">
-            <Link href="/mentions-legales" className="text-white/40 hover:text-white transition-colors">Mentions légales</Link>
+            <Link href="/mentions-legales" className="text-white hover:text-white/70 transition-colors">Mentions légales</Link>
             <span className="text-white/20">·</span>
-            <Link href="/confidentialite" className="text-white/40 hover:text-white transition-colors">Confidentialité</Link>
+            <Link href="/confidentialite" className="text-white hover:text-white/70 transition-colors">Confidentialité</Link>
             <span className="text-white/20">·</span>
-            <Link href="/cgu" className="text-white/40 hover:text-white transition-colors">CGU</Link>
+            <Link href="/cgu" className="text-white hover:text-white/70 transition-colors">CGU</Link>
           </div>
         </div>
       </div>

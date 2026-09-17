@@ -257,8 +257,8 @@ function CommanderContent() {
     <BrandShell>
       {/* ─── En-tête ─── */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-[#16234e]/10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          <BrandLogo className="h-9 w-auto" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3">
+          <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm"><BrandLogo className="h-14 w-auto" /></span>
           <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-[#16234e]/60">
             <ShieldCheck className="w-4 h-4 text-[#2f9bff]" aria-hidden />
             Sans compte · Réponse sous 24h

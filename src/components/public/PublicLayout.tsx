@@ -31,10 +31,12 @@ export function PublicNavigation() {
       {/* Liseré dégradé signature QRBags — très haut de page */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-qrbag pointer-events-none" aria-hidden />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+        <div className="flex items-center justify-between h-20">
+          {/* Logo — badge arrondi harmonisé sur toutes les pages */}
           <Link href="/" className="flex items-center">
-            <img src="/logo.png" alt="QRBags" className="h-12 w-auto object-contain" />
+            <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm">
+              <img src="/logo.png" alt="QRBags" className="h-14 sm:h-16 w-auto object-contain" />
+            </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -104,18 +106,18 @@ export function PublicFooter() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Logo */}
           <div>
-            <div className="mb-4">
+            <div className="mb-4 inline-block bg-white rounded-2xl px-3 py-1.5">
               <img src="/logo.png" alt="QRBags" className="h-12 w-auto object-contain" />
             </div>
-            <p className="text-white/50 text-sm">
+            <p className="text-white text-sm">
               Protection intelligente des bagages pour voyageurs et pèlerins.
             </p>
           </div>
 
           {/* Produit */}
           <div>
-            <h4 className="font-bold text-sm tracking-wider uppercase text-white/80 mb-4">Produit</h4>
-            <ul className="space-y-2 text-white/50 text-sm">
+            <h4 className="font-bold text-sm tracking-wider uppercase text-white mb-4">Produit</h4>
+            <ul className="space-y-2 text-white text-sm">
               <li><a href="/#solutions" className="hover:text-white transition-colors">Solutions</a></li>
               <li><a href="/#comment" className="hover:text-white transition-colors">Comment ça marche</a></li>
               <li><a href="/#tarifs" className="hover:text-white transition-colors">Tarifs</a></li>
@@ -125,8 +127,8 @@ export function PublicFooter() {
 
           {/* Entreprise */}
           <div>
-            <h4 className="font-bold text-sm tracking-wider uppercase text-white/80 mb-4">Entreprise</h4>
-            <ul className="space-y-2 text-white/50 text-sm">
+            <h4 className="font-bold text-sm tracking-wider uppercase text-white mb-4">Entreprise</h4>
+            <ul className="space-y-2 text-white text-sm">
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               <li><Link href="/a-propos" className="hover:text-white transition-colors">À propos</Link></li>
               <li><Link href="/devenir-partenaire" className="hover:text-white transition-colors">Partenaires</Link></li>
@@ -135,8 +137,8 @@ export function PublicFooter() {
 
           {/* Légal */}
           <div>
-            <h4 className="font-bold text-sm tracking-wider uppercase text-white/80 mb-4">Légal</h4>
-            <ul className="space-y-2 text-white/50 text-sm">
+            <h4 className="font-bold text-sm tracking-wider uppercase text-white mb-4">Légal</h4>
+            <ul className="space-y-2 text-white text-sm">
               <li><Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions légales</Link></li>
               <li><Link href="/confidentialite" className="hover:text-white transition-colors">Politique de confidentialité</Link></li>
               <li><Link href="/cgu" className="hover:text-white transition-colors">CGU</Link></li>
@@ -146,20 +148,20 @@ export function PublicFooter() {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/40 text-sm">
+          <p className="text-white text-sm">
             © {new Date().getFullYear()} QRBags. Tous droits réservés.
           </p>
 
           {/* Social Icons */}
           <div className="flex items-center gap-3">
             <a href="#" className="w-9 h-9 bg-white/[0.05] hover:bg-white/[0.1] rounded-lg flex items-center justify-center transition-all">
-              <Facebook className="w-4 h-4 text-white/50 hover:text-white transition-colors" />
+              <Facebook className="w-4 h-4 text-white" />
             </a>
             <a href="#" className="w-9 h-9 bg-white/[0.05] hover:bg-white/[0.1] rounded-lg flex items-center justify-center transition-all">
-              <Instagram className="w-4 h-4 text-white/50 hover:text-white transition-colors" />
+              <Instagram className="w-4 h-4 text-white" />
             </a>
             <a href="#" className="w-9 h-9 bg-white/[0.05] hover:bg-white/[0.1] rounded-lg flex items-center justify-center transition-all">
-              <Twitter className="w-4 h-4 text-white/50 hover:text-white transition-colors" />
+              <Twitter className="w-4 h-4 text-white" />
             </a>
           </div>
 
@@ -168,7 +170,7 @@ export function PublicFooter() {
             href="https://maps.google.com/?q=Poissy+France"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-white/40 hover:text-white text-sm flex items-center gap-1 transition-colors"
+            className="text-white hover:text-white/70 text-sm flex items-center gap-1 transition-colors"
           >
             <MapPin className="w-4 h-4" />
             Nous trouver
@@ -189,7 +191,7 @@ interface PublicLayoutProps {
 export default function PublicLayout({ 
   children, 
   showFooter = true,
-  paddingTop = "pt-16"
+  paddingTop = "pt-20"
 }: PublicLayoutProps) {
   return (
     <div className="min-h-screen bg-white flex flex-col">

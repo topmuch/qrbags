@@ -208,7 +208,7 @@ function SuccessContent() {
           <BrandCard corners className="max-w-md w-full p-8 text-center">
             <div className="flex justify-center mb-4">
               <BrandIconRing size="w-16 h-16">
-                <img src="/logo.png" alt="Logo QRBags" className="w-11 h-11 object-contain rounded-xl" aria-hidden />
+                <img src="/logo.png" alt="Logo QRBags" className="w-11 h-11 object-contain rounded-2xl" aria-hidden />
               </BrandIconRing>
             </div>
             <h1 className="text-[#16234e] text-2xl font-bold mb-2">

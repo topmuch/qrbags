@@ -14,6 +14,7 @@ import {
   Mail,
   Phone,
   MapPinned,
+  Navigation,
   CheckCircle,
   Clock,
   MessageCircle
@@ -247,22 +248,46 @@ function ContactContent() {
         </div>
       </section>
 
-      {/* Map section — bandeau navy */}
+      {/* Map section — bandeau navy avec carte Google + itinéraire */}
       <section className="relative overflow-hidden bg-[#16234e] py-16 px-4">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-qrbag" aria-hidden />
         <div className="absolute inset-0 dotted-map-light opacity-60 pointer-events-none" aria-hidden />
-        <div className="relative max-w-6xl mx-auto text-center">
+        <div className="relative max-w-4xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-white mb-6">Nous trouver</h2>
           <p className="text-white/70 mb-8">Notre bureau est situé à Poissy, dans les Yvelines (78).</p>
-          <a
-            href="https://maps.google.com/?q=43+Rue+Maryse+Bastié+78300+Poissy+France"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${brandBtnGradient} inline-flex items-center gap-2 px-6 py-3 min-h-[48px]`}
-          >
-            <MapPinned className="w-5 h-5" aria-hidden />
-            Voir sur Google Maps
-          </a>
+
+          {/* Carte Google Maps intégrée */}
+          <div className="rounded-3xl overflow-hidden border border-white/15 shadow-2xl shadow-black/30 mb-8">
+            <iframe
+              title="Carte Google Maps — QRBags, 43 Rue Maryse Bastié, 78300 Poissy"
+              src="https://www.google.com/maps?q=43%20Rue%20Maryse%20Basti%C3%A9%2C%2078300%20Poissy%2C%20France&output=embed"
+              className="w-full h-72 md:h-96 border-0"
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=43%20Rue%20Maryse%20Basti%C3%A9%2C%2078300%20Poissy%2C%20France"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${brandBtnGradient} inline-flex items-center gap-2 px-6 py-3 min-h-[48px]`}
+            >
+              <Navigation className="w-5 h-5" aria-hidden />
+              Itinéraire
+            </a>
+            <a
+              href="https://maps.google.com/?q=43+Rue+Maryse+Basti%C3%A9+78300+Poissy+France"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 min-h-[48px] rounded-2xl border border-white/25 bg-white/10 hover:bg-white/20 text-white font-bold transition-colors"
+            >
+              <MapPinned className="w-5 h-5" aria-hidden />
+              Ouvrir dans Google Maps
+            </a>
+          </div>
         </div>
       </section>
     </>

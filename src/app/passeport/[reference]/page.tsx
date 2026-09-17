@@ -179,7 +179,7 @@ function PassportContent() {
               <ArrowLeft className="w-5 h-5" />
               <span className="text-sm md:text-base font-bold">{t('passport.back')}</span>
             </Link>
-            <BrandLogo className="h-12 w-auto" />
+            <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm"><BrandLogo className="h-12 sm:h-14 w-auto" /></span>
             <span className="w-24" aria-hidden="true" />
           </div>
 

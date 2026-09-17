@@ -760,9 +760,9 @@ export default function SuiviPage() {
         dir={dir}
       >
       {/* ─── Sticky Header (blanc translucide — design system QRBags) ─── */}
-      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-[#16234e]/10 pt-[env(safe-area-inset-top,0px)] px-4 sm:px-5 md:px-8 py-2 sm:py-3">
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-[#16234e]/10 pt-[env(safe-area-inset-top,0px)] px-4 sm:px-5 md:px-8 py-2.5 sm:py-3.5">
         <div className="max-w-md mx-auto flex items-center justify-between gap-2">
-          <BrandLogo className="h-8 sm:h-9 w-auto" />
+          <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm"><BrandLogo className="h-12 sm:h-14 w-auto" /></span>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button

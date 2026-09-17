@@ -399,10 +399,10 @@ function ChecklistPageContent() {
       <BrandShell>
         <main className="flex flex-col min-h-screen" dir={dir}>
           {/* Header */}
-          <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#16234e]/10 px-4 py-2.5">
+          <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#16234e]/10 px-4 py-3.5">
             <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
               <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-                <img src="/logo.png" alt="QRBags" className="h-11 w-auto object-contain" />
+                <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm"><img src="/logo.png" alt="QRBags" className="h-14 sm:h-16 w-auto object-contain" /></span>
               </Link>
               <LanguageSelector lang={lang} setLang={setLang} variant="blue" />
             </div>
@@ -575,7 +575,7 @@ function ChecklistPageContent() {
             )}
           </section>
 
-          <footer className="bg-[#16234e] text-white/70 text-center py-4 mt-auto">
+          <footer className="bg-[#16234e] text-white text-center py-4 mt-auto">
             <p className="text-xs">QRBags — Protection intelligente des bagages • qrbags.com</p>
           </footer>
         </main>
@@ -598,10 +598,10 @@ function ChecklistPageContent() {
     <BrandShell>
       <main className="flex flex-col min-h-screen" dir={dir}>
         {/* ─── Header ─── */}
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#16234e]/10 px-4 py-2.5">
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#16234e]/10 px-4 py-3.5">
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <img src="/logo.png" alt="QRBags" className="h-11 w-auto object-contain" />
+              <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm"><img src="/logo.png" alt="QRBags" className="h-14 sm:h-16 w-auto object-contain" /></span>
             </Link>
             <div className="hidden md:flex items-center gap-1">
               {NAV_LINKS.map((link) => (
@@ -1149,7 +1149,7 @@ function ChecklistPageContent() {
         </section>
 
         {/* Footer sticky */}
-        <footer className="bg-[#16234e] text-white/70 text-center py-4 mt-auto">
+        <footer className="bg-[#16234e] text-white text-center py-4 mt-auto">
           <p className="text-xs">QRBags — Protection intelligente des bagages • qrbags.com</p>
         </footer>
       </main>

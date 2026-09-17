@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md mx-auto px-4 py-10 sm:py-14 flex flex-col items-center">
         {/* Logo + badge */}
         <div className="flex flex-col items-center text-center">
-          <BrandLogo className="h-14 w-auto" />
+          <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm"><BrandLogo className="h-14 sm:h-16 w-auto" /></span>
           <span className={`${brandBadge} mt-4`}>
             <KeyRound className="w-3.5 h-3.5" />
             Récupération d&apos;accès

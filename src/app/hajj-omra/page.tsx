@@ -21,10 +21,12 @@ function Navigation() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#16234e]/95 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2" aria-label="QRBags — retour à l'accueil">
-            <img src="/logo.png" alt="QRBags" className="h-12 w-auto object-contain" />
+            <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm">
+              <img src="/logo.png" alt="QRBags" className="h-14 sm:h-16 w-auto object-contain" />
+            </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -64,7 +66,7 @@ function Navigation() {
 // Hero Section
 function HeroSection() {
   return (
-    <section className="pt-16 bg-[#16234e] relative overflow-hidden">
+    <section className="pt-24 bg-[#16234e] relative overflow-hidden">
       {/* Texture « carte du monde en pointillés » */}
       <div className="absolute inset-0 dotted-map-light pointer-events-none" aria-hidden />
 
@@ -395,9 +397,11 @@ function Footer() {
           {/* Logo */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/logo.png" alt="QRBags" className="h-12 w-auto object-contain" />
+              <span className="inline-flex items-center rounded-2xl bg-white px-3 py-1.5">
+                <img src="/logo.png" alt="QRBags" className="h-12 w-auto object-contain" />
+              </span>
             </div>
-            <p className="text-white/60 text-sm">
+            <p className="text-white text-sm">
               Protection intelligente des bagages pour voyageurs et pèlerins.
             </p>
           </div>

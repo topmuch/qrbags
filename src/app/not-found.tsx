@@ -16,7 +16,7 @@ export default function NotFound() {
       <main className="min-h-screen flex flex-col items-center justify-center px-4 py-12 text-center">
         {/* Logo — retour accueil */}
         <div className="flex items-center justify-center mb-8">
-          <BrandLogo className="h-14 w-auto" />
+          <span className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1 border border-[#16234e]/10 shadow-sm"><BrandLogo className="h-14 sm:h-16 w-auto" /></span>
         </div>
 
         {/* 404 — dégradé signature QRBags */}
