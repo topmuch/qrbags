@@ -1634,3 +1634,18 @@ Stage Summary:
 - Page /success : guide vocal de confirmation actif dans la langue détectée — félicite, explique étiquette QR + notification WhatsApp + passeport e-mail, bouton réécouter flottant
 - 6 fichiers audio au total (scan-guide-* + confirm-guide-*), tous Edge TTS neural -16 LUFS
 - Fichiers : public/audio/confirm-guide-{fr,en,ar}.mp3 ; scripts : /home/z/voicetest/regen-confirm.sh
+
+---
+Task ID: personnalise-message-audio-trouveur-v2
+Agent: Z.ai Code (main)
+Task: « je veux personnaliser le message audio de la page trouveur » — remplacer la mention « nom et numéro affichés à l'écran » par « Cliquez sur le bouton Contacter le propriétaire pour appeler ou envoyer un message WhatsApp au propriétaire »
+
+Work Log:
+- Vérifié les libellés réels des boutons contact dans les 3 locales (fr « Contacter le propriétaire », en "Contact the Owner", ar « اتصل بالمالك ») pour que l'audio nomme exactement le bouton affiché
+- Régénéré scan-guide-{fr,en,ar}.mp3 (Edge TTS neural, mêmes voix Denise/Aria/Zariyah, rate -6%, loudnorm -16 LUFS)
+- Vérification ASR : 3/3 fidèles — fr transcrit intégralement le nouveau message avec le nom du bouton
+- Nouvelles durées : fr 15,2 s / en 13,2 s / ar 16,6 s (plus concis que v1 : 23-25 s)
+- Déployé dans public/audio/, servi 200, commit 4fa29f6 + push
+
+Stage Summary:
+- Message audio trouveur v2 en prod : orienté action directe (nomme le bouton « Contacter le propriétaire »), supprime la phrase descriptive sur l'écran — aligné mot pour mot sur l'UI
