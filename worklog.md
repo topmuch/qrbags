@@ -1649,3 +1649,19 @@ Work Log:
 
 Stage Summary:
 - Message audio trouveur v2 en prod : orienté action directe (nomme le bouton « Contacter le propriétaire »), supprime la phrase descriptive sur l'écran — aligné mot pour mot sur l'UI
+
+---
+Task ID: fix-build-finalizing-oom
+Agent: Z.ai Code (main)
+Task: Log Coolify — build échoue à nouveau : compile ✓ (23,9 s) + 117 pages statiques ✓ puis mort silencieuse pendant « Finalizing page optimization » (SIGKILL kernel, aucune sortie)
+
+Work Log:
+- Diagnostic : contrairement à l'échec précédent (mort au démarrage, corrigé par 6129c10), cette fois le build survit à la compile et à la génération puis est tué 2 s après le début de la finalisation — aucune erreur V8 affichée → kill externe (OOM host). Le plafond V8 --max-old-space-size=1536 ne borne PAS la mémoire native Rust du moteur Turbopack, qui monte en pic lors de la finalisation/écriture du standalone
+- Confirmé dans node_modules/next/dist (16.1.3) : experimental.cpus et experimental.turbopackMemoryLimit sont des clés valides du schema ; turbopackMemoryLimit est passé au moteur natif (impl.js → memoryLimit)
+- next.config.ts : experimental.cpus: 2 (7 workers par défaut sur VPS multcœur = plusieurs heap Node simultanés pendant collecte/génération) + experimental.turbopackMemoryLimit: 1 Gio (le moteur Rust déclenche son GC bien plus tôt)
+- package.json : script build instrumenté avec echo par étape (cp static / cp public / cp packages externes / OK) + suppression du 2>/dev/null sur le cp optionnel (erreurs visibles, || true conservé) → le prochain log Coolify localisera précisément une éventuelle étape fautive
+- Build local complet re-vérifié : table de routes affichée, 4 étapes OK, « build: OK » ; dev server 200
+
+Stage Summary:
+- Deux plafonds mémoire ajoutés (workers 7→2, Turbopack Rust 1 Gio) pour faire tenir le build Coolify dans ~2 Go — l'échec précédent prouvait que le plafond V8 seul ne suffit pas
+- Script de build diagnosable : si un futur déploiement échoue, le log montrera la dernière étape atteinte au lieu d'un silence total
