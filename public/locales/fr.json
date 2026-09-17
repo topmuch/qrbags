@@ -114,7 +114,9 @@
     "step3_title": "Recevez votre récompense",
     "step3_desc": "Le propriétaire vous remercie comme promis",
     "cta_ready_title": "Prêt à prévenir le propriétaire ?",
-    "cta_ready_subtitle": "Votre position GPS sera partagée automatiquement pour faciliter la rencontre"
+    "cta_ready_subtitle": "Votre position GPS sera partagée automatiquement pour faciliter la rencontre",
+    "whatsapp_hint_title": "WhatsApp ne s'est pas ouvert ?",
+    "whatsapp_hint_desc": "Vérifiez que WhatsApp est installé, ou utilisez le bouton Appeler ci-dessous."
   },
   "whatsapp": {
     "found_message": "🎉 Bonne nouvelle {firstName} !\n\nQuelqu'un a trouvé ton bagage {type} à {location} !\n📍 Il est actuellement à {address}\n👤 La personne qui l'a trouvé s'appelle {name}\n📞 Appelle-le vite au {phone}\n💬 Ou écris-lui sur WhatsApp\nTu peux aussi voir tous les détails ici :\n👉 {url}\nNe panique pas, tout va bien se passer ! 💪\nL'équipe QRBags",
@@ -335,6 +337,11 @@
   },
   "scan": {
     "success": "Scan réussi ! ✓",
+    "welcome_title": "Bagage trouvé !",
+    "welcome_subtitle": "Appuyez sur le bouton ci-dessous : les instructions audio vous guident pour contacter le propriétaire.",
+    "welcome_cta": "Appuyez pour contacter",
+    "welcome_audio_hint": "Instructions audio · 30 s",
+    "replay_audio": "Réécouter les instructions",
     "photo_section": "Photo du bagage",
     "reward_label": "Récompense",
     "reward_desc": "Le propriétaire offre cette récompense à la personne qui lui rendra son bagage"

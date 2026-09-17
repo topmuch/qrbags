@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   BrandShell,
   BrandCard,
@@ -29,6 +29,7 @@ import {
   Megaphone,
   BadgeCheck,
   Lock,
+  Volume2,
 } from "lucide-react";
 import { useTranslation } from '@/hooks/useTranslation';
 import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
@@ -347,6 +348,40 @@ export default function ScanPage() {
   const [scanConfirmed, setScanConfirmed] = useState(false);
   const hasConfirmedRef = useRef(false);
 
+  // ─── AUDIO-GUIDE (Option B) ───
+  // Overlay d'accueil « Appuyez pour contacter » : le premier tap débloque
+  // l'audio du navigateur (autoplay policy : Safari/Chrome bloquent tout son
+  // sans interaction) puis lance le guide vocal TTS pré-généré dans la langue
+  // du trouveur. Un bouton flottant permet de réécouter ensuite.
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playGuideAudio = useCallback(() => {
+    try {
+      // Stoppe toute lecture précédente (bouton « réécouter »)
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      const audio = new Audio(`/audio/scan-guide-${lang}.mp3`);
+      audioRef.current = audio;
+      audio.onplay = () => setIsAudioPlaying(true);
+      audio.onended = () => setIsAudioPlaying(false);
+      audio.onpause = () => setIsAudioPlaying(false);
+      // Fichier manquant / refus navigateur → silencieux, la page reste fonctionnelle
+      audio.onerror = () => setIsAudioPlaying(false);
+      void audio.play().catch(() => setIsAudioPlaying(false));
+    } catch {
+      setIsAudioPlaying(false);
+    }
+  }, [lang]);
+
+  const handleWelcomeStart = useCallback(() => {
+    setShowWelcome(false);
+    playGuideAudio();
+  }, [playGuideAudio]);
+
   useEffect(() => {
     const fetchBaggage = async () => {
       try {
@@ -412,6 +447,10 @@ export default function ScanPage() {
       : (locationText || t('whatsapp.location_not_shared'));
 
     // Build message using the template (refonte-7)
+    // ⚠️ wa.me corrompt les emojis (UTF-8 4 octets → U+FFFD dans le chemin 302
+    // api.whatsapp.com — vérifié par test réseau). On les retire avant encodage :
+    // les accents et le texte passent, eux, sans altération. Le message garde
+    // sa structure (sauts de ligne) donc reste clair dans WhatsApp.
     return encodeURIComponent(
       t('whatsapp.found_message', {
         firstName,
@@ -422,6 +461,10 @@ export default function ScanPage() {
         phone: finderPhone,
         url: trackingUrl,
       })
+        .replace(/[\u{10000}-\u{10FFFF}\u{FE0F}\u{2600}-\u{27BF}]/gu, '')
+        .replace(/[ \t]{2,}/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
     );
   }, [reference, t]);
 
@@ -509,13 +552,16 @@ export default function ScanPage() {
       let ownerNumber = rawOwner.replace(/\D/g, '');
       if (ownerNumber.startsWith('00')) ownerNumber = ownerNumber.slice(2); // préfixe international 00
       if (!/^[1-9]\d{7,14}$/.test(ownerNumber)) {
-        // Numéro absent ou invalide → fallback support QRBags
+        // Numéro absent ou invalide (local sans indicatif, commence par 0, etc.)
+        // → fallback support QRBags + info console pour diagnostic prod.
+        console.warn(`[SCAN ${reference}] Numéro propriétaire invalide pour WhatsApp: "${rawOwner}" → fallback support`);
         ownerNumber = FALLBACK_PHONE;
       }
 
-      // Lien canonique WhatsApp (SANS slash final — format officiel de la doc).
-      // Le texte est déjà passé dans encodeURIComponent (emojis 4 octets sûrs).
-      const url = `https://api.whatsapp.com/send?phone=${ownerNumber}&text=${message}`;
+      // Lien canonique WhatsApp : format officiel wa.me (universal link le plus
+      // fiable vers l'app — doc développeurs WhatsApp). Le texte est déjà passé
+      // dans encodeURIComponent (emojis 4 octets sûrs).
+      const url = `https://wa.me/${ownerNumber}?text=${message}`;
 
       // ─── Navigation : même onglet sur mobile, nouvel onglet sur desktop ───
       // Sur mobile, window.open(..., '_blank') ouvre un onglet en arrière-plan où
@@ -526,6 +572,14 @@ export default function ScanPage() {
 
       if (isMobile) {
         window.location.href = url;
+        // Si l'app ne s'est pas ouverte (WhatsApp absent, lien intercepté par un
+        // navigateur in-app…), le trouveur est toujours sur la page après ~2,5 s
+        // → conseil utile au lieu d'une page « Télécharger WhatsApp » muette.
+        window.setTimeout(() => {
+          if (!document.hidden) {
+            toast({ title: t('finder.whatsapp_hint_title'), description: t('finder.whatsapp_hint_desc') });
+          }
+        }, 2500);
       } else {
         const newWindow = window.open(url, '_blank');
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
@@ -642,6 +696,90 @@ export default function ScanPage() {
 
       {/* SuccessOverlay — Premium scan confirmation */}
       <SuccessOverlay show={scanConfirmed} messageKey="scan.success" t={t} />
+
+      {/* ═══ AUDIO-GUIDE (Option B) — Overlay d'accueil « Appuyez pour contacter » ═══
+          Premier tap = interaction utilisateur → débloque l'audio (autoplay policy)
+          → lance le guide vocal TTS pré-généré (/audio/scan-guide-{lang}.mp3) */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-[#16234e]/70 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('scan.welcome_title')}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="w-full max-w-sm"
+            >
+              <BrandCard corners className="w-full overflow-hidden">
+                {/* Bandeau dégradé signature */}
+                <div className="relative bg-gradient-qrbag px-5 pt-7 pb-6 text-center overflow-hidden">
+                  <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
+                  <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
+                  <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
+                  <span className="absolute bottom-4 left-4 text-lg" aria-hidden>🎉</span>
+
+                  <motion.div
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                    className="relative w-20 h-20 mx-auto mb-4 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
+                  >
+                    <img src="/logo.png" alt="Logo QRBags" className="w-16 h-16 object-contain rounded-2xl" aria-hidden />
+                  </motion.div>
+
+                  <h2 className="relative text-2xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                    {t('scan.welcome_title')}
+                  </h2>
+                  <p className="relative mt-2 text-sm text-white/90 leading-relaxed max-w-xs mx-auto font-medium">
+                    {t('scan.welcome_subtitle')}
+                  </p>
+                  <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
+                    <Luggage className="w-3.5 h-3.5" aria-hidden />
+                    {reference}
+                  </p>
+                </div>
+
+                {/* CTA — le tap débloque l'audio et ferme l'overlay */}
+                <div className="bg-white px-4 py-5">
+                  <button
+                    type="button"
+                    onClick={handleWelcomeStart}
+                    className="relative w-full py-4 rounded-2xl bg-gradient-qrbag text-white font-extrabold text-base sm:text-lg flex items-center justify-center gap-2.5 shadow-lg shadow-[#8b17c9]/30 min-h-[56px] hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                  >
+                    <Volume2 className="w-6 h-6" aria-hidden />
+                    {t('scan.welcome_cta')}
+                  </button>
+                  <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#16234e]/50 text-center flex items-center justify-center gap-1.5">
+                    <Volume2 className="w-3.5 h-3.5" aria-hidden />
+                    {t('scan.welcome_audio_hint')}
+                  </p>
+                </div>
+              </BrandCard>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bouton flottant « réécouter » — visible après fermeture de l'overlay */}
+      {!showWelcome && (
+        <button
+          type="button"
+          onClick={playGuideAudio}
+          aria-label={t('scan.replay_audio')}
+          title={t('scan.replay_audio')}
+          className={`fixed bottom-4 left-4 z-40 w-12 h-12 rounded-full bg-[#16234e] text-white shadow-lg flex items-center justify-center hover:bg-[#1c2d63] transition-colors ${isAudioPlaying ? 'ring-2 ring-[#ffd200] ring-offset-2' : ''}`}
+        >
+          <Volume2 className={`w-5 h-5 ${isAudioPlaying ? 'animate-pulse' : ''}`} aria-hidden />
+        </button>
+      )}
 
       {/* Success Toast — inline confirmation */}
       {showSuccess && (

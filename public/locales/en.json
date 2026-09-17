@@ -114,7 +114,9 @@
     "step3_title": "Get your reward",
     "step3_desc": "The owner thanks you as promised",
     "cta_ready_title": "Ready to notify the owner?",
-    "cta_ready_subtitle": "Your GPS location will be shared automatically to make meeting up easier"
+    "cta_ready_subtitle": "Your GPS location will be shared automatically to make meeting up easier",
+    "whatsapp_hint_title": "WhatsApp didn't open?",
+    "whatsapp_hint_desc": "Make sure WhatsApp is installed, or use the Call button below."
   },
   "whatsapp": {
     "found_message": "🎉 Good news {firstName}!\n\nSomeone found your {type} baggage at {location}!\n📍 It is currently at {address}\n👤 The person who found it is {name}\n📞 Call them quickly at {phone}\n💬 Or message them on WhatsApp\nYou can also see all the details here:\n👉 {url}\nDon't panic, everything will be fine! 💪\nThe QRBags Team",
@@ -335,6 +337,11 @@
   },
   "scan": {
     "success": "Scan successful! ✓",
+    "welcome_title": "Found a bag!",
+    "welcome_subtitle": "Tap the button below: audio instructions will guide you to contact the owner.",
+    "welcome_cta": "Tap to contact",
+    "welcome_audio_hint": "Audio instructions · 30 s",
+    "replay_audio": "Replay instructions",
     "photo_section": "Luggage photo",
     "reward_label": "Reward",
     "reward_desc": "The owner offers this reward to whoever returns the luggage"
