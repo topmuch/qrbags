@@ -1452,3 +1452,19 @@ Stage Summary:
 - Local = origin/main = c3b5666, working tree propre
 - Sitemap dynamique préservé (pas de régression SEO)
 - Les 2 composants auth sont disponibles sur GitHub pour un futur câblage des pages de connexion
+
+---
+Task ID: ui-checklist-logo-carte-succes
+Agent: Main Orchestrator (Z.ai Code)
+Task: Logo QRBags dans l'encadré « Attestation générée ! » de l'écran succès checklist
+
+Work Log:
+- Clarification de la demande précédente : c'est l'ICÔNE de l'encadré « Attestation générée ! » (hero célébration) qu'il fallait remplacer, pas seulement celle du bloc upsell
+- src/app/checklist/page.tsx : <PartyPopper> (icône 🎉 lucide) dans le cercle blanc w-20 h-20 remplacé par <img src="/logo.png" alt="Logo QRBags" className="w-16 h-auto object-contain"> ; import PartyPopper retiré
+- Incident corrigé au passage : une première édition avait dupliqué l'import Download et fusionné ExternalLink/QrCode — bloc d'imports restauré proprement (diff final : 1 insertion, 2 suppressions)
+- Vérification E2E agent-browser : parcours formulaire 3 étapes (date injectée via setter natif) → encadré « Attestation générée ! » avec logo, animation spring + confettis conservés ; desktop 1280 px + mobile 390 px OK
+- Données de test supprimées ; bun run lint OK ; commit a80292a, push origin/main
+
+Stage Summary:
+- Écran succès /checklist : le logo QRBags est désormais présent aux deux endroits clés — cercle blanc de l'encadré « Attestation générée ! » ET pastille carrée du bloc upsell
+- Changement purement visuel, aucune logique métier modifiée
