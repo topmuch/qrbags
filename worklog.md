@@ -1435,3 +1435,20 @@ Work Log:
 Stage Summary:
 - Écran succès /checklist : le carré d'identification du bloc upsell porte désormais le logo QRBags au lieu de l'icône QR générique
 - Aucune donnée ni logique métier modifiée — changement purement visuel (2 lignes)
+
+---
+Task ID: sync-local-github
+Agent: Main Orchestrator (Z.ai Code)
+Task: Synchroniser la version GitHub avec la version locale
+
+Work Log:
+- État constaté : local en avance de 1 commit (checkpoint auto 1a952ec = worklog), + fichiers non commités
+- src/lib/checklist-repair.ts : seul un changement de mode (100644→100755 par la restauration d'environnement) → remis en 644, aucun diff de contenu
+- public/sitemap.xml : ancien sitemap statique réapparu (restauration d'environnement) → SUPPRIMÉ car il masquerait le sitemap dynamique src/app/sitemap.ts (commit SEO 3ab16be) à l'URL /sitemap.xml avec des URLs figées
+- src/components/auth/AdminLoginPage.tsx (34 Ko) et AgenceLoginPage.tsx (27 Ko) : composants orphelins d'une session antérieure, importés nulle part → commités (mode 644) pour refléter l'état local
+- Push 0f52fae..c3b5666
+
+Stage Summary:
+- Local = origin/main = c3b5666, working tree propre
+- Sitemap dynamique préservé (pas de régression SEO)
+- Les 2 composants auth sont disponibles sur GitHub pour un futur câblage des pages de connexion
