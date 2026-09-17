@@ -1468,3 +1468,21 @@ Work Log:
 Stage Summary:
 - Écran succès /checklist : le logo QRBags est désormais présent aux deux endroits clés — cercle blanc de l'encadré « Attestation générée ! » ET pastille carrée du bloc upsell
 - Changement purement visuel, aucune logique métier modifiée
+
+---
+Task ID: ui-logo-headers-footers-map
+Agent: Main Orchestrator (Z.ai Code)
+Task: Logo plus grand + headers plus hauts + harmonisation arrondis + footers blancs + carte Google contact
+
+Work Log:
+- 1) Tailles : PublicNavigation h-16→h-20 + logo h-12→h-14/16 + paddingTop pt-16→pt-20 ; accueil h-16/68→h-20/88 ; checklist ×2, checklist/[code], inscrire, hajj-omra (+hero pt-24), commander (h-20), suivi, passeport, hajj/activate, 4 pages auth, LoginPage (img h-9→h-14 dans pastilles w-20)
+- 2) Harmonisation arrondis : badge uniforme « rounded-2xl bg-white px-2.5 py-1 border-[#16234e]/10 shadow-sm » autour de chaque logo de header (18 fichiers) ; pastilles logo des cartes unifiées rounded-2xl (success, scan, hajj/activate, inscrire)
+- 3) Footers 100 % blancs : PublicFooter (17 pages), footer accueil, footers checklist ×2, footer hajj-omra — textes/liens/titres/icônes sociales en text-white ; logos de footer sur badge blanc rounded-2xl
+- 4) /contact : iframe Google Maps (output=embed, pin 43 Rue Maryse Bastié 78300 Poissy) dans carte rounded-3xl + bouton « Itinéraire » (google maps dir api) + « Ouvrir dans Google Maps » ; import lucide Navigation
+- Vérifié E2E agent-browser : /contact desktop+mobile (carte chargée avec pin, boutons), / (header badge + footer blanc), /a-propos mobile (header h-20 sans chevauchement) ; lint OK
+- Commit 85846f8, push origin/main
+
+Stage Summary:
+- Design système logo unifié : badge arrondi blanc identique sur tous les headers (18 fichiers, ~40 pages), logo agrandi, headers rehaussés
+- Footers publics entièrement blancs, cohérents sur les 20+ pages concernées
+- Page contact enrichie d'une carte Google avec itinéraire natif
