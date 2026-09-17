@@ -32,6 +32,15 @@ ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# 🔔 Petits VPS : plafonne le heap V8 pour que next build tienne dans ~2 Go de RAM.
+# Sans plafond, le kernel peut SIGKILLer le build SILENCIEusement (exit 137, zéro
+# sortie dans les logs Coolify — panne du 2026-09-17). Avec plafond, un dépassement
+# produit une erreur V8 explicite « JavaScript heap out of memory » au lieu d'un kill muet.
+ENV NODE_OPTIONS="--max-old-space-size=1536"
+
+# Diagnostic instantané dans le log de déploiement (RAM / disque / versions)
+RUN echo "─── Build env ───" && free -h || true && (df -h / || true) && node -v && bun --version
+
 RUN npx prisma generate
 RUN bun run build
 

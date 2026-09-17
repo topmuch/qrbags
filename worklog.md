@@ -1577,3 +1577,20 @@ Stage Summary:
 - La voix du guide suit désormais la langue affichée, et celle-ci est déterminée par le PAYS (IP) plutôt que la config du navigateur pour tout utilisateur sans choix explicite — le profil « francophone en navigateur anglais » reçoit le site ET la voix en français
 - Le choix explicite (sélecteur de langue) reste absolu et est désormais correctement persisté/estampillé
 - Les utilisateurs déjà « empoisonnés » (qrbag_lang=en auto) sont réparés automatiquement au prochain chargement
+
+---
+Task ID: fix-deploiement-coolify-build
+Agent: Z.ai Code (main)
+Task: Déploiement Coolify en échec — « bun run build » meurt instantanément sans aucune sortie après le banner de la commande
+
+Work Log:
+- Diagnostic : seul useTranslation.ts avait changé (5be99b9) ; bunx tsc --noEmit montre des erreurs TS préexistantes mais next.config a typescript.ignoreBuildErrors=true → pas la cause
+- Build reproduit en LOCAL avec le même commit → exit 0 (Next 16.1.3 Turbopack, compilé en 27,6 s, 117 pages statiques) → le CODE est sain, la panne est côté environnement VPS (pattern « zéro sortie + mort instantanée » = SIGKILL kernel : RAM épuisée ou disque plein — classique sur VPS Coolify 2 Go)
+- Dockerfile durci (étape builder) : ENV NODE_OPTIONS=--max-old-space-size=1536 (plafonne le heap V8 → le build tient dans ~2 Go de RAM ; en cas de dépassement, erreur V8 EXPLICITE au lieu d'un kill muet) + RUN de diagnostic free/df/versions imprimé au début du build pour visibilité immédiate dans les logs Coolify
+- Build re-validé en local AVEC le plafond → exit 0 (30,2 s, 117 pages) → pas de régression introduite
+- Dev server relancé après les 2 builds locaux (le .next production l'avait remplacé)
+
+Stage Summary:
+- Le code poussé (5be99b9) compile et prétend correctement ; l'échec Coolify est un problème de ressources du VPS (RAM/disque), pas un bug applicatif
+- Prochain déploiement : si la RAM est la cause, le build passe grâce au plafond ; sinon le log affichera enfin la vraie erreur (heap V8 / ENOSPC / exit code) au lieu de mourir en silence
+- Si échec encore : côté VPS — docker system prune (disque), free -h + swap (RAM), et reposter le log COMPLET
