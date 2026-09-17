@@ -1594,3 +1594,24 @@ Stage Summary:
 - Le code poussé (5be99b9) compile et prétend correctement ; l'échec Coolify est un problème de ressources du VPS (RAM/disque), pas un bug applicatif
 - Prochain déploiement : si la RAM est la cause, le build passe grâce au plafond ; sinon le log affichera enfin la vraie erreur (heap V8 / ENOSPC / exit code) au lieu de mourir en silence
 - Si échec encore : côté VPS — docker system prune (disque), free -h + swap (RAM), et reposter le log COMPLET
+
+---
+Task ID: fix-voix-guide-inaudible-fr-ar
+Agent: Z.ai Code (main)
+Task: « seule version anglaise marche bien, la version française est inaudible ainsi que la version arabe » — régénérer les guides vocaux TTS de la page trouveur
+
+Work Log:
+- Diagnostic par volumétrie ffmpeg : les 3 MP3 avaient des niveaux comparables (mean -23 dB) → pas un problème de gain
+- ASR des fichiers en place : fr = début correct puis charabia (« na na na inat ina inas »), ar = charabia total (« One dash, two dash. Taka, si, paka ») → la voix z-ai TTS (tongtong) ne supporte NI le français articulé NI l'arabe
+- Test systématique 7 voix z-ai × 2 langues (tongtong/xiaochen/kazi/douji/luodo/jam/chuichui) : TOUTES les voix arabes = charabia ASR ; meilleures fr = xiaochen/chuichui mais toujours imparfaites → moteur z-ai TTS inadapté au fr/ar
+- Découverte incidente : SDK z-ai-web-dev-sdk 0.0.16 du projet échouait en 401 « missing X-Token » (header absent) → upgrade en 0.0.18 (le SDK global l'envoyait déjà) — important pour tout usage SDK futur
+- Solution retenue : Microsoft Edge TTS (pip edge-tts) — voix neuronales natives fr-FR-DeniseNeural, en-US-AriaNeural, ar-SA-ZariyahNeural (rate -6 %)
+- Vérification ASR des 3 nouveaux fichiers : fr = transcription quasi parfaite intégrale ; en = parfaite, « WhatsApp » correctement prononcé (l'ancien disait « WeChat ») ; ar = transcription arabe intégrale fidèle (كيو أرباجز، واتساب)
+- Normalisation loudness loudnorm → -16 LUFS uniformes (anciens ~-20,8) + format identique mp3 24 kHz mono, durées 20,4/23,0/25,4 s (hint UI « 30 s » toujours valide)
+- E2E agent-browser /scan/DEMO-QRBAG : mock countryCode SN → UI française → tap bannière → GET scan-guide-fr.mp3 (206) ; choix explicite العربية → UI arabe → bouton réécouter → GET scan-guide-ar.mp3 (206) ; zéro erreur console (mock : le champ API est countryCode, pas country)
+- Backup anciens fichiers : /home/z/voicetest/backup/
+
+Stage Summary:
+- Guides vocaux trouveur régénérés en qualité neuronale native fr/en/ar — l'arabe passe d'inintelligible à parfaitement articulé, le français de mumble à limpide, l'anglais corrige « WeChat »→« WhatsApp »
+- Loudness homogène et plus forte (-16 LUFS) → audible en environnement bruyant (aéroport)
+- z-ai-web-dev-sdk 0.0.18 (fix X-Token) — à retenir : TTS z-ai = zh/en OK, fr approximatif, ar inutilisable ; Edge TTS pour les autres langues
