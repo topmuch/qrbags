@@ -1694,3 +1694,27 @@ Stage Summary:
 - Commit cf1dc0b STRICTEMENT LOCAL sur main (ahead 1 de origin/main) — l'utilisateur décidera du push
 - Périmètre strict : 2 pages + 3 locales + 6 mp3 ; rien d'autre modifié (db.sqlite de test et dev-qrtags.log exclus du commit)
 - Bug préexistant signalé (race i18n au chargement des textes) — audio non affecté
+
+---
+Task ID: audio-guide-qrtagsori-prod
+Agent: Z.ai Code (principal)
+Task: « le bon git est github.com/topmuch/qrtagsori.git » — cloner qrtagsori, installer les deps, lancer le dev, appliquer les modifications audio, pousser, redéployer la prod
+
+Work Log:
+- Confirmation utilisateur : le VRAI repo de prod est topmuch/qrtagsori (celui que le Dockerfile inline Coolify clone déjà) — qrtags était le mauvais repo ; modification précédente poussée sur qrtags (commit cf1dc0b) réutilisée comme source
+- Sandbox réinitialisé : /home/z/qrtags absent → re-clone qrtags (référence) + qrtagsori (cible) avec le token GitHub des remotes qrbags ; histoires git sans ancêtre commun → pas de cherry-pick, application manuelle
+- Écart structurel découvert : le scan de qrtagsori délègue à 4 composants Pack* (pratique/emotion/immobilier/evenementiel), pages hardcodées français, charte or #E3B23C / noir #111 (pas d'orange, pas de useTranslation sur ces pages) → adaptation nécessaire
+- Approche chirurgicale : 1 composant partagé src/components/audio/VoiceGuideOverlay.tsx (overlay z-70 framer-motion bandeau or, pilule référence, CTA relief, bouton flottant réécouter avec ring+pulse, textes inline fr/en/ar, langue via navigator.language, RTL ar) — JSON locales INTACTS, PackPratique INTACT
+- Câblage : /scan/[reference] → overlay seulement dans le case 'pratique' (fragment autour de PackPratique) ; /success → overlay dans SuccessContent
+- bun install (960 pkgs) ; .env corrigé en local (DATABASE_URL → prisma/db.sqlite, PAS commité) ; prisma generate + db push + seed objet test QRTAGS-TEST1 (whatsappOwner rempli = actif)
+- Dev server 3200 (daemon double-fork python, log dev-qrtagsori.log) ; 6 MP3 copiés depuis qrtags@cf1dc0b
+- E2E agent-browser local : overlay scan (headless locale en → textes EN = détection OK), CTA → play:scan-guide-en.mp3, réécouter → play→ended→play + ring/pulse, overlay success + play:confirm-guide-en.mp3, 6/6 MP3 200 audio/mpeg, mobile 390px OK, zéro erreur console, eslint fichiers modifiés OK
+- Commit 8a43ad1 « feat(audio): guides vocaux sur les pages trouveur et confirmation » (9 fichiers, 255 insertions) PUSHÉ sur topmuch/qrtagsori main
+- Repo qrtagsori = PUBLIC (clone anonyme OK, contient déjà les MP3) → le clone plain du Dockerfile Coolify fonctionne sans token
+- Coolify : login OK, app retrouvée via fetch parallèle des 19 projets (projet dgg5x5fjr2kssjnbhvglhlg7 / env sl12g6oufz46jcalswpffpyw / app yvzjl5po9xemksvrw8lz67zl), Redeploy → déploiement wl3lfq4nlkkf21l93j4gpyxn → « Finished »
+- Vérif prod https://qrtags.pro : 6/6 MP3 200 audio/mpeg tailles identiques au local ; /success overlay + play:confirm-guide-en.mp3 + réécouter ring ; /scan/INVALID → « Code QR non valide » (pas de régression) ; home 200 ; mobile 390px OK
+
+Stage Summary:
+- L'audio est EN PRODUCTION sur qrtags.pro : guides vocaux trouveur + confirmation, 6 MP3 servis, pattern validé QRBags reproduit à l'identique en habillage or/noir QRTags
+- Le bon repo est maintenant la source unique : topmuch/qrtagsori (le mauvais commit sur topmuch/qrtags cf1dc0b reste en place, sans conséquence)
+- Artefacts locaux non commités : .env (DB locale), dev-qrtagsori.log ; dev server qrtagsori laissé sur port 3200
