@@ -1816,3 +1816,25 @@ Work Log:
 Stage Summary:
 - Page trouveur ~2 écrans au lieu de ~5, conforme à la maquette ASCII fournie
 - GitHub = local @ e6b2bcf ; Coolify auto-deploy lancé, vérif prod à suivre
+
+---
+Task ID: boutons-trouveur-v2
+Agent: Z.ai Code (principal)
+Task: Retour utilisateur — gros bouton CHAT sous APPELER, APPELER en bleu, CHAT en noir, 3 boutons en majuscules (WhatsApp · APPELER · CHAT)
+
+Work Log:
+- src/components/scan/PackPratique.tsx : lien discret chat remplacé par un GROS bouton CHAT (noir #111) sous APPELER
+- APPELER passe de blanc contour noir → bleu #2563EB bordure #1E40AF, texte blanc (page + sticky)
+- Libellés en majuscules : WHATSAPP / APPELER / CHAT (page principale + barre sticky mobile)
+- Barre sticky mobile : 3 boutons égaux flex-1 (WHATSAPP vert · APPELER bleu · CHAT noir), text-xs, min-h 52px
+- Hint sous CHAT : « Anonyme — sans laisser de numéro » (conservation de la notion d'anonymat)
+- Badge « Propriétaire notifié » conservé sous les 3 boutons ; FinderChat inchangé, ouvert par CHAT avec scroll auto
+- Interaction guide vocal (modale « Item found! / Tap to contact ») testée et préservée
+- Test E2E local port 3200 (mobile 390×844 + desktop) : 3 boutons visibles dans le bon ordre, clic CHAT → panneau DISCUSSION ANONYME ouvert, sticky 3 boutons OK, lint 0 erreur
+- Note : MultiEdit non atomique en pratique — 1ère édition appliquée, suite rejetée ; reprise édition par édition avec old_strs à jour
+- Commit caab2f9 + push ; deploy Coolify relancé (POST /deploy 200) ; vérif prod : chunk 0xzc-1_27hprr.js contient WHATSAPP×2, APPELER×2, CHAT×2, 2563EB×2, mention anonyme
+
+Stage Summary:
+- Page trouveur : hiérarchie de contact WHATSAPP (vert) → APPELER (bleu) → CHAT (noir), tout en majuscules, sur la page ET la barre sticky mobile
+- Le trouveur a désormais 3 canaux de contact à choix égaux ; chat toujours anonyme
+- GitHub = local = prod @ caab2f9
