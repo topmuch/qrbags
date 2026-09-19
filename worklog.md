@@ -1736,3 +1736,21 @@ Stage Summary:
 - SYNC TOTALE : GitHub = local = prod @ de47594 — rien à pousser ni tirer, l'environnement local est de nouveau 100 % opérationnel (dev 3200, DB seedée, chat+email+carte vérifiés)
 - Prod intacte : home 200, routes chat 404 JSON invalides, audio 113972 o
 - Le seul artefact local non commité volontairement : .env (DATABASE_URL sandbox) + dev-qrtagsori.log (non tracké)
+
+---
+Task ID: mes-bagages-carte-scans
+Agent: Z.ai Code (principal)
+Task: « Oui » — page Mes objets enrichie : carte des scans + historique sur /mes-bagages
+
+Work Log:
+- ScansOverview.tsx (nouveau, src/components/mes-bagages/) : fetch parallèle /api/track/{token} pour chaque objet traçable → 2 cartes : 🗺️ Carte des scans (LeafletMap dynamic ssr:false, h-[300px], badge N positions GPS) + 🕘 Derniers scans (historique fusionné 10 derniers, tri desc, lien /track/{token}, max-h-96 chat-scroll) ; rend NOTHING si 0 scan (page inchangée pour objets jamais scannés) ; signature tokens en dep du useEffect (items change d'identité à chaque render parent — PAS de dep items)
+- LeafletMap.tsx : ScanMapPoint.label? optionnel → titre popup = nom objet (fallback contextLabel) ; + esc HTML sur loc/finderName/label (contenus utilisateurs → innerHTML popup)
+- mes-bagages/page.tsx : mapItems useMemo (filter trackingToken — les 2 chemins, connecté via TravelerBaggage et localStorage via /api/suivi qui renvoie le token) ; <ScansOverview> inséré entre la recherche QR et le filtre, seulement si mapItems.length > 0
+- Seed local : 3 scans GPS (Dakar gare, AIBD, Paris Gare de Lyon) sur TEST1 + 1 sans GPS (Thies taxi) sur TEST2 → historique inclut le sans-GPS, carte l'exclut ✓ ; popup « Sac de voyage / Gare de Dakar / 👤 Karim » ✓ ; badge « 3 positions GPS » ✓ ; TEST2 sans object_name → fallback référence ✓
+- Warnings lint initiaux : eslint-disable exhaustive-deps jugés « unused » (règle non active) → retirés ; latence POST refetch maîtrisée par signature
+- Déploiement : commit 39b6140 push 12:00:26 UTC → auto-deploy
+
+Stage Summary:
+- 3ᵉ et dernière fonctionnalité du lot EN PROD : /mes-bagages montre maintenant carte agrégée + historique des scans (en plus de /track qui avait déjà sa carte par objet depuis 639e2fe)
+- Objets SANS trackingToken (jamais activés / fallback sans token) n'apparaissent ni carte ni historique — par construction
+- Vérif prod à faire : home 200, bundle contient « Carte des scans », déploiement terminé
