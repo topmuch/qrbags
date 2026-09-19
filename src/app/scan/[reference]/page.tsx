@@ -1293,6 +1293,36 @@ export default function ScanPage() {
                     {t('finder.by_phone')}
                   </button>
                 </div>
+
+                {/* ─── CHAT-FEATURE : bouton CHAT anonyme — 3e choix, EN DESSOUS de WhatsApp/Appel ─── */}
+                {!chatOpen && (
+                  <div className="mt-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setChatOpen(true)}
+                      className={`${brandBtnNavy} w-full py-3.5 px-4 flex items-center justify-center gap-2 text-base min-h-[52px] cursor-pointer`}
+                      aria-label="Ouvrir le chat anonyme"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      CHAT
+                    </button>
+                    <p className="text-center text-xs font-semibold text-[#16234e]/50 mt-1.5">
+                      Anonyme — sans laisser de numéro
+                    </p>
+                  </div>
+                )}
+
+                {/* CHAT-FEATURE : panneau du chat anonyme (remplace le bouton une fois ouvert) */}
+                {chatOpen && (
+                  <div className="mt-2.5">
+                    <FinderChat
+                      reference={reference}
+                      defaultName={finderName}
+                      onClose={() => setChatOpen(false)}
+                    />
+                  </div>
+                )}
+
                 <p className="text-[#16234e]/70 text-xs text-center mt-2.5 leading-relaxed">
                   {t('finder.gps_auto_shared')}
                 </p>
@@ -1306,35 +1336,6 @@ export default function ScanPage() {
           <Shield className="w-4 h-4 inline text-[#2f9bff]" />
           <span>{t('finder.trust_note')}</span>
         </div>
-
-        {/* ─── CHAT-FEATURE : bouton CHAT anonyme (3e choix après WhatsApp/Appel) ─── */}
-        {!chatOpen && (
-          <div className="mb-4">
-            <button
-              type="button"
-              onClick={() => setChatOpen(true)}
-              className={`${brandBtnNavy} w-full py-4 px-6 flex items-center justify-center gap-2 text-base min-h-[52px] cursor-pointer`}
-              aria-label="Ouvrir le chat anonyme"
-            >
-              <MessageCircle className="w-5 h-5" />
-              CHAT
-            </button>
-            <p className="text-center text-xs font-semibold text-[#16234e]/50 mt-1.5">
-              Anonyme — sans laisser de numéro
-            </p>
-          </div>
-        )}
-
-        {/* CHAT-FEATURE : panneau du chat anonyme */}
-        {chatOpen && (
-          <div className="mb-4">
-            <FinderChat
-              reference={reference}
-              defaultName={finderName}
-              onClose={() => setChatOpen(false)}
-            />
-          </div>
-        )}
       </div>
 
       {/* AI-FEATURE: Chatbot Widget (Feature #1) — only on active/lost baggage */}

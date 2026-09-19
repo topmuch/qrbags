@@ -71,7 +71,7 @@ export async function sendPostTripEmails(batchSize = 20): Promise<PostTripResult
 
   if (due.length === 0) return result;
 
-  const { sendEmail, getEmailSettings, getPostTripEmailTemplate } = await import('@/lib/email');
+  const { sendEmail, getEmailSettings, getPostTripEmailTemplate, getDestinationFlag } = await import('@/lib/email');
   const emailSettings = await getEmailSettings();
   if (!emailSettings) {
     result.errors.push('Config e-mail indisponible (EmailSettings)');
@@ -114,7 +114,7 @@ export async function sendPostTripEmails(batchSize = 20): Promise<PostTripResult
 
       const res = await sendEmail({
         to: email,
-        subject: `✈️ Votre voyage${bag.destination ? ` vers ${bag.destination}` : ''} — tout s'est bien passé ?`,
+        subject: `${getDestinationFlag(bag.destination)} Votre voyage${bag.destination ? ` vers ${bag.destination}` : ''} — tout s'est bien passé ?`,
         html: template.html,
         text: template.text,
         type: 'post_trip_feedback',

@@ -1168,7 +1168,59 @@ qrbags.com
   return { html, text };
 }
 
-// ─── ✈️ EMAIL POST-VOYAGE (48 h après le départ) : feedback + checklist/QR gratuits ───
+// ─── ✈️ EMAIL POST-VOYAGE (48 h après le départ) : « tout s'est bien passé ? » ───
+
+/**
+ * Drapeau du pays de destination (utilisé dans l'objet et le titre de
+ * l'e-mail post-voyage). Fallback : 🌍 si le pays est inconnu, ✈️ si
+ * la destination est absente.
+ */
+const DESTINATION_FLAGS: Array<{ pattern: RegExp; flag: string }> = [
+  { pattern: /france|paris|cdg|orly|roissy/i, flag: '🇫🇷' },
+  { pattern: /s[eé]n[eé]gal|dakar|blaise\s*diagne/i, flag: '🇸🇳' },
+  { pattern: /mauritanie|nouakchott/i, flag: '🇲🇷' },
+  { pattern: /mali|bamako/i, flag: '🇲🇱' },
+  { pattern: /burkina|ouagadougou/i, flag: '🇧🇫' },
+  { pattern: /niger(?!ia)/i, flag: '🇳🇪' },
+  { pattern: /c[oô]te\s+d'ivoire|ivoire|abidjan/i, flag: '🇨🇮' },
+  { pattern: /guin[eé]e|conakry/i, flag: '🇬🇳' },
+  { pattern: /b[eé]nin|cotonou/i, flag: '🇧🇯' },
+  { pattern: /togo|lom[eé]/i, flag: '🇹🇬' },
+  { pattern: /camer?oun|douala|yaound[eé]/i, flag: '🇨🇲' },
+  { pattern: /gabon|libreville/i, flag: '🇬🇦' },
+  { pattern: /congo|brazzaville|kinshasa/i, flag: '🇨🇬' },
+  { pattern: /tchad|n'?djam[eé]na/i, flag: '🇹🇩' },
+  { pattern: /rwanda|kigali/i, flag: '🇷🇼' },
+  { pattern: /djibouti/i, flag: '🇩🇯' },
+  { pattern: /comores|moroni/i, flag: '🇰🇲' },
+  { pattern: /madagascar|antananarivo/i, flag: '🇲🇬' },
+  { pattern: /maroc|casablanca|marrakech|rabat/i, flag: '🇲🇦' },
+  { pattern: /alg[eé]rie|alger|oran/i, flag: '🇩🇿' },
+  { pattern: /tunisie|tunis/i, flag: '🇹🇳' },
+  { pattern: /[eé]gypte|le\s*caire|cairo/i, flag: '🇪🇬' },
+  { pattern: /turquie|istanbul/i, flag: '🇹🇷' },
+  { pattern: /arabie\s+saoudite|la\s*mecke?|mecque|m[eé]dine|djeddah|jeddah/i, flag: '🇸🇦' },
+  { pattern: /[eé]mirats|dubai|duba[iï]|abu\s*dhabi/i, flag: '🇦🇪' },
+  { pattern: /canada|qu[eé]bec|montr[eé]al|toronto/i, flag: '🇨🇦' },
+  { pattern: /belgique|bruxelles/i, flag: '🇧🇪' },
+  { pattern: /suisse|gen[eè]ve|zurich/i, flag: '🇨🇭' },
+  { pattern: /luxembourg/i, flag: '🇱🇺' },
+  { pattern: /italie|rome|milan/i, flag: '🇮🇹' },
+  { pattern: /espagne|madrid|barcelone/i, flag: '🇪🇸' },
+  { pattern: /allemagne|berlin|munich|francfort/i, flag: '🇩🇪' },
+  { pattern: /royaume-?uni|angleterre|londres|london|heathrow/i, flag: '🇬🇧' },
+  { pattern: /[eé]tats-?unis|\busa\b|new\s*york|am[eé]rique/i, flag: '🇺🇸' },
+  { pattern: /chine|p[eé]kin|shanghai/i, flag: '🇨🇳' },
+  { pattern: /\binde\b|mumbai|delhi|bombay/i, flag: '🇮🇳' },
+];
+
+export function getDestinationFlag(destination?: string | null): string {
+  if (!destination) return '✈️';
+  for (const { pattern, flag } of DESTINATION_FLAGS) {
+    if (pattern.test(destination)) return flag;
+  }
+  return '🌍';
+}
 
 export interface PostTripEmailData {
   firstName: string;
@@ -1182,8 +1234,22 @@ export interface PostTripEmailData {
 }
 
 export function getPostTripEmailTemplate(data: PostTripEmailData): { html: string; text: string } {
-  const { firstName, reference, destination, departureDate, transportLabel, siteUrl, checklistUrl, feedbackUrl } = data;
-  const tripLine = [destination, departureDate].filter(Boolean).join(' — ');
+  const { reference, destination, departureDate, transportLabel, siteUrl, feedbackUrl } = data;
+
+  // 🇫🇷 « Après votre voyage vers la France, il est temps de faire le point ! »
+  const flag = getDestinationFlag(destination);
+  const title = destination
+    ? `Après votre voyage vers ${destination}, il est temps de faire le point !`
+    : 'Après votre voyage, il est temps de faire le point !';
+
+  // « Votre départ en avion était prévu le 17 septembre 2026, avec le bagage
+  //   VOL26-ZUHRYQ enregistré sur QRBags. »
+  const introHtml = departureDate
+    ? `Votre départ${transportLabel ? ` ${esc(transportLabel)}` : ''} était prévu le <strong>${esc(departureDate)}</strong>, avec le bagage <strong>${esc(reference)}</strong> enregistré sur QRBags.`
+    : `Votre bagage <strong>${esc(reference)}</strong> est enregistré sur QRBags.`;
+  const introText = departureDate
+    ? `Votre départ${transportLabel ? ` ${transportLabel}` : ''} était prévu le ${departureDate}, avec le bagage ${reference} enregistré sur QRBags.`
+    : `Votre bagage ${reference} est enregistré sur QRBags.`;
 
   const html = `
 <!DOCTYPE html>
@@ -1197,32 +1263,27 @@ export function getPostTripEmailTemplate(data: PostTripEmailData): { html: strin
   </div>
 
   <div style="background: #ffffff; padding: 30px 24px; border-radius: 0 0 12px 12px;">
-    <h1 style="color: #16234e; font-size: 21px; margin: 0 0 16px 0;">Bonjour ${esc(firstName)} 👋</h1>
+    <h1 style="color: #16234e; font-size: 20px; line-height: 1.4; margin: 0 0 18px 0;">${flag} ${esc(title)}</h1>
 
-    <p style="color: #16234e; line-height: 1.6; margin: 0 0 16px 0;">
-      Votre voyage${destination ? ` vers <strong>${esc(destination)}</strong>` : ''} (départ le <strong>${esc(departureDate)}</strong>${transportLabel ? `, ${esc(transportLabel)}` : ''}) est derrière vous — bagage ${esc(reference)} inclus.
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 20px 0;">
+      ${introHtml}
+    </p>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 6px 0;">
+      ✈️ <strong>Tout s'est-il bien passé ?</strong><br>
+      Votre bagage est-il arrivé à destination sans encombre ?
     </p>
 
     <p style="color: #16234e; line-height: 1.6; margin: 0 0 20px 0;">
-      <strong>Tout s'est-il bien passé ?</strong> Votre bagage a-t-il suivi sans encombre ? Votre avis compte énormément pour nous aider à améliorer QRBags.
+      Votre avis nous intéresse beaucoup. Il nous aide à améliorer QRBags et à offrir une meilleure expérience aux voyageurs.
     </p>
 
     <a href="${feedbackUrl}" style="display: inline-block; background: #2f9bff; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 24px;">
       ⭐ Partager mon avis
     </a>
 
-    <div style="background: #fffbe6; border: 2px dashed #f8921f; border-radius: 10px; padding: 18px 20px; margin-bottom: 20px;">
-      <div style="font-size: 11px; color: #f8921f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">🎁 Pour votre PROCHAIN voyage</div>
-      <p style="color: #16234e; line-height: 1.6; margin: 0 0 12px 0;">
-        Votre <strong>checkliste de voyage gratuite</strong> et vos <strong>QR codes QRBags</strong> vous attendent sur qrbags.com : partez léger et protégé, à chaque voyage.
-      </p>
-      <a href="${checklistUrl}" style="display: inline-block; background: #f8921f; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px;">
-        🧳 Ma checkliste gratuite
-      </a>
-    </div>
-
-    <p style="color: #666; font-size: 12px; line-height: 1.5; margin: 0;">
-      Protection intelligente des bagages : votre QR code permet à quiconque retrouve votre bagage de vous contacter en un scan — sans jamais exposer vos coordonnées.
+    <p style="color: #16234e; line-height: 1.6; margin: 0;">
+      🙏 Merci pour votre confiance !
     </p>
   </div>
 
@@ -1237,23 +1298,23 @@ export function getPostTripEmailTemplate(data: PostTripEmailData): { html: strin
 
   const text = `🎒 QRBags — Votre voyage s'est-il bien passé ?
 
-Bonjour ${firstName},
+${flag} ${title}
 
-Votre voyage${destination ? ` vers ${destination}` : ''} (départ le ${departureDate}${transportLabel ? `, ${transportLabel}` : ''}) est derrière vous — bagage ${reference} inclus.
+${introText}
 
-TOUT S'EST-IL BIEN PASSÉ ?
-Votre bagage a-t-il suivi sans encombre ? Partagez votre avis :
-${feedbackUrl}
+✈️ TOUT S'EST-IL BIEN PASSÉ ?
+Votre bagage est-il arrivé à destination sans encombre ?
 
-🎁 POUR VOTRE PROCHAIN VOYAGE
-Votre checkliste de voyage gratuite et vos QR codes QRBags sont disponibles sur qrbags.com :
-- Checkliste gratuite : ${checklistUrl}
-- QRBags : ${siteUrl}
+Votre avis nous intéresse beaucoup. Il nous aide à améliorer QRBags et à offrir une meilleure expérience aux voyageurs.
 
-Vous recevez cet e-mail car vous avez activé une étiquette QRBags (${reference}).
+⭐ Partager mon avis : ${feedbackUrl}
+
+🙏 Merci pour votre confiance !
 
 — L'équipe QRBags
 qrbags.com
+
+Vous recevez cet e-mail car vous avez activé une étiquette QRBags (${reference}).
 `.trim();
 
   return { html, text };
