@@ -1929,3 +1929,23 @@ Stage Summary:
 - e1eab48 (chat anonyme trouveur-propriétaire + email 48h post-voyage) DÉPLOYÉ et VÉRIFIÉ sur https://qrbags.com
 - Déploiement qrbags = forcage manuel Coolify (app Dockerfile inline, clone GitHub au build) — retenir pour les futurs déploies
 - SMTP : emails réels nécessitent le SMTP configuré en DB admin (sinon provider console → logs conteneur)
+
+---
+Task ID: qrbags-chat-btn-email-content
+Agent: Z.ai Code (principal)
+Task: Page trouveur — bouton CHAT sous les boutons Téléphone/WhatsApp + nouveau contenu de l'e-mail 48h post-voyage (contenu exact fourni par l'utilisateur)
+
+Work Log:
+- DB locale qrbags vide (reset) → recréé 2 bags de test via Prisma : VOL26-ZUHRYQ (départ J-3, vol vers France, email voyageur-test@qrbags.com) et VOL26-FLUX01 (scan)
+- src/app/scan/[reference]/page.tsx : bouton CHAT déplacé DANS l'encart contact, directement sous la grille WhatsApp/Appel (grid-cols-1 mobile empilé / sm:grid-cols-2 côte à côte) ; le panneau FinderChat remplace le bouton sur place ; anciens blocs sous la Trust Note supprimés ; style aligné sur les 2 boutons (py-3.5, min-h-[52px])
+- src/lib/email.ts : getPostTripEmailTemplate réécrit avec le contenu EXACT demandé — titre « {drapeau} Après votre voyage vers {destination}, il est temps de faire le point ! », « Votre départ {en avion} était prévu le {date longue}, avec le bagage {REF} enregistré sur QRBags. », « ✈️ Tout s'est-il bien passé ? / Votre bagage est-il arrivé à destination sans encombre ? », « Votre avis nous intéresse beaucoup… », CTA ⭐ Partager mon avis, « 🙏 Merci pour votre confiance ! » ; bloc promo checkliste retiré ; helper exporté getDestinationFlag (36 pays/francophonie, fallback 🌍, ✈️ si pas de destination)
+- src/lib/post-trip.ts : objet du mail désormais préfixé par le drapeau de destination (ex. « 🇫🇷 Votre voyage vers France — tout s'est bien passé ? »)
+- Tests E2E agent-browser (390×844 + 1280×800) : ordre vérifié par bounding boxes WhatsApp y=705 → Appel y=767 → CHAT y=829 ; message « Karim / Bonjour, j'ai trouvé votre valise à l'aéroport. » envoyé et persisté en DB ; rendu desktop OK (WhatsApp|Appel côte à côte, panneau dessous)
+- Cron post-trip local : POST /api/cron/post-trip?secret=… → {processed:1, sent:1} ; contenu exact vérifié dans dev-3300.log (Console Mode) ; 2e appel → processed:0 (anti-doublon postTripEmailSentAt OK)
+- Lint : 0 erreur sur les 3 fichiers modifiés
+- Commit 7684b2c « feat(scan+post-trip): bouton CHAT sous WhatsApp/Appel + contenu e-mail 48h « faire le point » » ; push GitHub OK (e1eab48..7684b2c main, token réutilisé de qrtagsori, URL remote nettoyée après push)
+
+Stage Summary:
+- Les 2 demandes sont codées, testées en local et POUSSÉES sur topmuch/qrbags (commit 7684b2c)
+- Déploiement prod NON déclenché : le token API Coolify (instance http://38.247.134.241:8000, app qrbags.com uuid d4o4wwks480og0g84g4k8kgk) n'est plus disponible dans l'environnement (perdu avec la compactage du contexte) → demander le token à l'utilisateur OU clic manuel « Redeploy » dans l'UI Coolify (l'app clone GitHub au build → 7684b2c sera pris)
+- Contenu e-mail final (texte) : drapeau + titre destination, ligne départ/date/référence, double question ✈️, paragraphe avis, CTA avis, 🙏 merci ; l'e-mail n'a plus de « Bonjour {prénom} » ni de promo checkliste (contenu strict demandé)
