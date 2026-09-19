@@ -38,6 +38,12 @@ import SuccessOverlay from '@/components/ui/SuccessOverlay';
 import PhoneInput from '@/components/ui/PhoneInput';
 import { toast } from '@/hooks/use-toast';
 
+// CHAT-FEATURE: Lazy-load du chat anonyme trouveur ↔ propriétaire (polling 5 s)
+const FinderChat = dynamic(() => import('@/components/finder/FinderChat'), {
+  ssr: false,
+  loading: () => null,
+});
+
 // TRANSPORT-FEATURE: Multi-transport support (real images, emojis as fallback)
 // (conservé pour le bloc "Détails du voyage" du suivi — le sélecteur de mode
 // a été retiré de l'écran d'activation : le mode par défaut est appliqué par l'API)
@@ -343,6 +349,9 @@ export default function ScanPage() {
   // GPS is now captured INLINE inside handleWhatsApp (no separate button/state).
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // CHAT-FEATURE: panneau du chat anonyme (ouvert via le bouton CHAT)
+  const [chatOpen, setChatOpen] = useState(false);
 
   // 🔔 Indicatif préselectionné : resynchronisé quand la détection pays (IP /
   // locales / fuseau) résout APRÈS le montage — `countryCode` vaut 'FR' au
@@ -1297,6 +1306,35 @@ export default function ScanPage() {
           <Shield className="w-4 h-4 inline text-[#2f9bff]" />
           <span>{t('finder.trust_note')}</span>
         </div>
+
+        {/* ─── CHAT-FEATURE : bouton CHAT anonyme (3e choix après WhatsApp/Appel) ─── */}
+        {!chatOpen && (
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => setChatOpen(true)}
+              className={`${brandBtnNavy} w-full py-4 px-6 flex items-center justify-center gap-2 text-base min-h-[52px] cursor-pointer`}
+              aria-label="Ouvrir le chat anonyme"
+            >
+              <MessageCircle className="w-5 h-5" />
+              CHAT
+            </button>
+            <p className="text-center text-xs font-semibold text-[#16234e]/50 mt-1.5">
+              Anonyme — sans laisser de numéro
+            </p>
+          </div>
+        )}
+
+        {/* CHAT-FEATURE : panneau du chat anonyme */}
+        {chatOpen && (
+          <div className="mb-4">
+            <FinderChat
+              reference={reference}
+              defaultName={finderName}
+              onClose={() => setChatOpen(false)}
+            />
+          </div>
+        )}
       </div>
 
       {/* AI-FEATURE: Chatbot Widget (Feature #1) — only on active/lost baggage */}

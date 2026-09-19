@@ -29,6 +29,8 @@ import {
 
 // Dynamic imports (avoid SSR issues)
 const LeafletMap = dynamic(() => import('@/components/LeafletMap'), { ssr: false, loading: () => <MapSkeleton /> });
+// CHAT-FEATURE: chat anonyme propriétaire ↔ trouveur (polling 8 s)
+const OwnerChat = dynamic(() => import('@/components/track/OwnerChat'), { ssr: false, loading: () => null });
 import { SocialShareButtons } from '@/components/SocialShareButtons';
 import { ReviewModal } from '@/components/ReviewModal';
 import { LossAlertBanner } from '@/components/LossAlertBanner';
@@ -1076,6 +1078,9 @@ export default function SuiviPage() {
             <p className="text-[#16234e]/70 text-sm">{t('tracking.no_finder')}</p>
           </div>
         )}
+
+        {/* ═══ CHAT-FEATURE : chat anonyme propriétaire ↔ trouveur ═══ */}
+        <OwnerChat reference={reference} />
 
         {/* ═══ CTA CHECKLIST (BrandCard + dégradé signature) ═══ */}
         <div className="bg-white rounded-3xl border border-[#16234e]/10 shadow-xl shadow-[#16234e]/5 p-4">

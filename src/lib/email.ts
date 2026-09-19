@@ -1018,3 +1018,243 @@ qrbags.com
 
   return { html, text };
 }
+
+// ─── CHAT ANONYME : notification e-mail au propriétaire (message du trouveur) ───
+
+export interface ChatMessageEmailData {
+  senderLabel: string;
+  message: string;
+  reference: string;
+  destination?: string | null;
+  trackingUrl: string;
+  receivedAt: string;
+}
+
+function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+export function getChatMessageEmailTemplate(data: ChatMessageEmailData): { html: string; text: string } {
+  const { senderLabel, message, reference, destination, trackingUrl, receivedAt } = data;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Nouveau message du trouveur — QRBags</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FDFBF7;">
+
+  <div style="background: #16234e; padding: 20px 24px; border-radius: 12px 12px 0 0;">
+    <div style="font-size: 22px; font-weight: bold; color: #ffffff;">🎒 QRBags</div>
+    <div style="font-size: 12px; color: #2f9bff;">💬 Nouveau message du trouveur</div>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px 24px; border-radius: 0 0 12px 12px;">
+    <h1 style="color: #16234e; font-size: 20px; margin: 0 0 16px 0;">${esc(senderLabel)} vous a écrit</h1>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 16px 0;">
+      Quelqu'un a scanné votre étiquette <strong>${esc(reference)}</strong>${destination ? ` (bagage en partance vers <strong>${esc(destination)}</strong>)` : ''} et vous a laissé un message via le chat anonyme :
+    </p>
+
+    <div style="background: #f0f6ff; border-left: 4px solid #2f9bff; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+      <p style="color: #16234e; line-height: 1.6; margin: 0;">« ${esc(message)} »</p>
+    </div>
+
+    <p style="color: #666; font-size: 12px; margin: 0 0 24px 0;">Reçu le ${esc(receivedAt)}</p>
+
+    <a href="${trackingUrl}" style="display: inline-block; background: #16234e; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 15px;">
+      💬 Répondre sur la page de suivi
+    </a>
+
+    <p style="color: #999; font-size: 11px; margin: 24px 0 0 0;">
+      Le chat est anonyme : aucun numéro de téléphone n'est échangé. Répondez directement depuis votre page de suivi.
+    </p>
+  </div>
+
+  <div style="text-align: center; padding: 16px;">
+    <div style="color: #999; font-size: 11px;">QRBags — Protection intelligente des bagages • qrbags.com</div>
+  </div>
+
+</body>
+</html>
+  `.trim();
+
+  const text = `🎒 QRBags — Nouveau message du trouveur
+
+${senderLabel} vous a écrit au sujet de votre bagage ${reference}${destination ? ` (destination : ${destination})` : ''} :
+
+« ${message} »
+
+Reçu le ${receivedAt}
+
+Répondez sur votre page de suivi : ${trackingUrl}
+
+Le chat est anonyme : aucun numéro de téléphone n'est échangé.
+
+— L'équipe QRBags
+qrbags.com
+`.trim();
+
+  return { html, text };
+}
+
+// ─── CHAT ANONYME : notification e-mail au trouveur (réponse du propriétaire) ───
+
+export interface ChatReplyEmailData {
+  ownerMessage: string;
+  reference: string;
+  destination?: string | null;
+  chatUrl: string;
+  receivedAt: string;
+}
+
+export function getChatReplyEmailTemplate(data: ChatReplyEmailData): { html: string; text: string } {
+  const { ownerMessage, reference, destination, chatUrl, receivedAt } = data;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Réponse du propriétaire — QRBags</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FDFBF7;">
+
+  <div style="background: #16234e; padding: 20px 24px; border-radius: 12px 12px 0 0;">
+    <div style="font-size: 22px; font-weight: bold; color: #ffffff;">🎒 QRBags</div>
+    <div style="font-size: 12px; color: #2f9bff;">💬 Réponse du propriétaire</div>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px 24px; border-radius: 0 0 12px 12px;">
+    <h1 style="color: #16234e; font-size: 20px; margin: 0 0 16px 0;">Le propriétaire vous a répondu</h1>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 16px 0;">
+      Au sujet du bagage <strong>${esc(reference)}</strong>${destination ? ` (en partance vers <strong>${esc(destination)}</strong>)` : ''} :
+    </p>
+
+    <div style="background: #f0f6ff; border-left: 4px solid #2f9bff; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+      <p style="color: #16234e; line-height: 1.6; margin: 0;">« ${esc(ownerMessage)} »</p>
+    </div>
+
+    <p style="color: #666; font-size: 12px; margin: 0 0 24px 0;">Reçu le ${esc(receivedAt)}</p>
+
+    <a href="${chatUrl}" style="display: inline-block; background: #16234e; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 15px;">
+      💬 Continuer la discussion
+    </a>
+
+    <p style="color: #999; font-size: 11px; margin: 24px 0 0 0;">
+      Vous avez reçu cet e-mail car vous avez laissé cette adresse pour être notifié d'une réponse. Elle n'est jamais visible par le propriétaire.
+    </p>
+  </div>
+
+  <div style="text-align: center; padding: 16px;">
+    <div style="color: #999; font-size: 11px;">QRBags — Protection intelligente des bagages • qrbags.com</div>
+  </div>
+
+</body>
+</html>
+  `.trim();
+
+  const text = `🎒 QRBags — Le propriétaire vous a répondu
+
+Au sujet du bagage ${reference}${destination ? ` (destination : ${destination})` : ''} :
+
+« ${ownerMessage} »
+
+Reçu le ${receivedAt}
+
+Continuer la discussion : ${chatUrl}
+
+— L'équipe QRBags
+qrbags.com
+`.trim();
+
+  return { html, text };
+}
+
+// ─── ✈️ EMAIL POST-VOYAGE (48 h après le départ) : feedback + checklist/QR gratuits ───
+
+export interface PostTripEmailData {
+  firstName: string;
+  reference: string;
+  destination?: string | null;
+  departureDate: string;
+  transportLabel?: string;
+  siteUrl: string;
+  checklistUrl: string;
+  feedbackUrl: string;
+}
+
+export function getPostTripEmailTemplate(data: PostTripEmailData): { html: string; text: string } {
+  const { firstName, reference, destination, departureDate, transportLabel, siteUrl, checklistUrl, feedbackUrl } = data;
+  const tripLine = [destination, departureDate].filter(Boolean).join(' — ');
+
+  const html = `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Votre voyage s'est-il bien passé ? — QRBags</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FDFBF7;">
+
+  <div style="background: #16234e; padding: 20px 24px; border-radius: 12px 12px 0 0;">
+    <div style="font-size: 22px; font-weight: bold; color: #ffffff;">🎒 QRBags</div>
+    <div style="font-size: 12px; color: #2f9bff;">✈️ Et maintenant, vos impressions ?</div>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px 24px; border-radius: 0 0 12px 12px;">
+    <h1 style="color: #16234e; font-size: 21px; margin: 0 0 16px 0;">Bonjour ${esc(firstName)} 👋</h1>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 16px 0;">
+      Votre voyage${destination ? ` vers <strong>${esc(destination)}</strong>` : ''} (départ le <strong>${esc(departureDate)}</strong>${transportLabel ? `, ${esc(transportLabel)}` : ''}) est derrière vous — bagage ${esc(reference)} inclus.
+    </p>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 20px 0;">
+      <strong>Tout s'est-il bien passé ?</strong> Votre bagage a-t-il suivi sans encombre ? Votre avis compte énormément pour nous aider à améliorer QRBags.
+    </p>
+
+    <a href="${feedbackUrl}" style="display: inline-block; background: #2f9bff; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 24px;">
+      ⭐ Partager mon avis
+    </a>
+
+    <div style="background: #fffbe6; border: 2px dashed #f8921f; border-radius: 10px; padding: 18px 20px; margin-bottom: 20px;">
+      <div style="font-size: 11px; color: #f8921f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">🎁 Pour votre PROCHAIN voyage</div>
+      <p style="color: #16234e; line-height: 1.6; margin: 0 0 12px 0;">
+        Votre <strong>checkliste de voyage gratuite</strong> et vos <strong>QR codes QRBags</strong> vous attendent sur qrbags.com : partez léger et protégé, à chaque voyage.
+      </p>
+      <a href="${checklistUrl}" style="display: inline-block; background: #f8921f; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px;">
+        🧳 Ma checkliste gratuite
+      </a>
+    </div>
+
+    <p style="color: #666; font-size: 12px; line-height: 1.5; margin: 0;">
+      Protection intelligente des bagages : votre QR code permet à quiconque retrouve votre bagage de vous contacter en un scan — sans jamais exposer vos coordonnées.
+    </p>
+  </div>
+
+  <div style="text-align: center; padding: 16px;">
+    <a href="${siteUrl}" style="color: #2f9bff; font-size: 12px; text-decoration: none;">🛡️ qrbags.com — Protéger mon prochain voyage</a>
+    <div style="color: #999; font-size: 11px; margin-top: 4px;">Vous recevez cet e-mail car vous avez activé une étiquette QRBags (${esc(reference)}).</div>
+  </div>
+
+</body>
+</html>
+  `.trim();
+
+  const text = `🎒 QRBags — Votre voyage s'est-il bien passé ?
+
+Bonjour ${firstName},
+
+Votre voyage${destination ? ` vers ${destination}` : ''} (départ le ${departureDate}${transportLabel ? `, ${transportLabel}` : ''}) est derrière vous — bagage ${reference} inclus.
+
+TOUT S'EST-IL BIEN PASSÉ ?
+Votre bagage a-t-il suivi sans encombre ? Partagez votre avis :
+${feedbackUrl}
+
+🎁 POUR VOTRE PROCHAIN VOYAGE
+Votre checkliste de voyage gratuite et vos QR codes QRBags sont disponibles sur qrbags.com :
+- Checkliste gratuite : ${checklistUrl}
+- QRBags : ${siteUrl}
+
+Vous recevez cet e-mail car vous avez activé une étiquette QRBags (${reference}).
+
+— L'équipe QRBags
+qrbags.com
+`.trim();
+
+  return { html, text };
+}
