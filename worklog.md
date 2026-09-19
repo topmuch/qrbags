@@ -1912,3 +1912,20 @@ Stage Summary:
 - Commit LOCAL e1eab48 sur main — attente feu vert avant git push (déployerait via Coolify)
 - Données test : VOL26-FLUX01 (email voyageur-test@qrbags.com, départ J-3) ; provider email = console en local (SMTP configurable en DB via admin)
 - Env de dev : /home/z/qrbags, port 3300, .env local (ne pas pousser), dev-3300.log
+
+---
+Task ID: qrbags-deploy
+Agent: Z.ai Code (principal)
+Task: Déployer le code (chat anonyme + email 48h post-voyage) sur le repo github.com/topmuch/qrbags
+
+Work Log:
+- Push validé (feu vert utilisateur) : 997d9b0..e1eab48 main -> main sur topmuch/qrbags (token réutilisé depuis qrtagsori)
+- Coolify : app qrbags.com = UUID d4o4wwks480og0g84g4k8kgk (projet « Qrbags » nwgokkkkgscockwcoc8ss84k), build Dockerfile INLINE qui fait git clone https://github.com/topmuch/qrbags.git — pas de webhook Git, deploy à forcer manuellement
+- Force deploy : POST /api/v1/deploy?uuid=d4o4wwks480og0g84g4k8kgk&force=true → deployment_uuid h13z9yr5glzbo4kdd3hbnyvq
+- Build OK (~2-3 min) : qrbags.com HTTP 200 ; CMD conteneur lance prisma db push au boot → nouvelle table finder_chat_messages + colonne postTripEmailSentAt créées automatiquement
+- Vérification prod : chaîne « Ouvrir le chat anonyme / sans laisser de numéro » présente dans chunk /_next/static/chunks/f11c507bdd3fd90e.js ; POST /api/cron/post-trip sans auth → 401 (route live + protégée) ; GET /api/scan/REF/chat référence inconnue → {« error »:« Tag introuvable »} (route live + validation OK)
+
+Stage Summary:
+- e1eab48 (chat anonyme trouveur-propriétaire + email 48h post-voyage) DÉPLOYÉ et VÉRIFIÉ sur https://qrbags.com
+- Déploiement qrbags = forcage manuel Coolify (app Dockerfile inline, clone GitHub au build) — retenir pour les futurs déploies
+- SMTP : emails réels nécessitent le SMTP configuré en DB admin (sinon provider console → logs conteneur)
