@@ -1754,3 +1754,27 @@ Stage Summary:
 - 3ᵉ et dernière fonctionnalité du lot EN PROD : /mes-bagages montre maintenant carte agrégée + historique des scans (en plus de /track qui avait déjà sa carte par objet depuis 639e2fe)
 - Objets SANS trackingToken (jamais activés / fallback sans token) n'apparaissent ni carte ni historique — par construction
 - Vérif prod à faire : home 200, bundle contient « Carte des scans », déploiement terminé
+
+---
+Task ID: email-inscription-chat
+Agent: Z.ai Code (session continuation)
+Task: L'utilisateur signale « l'email n'est pas configuré dans l'inscription, sans cette configuration le chat ne marchera pas, je viens de redéployer, y a rien ». Diagnostic + correction.
+
+Work Log:
+- Diagnostic prod : déploiement 39b6140 OK (chunk /mes-bagages contient « Historique »), GitHub=local=39b6140, Coolify running → le problème N'ÉTAIT PAS le déploiement.
+- Cause racine 1 : le champ e-mail du propriétaire était OPTIONNEL et caché à l'étape 3 de /inscrire → quasi jamais renseigné → customData.email absent → aucune notification chat/scan possible.
+- Cause racine 2 : SMTP en prod = provider « console » (défaut) → AUCUN e-mail réel envoyé tant que l'admin ne configure pas son SMTP dans Admin → Paramètres.
+- Découverte bonus : /api/baggage/[ref]/update n'exportait QUE PUT alors que la page /suivi/[ref]/edit appelle GET + POST → page d'édition 100 % cassée (chargement + sauvegarde).
+- /inscrire : e-mail REQUIS à l'étape 2 (validateEmail, step2ValidFlags, canSubmitStep2), champ placé après WhatsApp avec aide « alertes scan + chat — jamais visible du trouveur », bloc « Email (optionnel) » retiré de l'étape 3.
+- /api/baggage/[ref]/update : ajout GET (renvoie baggage + email extrait du customData) et POST (PIN no-op toléré, merge email dans customData SANS perte des autres champs, 400 si format invalide) ; PUT conservé pour compat.
+- /suivi/[ref]/edit : formData.email + chargement + payload + carte « 📧 E-mail de notification » → permet le RATTRAPAGE des objets déjà activés sans e-mail.
+- /api/suivi/[ref] : objectInfo inclut désormais has_email (booléen uniquement, jamais l'adresse) ; objectInfo ne peut plus être null.
+- /mes-bagages : DisplayBaggage.hasEmail (2 chemins : logged via customData.email, local via objectInfo.has_email) + encart doré listant les objets sans e-mail avec lien direct vers /suivi/{ref}/edit.
+- Admin/parametres : bannière ambre « ⚠️ Aucun e-mail n'est envoyé en ce moment » quand provider=console, avec instructions SMTP.
+- Tests E2E locaux (curl + agent-browser) : GET/POST/PUT update, 400 e-mail invalide, flux PIN réparé, fusion customData sans perte (object_name conservé), /inscrire étape 2 : bouton désactivé sans e-mail → 6/6 + activé avec, étape 3 sans champ e-mail, édition PIN→e-mail prérempli→sauvegarde→persisté, /mes-bagages encart visible sans e-mail / invisible avec. Lint : seules erreurs pré-existantes. Seed local restauré (proprio-test@qrtags.pro).
+
+Stage Summary:
+- COMMIT : feat(email): e-mail propriétaire requis à l'inscription + rattrapage sur objets existants (6 fichiers).
+- L'e-mail du propriétaire est désormais collecté OBLIGATOIREMENT à l'inscription de l'objet (étape 2) et MODIFIABLE via /suivi/{ref}/edit (accessible depuis l'encart de /mes-bagages).
+- IMPORTANT : les notifications e-mail réelles restent bloquées tant que le SMTP n'est pas configuré dans Admin → Paramètres (bannière d'avertissement ajoutée) — action UTILISATEUR requise (identifiants SMTP).
+- Sécurité (pré-existant, à traiter plus tard) : /suivi/[ref]/edit + PUT update sans authentification réelle (ownerPin retiré du schéma) — quiconque connaît la référence peut éditer.
