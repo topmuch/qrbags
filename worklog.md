@@ -1798,3 +1798,21 @@ Stage Summary:
 - E-mail propriétaire désormais OPTIONNEL partout (inscription, édition, mes-bagages) ; s'il est renseigné il reste validé au format
 - Le chat et les notifications continuent de fonctionner avec OU sans e-mail
 - GitHub = local @ 47071ef ; Coolify auto-deploy lancé, vérif prod à suivre
+
+---
+Task ID: page-trouveur-compacte
+Agent: Z.ai Code (principal)
+Task: Nouvelle page trouveur compacte selon maquette utilisateur (page « trop longue »), après validation des 5 choix
+
+Work Log:
+- Choix validés : chat anonyme en lien discret (B) ; position = IP (A) + GPS silencieux au clic WhatsApp ; badge fixe propriétaire ; PAS de sélecteur de langues ; e-mail retiré de la page (conservé dans le chat) ; guide vocal + logo QRTags conservés
+- src/components/scan/PackPratique.tsx réécrit : 1012 → 560 lignes (189 insertions / 575 deletions)
+- src/app/api/detect-country/route.ts : + city/latitude/longitude (ipapi.co)
+- Nouvelle structure : logo + titre/réf → récompense compacte 2 lignes → carte objet (icône/nom/marque/photo/couleur) + position IP + bouton Google Maps → VOS INFORMATIONS (nom + WhatsApp) → WhatsApp + Appeler → badge notifié → lien chat discret → FinderChat inchangé
+- GPS : captureGpsSilently() au clic WhatsApp (timeout 8 s, refus = null, jamais bloquant) → latitude/longitude dans le POST /api/scan
+- Test E2E agent-browser : POST 200, wa.me ouvert avec message pré-rempli correct, ScanLog enregistré (finderName/phone/location), GPS refusé sans bloquer, chat ouvert, barre sticky mobile OK, captures finder-top-v2.png / finder-desktop-v2.png / finder-mobile-v2.png
+- Commit e6b2bcf + push
+
+Stage Summary:
+- Page trouveur ~2 écrans au lieu de ~5, conforme à la maquette ASCII fournie
+- GitHub = local @ e6b2bcf ; Coolify auto-deploy lancé, vérif prod à suivre
