@@ -1778,3 +1778,23 @@ Stage Summary:
 - L'e-mail du propriétaire est désormais collecté OBLIGATOIREMENT à l'inscription de l'objet (étape 2) et MODIFIABLE via /suivi/{ref}/edit (accessible depuis l'encart de /mes-bagages).
 - IMPORTANT : les notifications e-mail réelles restent bloquées tant que le SMTP n'est pas configuré dans Admin → Paramètres (bannière d'avertissement ajoutée) — action UTILISATEUR requise (identifiants SMTP).
 - Sécurité (pré-existant, à traiter plus tard) : /suivi/[ref]/edit + PUT update sans authentification réelle (ownerPin retiré du schéma) — quiconque connaît la référence peut éditer.
+
+---
+Task ID: email-optionnel
+Agent: Z.ai Code (principal)
+Task: Rendre l'e-mail propriétaire OPTIONNEL à l'inscription (retour utilisateur : « je veux pas que lemail soit obligatoire »)
+
+Work Log:
+- Découverte : le commit local non poussé 9dbc2d1 avait rendu l'e-mail REQUIS à l'inscription (« Votre e-mail * » + validateEmail bloquant si vide)
+- src/app/inscrire/page.tsx : validateEmail retourne null si vide (validation format conservée si renseigné), libellé « Votre e-mail (optionnel) », aide « Optionnel — reçoit les alertes... »
+- src/app/mes-bagages/page.tsx : encart reformulé « Ajoutez un e-mail (optionnel) pour ne rien manquer »
+- src/app/suivi/[reference]/edit/page.tsx : libellé « 📧 E-mail de notification (optionnel) »
+- Lint ciblé : 0 erreur sur les 3 fichiers modifiés
+- Test E2E agent-browser port 3200 : /inscrire?qr=QRTAGS-TEST2 (remis en pending_activation) → étapes 1-2-3 SANS e-mail → « 🎉 Votre QR code est activé ! » → DB vérifiée : status=activated, AUCUNE clé email dans customData
+- Constat annexe (préexistant, non régressif) : /api/baggage/[ref]/update ne valide pas le PIN côté serveur (ownerPin supprimé du schéma au commit 31e9b69) — à traiter séparément
+- Commit 47071ef « fix(email): e-mail propriétaire OPTIONNEL partout » + push des 3 commits en attente (39b6140 mes-bagages, 9dbc2d1, 47071ef)
+
+Stage Summary:
+- E-mail propriétaire désormais OPTIONNEL partout (inscription, édition, mes-bagages) ; s'il est renseigné il reste validé au format
+- Le chat et les notifications continuent de fonctionner avec OU sans e-mail
+- GitHub = local @ 47071ef ; Coolify auto-deploy lancé, vérif prod à suivre
