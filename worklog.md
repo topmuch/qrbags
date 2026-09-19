@@ -1718,3 +1718,21 @@ Stage Summary:
 - L'audio est EN PRODUCTION sur qrtags.pro : guides vocaux trouveur + confirmation, 6 MP3 servis, pattern validé QRBags reproduit à l'identique en habillage or/noir QRTags
 - Le bon repo est maintenant la source unique : topmuch/qrtagsori (le mauvais commit sur topmuch/qrtags cf1dc0b reste en place, sans conséquence)
 - Artefacts locaux non commités : .env (DB locale), dev-qrtagsori.log ; dev server qrtagsori laissé sur port 3200
+
+---
+Task ID: sync-github-local
+Agent: Z.ai Code (principal)
+Task: « Synchronise la version GitHub avec la version locale » — qrtagsori
+
+Work Log:
+- CONSTAT : sandbox réinitialisé — /home/z/qrtagsori ET /home/z/voicetest disparus (le cd échouait, les commandes tournaient dans my-project). Aucune perte : tous les commits avaient été poussés (de47594 = HEAD GitHub)
+- Re-clone avec token (grep my-project/.git/config) → /home/z/qrtagsori : HEAD de47594, historique complet (ec5db5c, 9ab5ef4, 95a01aa, 639e2fe, f65bb01, de47594), git status propre, intégrité vérifiée (notifyEmail dans schema+3 fichiers, 2 templates chat dans email.ts, LeafletMap/OwnerChat/CARTE DES SCANS dans track page, 6 MP3 tailles exactes)
+- Environnement reconstruit : bun install (960 pkgs) → .env local recréé (DATABASE_URL=file:/home/z/qrtagsori/prisma/db.sqlite — .env est TRACKÉ dans le repo, ne JAMAIS pousser : le .env commité contient l'ancienne valeur sandbox my-project, sans effet en prod car Coolify fournit sa propre DATABASE_URL) → prisma db push → re-seed QRTAGS-TEST1 (type='pratique' + whatsappOwner='+221770000000' REQUIS sinon API scan renvoie pending_activation et la page trouveur ne rend pas PackPratique) + QRTAGS-TEST2 + EmailSettings console
+- Daemon recréé : /home/z/voicetest/daemon-dev3200.py (double-fork, bun x next dev -p 3200, DATABASE_URL forcé, log /home/z/qrtagsori/dev-qrtagsori.log) → dev3200: 200
+- E2E base fraîche : POST chat trouveur avec notifyEmail → 201 + col remplie ; réponse propriétaire → EmailLog chat_reply sent ✓ ; navigateur : champ email formulaire OK + bouton chat OK
+- PIÈGES re-encodés dans ce log : (1) seed test = type 'pratique' + whatsappOwner obligatoires ; (2) redémarrer dev server après db push (client Prisma en mémoire) ; (3) .env tracké = piège git add .env
+
+Stage Summary:
+- SYNC TOTALE : GitHub = local = prod @ de47594 — rien à pousser ni tirer, l'environnement local est de nouveau 100 % opérationnel (dev 3200, DB seedée, chat+email+carte vérifiés)
+- Prod intacte : home 200, routes chat 404 JSON invalides, audio 113972 o
+- Le seul artefact local non commité volontairement : .env (DATABASE_URL sandbox) + dev-qrtagsori.log (non tracké)
