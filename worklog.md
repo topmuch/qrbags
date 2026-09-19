@@ -1838,3 +1838,25 @@ Stage Summary:
 - Page trouveur : hiérarchie de contact WHATSAPP (vert) → APPELER (bleu) → CHAT (noir), tout en majuscules, sur la page ET la barre sticky mobile
 - Le trouveur a désormais 3 canaux de contact à choix égaux ; chat toujours anonyme
 - GitHub = local = prod @ caab2f9
+
+---
+Task ID: trouveur-gps-compte-rebours
+Agent: Z.ai Code (principal)
+Task: 3 retours utilisateur — (1) enlever l'icône 🎯 du titre, (2) position incohérente : GPS silencieux dès l'arrivée + Maps précis, (3) message « MESSAGE ENVOYÉ ! » affiché ≥ 5 s AVANT la redirection WhatsApp
+
+Work Log:
+- Titre : « 🎯 OBJET RETROUVÉ » → « OBJET RETROUVÉ » (icône supprimée)
+- GPS : captureGpsSilently() désormais appelée AU MONTAGE du composant (dès l'arrivée sur la page) ; coords stockées dans gpsCoords (state)
+- Reverse-geocoding client BigDataCloud (reverse-geocode-client, gratuit sans clé, lang=fr) → libellé « Ville, Pays » PRÉCIS affiché à la place du libellé IP
+- mapsUrl : priorité coords GPS → sinon IP lat/lng → sinon libellé ; « Voir sur Google Maps » ouvre donc la vraie position quand le GPS est accordé
+- Submit : coords = gpsCoords ?? captureGpsSilently() (retente au clic si refus/timeout initial) ; location envoyée au POST = positionLabel (GPS si dispo, sinon IP)
+- Redirection WhatsApp : après POST réussi, modale « MESSAGE ENVOYÉ ! » + compte à rebours 5 → 0 (gros chiffre vert), window.open UNIQUEMENT à 0 ; WHATSAPP reste disabled pendant le compte (pas de double envoi) ; si popup bloquée → gros bouton « OUVRIR WHATSAPP » dans la modale
+- Refactor pendingUrlRef → state pendingUrl (eslint react-hooks/refs : ref illisible au rendu) ; incident éditeur : `return (` supprimé par erreur puis restauré
+- Test E2E local mobile : titre sans icône OK ; clic WHATSAPP → modale countdown « 4 SECONDES » capturée ; à 0 → nouvel onglet « Share on WhatsApp » (wa.me) ; modale post-redirect « Prochaines étapes » OK ; lint 0 erreur
+- En headless le GPS est refusé → fallback IP « France » (comportement dégradé attendu) ; sur téléphone réel la barre de permission s'affiche à l'arrivée et la position devient précise
+- Commit 25baa3b + push ; vérif prod : chunk 3xww83xzf-t4d.js contient countdown + bigdatacloud + WHATSAPP/APPELER
+
+Stage Summary:
+- Position du trouveur : GPS silencieux dès l'arrivée (permission navigateur), libellé ville/pays précis, bouton Maps sur la vraie position ; IP = simple secours
+- WhatsApp : message de confirmation affiché 5 secondes avant la redirection (compte à rebours visible), protection anti double-clic, fallback bouton manuel si popup bloquée
+- GitHub = local = prod @ 25baa3b
