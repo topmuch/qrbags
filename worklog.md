@@ -1885,3 +1885,30 @@ Stage Summary:
 - Modale « MESSAGE ENVOYÉ ! » + countdown 5 s entièrement supprimés (-103 lignes) ; states showSuccess/gpsCaptured/redirectIn/whatsappBlocked/pendingUrl retirés
 - Fichier : src/components/scan/PackPratique.tsx ; commit 12da660 poussé ; déploiement Coolify forcé (rgz18o3tmw0a6fxt5c7668qx)
 - .env local modifié (DATABASE_URL=/home/z/qrtagsori/prisma/db.sqlite) — NE PAS commiter (config locale uniquement)
+
+---
+Task ID: qrbags-chat-posttrip
+Agent: Z.ai Code (principal)
+Task: Cloner topmuch/qrbags, ajouter le chat anonyme sur la page trouveur (comme qrtags) + programmer l'email 48h post-voyage — commit local SANS push (feu vert requis)
+
+Work Log:
+- Clone /home/z/qrbags (Next.js 16, Bun, Prisma/SQLite, BrandShell navy #16234e / azure #2f9bff)
+- bun install (948 paquets), DATABASE_URL=file:/home/z/qrbags/db/qrbags.db, prisma db push + seed (refs: VOL26-FLUX01, HAJJ25-ACTIVE…)
+- Dev server port 3300 (3000/3200 occupés par my-project et qrtagsori)
+- 2 explorations subagents (qrbags structure + chat qrtags complet)
+- Prisma : modèle FinderChatMessage + relation Baggage.chatMessages + Baggage.postTripEmailSentAt
+- API /api/scan/[reference]/chat (GET/POST, rate-limit 10/min/IP, sanitize strip-HTML, notif email owner fire-and-forget 2 gardes)
+- API /api/suivi/[reference]/chat (côté owner, badge unread, read=1 si visible, notif email finder 3 gardes)
+- Composants FinderChat.tsx (polling 5s, bulles azure/navy, pseudo + email optionnels) et OwnerChat.tsx (polling 8s, badge, repliable)
+- Intégration scan page : bouton CHAT navy sous la Trust Note + panneau ; suivi page : carte OwnerChat après la carte trouveur
+- Templates email.ts : getChatMessageEmailTemplate, getChatReplyEmailTemplate, getPostTripEmailTemplate
+- lib/post-trip.ts (lot 20, status active/scanned/found uniquement, anti-doublon postTripEmailSentAt) + /api/cron/post-trip (CRON_SECRET) + instrumentation.ts (boot +30 min, DISABLE_POST_TRIP_CRON)
+- Tests E2E agent-browser 390×844 : email post-trip OK (console, contenu complet, anti-doublon 2e appel=0) ; chat trouveur → bulle persistée + email owner console ; badge « 1 non lu » suivi ; réponse owner → bulle navy visible côté trouveur ; garde email (finder sans email → aucun chat_reply)
+- Lint : 0 erreur sur tous les fichiers créés/modifiés
+- Commit local e1eab48 (12 fichiers, +1437 lignes) — PAS de push (feu vert utilisateur requis)
+
+Stage Summary:
+- qrbags : chat anonyme QRTags-like opérationnel de bout en bout (trouveur ↔ propriétaire) + email 48h post-voyage programmé
+- Commit LOCAL e1eab48 sur main — attente feu vert avant git push (déployerait via Coolify)
+- Données test : VOL26-FLUX01 (email voyageur-test@qrbags.com, départ J-3) ; provider email = console en local (SMTP configurable en DB via admin)
+- Env de dev : /home/z/qrbags, port 3300, .env local (ne pas pousser), dev-3300.log
