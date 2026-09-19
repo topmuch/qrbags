@@ -1860,3 +1860,28 @@ Stage Summary:
 - Position du trouveur : GPS silencieux dès l'arrivée (permission navigateur), libellé ville/pays précis, bouton Maps sur la vraie position ; IP = simple secours
 - WhatsApp : message de confirmation affiché 5 secondes avant la redirection (compte à rebours visible), protection anti double-clic, fallback bouton manuel si popup bloquée
 - GitHub = local = prod @ 25baa3b
+
+---
+Task ID: redirection-auto-whatsapp
+Agent: Z.ai Code (principal)
+Task: Supprimer la modale « MESSAGE ENVOYÉ ! » + compte à rebours 5 s → redirection WhatsApp AUTOMATIQUE au clic (évite le blocage popup)
+
+Work Log:
+- Session reprise après coupure : environnement OK (dev port 3200 up, git @ 25baa3b)
+- Découvert que la modification était déjà codée avant la coupure (104 lignes supprimées / 11 ajoutées dans PackPratique.tsx, non commitée)
+- Vérifié : 0 référence orpheline (showSuccess/redirectIn/whatsappBlocked/pendingUrl/gpsCaptured tous supprimés proprement)
+- Lint : 0 erreur sur PackPratique.tsx (62 problèmes préexistants dans d'autres fichiers, non bloquants)
+- Test E2E agent-browser port 3200 (QRTAGS-TEST1, mobile 390×844) :
+  * Fermeture modale instructions « Item found! » via bouton Tap to contact (ouvrante au chargement, recouvre la page)
+  * Formulaire rempli (Test Trouveur / 771234567)
+  * Clic WHATSAPP (sticky bar d'abord bloqué par la modale, puis OK)
+  * RÉSULTAT : nouvel onglet ouvert IMMÉDIATEMENT sur api.whatsapp.com/send/?phone=221770000000&text=... (message pré-rempli complet : nom, tel, position, réf)
+  * Onglet principal : AUCUNE modale résiduelle, AUCUN compte à rebours
+- Commit 12da660 (main 25baa3b → 12da660)
+- Push GitHub OK ; auto-deploy Coolify NON déclenché (API deployments: []) → force=true → deployment_uuid rgz18o3tmw0a6fxt5c7668qx
+
+Stage Summary:
+- Redirection WhatsApp désormais AUTOMATIQUE : window.open immédiat après POST, fallback window.location.href (jamais bloqué) si popup bloquée
+- Modale « MESSAGE ENVOYÉ ! » + countdown 5 s entièrement supprimés (-103 lignes) ; states showSuccess/gpsCaptured/redirectIn/whatsappBlocked/pendingUrl retirés
+- Fichier : src/components/scan/PackPratique.tsx ; commit 12da660 poussé ; déploiement Coolify forcé (rgz18o3tmw0a6fxt5c7668qx)
+- .env local modifié (DATABASE_URL=/home/z/qrtagsori/prisma/db.sqlite) — NE PAS commiter (config locale uniquement)
