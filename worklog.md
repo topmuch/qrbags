@@ -1968,3 +1968,19 @@ Stage Summary:
 - Locale = GitHub = 93ebba0 : les couleurs restaurées sont maintenant COMMITÉES et POUSSÉES (plus de risque de perte)
 - Déploiement qrbags.com : l'utilisateur doit cliquer « Redeploy » dans l'UI Coolify (http://38.247.134.241:8000, app uuid d4o4wwks480og0g84g4k8kgk) OU fournir le token API — l'app clone GitHub au build → 93ebba0 sera pris
 - Bag de test local VOL26-ZUHRYQ recréé avec reward (pour les futurs tests)
+
+---
+Task ID: github-token-config-3
+Agent: Z.ai Code (main)
+Task: Configurer le token GitHub fourni par l'utilisateur + synchronisation locale/GitHub
+
+Work Log:
+- Token ghp_… fourni par l'utilisateur validé via api.github.com : login topmuch (Ouz), scopes complets (repo, workflow, admin…), repo topmuch/qrbags PUBLIC (main)
+- Token configuré dans git remote origin (set-url) — git ls-remote OK, authentification fonctionnelle
+- Décision sécurité : token GitHub à privilèges étendus NON transmis au serveur Coolify (HTTP en clair, risque de fuite) — ceci N'EST PAS un token API Coolify
+- Auto-commit sandbox 9f2fd28 (worklog.md) poussé → 93ebba0..9f2fd28, local = origin/main = 9f2fd28
+- La restauration des couleurs (93ebba0) est bien sur GitHub (vérifié par ls-remote)
+
+Stage Summary:
+- Push Git opérationnel avec le nouveau token topmuch ; local = GitHub = 9f2fd28 (couleurs restaurées incluses)
+- Déploiement prod qrbags.com : exige TOUJOURS un token API Coolify (généré dans l'UI Coolify → Keys & Tokens → API tokens) ou un clic « Redeploy » manuel — à rappeler à l'utilisateur
