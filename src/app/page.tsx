@@ -148,6 +148,7 @@ function Navigation() {
     { label: 'Checklist', href: '/checklist' },
     { label: 'Comment ça marche', href: '/#comment' },
     { label: 'Tarifs', href: '/#tarifs' },
+    { label: 'Avis', href: '/avis' },
     { label: 'Contactez-nous', href: '/contact' },
   ];
 

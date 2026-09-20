@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  BrandShell,
   BrandCard,
   BrandIconRing,
   brandInput,
@@ -25,8 +24,6 @@ import {
   Phone,
   MessageCircle,
   Gift,
-  Handshake,
-  Megaphone,
   BadgeCheck,
   Lock,
   Volume2,
@@ -51,6 +48,7 @@ import {
   safeTransportMode,
   getTransportImage,
   getTransportBlockHeader,
+  getTransportIcon,
 } from '@/lib/transport';
 import type { TransportMode } from '@/lib/transport';
 
@@ -169,7 +167,7 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
   };
 
   return (
-    <BrandShell>
+    <FinderShell>
       <main className="min-h-screen flex items-center justify-center p-5 md:p-8">
         <div className="max-w-md w-full">
           <div className="flex justify-end mb-3">
@@ -232,21 +230,21 @@ function ActivationRedirect({ type, reference, t, lang, setLang }: {
           </BrandCard>
         </div>
       </main>
-    </BrandShell>
+    </FinderShell>
   );
 }
 
 // ─── Loading Component (design system QRBags — fond blanc) ───
 function LoadingScreen({ t }: { t: (key: string) => string }) {
   return (
-    <BrandShell>
+    <FinderShell>
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-12 h-12 border-4 border-[#16234e]/15 border-t-[#e6216e] rounded-full mx-auto mb-4"></div>
           <p className="text-lg font-medium text-[#16234e]">{t('common.loading')}</p>
         </div>
       </main>
-    </BrandShell>
+    </FinderShell>
   );
 }
 
@@ -288,7 +286,7 @@ function ErrorScreen({
   const config = errorConfig[type as keyof typeof errorConfig] || errorConfig.not_found;
 
   return (
-    <BrandShell>
+    <FinderShell>
       <main className="min-h-screen flex items-center justify-center p-5 md:p-8">
         <div className="max-w-md w-full">
           <div className="flex justify-end mb-3">
@@ -312,7 +310,7 @@ function ErrorScreen({
           </BrandCard>
         </div>
       </main>
-    </BrandShell>
+    </FinderShell>
   );
 }
 
@@ -322,6 +320,47 @@ function SoftEncart({ children, className = '' }: { children: React.ReactNode; c
     <div className={`bg-[#2f9bff]/5 border border-[#16234e]/10 rounded-xl p-3 mb-2.5 last:mb-0 ${className}`}>
       {children}
     </div>
+  );
+}
+
+// ─── FinderShell — coquille sobre pour la page trouveur ───
+// REFONTE-9 : toutes les décorations de fond (carte pointillée, halos de
+// couleur, arcs arc-en-ciel, liseré dégradé) sont retirées — fond blanc net.
+function FinderShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative min-h-screen bg-white overflow-x-clip">
+      <div className="relative z-10 flex flex-col min-h-screen">{children}</div>
+    </div>
+  );
+}
+
+// ─── NavyEncart — encart à bandeau bleu de nuit (refonte-9) ───
+// Chaque bloc clé (Propriétaire / Photo de la valise / Détail du vol /
+// Détails contact) est entouré d'un cadre navy + d'un bandeau titre bleu
+// de nuit (#16234e) : lisibilité maximale, zéro décoration superflue.
+function NavyEncart({
+  title,
+  icon,
+  children,
+  className = '',
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={`w-full mb-4 rounded-2xl overflow-hidden border-2 border-[#16234e] shadow-lg shadow-[#16234e]/10 ${className}`}
+    >
+      {/* Bandeau bleu de nuit — titre de l'encart */}
+      <div className="bg-[#16234e] px-5 py-3.5 flex items-center gap-2.5 text-white">
+        {icon}
+        <h2 className="text-xs md:text-sm uppercase tracking-widest font-bold">{title}</h2>
+      </div>
+      {/* Corps blanc — contenu de l'encart */}
+      <div className="bg-white p-5 md:p-6">{children}</div>
+    </section>
   );
 }
 
@@ -704,7 +743,7 @@ export default function ScanPage() {
   // ─── MAIN RENDER — BrandShell blanc + BrandCard + encarts doux (design system QRBags) ───
   // ═══════════════════════════════════════════════════════════════
   return (
-    <BrandShell>
+    <FinderShell>
     <main
       className="flex-1 flex flex-col px-4 sm:px-5 md:px-8 pb-[env(safe-area-inset-bottom,0px)]"
       dir={dir}
@@ -739,29 +778,22 @@ export default function ScanPage() {
               transition={{ duration: 0.45, ease: 'easeOut' }}
               className="w-full max-w-sm"
             >
-              <BrandCard corners className="w-full overflow-hidden">
-                {/* Bandeau dégradé signature */}
-                <div className="relative bg-gradient-qrbag px-5 pt-7 pb-6 text-center overflow-hidden">
-                  <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
-                  <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
-                  <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
-                  <span className="absolute bottom-4 left-4 text-lg" aria-hidden>🎉</span>
+              {/* REFONTE-9 : overlay sobre — bandeau bleu de nuit + carte blanche,
+                  sans dégradés ni décorations. La fonction audio est conservée. */}
+              <BrandCard className="w-full overflow-hidden">
+                {/* Bandeau bleu de nuit — titre */}
+                <div className="bg-[#16234e] px-5 pt-6 pb-5 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white flex items-center justify-center shadow-md overflow-hidden">
+                    <img src="/logo.png" alt="Logo QRBags" className="w-12 h-12 object-contain rounded-2xl" aria-hidden />
+                  </div>
 
-                  <motion.div
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-                    className="relative w-20 h-20 mx-auto mb-4 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
-                  >
-                    <img src="/logo.png" alt="Logo QRBags" className="w-16 h-16 object-contain rounded-2xl" aria-hidden />
-                  </motion.div>
-
-                  <h2 className="relative text-2xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                  <h2 className="text-2xl font-black text-white leading-tight tracking-tight">
                     {t('scan.welcome_title')}
                   </h2>
-                  <p className="relative mt-2 text-sm text-white/90 leading-relaxed max-w-xs mx-auto font-medium">
+                  <p className="mt-2 text-sm text-white/80 leading-relaxed max-w-xs mx-auto font-medium">
                     {t('scan.welcome_subtitle')}
                   </p>
-                  <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
+                  <p className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/30 text-white font-mono font-bold text-xs tracking-widest">
                     <Luggage className="w-3.5 h-3.5" aria-hidden />
                     {reference}
                   </p>
@@ -772,7 +804,7 @@ export default function ScanPage() {
                   <button
                     type="button"
                     onClick={handleWelcomeStart}
-                    className="relative w-full py-4 rounded-2xl bg-gradient-qrbag text-white font-extrabold text-base sm:text-lg flex items-center justify-center gap-2.5 shadow-lg shadow-[#8b17c9]/30 min-h-[56px] hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                    className={`${brandBtnNavy} relative w-full py-4 text-base sm:text-lg flex items-center justify-center gap-2.5 min-h-[56px]`}
                   >
                     <Volume2 className="w-6 h-6" aria-hidden />
                     {t('scan.welcome_cta')}
@@ -817,135 +849,66 @@ export default function ScanPage() {
       {/* ─── Container ─── */}
       <div className="w-full max-w-md mx-auto flex-1 flex flex-col py-4 sm:py-6 md:py-2">
 
-        {/* ═══ 🎉 HERO CÉLÉBRATION — wahoo effect (dégradé signature + 3 étapes) ═══ */}
-        <motion.div
-          initial={{ opacity: 0, y: 18, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
-          className="mb-5 sm:mb-6"
-        >
-          <BrandCard corners className="w-full overflow-hidden">
-            {/* Bandeau dégradé signature */}
-            <div className="relative bg-gradient-qrbag px-5 pt-6 pb-5 text-center overflow-hidden">
-              <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
-              <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
-              <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
-              <span className="absolute bottom-4 left-4 text-lg" aria-hidden>🎉</span>
-
-              <motion.div
-                animate={{ rotate: [0, -6, 6, 0], scale: [1, 1.06, 1] }}
-                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
-              >
-                {isDeclaredLost ? (
-                  <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-[#8b17c9]" aria-hidden />
-                ) : (
-                  <img src="/logo.png" alt="Logo QRBags" className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl" aria-hidden />
-                )}
-              </motion.div>
-
-              <h1 className="relative text-2xl md:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+        {/* ═══ HERO — sobre (refonte-9 : dégradés, emojis et animations retirés) ═══ */}
+        <div className="mb-5 sm:mb-6">
+          <BrandCard className="w-full overflow-hidden">
+            {/* Bandeau bleu de nuit — titre principal */}
+            <div className="bg-[#16234e] px-5 pt-6 pb-5 text-center">
+              {isDeclaredLost && (
+                <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-white flex items-center justify-center shadow-md">
+                  <Shield className="w-7 h-7 text-[#8b17c9]" aria-hidden />
+                </div>
+              )}
+              <h1 className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight">
                 {isDeclaredLost ? t('finder.hero_lost_title') : t('finder.hero_bravo_title')}
               </h1>
-              <p className="relative mt-2 text-sm md:text-base text-white/90 leading-relaxed max-w-md mx-auto font-medium">
+              <p className="mt-2 text-sm md:text-base text-white/80 leading-relaxed max-w-md mx-auto font-medium">
                 {isDeclaredLost ? t('finder.hero_lost_subtitle') : t('finder.hero_bravo_subtitle')}
               </p>
-              <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
+              <p className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/30 text-white font-mono font-bold text-xs tracking-widest">
                 <Luggage className="w-3.5 h-3.5" aria-hidden />
                 {reference}
               </p>
             </div>
-
-            {/* Bandeau 3 étapes — guide engageant pour le trouveur */}
-            <div className="px-4 py-4 bg-white">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#16234e]/50 text-center mb-2.5">
-                {t('finder.steps_title')}
-              </p>
-              <ol className="grid grid-cols-3 gap-2">
-                {[
-                  { icon: Megaphone, color: '#2f9bff', title: t('finder.step1_title'), desc: t('finder.step1_desc') },
-                  { icon: Handshake, color: '#f8921f', title: t('finder.step2_title'), desc: t('finder.step2_desc') },
-                  { icon: Gift, color: '#8b17c9', title: t('finder.step3_title'), desc: t('finder.step3_desc') },
-                ].map((s, i) => (
-                  <li key={i} className="relative text-center px-1">
-                    <div
-                      className="w-10 h-10 mx-auto mb-1.5 rounded-2xl flex items-center justify-center shadow-md"
-                      style={{ backgroundColor: `${s.color}1A`, border: `1.5px solid ${s.color}55` }}
-                    >
-                      <s.icon className="w-5 h-5" style={{ color: s.color }} aria-hidden />
-                    </div>
-                    <p className="text-[11px] md:text-xs font-extrabold text-[#16234e] leading-tight">{s.title}</p>
-                    <p className="hidden sm:block text-[10px] text-[#16234e]/55 leading-snug mt-0.5">{s.desc}</p>
-                    {i < 2 && (
-                      <ArrowRight className="hidden sm:block absolute top-4 -right-2 w-3.5 h-3.5 text-[#16234e]/20" aria-hidden />
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </div>
           </BrandCard>
-        </motion.div>
+        </div>
 
-        {/* ═══ 🎁 RÉCOMPENSE — spotlight premium (halo pulsant, wahoo effect) ═══ */}
+        {/* ═══ RÉCOMPENSE — encart sobre (refonte-9 : halo dégradé, étincelles et animations retirés) ═══ */}
         {baggage?.reward && (
-          <motion.div
+          <section
             role="status"
             aria-label={t('finder.reward_spotlight_title')}
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.5, type: 'spring', bounce: 0.4 }}
-            className="relative mb-4"
+            className="w-full mb-4 rounded-2xl overflow-hidden border-2 border-[#16234e] shadow-lg shadow-[#16234e]/10"
           >
-            {/* Halo pulsant dégradé signature */}
-            <div className="absolute -inset-1.5 bg-gradient-qrbag rounded-[2.2rem] opacity-50 blur-xl animate-pulse" aria-hidden />
-            {/* Cadre dégradé */}
-            <div className="relative rounded-[2rem] p-[3px] bg-gradient-qrbag shadow-2xl shadow-[#8b17c9]/30">
-              <div className="relative bg-[#16234e] rounded-[1.85rem] px-5 py-6 text-center overflow-hidden">
-                {/* étincelles décoratives */}
-                <Sparkles className="absolute top-4 left-5 w-4 h-4 text-[#ffd200]/70" aria-hidden />
-                <Sparkles className="absolute bottom-5 right-5 w-5 h-5 text-[#2f9bff]/60" aria-hidden />
-                <span className="absolute top-6 right-10 w-1.5 h-1.5 rounded-full bg-[#ffd200]/80" aria-hidden />
-                <span className="absolute top-12 left-12 w-1 h-1 rounded-full bg-[#e6216e]/80" aria-hidden />
-                <span className="absolute bottom-8 left-8 w-1.5 h-1.5 rounded-full bg-[#f8921f]/70" aria-hidden />
-
-                <p className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#ffd200] text-[#16234e] text-[10px] md:text-xs font-black uppercase tracking-[0.15em] shadow-md">
-                  <Gift className="w-3.5 h-3.5" aria-hidden />
-                  {t('finder.reward_spotlight_title')}
-                </p>
-
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  className="text-4xl mt-3"
-                  aria-hidden
-                >
-                  🎁
-                </motion.div>
-
-                <p className="mt-2 text-3xl md:text-4xl font-black text-white leading-tight break-words drop-shadow">
-                  {baggage.reward}
-                </p>
-
-                <p className="mt-3 text-[11px] md:text-sm text-white/75 font-medium leading-relaxed max-w-xs mx-auto">
-                  {t('finder.reward_spotlight_guarantee')}
-                </p>
-
-                <p className="mt-3 inline-flex items-center gap-1.5 text-[#ffd200] text-xs font-bold">
-                  <BadgeCheck className="w-4 h-4" aria-hidden />
-                  {t('finder.reward_spotlight_badge')}
-                </p>
-              </div>
+            {/* Bandeau bleu de nuit — titre */}
+            <div className="bg-[#16234e] px-5 py-3.5 flex items-center gap-2.5 text-white">
+              <Gift className="w-4 h-4" aria-hidden />
+              <h2 className="text-xs md:text-sm uppercase tracking-widest font-bold">
+                {t('finder.reward_spotlight_title')}
+              </h2>
             </div>
-          </motion.div>
+            {/* Corps blanc — contenu */}
+            <div className="bg-white px-5 py-5 text-center">
+              <p className="text-2xl md:text-3xl font-black text-[#16234e] leading-tight break-words">
+                {baggage.reward}
+              </p>
+              <p className="mt-2 text-xs md:text-sm text-[#16234e]/60 font-medium leading-relaxed max-w-xs mx-auto">
+                {t('finder.reward_spotlight_guarantee')}
+              </p>
+              <p className="mt-2.5 inline-flex items-center gap-1.5 text-[#16234e] text-xs font-bold">
+                <BadgeCheck className="w-4 h-4" aria-hidden />
+                {t('finder.reward_spotlight_badge')}
+              </p>
+            </div>
+          </section>
         )}
 
-        {/* ═══ 🟦 BLOC 1 : IDENTITÉ PROPRIÉTAIRE (BrandCard corners — bloc clé identité) ═══ */}
+        {/* ═══ BLOC 1 : IDENTITÉ PROPRIÉTAIRE — encart bandeau bleu de nuit (refonte-9) ═══ */}
         {baggage && (
-          <BrandCard corners className="w-full p-5 md:p-6 mb-4">
-            <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
-              <span>👤</span> {t('finder.owner_section')}
-            </h2>
-
+          <NavyEncart
+            title={t('finder.owner_section')}
+            icon={<span className="text-base" aria-hidden>👤</span>}
+          >
             {/* Full Name — kept */}
             <SoftEncart>
               <div className="flex items-center gap-3">
@@ -970,15 +933,15 @@ export default function ScanPage() {
                 </div>
               </div>
             </SoftEncart>
-          </BrandCard>
+          </NavyEncart>
         )}
 
-        {/* ═══ 🟦 PHOTO DE LA VALISE (BrandCard — aide le trouveur à identifier le bagage) ═══ */}
+        {/* ═══ PHOTO DE LA VALISE — encart bandeau bleu de nuit (refonte-9) ═══ */}
         {baggage?.hasPhoto && (
-          <BrandCard className="w-full p-5 md:p-6 mb-4">
-            <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
-              <span>📸</span> {t('finder.baggage_photo')}
-            </h2>
+          <NavyEncart
+            title={t('finder.baggage_photo')}
+            icon={<span className="text-base" aria-hidden>📸</span>}
+          >
             <a
               href={`/api/baggage-photo/${baggage.reference}`}
               target="_blank"
@@ -1002,27 +965,20 @@ export default function ScanPage() {
             <p className="mt-2.5 text-xs text-[#16234e]/60 text-center">
               {t('finder.baggage_photo_help')}
             </p>
-          </BrandCard>
+          </NavyEncart>
         )}
 
-        {/* ═══ 🟦 BLOC 2 : DÉTAILS DU VOYAGE (BrandCard, transport images) ═══ */}
+        {/* ═══ BLOC 2 : DÉTAILS DU VOYAGE / VOL — encart bandeau bleu de nuit (refonte-9) ═══ */}
         {baggage && (() => {
           const mode = safeTransportMode(baggage.transportMode) as TransportMode;
           const transportImg = getTransportImage(mode);
           const blockHeader = getTransportBlockHeader(mode, lang);
 
           return (
-            <BrandCard className="w-full p-5 md:p-6 mb-4">
-              <h2 className="text-xs uppercase tracking-widest text-[#16234e] font-bold mb-3 flex items-center gap-2">
-                <Image
-                  src={transportImg}
-                  alt={mode}
-                  width={18}
-                  height={18}
-                  className="mix-blend-multiply"
-                />
-                <span>{blockHeader}</span>
-              </h2>
+            <NavyEncart
+              title={blockHeader}
+              icon={<span className="text-base" aria-hidden>{getTransportIcon(mode)}</span>}
+            >
 
               {/* TRANSPORT-FEATURE: Flight info */}
               {mode === 'flight' && (baggage.airlineName || baggage.flightNumber) && (
@@ -1175,12 +1131,15 @@ export default function ScanPage() {
                   </div>
                 </SoftEncart>
               )}
-            </BrandCard>
+            </NavyEncart>
           );
         })()}
 
-        {/* ═══ 🟡 BLOC 3 : ENCART FINDER (BrandCard corners — bloc clé trouveur) ═══ */}
-        <BrandCard corners className="w-full p-5 md:p-6 mb-4">
+        {/* ═══ BLOC 3 : DÉTAILS CONTACT — encart bandeau bleu de nuit (refonte-9) ═══ */}
+        <NavyEncart
+          title={t('finder.contact_section')}
+          icon={<Phone className="w-4 h-4" aria-hidden />}
+        >
 
           {/* ─── 1. BIG "📞 Contacter le propriétaire" CTA button (FIRST) ─── */}
           {!showForm && (
@@ -1329,7 +1288,7 @@ export default function ScanPage() {
               </div>
             </div>
           )}
-        </BrandCard>
+        </NavyEncart>
 
         {/* ─── Trust Note ─── */}
         <div className="mt-1 mb-4 text-center text-xs text-[#16234e]/60 tracking-wide flex items-center justify-center gap-1.5">
@@ -1355,6 +1314,6 @@ export default function ScanPage() {
         />
       )}
     </main>
-    </BrandShell>
+    </FinderShell>
   );
 }

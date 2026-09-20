@@ -80,7 +80,6 @@ export async function sendPostTripEmails(batchSize = 20): Promise<PostTripResult
 
   const baseUrl = getBaseUrl();
   const checklistUrl = `${baseUrl}/checklist`;
-  const feedbackUrl = `${baseUrl}/suivi`; // page suivi = point d'entrée voyageur
 
   for (const bag of due) {
     result.processed += 1;
@@ -100,6 +99,11 @@ export async function sendPostTripEmails(batchSize = 20): Promise<PostTripResult
         ? new Date(bag.departureDate).toLocaleDateString('fr-FR', { dateStyle: 'long' })
         : '';
       const transportLabel = TRANSPORT_LABELS[bag.transportMode] || undefined;
+
+      // AVIS-FEATURE : le CTA « Partager mon avis » pointe vers l'onglet Avis
+      // (/avis) avec la référence bagage pré-remplie — l'avis est publié
+      // immédiatement, sans compte.
+      const feedbackUrl = `${baseUrl}/avis?ref=${encodeURIComponent(bag.reference)}`;
 
       const template = getPostTripEmailTemplate({
         firstName,

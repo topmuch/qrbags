@@ -45,7 +45,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
-    // Create review (unapproved by default)
+    // AVIS-FEATURE : publication immédiate sans compte.
+    // Un avis soumis depuis la page publique /avis (flag `publish: true`,
+    // envoyé par le formulaire no-account) est publié instantanément —
+    // conformément au parcours « Partagez votre avis » du mail 48h.
+    // Le rate-limit (5 avis/heure/IP) reste la protection anti-spam.
+    const publishNow = body.publish === true;
+
+    // Create review (approved immediately for public no-account flow)
     const review = await db.review.create({
       data: {
         name: name.trim(),
@@ -55,11 +62,10 @@ export async function POST(request: NextRequest) {
         content: content.trim(),
         baggageRef: baggageRef?.trim() || null,
         language: (language === 'fr' || language === 'en' || language === 'ar') ? language : 'fr',
-        isApproved: false,
+        isApproved: publishNow,
       },
     });
 
-    // Return 201 — without exposing approval status to the user
     return NextResponse.json(
       {
         id: review.id,
@@ -70,6 +76,8 @@ export async function POST(request: NextRequest) {
         content: review.content,
         baggageRef: review.baggageRef,
         language: review.language,
+        isApproved: review.isApproved,
+        published: review.isApproved,
         createdAt: review.createdAt,
       },
       { status: 201 }
