@@ -619,10 +619,16 @@ export default function ScanPage() {
         ownerNumber = FALLBACK_PHONE;
       }
 
-      // Lien canonique WhatsApp : format officiel wa.me (universal link le plus
-      // fiable vers l'app — doc développeurs WhatsApp). Le texte est déjà passé
-      // dans encodeURIComponent (emojis 4 octets sûrs).
-      const url = `https://wa.me/${ownerNumber}?text=${message}`;
+      // ─── Liens WhatsApp selon la plateforme ───
+      // MOBILE  : wa.me (universal link officiel) — ouvre l'app installée.
+      // DESKTOP : web.whatsapp.com/send — WhatsApp Web directement.
+      //   ⚠️ wa.me sur desktop redirige vers la page marketing
+      //   « Télécharger WhatsApp » quand WhatsApp Web n'est pas connecté ;
+      //   web.whatsapp.com/send affiche le chat si la session existe, sinon
+      //   l'écran de connexion QR (jamais la page de téléchargement).
+      // Le texte est déjà passé dans encodeURIComponent (emojis 4 octets sûrs).
+      const waAppUrl = `https://wa.me/${ownerNumber}?text=${message}`;
+      const waWebUrl = `https://web.whatsapp.com/send?phone=${ownerNumber}&text=${message}`;
 
       // ─── Navigation : même onglet sur mobile, nouvel onglet sur desktop ───
       // Sur mobile, window.open(..., '_blank') ouvre un onglet en arrière-plan où
@@ -632,7 +638,7 @@ export default function ScanPage() {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
       if (isMobile) {
-        window.location.href = url;
+        window.location.href = waAppUrl;
         // Si l'app ne s'est pas ouverte (WhatsApp absent, lien intercepté par un
         // navigateur in-app…), le trouveur est toujours sur la page après ~2,5 s
         // → conseil utile au lieu d'une page « Télécharger WhatsApp » muette.
@@ -642,9 +648,10 @@ export default function ScanPage() {
           }
         }, 2500);
       } else {
-        const newWindow = window.open(url, '_blank');
+        // Desktop : WhatsApp Web en priorité — évite la page « Télécharger ».
+        const newWindow = window.open(waWebUrl, '_blank');
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          window.location.href = url;
+          window.location.href = waWebUrl;
         }
       }
 
