@@ -24,6 +24,8 @@ import {
   Phone,
   MessageCircle,
   Gift,
+  Megaphone,
+  Handshake,
   BadgeCheck,
   Lock,
   Volume2,
@@ -849,58 +851,126 @@ export default function ScanPage() {
       {/* ─── Container ─── */}
       <div className="w-full max-w-md mx-auto flex-1 flex flex-col py-4 sm:py-6 md:py-2">
 
-        {/* ═══ HERO — sobre (refonte-9 : dégradés, emojis et animations retirés) ═══ */}
-        <div className="mb-5 sm:mb-6">
-          <BrandCard className="w-full overflow-hidden">
-            {/* Bandeau bleu de nuit — titre principal */}
-            <div className="bg-[#16234e] px-5 pt-6 pb-5 text-center">
-              {isDeclaredLost && (
-                <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-white flex items-center justify-center shadow-md">
-                  <Shield className="w-7 h-7 text-[#8b17c9]" aria-hidden />
-                </div>
-              )}
-              <h1 className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight">
+        {/* ═══ 🎉 HERO « BAGAGE TROUVÉ » — couleurs d'origine restaurées (dégradé signature + 3 étapes) ═══ */}
+        <motion.div
+          initial={{ opacity: 0, y: 18, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="mb-5 sm:mb-6"
+        >
+          <BrandCard corners className="w-full overflow-hidden">
+            {/* Bandeau dégradé signature */}
+            <div className="relative bg-gradient-qrbag px-5 pt-6 pb-5 text-center overflow-hidden">
+              <div className="absolute -top-12 -left-10 w-36 h-36 rounded-full bg-white/15 blur-2xl" aria-hidden />
+              <div className="absolute -bottom-14 -right-8 w-44 h-44 rounded-full bg-[#ffd200]/25 blur-2xl" aria-hidden />
+              <span className="absolute top-3 right-4 text-xl" aria-hidden>✨</span>
+              <span className="absolute bottom-4 left-4 text-lg" aria-hidden>🎉</span>
+
+              <motion.div
+                animate={{ rotate: [0, -6, 6, 0], scale: [1, 1.06, 1] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 rounded-full bg-white shadow-xl shadow-[#16234e]/25 flex items-center justify-center overflow-hidden"
+              >
+                {isDeclaredLost ? (
+                  <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-[#8b17c9]" aria-hidden />
+                ) : (
+                  <img src="/logo.png" alt="Logo QRBags" className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl" aria-hidden />
+                )}
+              </motion.div>
+
+              <h1 className="relative text-2xl md:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
                 {isDeclaredLost ? t('finder.hero_lost_title') : t('finder.hero_bravo_title')}
               </h1>
-              <p className="mt-2 text-sm md:text-base text-white/80 leading-relaxed max-w-md mx-auto font-medium">
+              <p className="relative mt-2 text-sm md:text-base text-white/90 leading-relaxed max-w-md mx-auto font-medium">
                 {isDeclaredLost ? t('finder.hero_lost_subtitle') : t('finder.hero_bravo_subtitle')}
               </p>
-              <p className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/30 text-white font-mono font-bold text-xs tracking-widest">
+              <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
                 <Luggage className="w-3.5 h-3.5" aria-hidden />
                 {reference}
               </p>
             </div>
-          </BrandCard>
-        </div>
 
-        {/* ═══ RÉCOMPENSE — encart sobre (refonte-9 : halo dégradé, étincelles et animations retirés) ═══ */}
+            {/* Bandeau 3 étapes — guide engageant pour le trouveur */}
+            <div className="px-4 py-4 bg-white">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#16234e]/50 text-center mb-2.5">
+                {t('finder.steps_title')}
+              </p>
+              <ol className="grid grid-cols-3 gap-2">
+                {[
+                  { icon: Megaphone, color: '#2f9bff', title: t('finder.step1_title'), desc: t('finder.step1_desc') },
+                  { icon: Handshake, color: '#f8921f', title: t('finder.step2_title'), desc: t('finder.step2_desc') },
+                  { icon: Gift, color: '#8b17c9', title: t('finder.step3_title'), desc: t('finder.step3_desc') },
+                ].map((s, i) => (
+                  <li key={i} className="relative text-center px-1">
+                    <div
+                      className="w-10 h-10 mx-auto mb-1.5 rounded-2xl flex items-center justify-center shadow-md"
+                      style={{ backgroundColor: `${s.color}1A`, border: `1.5px solid ${s.color}55` }}
+                    >
+                      <s.icon className="w-5 h-5" style={{ color: s.color }} aria-hidden />
+                    </div>
+                    <p className="text-[11px] md:text-xs font-extrabold text-[#16234e] leading-tight">{s.title}</p>
+                    <p className="hidden sm:block text-[10px] text-[#16234e]/55 leading-snug mt-0.5">{s.desc}</p>
+                    {i < 2 && (
+                      <ArrowRight className="hidden sm:block absolute top-4 -right-2 w-3.5 h-3.5 text-[#16234e]/20" aria-hidden />
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </BrandCard>
+        </motion.div>
+
+        {/* ═══ 🎁 RÉCOMPENSE — spotlight premium restauré (halo pulsant dégradé signature) ═══ */}
         {baggage?.reward && (
-          <section
+          <motion.div
             role="status"
             aria-label={t('finder.reward_spotlight_title')}
-            className="w-full mb-4 rounded-2xl overflow-hidden border-2 border-[#16234e] shadow-lg shadow-[#16234e]/10"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5, type: 'spring', bounce: 0.4 }}
+            className="relative mb-4"
           >
-            {/* Bandeau bleu de nuit — titre */}
-            <div className="bg-[#16234e] px-5 py-3.5 flex items-center gap-2.5 text-white">
-              <Gift className="w-4 h-4" aria-hidden />
-              <h2 className="text-xs md:text-sm uppercase tracking-widest font-bold">
-                {t('finder.reward_spotlight_title')}
-              </h2>
+            {/* Halo pulsant dégradé signature */}
+            <div className="absolute -inset-1.5 bg-gradient-qrbag rounded-[2.2rem] opacity-50 blur-xl animate-pulse" aria-hidden />
+            {/* Cadre dégradé */}
+            <div className="relative rounded-[2rem] p-[3px] bg-gradient-qrbag shadow-2xl shadow-[#8b17c9]/30">
+              <div className="relative bg-[#16234e] rounded-[1.85rem] px-5 py-6 text-center overflow-hidden">
+                {/* étincelles décoratives */}
+                <Sparkles className="absolute top-4 left-5 w-4 h-4 text-[#ffd200]/70" aria-hidden />
+                <Sparkles className="absolute bottom-5 right-5 w-5 h-5 text-[#2f9bff]/60" aria-hidden />
+                <span className="absolute top-6 right-10 w-1.5 h-1.5 rounded-full bg-[#ffd200]/80" aria-hidden />
+                <span className="absolute top-12 left-12 w-1 h-1 rounded-full bg-[#e6216e]/80" aria-hidden />
+                <span className="absolute bottom-8 left-8 w-1.5 h-1.5 rounded-full bg-[#f8921f]/70" aria-hidden />
+
+                <p className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#ffd200] text-[#16234e] text-[10px] md:text-xs font-black uppercase tracking-[0.15em] shadow-md">
+                  <Gift className="w-3.5 h-3.5" aria-hidden />
+                  {t('finder.reward_spotlight_title')}
+                </p>
+
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  className="text-4xl mt-3"
+                  aria-hidden
+                >
+                  🎁
+                </motion.div>
+
+                <p className="mt-2 text-3xl md:text-4xl font-black text-white leading-tight break-words drop-shadow">
+                  {baggage.reward}
+                </p>
+
+                <p className="mt-3 text-[11px] md:text-sm text-white/75 font-medium leading-relaxed max-w-xs mx-auto">
+                  {t('finder.reward_spotlight_guarantee')}
+                </p>
+
+                <p className="mt-3 inline-flex items-center gap-1.5 text-[#ffd200] text-xs font-bold">
+                  <BadgeCheck className="w-4 h-4" aria-hidden />
+                  {t('finder.reward_spotlight_badge')}
+                </p>
+              </div>
             </div>
-            {/* Corps blanc — contenu */}
-            <div className="bg-white px-5 py-5 text-center">
-              <p className="text-2xl md:text-3xl font-black text-[#16234e] leading-tight break-words">
-                {baggage.reward}
-              </p>
-              <p className="mt-2 text-xs md:text-sm text-[#16234e]/60 font-medium leading-relaxed max-w-xs mx-auto">
-                {t('finder.reward_spotlight_guarantee')}
-              </p>
-              <p className="mt-2.5 inline-flex items-center gap-1.5 text-[#16234e] text-xs font-bold">
-                <BadgeCheck className="w-4 h-4" aria-hidden />
-                {t('finder.reward_spotlight_badge')}
-              </p>
-            </div>
-          </section>
+          </motion.div>
         )}
 
         {/* ═══ BLOC 1 : IDENTITÉ PROPRIÉTAIRE — encart bandeau bleu de nuit (refonte-9) ═══ */}
