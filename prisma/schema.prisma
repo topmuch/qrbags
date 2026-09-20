@@ -129,8 +129,11 @@ model Baggage {
   photoSizeBytes   Int?      // Taille de la photo en octets
   photoPath        String?   // Chemin disque legacy (uploads/baggage-photos/xxx.jpg) — fallback
   reward           String?   // Récompense offerte au trouveur (ex: "50 000 FCFA")
+  // ✈️ EMAIL POST-VOYAGE : email « tout s'est bien passé ? » envoyé 48 h après le départ
+  postTripEmailSentAt DateTime? // null = pas encore envoyé (anti-doublon)
   agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   scanLogs          ScanLog[]
+  chatMessages      FinderChatMessage[]
 }
 
 // ScanLog model - tracks all scans for audit
@@ -539,6 +542,26 @@ model Review {
   @@index([isApproved])
   @@index([isFeatured])
   @@index([createdAt])
+}
+
+// ─── Chat anonyme trouveur ↔ propriétaire ───
+// Le trouveur discute via la référence scannée (capability publique du QR),
+// le propriétaire répond depuis sa page de suivi /suivi/[reference].
+// Aucun numéro de téléphone n'est JAMAIS stocké ni renvoyé ici.
+model FinderChatMessage {
+  id           String   @id @default(cuid())
+  baggageId    String
+  sender       String   // "finder" | "owner"
+  senderLabel  String?  // Pseudo du trouveur (jamais de téléphone)
+  body         String
+  notifyEmail  String?  // E-mail OPTIONNEL du trouveur (être notifié d'une réponse) — JAMAIS renvoyé par les API
+  readByOwner  Boolean  @default(false)
+  readByFinder Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  baggage      Baggage  @relation(fields: [baggageId], references: [id], onDelete: Cascade)
+
+  @@index([baggageId, createdAt])
+  @@map("finder_chat_messages")
 }
 
 // LossAlert model - proactive loss detection alerts

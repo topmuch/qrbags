@@ -1018,3 +1018,304 @@ qrbags.com
 
   return { html, text };
 }
+
+// ─── CHAT ANONYME : notification e-mail au propriétaire (message du trouveur) ───
+
+export interface ChatMessageEmailData {
+  senderLabel: string;
+  message: string;
+  reference: string;
+  destination?: string | null;
+  trackingUrl: string;
+  receivedAt: string;
+}
+
+function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+export function getChatMessageEmailTemplate(data: ChatMessageEmailData): { html: string; text: string } {
+  const { senderLabel, message, reference, destination, trackingUrl, receivedAt } = data;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Nouveau message du trouveur — QRBags</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FDFBF7;">
+
+  <div style="background: #16234e; padding: 20px 24px; border-radius: 12px 12px 0 0;">
+    <div style="font-size: 22px; font-weight: bold; color: #ffffff;">🎒 QRBags</div>
+    <div style="font-size: 12px; color: #2f9bff;">💬 Nouveau message du trouveur</div>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px 24px; border-radius: 0 0 12px 12px;">
+    <h1 style="color: #16234e; font-size: 20px; margin: 0 0 16px 0;">${esc(senderLabel)} vous a écrit</h1>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 16px 0;">
+      Quelqu'un a scanné votre étiquette <strong>${esc(reference)}</strong>${destination ? ` (bagage en partance vers <strong>${esc(destination)}</strong>)` : ''} et vous a laissé un message via le chat anonyme :
+    </p>
+
+    <div style="background: #f0f6ff; border-left: 4px solid #2f9bff; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+      <p style="color: #16234e; line-height: 1.6; margin: 0;">« ${esc(message)} »</p>
+    </div>
+
+    <p style="color: #666; font-size: 12px; margin: 0 0 24px 0;">Reçu le ${esc(receivedAt)}</p>
+
+    <a href="${trackingUrl}" style="display: inline-block; background: #16234e; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 15px;">
+      💬 Répondre sur la page de suivi
+    </a>
+
+    <p style="color: #999; font-size: 11px; margin: 24px 0 0 0;">
+      Le chat est anonyme : aucun numéro de téléphone n'est échangé. Répondez directement depuis votre page de suivi.
+    </p>
+  </div>
+
+  <div style="text-align: center; padding: 16px;">
+    <div style="color: #999; font-size: 11px;">QRBags — Protection intelligente des bagages • qrbags.com</div>
+  </div>
+
+</body>
+</html>
+  `.trim();
+
+  const text = `🎒 QRBags — Nouveau message du trouveur
+
+${senderLabel} vous a écrit au sujet de votre bagage ${reference}${destination ? ` (destination : ${destination})` : ''} :
+
+« ${message} »
+
+Reçu le ${receivedAt}
+
+Répondez sur votre page de suivi : ${trackingUrl}
+
+Le chat est anonyme : aucun numéro de téléphone n'est échangé.
+
+— L'équipe QRBags
+qrbags.com
+`.trim();
+
+  return { html, text };
+}
+
+// ─── CHAT ANONYME : notification e-mail au trouveur (réponse du propriétaire) ───
+
+export interface ChatReplyEmailData {
+  ownerMessage: string;
+  reference: string;
+  destination?: string | null;
+  chatUrl: string;
+  receivedAt: string;
+}
+
+export function getChatReplyEmailTemplate(data: ChatReplyEmailData): { html: string; text: string } {
+  const { ownerMessage, reference, destination, chatUrl, receivedAt } = data;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Réponse du propriétaire — QRBags</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FDFBF7;">
+
+  <div style="background: #16234e; padding: 20px 24px; border-radius: 12px 12px 0 0;">
+    <div style="font-size: 22px; font-weight: bold; color: #ffffff;">🎒 QRBags</div>
+    <div style="font-size: 12px; color: #2f9bff;">💬 Réponse du propriétaire</div>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px 24px; border-radius: 0 0 12px 12px;">
+    <h1 style="color: #16234e; font-size: 20px; margin: 0 0 16px 0;">Le propriétaire vous a répondu</h1>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 16px 0;">
+      Au sujet du bagage <strong>${esc(reference)}</strong>${destination ? ` (en partance vers <strong>${esc(destination)}</strong>)` : ''} :
+    </p>
+
+    <div style="background: #f0f6ff; border-left: 4px solid #2f9bff; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;">
+      <p style="color: #16234e; line-height: 1.6; margin: 0;">« ${esc(ownerMessage)} »</p>
+    </div>
+
+    <p style="color: #666; font-size: 12px; margin: 0 0 24px 0;">Reçu le ${esc(receivedAt)}</p>
+
+    <a href="${chatUrl}" style="display: inline-block; background: #16234e; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 15px;">
+      💬 Continuer la discussion
+    </a>
+
+    <p style="color: #999; font-size: 11px; margin: 24px 0 0 0;">
+      Vous avez reçu cet e-mail car vous avez laissé cette adresse pour être notifié d'une réponse. Elle n'est jamais visible par le propriétaire.
+    </p>
+  </div>
+
+  <div style="text-align: center; padding: 16px;">
+    <div style="color: #999; font-size: 11px;">QRBags — Protection intelligente des bagages • qrbags.com</div>
+  </div>
+
+</body>
+</html>
+  `.trim();
+
+  const text = `🎒 QRBags — Le propriétaire vous a répondu
+
+Au sujet du bagage ${reference}${destination ? ` (destination : ${destination})` : ''} :
+
+« ${ownerMessage} »
+
+Reçu le ${receivedAt}
+
+Continuer la discussion : ${chatUrl}
+
+— L'équipe QRBags
+qrbags.com
+`.trim();
+
+  return { html, text };
+}
+
+// ─── ✈️ EMAIL POST-VOYAGE (48 h après le départ) : « tout s'est bien passé ? » ───
+
+/**
+ * Drapeau du pays de destination (utilisé dans l'objet et le titre de
+ * l'e-mail post-voyage). Fallback : 🌍 si le pays est inconnu, ✈️ si
+ * la destination est absente.
+ */
+const DESTINATION_FLAGS: Array<{ pattern: RegExp; flag: string }> = [
+  { pattern: /france|paris|cdg|orly|roissy/i, flag: '🇫🇷' },
+  { pattern: /s[eé]n[eé]gal|dakar|blaise\s*diagne/i, flag: '🇸🇳' },
+  { pattern: /mauritanie|nouakchott/i, flag: '🇲🇷' },
+  { pattern: /mali|bamako/i, flag: '🇲🇱' },
+  { pattern: /burkina|ouagadougou/i, flag: '🇧🇫' },
+  { pattern: /niger(?!ia)/i, flag: '🇳🇪' },
+  { pattern: /c[oô]te\s+d'ivoire|ivoire|abidjan/i, flag: '🇨🇮' },
+  { pattern: /guin[eé]e|conakry/i, flag: '🇬🇳' },
+  { pattern: /b[eé]nin|cotonou/i, flag: '🇧🇯' },
+  { pattern: /togo|lom[eé]/i, flag: '🇹🇬' },
+  { pattern: /camer?oun|douala|yaound[eé]/i, flag: '🇨🇲' },
+  { pattern: /gabon|libreville/i, flag: '🇬🇦' },
+  { pattern: /congo|brazzaville|kinshasa/i, flag: '🇨🇬' },
+  { pattern: /tchad|n'?djam[eé]na/i, flag: '🇹🇩' },
+  { pattern: /rwanda|kigali/i, flag: '🇷🇼' },
+  { pattern: /djibouti/i, flag: '🇩🇯' },
+  { pattern: /comores|moroni/i, flag: '🇰🇲' },
+  { pattern: /madagascar|antananarivo/i, flag: '🇲🇬' },
+  { pattern: /maroc|casablanca|marrakech|rabat/i, flag: '🇲🇦' },
+  { pattern: /alg[eé]rie|alger|oran/i, flag: '🇩🇿' },
+  { pattern: /tunisie|tunis/i, flag: '🇹🇳' },
+  { pattern: /[eé]gypte|le\s*caire|cairo/i, flag: '🇪🇬' },
+  { pattern: /turquie|istanbul/i, flag: '🇹🇷' },
+  { pattern: /arabie\s+saoudite|la\s*mecke?|mecque|m[eé]dine|djeddah|jeddah/i, flag: '🇸🇦' },
+  { pattern: /[eé]mirats|dubai|duba[iï]|abu\s*dhabi/i, flag: '🇦🇪' },
+  { pattern: /canada|qu[eé]bec|montr[eé]al|toronto/i, flag: '🇨🇦' },
+  { pattern: /belgique|bruxelles/i, flag: '🇧🇪' },
+  { pattern: /suisse|gen[eè]ve|zurich/i, flag: '🇨🇭' },
+  { pattern: /luxembourg/i, flag: '🇱🇺' },
+  { pattern: /italie|rome|milan/i, flag: '🇮🇹' },
+  { pattern: /espagne|madrid|barcelone/i, flag: '🇪🇸' },
+  { pattern: /allemagne|berlin|munich|francfort/i, flag: '🇩🇪' },
+  { pattern: /royaume-?uni|angleterre|londres|london|heathrow/i, flag: '🇬🇧' },
+  { pattern: /[eé]tats-?unis|\busa\b|new\s*york|am[eé]rique/i, flag: '🇺🇸' },
+  { pattern: /chine|p[eé]kin|shanghai/i, flag: '🇨🇳' },
+  { pattern: /\binde\b|mumbai|delhi|bombay/i, flag: '🇮🇳' },
+];
+
+export function getDestinationFlag(destination?: string | null): string {
+  if (!destination) return '✈️';
+  for (const { pattern, flag } of DESTINATION_FLAGS) {
+    if (pattern.test(destination)) return flag;
+  }
+  return '🌍';
+}
+
+export interface PostTripEmailData {
+  firstName: string;
+  reference: string;
+  destination?: string | null;
+  departureDate: string;
+  transportLabel?: string;
+  siteUrl: string;
+  checklistUrl: string;
+  feedbackUrl: string;
+}
+
+export function getPostTripEmailTemplate(data: PostTripEmailData): { html: string; text: string } {
+  const { reference, destination, departureDate, transportLabel, siteUrl, feedbackUrl } = data;
+
+  // 🇫🇷 « Après votre voyage vers la France, il est temps de faire le point ! »
+  const flag = getDestinationFlag(destination);
+  const title = destination
+    ? `Après votre voyage vers ${destination}, il est temps de faire le point !`
+    : 'Après votre voyage, il est temps de faire le point !';
+
+  // « Votre départ en avion était prévu le 17 septembre 2026, avec le bagage
+  //   VOL26-ZUHRYQ enregistré sur QRBags. »
+  const introHtml = departureDate
+    ? `Votre départ${transportLabel ? ` ${esc(transportLabel)}` : ''} était prévu le <strong>${esc(departureDate)}</strong>, avec le bagage <strong>${esc(reference)}</strong> enregistré sur QRBags.`
+    : `Votre bagage <strong>${esc(reference)}</strong> est enregistré sur QRBags.`;
+  const introText = departureDate
+    ? `Votre départ${transportLabel ? ` ${transportLabel}` : ''} était prévu le ${departureDate}, avec le bagage ${reference} enregistré sur QRBags.`
+    : `Votre bagage ${reference} est enregistré sur QRBags.`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Votre voyage s'est-il bien passé ? — QRBags</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FDFBF7;">
+
+  <div style="background: #16234e; padding: 20px 24px; border-radius: 12px 12px 0 0;">
+    <div style="font-size: 22px; font-weight: bold; color: #ffffff;">🎒 QRBags</div>
+    <div style="font-size: 12px; color: #2f9bff;">✈️ Et maintenant, vos impressions ?</div>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px 24px; border-radius: 0 0 12px 12px;">
+    <h1 style="color: #16234e; font-size: 20px; line-height: 1.4; margin: 0 0 18px 0;">${flag} ${esc(title)}</h1>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 20px 0;">
+      ${introHtml}
+    </p>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 6px 0;">
+      ✈️ <strong>Tout s'est-il bien passé ?</strong><br>
+      Votre bagage est-il arrivé à destination sans encombre ?
+    </p>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0 0 20px 0;">
+      Votre avis nous intéresse beaucoup. Il nous aide à améliorer QRBags et à offrir une meilleure expérience aux voyageurs.
+    </p>
+
+    <a href="${feedbackUrl}" style="display: inline-block; background: #2f9bff; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 24px;">
+      ⭐ Partager mon avis
+    </a>
+
+    <p style="color: #16234e; line-height: 1.6; margin: 0;">
+      🙏 Merci pour votre confiance !
+    </p>
+  </div>
+
+  <div style="text-align: center; padding: 16px;">
+    <a href="${siteUrl}" style="color: #2f9bff; font-size: 12px; text-decoration: none;">🛡️ qrbags.com — Protéger mon prochain voyage</a>
+    <div style="color: #999; font-size: 11px; margin-top: 4px;">Vous recevez cet e-mail car vous avez activé une étiquette QRBags (${esc(reference)}).</div>
+  </div>
+
+</body>
+</html>
+  `.trim();
+
+  const text = `🎒 QRBags — Votre voyage s'est-il bien passé ?
+
+${flag} ${title}
+
+${introText}
+
+✈️ TOUT S'EST-IL BIEN PASSÉ ?
+Votre bagage est-il arrivé à destination sans encombre ?
+
+Votre avis nous intéresse beaucoup. Il nous aide à améliorer QRBags et à offrir une meilleure expérience aux voyageurs.
+
+⭐ Partager mon avis : ${feedbackUrl}
+
+🙏 Merci pour votre confiance !
+
+— L'équipe QRBags
+qrbags.com
+
+Vous recevez cet e-mail car vous avez activé une étiquette QRBags (${reference}).
+`.trim();
+
+  return { html, text };
+}

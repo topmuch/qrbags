@@ -26,5 +26,26 @@ export async function register() {
         }
       }, 10_000); // 10 s après le boot pour laisser Prisma/DB se stabiliser
     }
+
+    // ✈️ E-mails post-voyage (48 h après le départ) — horloge interne :
+    // un passage au boot + toutes les 30 min. Fire-and-forget, jamais bloquant.
+    // Anti-doublon garanti par Baggage.postTripEmailSentAt côté lib/post-trip.
+    // Un cron externe (/api/cron/post-trip) existe aussi en secours.
+    if (process.env.DISABLE_POST_TRIP_CRON !== '1') {
+      const runPostTrip = async (trigger: string) => {
+        try {
+          const { sendPostTripEmails } = await import('./lib/post-trip');
+          const r = await sendPostTripEmails(20);
+          if (r.sent > 0) {
+            console.log(`[post-trip] ${r.sent} e-mail(s) envoyé(s) (trigger: ${trigger})`);
+          }
+        } catch (error) {
+          console.error(`[post-trip] Erreur (trigger: ${trigger}) :`, error);
+        }
+      };
+      setTimeout(() => void runPostTrip('boot'), 20_000); // 20 s après le boot
+      const postTripInterval = setInterval(() => void runPostTrip('interval'), 30 * 60 * 1000);
+      if (typeof postTripInterval.unref === 'function') postTripInterval.unref();
+    }
   }
 }
