@@ -1949,3 +1949,22 @@ Stage Summary:
 - Les 2 demandes sont codées, testées en local et POUSSÉES sur topmuch/qrbags (commit 7684b2c)
 - Déploiement prod NON déclenché : le token API Coolify (instance http://38.247.134.241:8000, app qrbags.com uuid d4o4wwks480og0g84g4k8kgk) n'est plus disponible dans l'environnement (perdu avec la compactage du contexte) → demander le token à l'utilisateur OU clic manuel « Redeploy » dans l'UI Coolify (l'app clone GitHub au build → 7684b2c sera pris)
 - Contenu e-mail final (texte) : drapeau + titre destination, ligne départ/date/référence, double question ✈️, paragraphe avis, CTA avis, 🙏 merci ; l'e-mail n'a plus de « Bonjour {prénom} » ni de promo checkliste (contenu strict demandé)
+
+---
+Task ID: sync-github-restore-colors-2
+Agent: Z.ai Code (main)
+Task: Synchroniser la version locale avec GitHub + réappliquer les couleurs perdues (encart bagage trouvé + encart récompense)
+
+Work Log:
+- Constat : local main derrière origin/main de 15 commits, working tree CLEAN → la restauration des couleurs de la tâche précédente avait été PERDUE (jamais commitée, écrasée entre les sessions)
+- git pull --ff-only origin main → local = origin/main = c0e1760 (version SOBRE = celle visible par l'utilisateur, d'où « la couleur n'est pas changée »)
+- Réappliqué la restauration sur src/app/scan/[reference]/page.tsx : HERO dégradé signature + 3 étapes (imports Megaphone/Handshake), RÉCOMPENSE spotlight premium (halo pulsant, badge jaune, 🎁, étincelles) — encarts navy inchangés
+- Lint 0 erreur → commit 93ebba0 « style(trouveur): restaure les couleurs de l'encart bagage trouvé et de l'encart récompense » → PUSH OK (c0e1760..93ebba0, main)
+- DB locale encore vide (reset entre sessions) → recréé bag de test VOL26-ZUHRYQ (Amadou Diallo, AF 721, reward « 50 000 FCFA »)
+- Vérification agent-browser : HERO dégradé OK, RÉCOMPENSE halo/badge/50 000 FCFA OK, encart OWNER navy intact, 0 erreur console
+- Coolify (qrbags.com) joignable (health 200) mais token API absent de l'environnement → déploiement prod à déclencher manuellement
+
+Stage Summary:
+- Locale = GitHub = 93ebba0 : les couleurs restaurées sont maintenant COMMITÉES et POUSSÉES (plus de risque de perte)
+- Déploiement qrbags.com : l'utilisateur doit cliquer « Redeploy » dans l'UI Coolify (http://38.247.134.241:8000, app uuid d4o4wwks480og0g84g4k8kgk) OU fournir le token API — l'app clone GitHub au build → 93ebba0 sera pris
+- Bag de test local VOL26-ZUHRYQ recréé avec reward (pour les futurs tests)
