@@ -1984,3 +1984,50 @@ Work Log:
 Stage Summary:
 - Push Git opérationnel avec le nouveau token topmuch ; local = GitHub = 9f2fd28 (couleurs restaurées incluses)
 - Déploiement prod qrbags.com : exige TOUJOURS un token API Coolify (généré dans l'UI Coolify → Keys & Tokens → API tokens) ou un clic « Redeploy » manuel — à rappeler à l'utilisateur
+
+---
+Task ID: 19
+Agent: Super Z (main)
+Task: Sync locale ↔ GitHub + fix SEO robots.txt (pages "Bloquée par le fichier robots.txt")
+
+Work Log:
+- Constat divergence : local main = 99ad14e (chaîne de snapshots plateforme UUID : V.6 + restyle 6329a83 + junk tool-results/download, SANS mod 1 ni fix deploy) ≠ GitHub main = 74685fd (V.6 + mod 1 + fix deploy) ; merge-base = fd094ce
+- .zscripts/.gittoken DISPARU (nettoyage plateforme) ; .git/info/exclude réinitialisé aussi
+- Sécurité : branche backup-platform-chain-99ad14e créée (conserve restyle login/homepage de 6329a83 + chaîne plateforme), worklog Task 18 sauvegardé avant reset
+- git reset --hard 74685fd → local = GitHub EXACTEMENT (passeport 508 lignes ✓, Dockerfile+start.sh ✓, db/custom.db 8 bagages intacte)
+- .git/info/exclude restauré (.zscripts/, db/*.db, uploads/, download/, logs...)
+- Robots.txt analyse : le fichier du repo n'autorise QUE (Allow: / partout, aucun Disallow) → il ne peut PAS bloquer l'indexation → le blocage GSC vient du site déployé actuel (ancienne version cassée/environnement plateforme qui sert Disallow: / par défaut)
+- Fix SEO : public/robots.txt supprimé → src/app/robots.ts dynamique (Allow /, Disallow /api/ + /admin + /agence/ + /dashboard/, Sitemap déclaré) + src/app/sitemap.ts (20 pages publiques, BASE_URL = NEXT_PUBLIC_BASE_URL || https://qrbag.com = metadataBase)
+- layout.tsx vérifié : robots index:true follow:true ✓, metadataBase https://qrbag.com
+- Push en attente : token GitHub absent → commits locaux 74685fd+SEO, à pousser dès nouveau token fourni
+
+Stage Summary:
+- Local = GitHub 74685fd + fix SEO (robots.ts + sitemap.ts) commits locaux en attente de push
+- Chaîne plateforme (restyle login/homepage) préservée sur branche backup-platform-chain-99ad14e — à ré-appliquer comme mod 5 si voulue
+- Actions utilisateur : nouveau token GitHub → push ; REDÉPLOYER sur Coolify (le robots.txt servira le bon) ; dans Search Console → Demande de réindexation
+
+Addendum Task 19 (post-sync) :
+- DÉCOUVERTE MAJEURE : le nettoyage plateforme avait VIDÉ node_modules (0 package) → le superviseur relançait via bunx qui téléchargeait next@latest 16.4.0 (/tmp) au lieu du next 16.1.3 local → serveur dev cassé (GET / → 000)
+- Corrigé : bun install (948 pkgs, 8.9s) + prisma generate + kill chaîne bunx → superviseur relancé → next-server v16.1.3 OK
+- Vérifs finales : GET / 200, /passeport/VOL26-FLUX01 200, /robots.txt = nouveau contenu (Allow / + Disallow privées + Sitemap), /sitemap.xml = 20 URLs qrbag.com
+- Push BLOQUÉ : aucun token GitHub disponible (.zscripts/.gittoken supprimé par le nettoyage) — demander nouveau token à l'utilisateur
+
+---
+Task ID: 20
+Agent: Super Z (main)
+Task: Token GitHub reçu → sync locale = GitHub + ré-application fix robots.txt (GSC « Bloquée par le fichier robots.txt »)
+
+Work Log:
+- Nouveau token ghp_… fourni par l'utilisateur : validé (api.github.com → 200), sauvegardé dans .zscripts/.gittoken (chmod 600, git-exclu)
+- Fetch : GitHub main a BEAUCOUP avancé (chat trouveur-propriétaire, avis sans compte, post-trip email 48h, qr-label, WhatsApp Web fix…) — 406 fichiers / +17 960 lignes vs local ; fork point = 74685fd
+- Local avait 3 commits au-dessus : f7353f7 (fix SEO robots.ts+sitemap), 2c6c72b (worklog), 3b4ff9f (junk plateforme scripts/tmp)
+- Sync : backup-local-seo-3b4ff9f créée → git reset --hard origin/main → local = GitHub = b4c6253 (working tree clean, db/custom.db 320 Ko intacte, remote URL propre sans token embarqué)
+- Worklog Task 19 ré-attaché (historique fix SEO absent de GitHub) ; domaines canoniques vérifiés sur origin : metadataBase = https://qrbags.com (layout.tsx) + sitemap.ts BASE_URL = https://qrbags.com
+- CAUSE GSC confirmée : le public/robots.txt statique de GitHub interdisait /suivi/, /passeport/, /scan/ — les pages PUBLIQUES cœur du produit → « Bloquée par le fichier robots.txt »
+- Fix ré-appliqué sur la nouvelle base : public/robots.txt supprimé (git rm) → src/app/robots.ts dynamique (Allow /, Disallow /api/ /admin /agence/ /dashboard/ + pages utilitaires login/verify-email/reset-password/forgot-password/expired/offline/success/hajj/activate), BASE_URL = NEXT_PUBLIC_BASE_URL || https://qrbags.com (cohérent sitemap+metadataBase) ; /agency/{slug} reste indexable (SEO partenaires)
+- Vérifs live (dev :3000) : /robots.txt = nouveau contenu ✓, /sitemap.xml 200 URLs qrbags.com ✓, / 200, /suivi/VOL26-FLUX01 200, /passeport/VOL26-FLUX01 200
+
+Stage Summary:
+- Locale = GitHub = b4c6253 + fix robots dynamique — commit + push vers main
+- Actions utilisateur : REDÉPLOYER sur Coolify (le nouveau robots.txt part en prod) ; Search Console → « Demande de réindexation » sur /, /suivi/*, /passeport/*
+- Note :/scan/ volontairement INDEXABLE (page publique trouveur) ; seules zones privées/utilitaires restent bloquées
