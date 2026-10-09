@@ -16,6 +16,7 @@ import {
   User,
   Plane,
   Gift,
+  Bell,
   Image as ImageIcon,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -154,6 +155,8 @@ function InscrireContent() {
   const [reward, setReward] = useState('');
   // REWARD-CURRENCY : 3 devises proposées (FCFA par défaut — zone produit principale, USD, EUR)
   const [rewardCurrency, setRewardCurrency] = useState<'FCFA' | 'USD' | 'EUR'>('FCFA');
+  // 🔔 ONESIGNAL : consentement aux notifications push « bagage retrouvé » (opt-in, décoché par défaut)
+  const [notifyConsent, setNotifyConsent] = useState(false);
   const REWARD_CURRENCY_SUFFIX: Record<'FCFA' | 'USD' | 'EUR', string> = {
     FCFA: 'FCFA',
     USD: '$',
@@ -345,6 +348,8 @@ function InscrireContent() {
           // PHOTO + REWARD FEATURE
           photoPath: photoPath || undefined,
           reward: rewardWithCurrency || undefined,
+          // 🔔 ONESIGNAL : consentement notifications push
+          notifyConsent,
         }),
       });
 
@@ -363,6 +368,7 @@ function InscrireContent() {
             flightNumber: formData.flightNumber.trim(),
             transportMode: 'flight',
             reward: rewardWithCurrency,
+            notifyConsent,
             type: 'voyageur',
             activatedAt: new Date().toISOString(),
             expiresAt: data.baggage?.expiresAt,
@@ -562,6 +568,44 @@ function InscrireContent() {
                       {t('inscrire.email_hint')}
                     </p>
                   </div>
+
+                  {/* 🔔 ONESIGNAL — Consentement notifications push (opt-in RGPD) */}
+                  <label
+                    htmlFor="notify-consent"
+                    className={`mt-4 flex items-start gap-3 rounded-2xl border p-4 cursor-pointer transition-all select-none ${
+                      notifyConsent
+                        ? 'border-[#8b17c9]/40 bg-[#8b17c9]/[0.06]'
+                        : 'border-[#16234e]/15 bg-white hover:border-[#16234e]/30 dark:bg-transparent'
+                    }`}
+                  >
+                    <input
+                      id="notify-consent"
+                      type="checkbox"
+                      checked={notifyConsent}
+                      onChange={(e) => setNotifyConsent(e.target.checked)}
+                      className="mt-0.5 h-5 w-5 shrink-0 rounded accent-[#8b17c9] cursor-pointer"
+                    />
+                    <span className="flex items-start gap-2.5 min-w-0">
+                      <span
+                        className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center"
+                        style={{
+                          backgroundColor: 'rgba(232, 33, 110, 0.10)',
+                          border: '1.5px solid rgba(232, 33, 110, 0.30)',
+                        }}
+                        aria-hidden
+                      >
+                        <Bell className="w-[18px] h-[18px] text-[#e6216e]" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold text-[#16234e] dark:text-white">
+                          {t('inscrire.notify_consent_label')}
+                        </span>
+                        <span className="block text-xs text-[#16234e]/60 dark:text-gray-400 leading-snug mt-0.5">
+                          {t('inscrire.notify_consent_desc')}
+                        </span>
+                      </span>
+                    </span>
+                  </label>
                 </FormSection>
 
                 {/* ═══ 2. VOTRE TRAJET ═══ */}

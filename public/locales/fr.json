@@ -218,7 +218,9 @@
     "reward_spotlight": "Augmentez vos chances de récupération — le trouveur sera motivé pour vous le rendre !",
     "trust_free": "100% gratuit",
     "trust_noapp": "Sans application",
-    "trust_secure": "Coordonnées protégées"
+    "trust_secure": "Coordonnées protégées",
+    "notify_consent_label": "M'alerter sur mon bagage",
+    "notify_consent_desc": "Recevez une notification sur votre téléphone dès que votre bagage est scanné ou retrouvé — gratuit."
   },
   "passport": {
     "title": "Passeport QRBags",
@@ -537,6 +539,13 @@
     "welcome_subtitle": "Appuyez sur le bouton : un guide audio vous explique le fonctionnement de la protection de votre bagage.",
     "welcome_cta": "Écouter le guide",
     "welcome_audio_hint": "Guide audio · 30 s",
-    "replay_audio": "Réécouter le guide"
+    "replay_audio": "Réécouter le guide",
+    "notify_title": "Notifications de votre bagage",
+    "notify_desc": "Vous avez accepté d'être alerté si votre bagage est retrouvé. Activez les notifications sur cet appareil pour être prévenu en temps réel :",
+    "notify_cta": "Activer les notifications",
+    "notify_loading": "Activation…",
+    "notify_granted": "Notifications activées ! Vous serez alerté dès que votre bagage est retrouvé.",
+    "notify_denied": "Notifications refusées. Réactivez-les dans les réglages de votre navigateur si vous changez d'avis.",
+    "notify_unavailable": "Notifications non disponibles sur cet appareil pour le moment. Pas d'inquiétude : l'email et WhatsApp restent actifs."
   }
 }

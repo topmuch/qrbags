@@ -2102,3 +2102,184 @@ Work Log:
 Stage Summary:
 - b0a9ed6 poussé sur https://github.com/topmuch/qrbags.git (main)
 - Contient : photo 30Mo + route upload, photo sur page trouveur (fallback), perf dashboard agence (select sans BLOB + index), activation 2 étapes, devises récompense FCFA/USD/EUR
+
+---
+Task ID: 25
+Agent: Z.ai Code (main)
+Task: Intégration OneSignal Web Push — notifications « bagage retrouvé »
+
+Work Log:
+- Diagnostic clé fournie par l'utilisateur : os_v2_org_… = clé ORG (gestion des apps uniquement,
+  401 sur POST /notifications testé via curl). App réelle trouvée via GET /apps : 31e6d69e-5b66-4367-a1a5-715da98a041d
+  (« qrbags App ») — l'App ID donné par l'utilisateur (3463a495-…) n'existe pas (404).
+- Configuré la plateforme Web Push de l'app via API (PUT /apps) : chrome_web_origin=https://qrbags.com,
+  icône apple-touch-icon.png.
+- Prisma : Baggage.notifyConsent/notifyConsentAt + modèle NotificationLog (journal des pushes) — db:push OK.
+- Backend src/lib/onesignal.ts : sendBaggageScanPush() — ciblage par tag qr_<REFERENCE>,
+  messages FR/EN, lien /suivi/, timeout 8s, journalisation NotificationLog, jamais bloquant.
+- Canal 3 ajouté dans POST /api/scan/[reference] (anti-spam 10 min partagé avec email/WhatsApp).
+- /api/activate : accepte notifyConsent (zod), sauvegarde + horodatage (bagage principal ET set groupé).
+- Frontend : public/OneSignalSDKWorker.js (SW v16), src/lib/onesignal-client.ts (chargement SDK à la
+  demande, tag après consentement), case opt-in RGPD dans /inscrire (après l'email), carte
+  « Notifications » sur /success avec états granted/denied/unsupported/unavailable.
+- i18n fr/en/ar : inscrire.notify_consent_* + success.notify_*.
+- Corrections infrastructure découvertes : la var d'env GLOBALE du sandbox DATABASE_URL
+  (file:/home/z/my-project/db/custom.db) prime sur .env — c'est la VRAIE base (8 bagages) et elle
+  contient déjà le schéma à jour ; redémarrage du serveur requis pour charger le nouveau client
+  Prisma (sinon Unknown argument notifyConsent sur POST /api/activate).
+- Tests navigateur (agent-browser) : activation VOL26-TEST01 avec consentement → DB notifyConsent=1 ✅,
+  carte notifications sur /success ✅, clic bouton → dégradation propre en sandbox (origin non
+  enregistré) ✅, POST scan → push tenté + NotificationLog 'failed' (clé org sans droit d'envoi,
+  attendu) ✅, vue mobile 390px ✅, lint ✅.
+
+Stage Summary:
+- Flow complet opérationnel : consentement à l'activation → abonnement push tagué qr_<ref> →
+  scan trouveur → push « bagage retrouvé » + email + WhatsApp (3 canaux, anti-spam 10 min).
+- ⏳ BLOQUANT POUR L'ENVOI RÉEL : il faut la clé API APP-LEVEL (os_v2_app_… ou UUID REST API Key)
+  — Settings → Keys & IDs → section « App API Keys » du dashboard OneSignal (PAS os_v2_org_).
+  Remplacer ONESIGNAL_API_KEY dans .env suffira (aucun code à changer).
+- App OneSignal configurée : origin https://qrbags.com — le push ne marchera que sur ce domaine
+  (production). Sandbox → état « unavailable » propre (email/WhatsApp restent actifs).
+
+---
+Task ID: 26
+Agent: Z.ai Code (main)
+Task: Activation OneSignal avec la clé API APP-LEVEL fournie par l'utilisateur
+
+Work Log:
+- Utilisateur fourni la clé app-level os_v2_app_*** pour l'app 31e6d69e-5b66-4367-a1a5-715da98a041d
+  (« qrbags App ») — exactement la clé attendue (le blocant du Task 25).
+- Validation directe via curl : GET /apps/31e6d69e… → HTTP 200 (app + origin https://qrbags.com + icône OK) ;
+  POST /notifications (filtre tag inexistant) → HTTP 200 « All included players are not subscribed »
+  = auth + droit d'envoi confirmés (l'ancienne clé org renvoyait 401).
+- .env : ONESIGNAL_API_KEY remplacée par la clé app-level (os_v2_app_…).
+- src/lib/onesignal.ts : auth Basic (méthode documentée, testée) au lieu de Bearer ;
+  nouveau statut « no_recipients » quand OneSignal répond 200 avec id vide (0 abonné)
+  — évite de fausser les stats « sent » ; traductions AR ajoutées (headings + contents
+  trilingues FR/EN/AR comme le site).
+- Route scan : log dédié pour le statut no_recipients.
+- Test E2E : POST /api/scan/VOL26-TEST01 (notifyConsent=1) → NotificationLog
+  {status: 'no_recipients', recipients: 0, error: 'All included players are not subscribed'}
+  = la requête passe désormais (vs 'failed' 401 avant).
+- Vérif navigateur : / et /inscrire et /scan/VOL26-TEST01 s'affichent sans erreur ;
+  case « Alert me about my luggage » visible sur /inscrire (après l'email, opt-in explicite).
+- lint OK ; serveur redémarré (chargement nouvelle clé, anti-spam 10 min réinitialisé).
+
+Stage Summary:
+- 🔔 Intégration OneSignal 100 % opérationnelle côté code : consentement à l'activation →
+  tag qr_<ref> à l'abonnement → scan trouveur → push FR/EN/AR ciblé + journalisation.
+- La seule limite restante est inhérente à OneSignal : l'abonnement push ne peut se faire
+  que sur l'origin enregistré https://qrbags.com (production). En sandbox → dégradation propre
+  (no_recipients / unavailable) sans casser le parcours (email + WhatsApp restent actifs).
+- Push réel testable en production : activer un bagage sur qrbags.com, accepter les notifs,
+  scanner le QR → notification « Votre bagage … a été retrouvé ! » reçue.
+
+---
+Task ID: 27
+Agent: Z.ai Code (main)
+Task: Notifications de vol via Amadeus — « Bon vol » (T-2h) + « Bienvenue à destination » (atterrissage +15 min)
+
+Work Log:
+- Décision utilisateur : Amadeus pour les statuts de vol ; promo AELA reportée à plus tard
+  (le push « Bon vol » part donc SANS offre commerciale).
+- Prisma : Baggage.preFlightNotifiedAt + Baggage.arrivalNotifiedAt (anti-doublon) — db:push OK.
+- .env : AMADEUS_API_KEY/AMADEUS_API_SECRET (vides, en attente des clés utilisateur),
+  AMADEUS_HOST=test.api.amadeus.com, CRON_SECRET.
+- src/lib/amadeus.ts : OAuth2 client_credentials (token caché 25 min), GET /v2/schedule/flights,
+  parsing double shape (timings STA/ETA/ATA + legacy) pour heure d'arrivée RÉELLE/estimée/prévue,
+  heure de décollage (ATD/ETD/STD) — les ISO d'Amadeus portent le fuseau de l'aéroport ;
+  sans offset → traité UTC. Cache 8 min/vol. Mapping ~40 compagnies (nom→IATA) + parseFlightNumber.
+- src/lib/onesignal.ts refactoré : noyau partagé pushViaTag() (auth Basic, ciblage tag qr_<ref>,
+  log systématique, statuts sent/no_recipients/failed) + 3 canaux : sendBaggageScanPush (existant),
+  sendFlightArrivalPush (« Bienvenue en/au/aux/à » avec préposition FR correcte, EN, AR),
+  sendPreFlightPush (« Bon vol {prénom} ! »).
+- src/app/api/cron/flight-arrivals : POST/GET protégé Bearer CRON_SECRET (+secret en query).
+  Candidats = activés + notifyConsent + vol + départ ±36h. Fenêtres : Bon vol [T-2h, T]
+  (expire silencieusement après T), Bienvenue [A+15 min, A+3h] (expire après). 1 appel Amadeus
+  par vol unique partagé entre les deux checks.
+- mini-services/flight-cron (port 3040, bun --hot) : déclenche le cron toutes les 10 min + 1er
+  cycle au boot ; serveur de santé sur /.
+- Tests : lint OK ; départ placé à +1h30 → 1er cycle preFlightSent=1 (OneSignal accepte,
+  NotificationLog pre_flight/no_recipients, flag posé) ; 2e cycle → 0 envoi (anti-doublon ✓) ;
+  mauvais secret → 401 ✓ ; vol parti à -1h → preFlightExpired=1 sans envoi ✓ ;
+  amadeusConfigured=false → arrivée simplement ignorée, zéro crash ✓. dev.log propre.
+
+Stage Summary:
+- ⏳ SEUL MANQUE : les clés Amadeus (gratuit, developers.amadeus.com) → remplir AMADEUS_API_KEY
+  et AMADEUS_API_SECRET dans .env, redémarrer — tout le reste est prêt. Dès lors le cron
+  interroge chaque vol unique toutes les 10 min : « Bon vol » à T-2h (heure réelle), et
+  « Bienvenue à destination ! » 15 min après l'atterrissage réel (détection retard incluse).
+- Sans clés Amadeus : le « Bon vol » fonctionne déjà (fallback heure saisie à l'activation,
+  précision ±fuseau) ; l'arrivée attend les clés.
+- La promo AELA (-30% parfum) s'insérera dans sendPreFlightPush (texte + code) — infra prête.
+
+---
+Task ID: 28
+Agent: Z.ai Code (main)
+Task: Bascule fournisseur de statut vol → AirLabs (Amadeus a fermé l'inscription libre)
+
+Work Log:
+- Constat vérifié dans le navigateur : developers.amadeus.com/register redirige vers l'accueil ;
+  la page de connexion accounts.amadeus.com est un « Member login » SANS lien de création de
+  compte → l'inscription gratuite Amadeus n'existe plus. Utilisateur bloqué (« ya pas de signup »).
+- Alternative retenue : AirLabs.co — plan FREE 10 000 requêtes/mois (5× Amadeus), inscription
+  immédiate par email. Vérifié : package FREE 10 000 queries annoncé sur airlabs.co.
+- src/lib/flight-api.ts : façade multi-fournisseur (airlabs > amadeus, FLIGHT_API_PROVIDER pour
+  forcer) ; adapter AirLabs /api/v9/flight (statut + heures UTC, parsing défensif actual/estimated/
+  scheduled, format « 2026-10-10 02:55 », landed → source actual) ; re-export resolveCarrierCode/
+  parseFlightNumber depuis amadeus.ts ; logs AirLabs throttlés 1/h.
+- Cron route : imports déplacés vers flight-api, summary.flightApiProvider au lieu de
+  amadeusConfigured. .env : AIRLABS_API_KEY (vide en attente) + commentaire, provider auto-détecté.
+- Tests : lint OK ; redémarrage serveur ; cron re-testé (provider "none" → Bon vol fallback OK,
+  preFlightSent=1) ; parser AirLabs validé par mock (response landed JFK→CDG : arr 02:55Z source
+  actual, dep 20:55Z) ; prépositions FR validées : en France / au Maroc / en Arabie Saoudite /
+  aux Émirats Arabes Unis / aux États-Unis / au Sénégal / à Dubaï / au Canada ✓.
+- Amadeus.ts conservé intact (provider optionnel si compte obtenu un jour).
+
+Stage Summary:
+- Dès réception de la clé AirLabs (AIRLABS_API_KEY dans .env + restart) : notification
+  « Bienvenue à destination ! » en temps réel 15 min après l'atterrissage (retards inclus),
+  « Bon vol » à T-2h à l'heure réelle. Aucune autre modification nécessaire.
+- Quota : 10 000 requêtes/mois ≈ 400+ vols/mois au rythme du cron (1 appel/10 min/vol actif,
+  cache 8 min). AirLabs demande un lien d'attribution sur le plan gratuit (à ajouter au footer
+  de la page suivi si besoin).
+
+---
+Task ID: 29
+Agent: Z.ai Code (main)
+Task: Activation AirLabs (clé API utilisateur) + test E2E réel de la notification d'arrivée
+
+Work Log:
+- Utilisateur a fourni la clé AirLabs (f72b6ae9-0cac-4263-87b2-f1f6cefb71fe). Validation par
+  ping /api/v9/ping → « pong » : clé active, plan FREE, quota RÉEL vérifié 1 000 requêtes/mois
+  (limites 2 500/h, 250/min), enregistrée le 2026-10-09, expire le 2026-11-09.
+- .env : AIRLABS_API_KEY renseignée + commentaire corrigé (10 000 → 1 000 requêtes/mois réels).
+- Vérification plan gratuit : /flights (liste) n'expose pas les heures, mais /flight
+  (unitaire, celui du cron) renvoie le statut complet (dep_actual_utc, arr_time_utc,
+  arr_estimated_utc, arr_actual_utc, terminaux) — validé sur HF178 en vol.
+- Serveur Next relancé (arrêté en début de session) ; process `bun run dev` orphelin de la
+  session précédente tué ; un seul dev server tourne désormais (EADDRINUSE transient au boot,
+  bind final OK).
+- Test E2E réel : vol AH1007 (Air Algérie, Paris-Orly → Alger) trouvé via l'API, atterri
+  2026-10-09 20:20 UTC — dans la fenêtre [A+15 min, A+3h]. VOL26-TEST01 configuré sur ce vol
+  (« Air Algérie » / « AH 1007 » / destination « Algérie »).
+- Cron #1 → {flightApiProvider:"airlabs", candidates:1, flightsQueried:1, arrivalsSent:1,
+  errors:[]} : requête AirLabs réelle → atterrissage détecté → push « 🛬 Bienvenue en
+  Algérie ! » déclenché (préposition FR validée en conditions réelles).
+- NotificationLog : flight_arrival | no_recipients (0 abonné push en sandbox — attendu,
+  l'abonnement ne peut se faire que sur qrbags.com) ; dev.log « Push flight_arrival
+  VOL26-TEST01 accepté mais 0 appareil abonné ».
+- Cron #2 → candidates:0 (anti-doublon OK, arrivalNotifiedAt posé). Cron #3 stable :
+  candidates:0, zéro appel fournisseur — aucun gaspillage de quota sans bagage éligible.
+- Scripts de test temporaires supprimés ; aucun fichier src modifié (config + données only).
+
+Stage Summary:
+- ✅ Notifications de vol 100 % opérationnelles avec vraies données AirLabs :
+  « ✈️ Bon vol ! » à T-2h (heure réelle) et « 🛬 Bienvenue en/au/aux/à … ! » 15 min après
+  l'atterrissage réel (retards inclus), trilingues FR/EN/AR.
+- flight-cron (:3040) déclenche toutes les 10 min ; sans bagage éligible → 0 appel API.
+- Quota 1 000/mois ≈ 6-7 vols actifs/mois au rythme actuel (fenêtre ±36 h). Si volume ↑ :
+  intervalle 15-30 min ou plan payant.
+- Clé AirLabs à renouveler avant le 2026-11-09 (dashboard airlabs.co).
+- Push réellement reçu en production dès que des voyageurs s'abonnent sur qrbags.com
+  (email + WhatsApp restent actifs en attendant).

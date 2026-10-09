@@ -121,6 +121,10 @@ model Baggage {
   founderPhone      String?   // WhatsApp number of the finder
   founderAt         DateTime? // Timestamp when founder info was submitted
 
+  // FLIGHT NOTIFICATIONS (cron Amadeus) — anti-doublon des pushes « voyage »
+  preFlightNotifiedAt  DateTime? // Push « Bon vol » envoyé (T-2h avant le décollage)
+  arrivalNotifiedAt    DateTime? // Push « Bienvenue à destination » envoyé (atterrissage +15 min)
+
   // PHOTO + REWARD FEATURE: Photo de la valise & récompense proposée en cas de perte
   // Photo upload — stockage durable : le contenu binaire vit en DB (survit aux redéploiements),
   // photoPath n'est qu'un cache disque optionnel (fallback lecture + migration auto vers la DB)
@@ -131,6 +135,9 @@ model Baggage {
   reward           String?   // Récompense offerte au trouveur (ex: "50 000 FCFA")
   // ✈️ EMAIL POST-VOYAGE : email « tout s'est bien passé ? » envoyé 48 h après le départ
   postTripEmailSentAt DateTime? // null = pas encore envoyé (anti-doublon)
+  // 🔔 ONESIGNAL WEB PUSH : consentement donné à l'activation (case à cocher, RGPD)
+  notifyConsent    Boolean   @default(false) // true = le voyageur accepte les notifications navigateur
+  notifyConsentAt  DateTime? // Horodatage du consentement (preuve RGPD)
   agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   scanLogs          ScanLog[]
   chatMessages      FinderChatMessage[]
@@ -140,6 +147,23 @@ model Baggage {
   @@index([agencyId, status])
   @@index([setId])
   @@index([activatedAt])
+}
+
+// NotificationLog — journal des notifications push OneSignal envoyées aux voyageurs
+// (traçabilité : qui a été notifié, quand, avec quel statut — utile support client)
+model NotificationLog {
+  id           String   @id @default(cuid())
+  reference    String   // Référence du bagage visé (ex: VOL26-TEST01)
+  type         String   @default("scan_alert") // scan_alert | test
+  channel      String   @default("onesignal_web") // Canal utilisé
+  status       String   // sent | failed | skipped | unavailable
+  recipients   Int?     // Nombre d'abonnements touchés (0 = aucun appareil abonné)
+  onesignalId  String?  // ID de la notification côté OneSignal
+  error        String?  // Message d'erreur éventuel (tronqué)
+  createdAt    DateTime @default(now())
+
+  @@index([reference])
+  @@index([createdAt])
 }
 
 // ScanLog model - tracks all scans for audit

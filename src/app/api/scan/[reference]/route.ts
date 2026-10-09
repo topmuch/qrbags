@@ -554,6 +554,32 @@ export async function POST(
             })
             .catch((e) => console.warn('[ScanNotify] Wakit échoué (non bloquant):', e));
         }
+        // Canal 3 : 🔔 OneSignal Web Push — notification navigateur du voyageur
+        // (uniquement si le voyageur a coché « m'alerter sur mon bagage » à l'activation ;
+        // cible les appareils tagués qr_<reference>. Fire-and-forget, jamais bloquant.)
+        if (baggage.notifyConsent) {
+          import('@/lib/onesignal')
+            .then(({ sendBaggageScanPush }) =>
+              sendBaggageScanPush({
+                reference: baggage.reference,
+                city: city || undefined,
+                location: location || undefined,
+                latitude: latitude ?? null,
+                longitude: longitude ?? null,
+                finderName: finderName?.trim() || undefined,
+                finderPhone: finderPhone?.trim() || undefined,
+                reward: baggage.reward || null,
+                trackingUrl,
+              })
+            )
+            .then((r) => {
+              if (r.status === 'skipped') console.log('[ScanNotify] OneSignal non configuré → push ignoré');
+              else if (r.status === 'failed') console.warn(`[ScanNotify] OneSignal push échoué: ${r.error}`);
+              else if (r.status === 'no_recipients') console.log('[ScanNotify] Push accepté par OneSignal mais 0 appareil abonné (voyageur pas encore inscrit via qrbags.com)');
+              else console.log(`🔔 [ScanNotify] Push OneSignal envoyé (${r.recipients ?? 0} appareil(s)) pour ${baggage.reference}`);
+            })
+            .catch((e) => console.warn('[ScanNotify] OneSignal échoué (non bloquant):', e));
+        }
       }
     } catch (notifyError) {
       console.warn('[ScanNotify] Erreur non bloquante:', notifyError);

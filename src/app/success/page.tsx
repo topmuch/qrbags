@@ -15,7 +15,11 @@ import {
   Loader2,
   CheckCircle2,
   Volume2,
+  Bell,
+  BellRing,
+  BellOff,
 } from 'lucide-react';
+import { optInNotifications, ensureSubscriptionTag } from '@/lib/onesignal-client';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SuccessOverlay from '@/components/ui/SuccessOverlay';
@@ -102,6 +106,11 @@ interface ActivationData {
   trainNumber?: string;
   shipName?: string;
   busLineNumber?: string;
+  // 🔔 ONESIGNAL : le voyageur a consenti aux notifications à l'activation
+  notifyConsent?: boolean;
+  reward?: string;
+  activatedCount?: number;
+  activatedReferences?: string[];
 }
 
 function SuccessContent() {
@@ -161,6 +170,37 @@ function SuccessContent() {
 
   // Valeur dérivée — évite un useEffect + setState redondant
   const activationConfirmed = activationData !== null;
+
+  // ─── 🔔 ONESIGNAL — état de l'abonnement aux notifications push ───
+  // 'idle' → bouton activer | 'granted' → abonné | 'denied' → refusé |
+  // 'unsupported'/'unavailable' → indisponible (iOS sans PWA, origin non enregistré…)
+  const [notifyState, setNotifyState] = useState<
+    'idle' | 'loading' | 'granted' | 'denied' | 'unsupported' | 'unavailable'
+  >('idle');
+
+  // Si la permission est déjà accordée (retour sur /success, activation d'un
+  // autre bagage sur le même appareil), on tague et on affiche directement l'état OK.
+  useEffect(() => {
+    if (!activationData?.notifyConsent || !activationData?.reference) return;
+    let cancelled = false;
+    ensureSubscriptionTag(activationData.reference).then((tagged) => {
+      if (!cancelled && tagged) setNotifyState('granted');
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activationData?.notifyConsent, activationData?.reference]);
+
+  const handleEnableNotifications = async () => {
+    if (!reference) return;
+    setNotifyState('loading');
+    const result = await optInNotifications(reference);
+    if (result === 'granted' || result === 'denied' || result === 'unsupported') {
+      setNotifyState(result);
+    } else {
+      setNotifyState('unavailable');
+    }
+  };
 
   const reference = activationData?.reference || '';
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -602,6 +642,65 @@ function SuccessContent() {
               )}
             </BrandCard>
           </motion.div>
+
+          {/* ═══ 5.5 🔔 Notifications push — « bagage retrouvé » (si consentement à l'activation) ═══ */}
+          {activationData.notifyConsent && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5, ease: 'easeOut' }}
+            >
+              <BrandCard className="p-5 mb-4">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="w-9 h-9 rounded-xl bg-[#e6216e]/10 border border-[#e6216e]/25 flex items-center justify-center flex-shrink-0" aria-hidden>
+                    <Bell className="w-[18px] h-[18px] text-[#e6216e]" />
+                  </span>
+                  <h2 className="text-[#16234e] font-bold text-base">
+                    {t('success.notify_title')}
+                  </h2>
+                </div>
+                <p className="text-sm text-[#16234e]/70 leading-relaxed mb-4">
+                  {t('success.notify_desc')}
+                </p>
+
+                {notifyState === 'granted' ? (
+                  <div className="flex items-center gap-2.5 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm font-bold text-emerald-700">
+                    <BellRing className="w-5 h-5 flex-shrink-0" aria-hidden />
+                    {t('success.notify_granted')}
+                  </div>
+                ) : notifyState === 'denied' ? (
+                  <div className="flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm font-bold text-amber-800">
+                    <BellOff className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden />
+                    <span>{t('success.notify_denied')}</span>
+                  </div>
+                ) : notifyState === 'unsupported' || notifyState === 'unavailable' ? (
+                  <div className="flex items-start gap-2.5 rounded-xl bg-[#16234e]/5 border border-[#16234e]/10 px-4 py-3 text-sm font-medium text-[#16234e]/70">
+                    <BellOff className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden />
+                    <span>{t('success.notify_unavailable')}</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleEnableNotifications}
+                    disabled={notifyState === 'loading'}
+                    className={`${brandBtnGradient} w-full inline-flex items-center justify-center gap-2 px-4 py-3 min-h-[48px]`}
+                  >
+                    {notifyState === 'loading' ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+                        {t('success.notify_loading')}
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="w-4 h-4" aria-hidden />
+                        {t('success.notify_cta')}
+                      </>
+                    )}
+                  </button>
+                )}
+              </BrandCard>
+            </motion.div>
+          )}
 
           {/* ═══ 6. Encart Checklist ═══ */}
           <BrandCard className="p-5 text-center">

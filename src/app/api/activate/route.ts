@@ -30,6 +30,8 @@ const activateSchema = z.object({
   shipCabin: z.string().optional(),
   busCompany: z.string().optional(),
   busLineNumber: z.string().optional(),
+  // 🔔 ONESIGNAL : consentement explicite aux notifications push (RGPD — opt-in)
+  notifyConsent: z.boolean().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -113,6 +115,9 @@ export async function POST(request: NextRequest) {
         photoMime: photoBlob?.mime ?? null,
         photoSizeBytes: photoBlob?.size ?? null,
         reward: validatedData.reward?.trim() || null,
+        // 🔔 ONESIGNAL : consentement notifications (opt-in à l'activation)
+        notifyConsent: validatedData.notifyConsent ?? false,
+        notifyConsentAt: validatedData.notifyConsent ? new Date() : null,
         status: 'active',
         activatedAt: new Date(), // tri « dernier activé en premier » côté agence
         expiresAt,
@@ -161,6 +166,9 @@ export async function POST(request: NextRequest) {
               photoMime: photoBlob?.mime ?? null,
               photoSizeBytes: photoBlob?.size ?? null,
               reward: validatedData.reward?.trim() || null,
+              // 🔔 Même consentement pour tout le set (même voyageur, même appareil)
+              notifyConsent: validatedData.notifyConsent ?? false,
+              notifyConsentAt: validatedData.notifyConsent ? new Date() : null,
               status: 'active',
               activatedAt: new Date(), // même horodatage d'activation pour tout le set
               expiresAt,

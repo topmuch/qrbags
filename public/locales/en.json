@@ -218,7 +218,9 @@
     "reward_spotlight": "Boost your recovery chances — the finder will be extra motivated to return it!",
     "trust_free": "100% free",
     "trust_noapp": "No app needed",
-    "trust_secure": "Protected contact details"
+    "trust_secure": "Protected contact details",
+    "notify_consent_label": "Alert me about my luggage",
+    "notify_consent_desc": "Get a notification on your phone as soon as your luggage is scanned or found — free."
   },
   "passport": {
     "title": "QRBags Passport",
@@ -537,6 +539,13 @@
     "welcome_subtitle": "Tap the button: an audio guide explains how your baggage protection works.",
     "welcome_cta": "Listen to the guide",
     "welcome_audio_hint": "Audio guide · 30 s",
-    "replay_audio": "Play the guide again"
+    "replay_audio": "Play the guide again",
+    "notify_title": "Luggage notifications",
+    "notify_desc": "You agreed to be alerted if your luggage is found. Enable notifications on this device to be warned in real time:",
+    "notify_cta": "Enable notifications",
+    "notify_loading": "Enabling…",
+    "notify_granted": "Notifications enabled! You'll be alerted as soon as your luggage is found.",
+    "notify_denied": "Notifications denied. You can re-enable them in your browser settings if you change your mind.",
+    "notify_unavailable": "Notifications are not available on this device right now. Don't worry: email and WhatsApp alerts remain active."
   }
 }
