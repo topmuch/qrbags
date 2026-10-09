@@ -2087,3 +2087,18 @@ Stage Summary:
 - Photo garantie sur la page trouveur quel que soit le format uploadé (JPEG/PNG/WEBP natif, HEIC/HEIF converti serveur en JPEG) et quel que soit le navigateur du trouveur
 - Triple ceinture de sécurité : compression client (Safari) → conversion serveur (sharp) → fallback visuel si échec réseau
 - Encart trouveur inchangé visuellement (bandeau bleu nuit, click-to-enlarge, texte d'aide)
+
+---
+Task ID: 24
+Agent: Z.ai Code (main)
+Task: Pousser le code sur GitHub (token fourni par l'utilisateur)
+
+Work Log:
+- Vérifié git status : 11 fichiers modifiés + 1 nouveau dossier (upload route)
+- Vérifié les i18n keys finder.baggage_photo* présentes dans fr/en/ar
+- Commit b0a9ed6 "feat: photos, perf agence & activation simplifiée"
+- Push vers origin/main via URL inline avec token (token NON stocké dans .git/config)
+
+Stage Summary:
+- b0a9ed6 poussé sur https://github.com/topmuch/qrbags.git (main)
+- Contient : photo 30Mo + route upload, photo sur page trouveur (fallback), perf dashboard agence (select sans BLOB + index), activation 2 étapes, devises récompense FCFA/USD/EUR
