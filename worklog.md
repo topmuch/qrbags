@@ -2283,3 +2283,24 @@ Stage Summary:
 - Clé AirLabs à renouveler avant le 2026-11-09 (dashboard airlabs.co).
 - Push réellement reçu en production dès que des voyageurs s'abonnent sur qrbags.com
   (email + WhatsApp restent actifs en attendant).
+
+---
+Task ID: 30
+Agent: Z.ai Code (main)
+Task: Push GitHub des Tasks 25-29 (OneSignal + notifications de vol)
+
+Work Log:
+- Commit 8d7ee5a « feat: notifications push OneSignal + suivi de vol temps réel (AirLabs) »
+  — 17 fichiers, 1 634 insertions : onesignal.ts / onesignal-client.ts / OneSignalSDKWorker.js,
+  amadeus.ts / flight-api.ts, cron flight-arrivals, mini-service flight-cron, schéma Prisma
+  (notifyConsent + flags anti-doublon), i18n FR/EN/AR, pages activate/scan/inscrire/success.
+- Push effectué avec le PAT fourni par l'utilisateur (usage unique, URL de push temporaire,
+  rien stocké en local : remote origin reste propre, aucun helper de credentials configuré).
+- Vérifié : local = origin/main = 8d7ee5a28d716662b24c109530e8c36a21d88f33.
+
+Stage Summary:
+- GitHub topmuch/qrbags à jour avec toutes les fonctionnalités OneSignal + notifications de vol.
+- Rappel sécurité : le PAT est passé en clair dans le chat → à révoquer/régénérer dans
+  GitHub → Settings → Developer settings une fois les tests terminés.
+- Déploiement production qrbags.com : nécessite un « Redeploy » Coolify (manuel ou API) —
+  le push GitHub ne met pas la prod à jour automatiquement.
