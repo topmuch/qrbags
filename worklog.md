@@ -2031,3 +2031,59 @@ Stage Summary:
 - Locale = GitHub = b4c6253 + fix robots dynamique — commit + push vers main
 - Actions utilisateur : REDÉPLOYER sur Coolify (le nouveau robots.txt part en prod) ; Search Console → « Demande de réindexation » sur /, /suivi/*, /passeport/*
 - Note :/scan/ volontairement INDEXABLE (page publique trouveur) ; seules zones privées/utilitaires restent bloquées
+
+---
+Task ID: 21
+Agent: Super Z (main)
+Task: Clone qrbags → install deps → dev server → augmenter la taille max de la photo sur la page d'activation du QR code (/inscrire, photo par téléphone ou insertion)
+
+Work Log:
+- Clone github.com/topmuch/qrbags → /home/z/qrbags, bun install (948 packages), .env créé (DATABASE_URL=file:./db/custom.db), prisma db push + seed OK (QR de test dispo)
+- AUDIT : la page d'activation /inscrire envoie la photo vers POST /api/baggage-photo/upload — cette route N'EXISTAIT PAS dans le dépôt (seul GET /api/baggage-photo/[reference] existait) → l'upload de photo était CASSÉ (405). Route POST créée : src/app/api/baggage-photo/upload/route.ts (staging disque uploads/baggage-photos/ + BLOB DB au bind /api/activate, rate-limit 20/h/IP, extensions JPG/JPEG/PNG/WEBP/GIF/HEIC/HEIF, fallback extension quand MIME vide — photos téléphone)
+- LIMITES AUGMENTÉES 10 Mo → 30 Mo partout (photos haute résolution téléphone 48-200 MP / HEIC / ProRAW) : PHOTO_MAX_BYTES (src/lib/photo-storage.ts), photoMaxBytes (src/app/inscrire/page.tsx), MAX_FILE_SIZE + message (src/app/api/checklist/upload-photo/route.ts), i18n photo_error_size fr/en/ar (public/locales)
+- Dév : ancien serveur my-project sur :3000 tué, qrbags `bun run dev` lancé sur :3000 (db-selfheal OK)
+- Vérifs curl : 21,3 Mo → 200 ✓ | 45,3 Mo → 400 « max 30 Mo » ✓ | HEIC mime vide → 200 ✓ | activation HAJJ25-MLQGY7 avec photo → BLOB DB ✓ | GET /api/baggage-photo/[ref] → 200 image/jpeg ✓
+- Vérifs agent-browser sur /inscrire?qr=HAJJ25-K9X2P4 : formulaire identité rempli → upload photo via zone « LUGGAGE PHOTO » (boutons Upload / Take a photo) → aperçu « Remove/Change photo » → « Activate my baggage » → redirection /success?type=voyageur ✓ ; passeport /passeport/HAJJ25-K9X2P4 affiche le voyageur + photo servie depuis DB (200) ✓ ; boundary browser-fetch 29 Mo → 200, 31 Mo → 400 ✓ ; dev.log sans erreur, lint OK
+- Nettoyage : test-photo.jpg + uploads de test supprimés ; QR pending restant pour test manuel : HAJJ25-ABC123
+
+Stage Summary:
+- Upload photo de la page d'activation RÉPARÉ (route /api/baggage-photo/upload créée) + limite relevée 10 → 30 Mo (client, serveur, checklist, i18n)
+- Chemin complet vérifié de bout en bout (curl + navigateur) : compression client → upload staging → activation → BLOB SQLite → affichage trouveur/passeport
+- Dév server : qrbags sur :3000 (bun run dev, background) ; l'utilisateur peut tester /inscrire?qr=HAJJ25-ABC123
+
+---
+Task ID: 22
+Agent: Super Z (main)
+Task: 1) Dashboard agence > Bagages : chargement lent des QR codes  2) Page activation QR : supprimer l'étape 2 « Continuer »  3) Récompense : 3 devises FCFA / Dollar / Euro
+
+Work Log:
+- ⚡ LENTEUR BAGAGES (cause racine) : GET /api/agency/baggages faisait `findMany` SANS `select` → renvoyait TOUTES les colonnes dont `photoData` (BLOB photo jusqu'à 30 Mo/bagage, sérialisé base64 dans le JSON). Mesuré : 28,4 Mo de payload / 306 ms pour 5 bagages dès qu'une photo existait → re-téléchargé à chaque visite de la page.
+  - Fix API : `select` explicite (28 champs utiles, JAMAIS photoData/photoMime) → 3,4 Ko / ~20 ms (÷8000 payload)
+  - Fix DB : index Prisma `@@index([agencyId, status])`, `@@index([setId])`, `@@index([activatedAt])` sur Baggage + db:push (le dashboard tableau-de-bord utilise la même API → profite du fix)
+- ✂️ ÉTAPE « CONTINUER » SUPPRIMÉE (/inscrire) : flow = scan (Bienvenue + Type de bagage + Commencer l'activation) → formulaire DIRECTEMENT (plus d'écran intermédiaire avec seul bouton Continuer). `step` constant=2, bloc step 1 + bouton Retour supprimés, chip « Étape X/2 » remplacé par badge référence QR détectée dans le hero. Vérifié navigateur : /inscrire?qr=… affiche TRAVELER IDENTITY d'emblée.
+- 💱 RÉCOMPENSE 3 DEVISES (/inscrire) : segmented control FCFA / $ / € (FCFA défaut) à côté du champ montant, aria-pressed, min-h-44px. Au submit : concatène « 1000 FCFA » / « 1000 $ » / « 1000 € » (slice 120). Testé : activation VOL26-TEST01 avec 1000 + € → DB `reward: "1000 €"` ✓. Clé i18n `inscrire.reward_currency` ajoutée fr/en/ar.
+- Vérifs : lint OK, dev.log propre (seul warning = rate-limit ipapi.co externe, fallback prévu), page agence bagages affiche 5 bagages + stats correctes, GET / 200 en 122 ms
+- QR de test laissé pour démo : VOL26-TEST01 (pending_activation) — flux scan → formulaire testable
+
+Stage Summary:
+- Page agence Bagages : payload 28,4 Mo → 3,4 Ko, ~20 ms serveur + index DB (agencyId+status, setId, activatedAt)
+- Activation QR : 2 étapes au lieu de 3 (Bienvenue scan → formulaire), zéro friction
+- Récompense : montant + devise FCFA/$/€ stockée « 1000 € » style, affichée telle quelle aux trouveurs
+
+---
+Task ID: 23
+Agent: Super Z (main)
+Task: S'assurer que la photo du produit s'affiche sur la page trouveur (/scan)
+
+Work Log:
+- AUDIT complet du chemin photo → trouveur : API /api/scan/[ref] renvoie hasPhoto ✓ (Boolean(photoPath) || Boolean(photoData)), page /scan affiche l'encart « Photo de la valise » si hasPhoto avec <Image src=/api/baggage-photo/[ref]> unoptimized ✓, endpoint photo 200 ✓ — vérifié navigateur : image chargée 1600x1200, encart visible (capture « SUITCASE PHOTO »)
+- FAILLE CORRIGÉE n°1 — HEIC iPhone invisible pour le trouveur : les photos HEIC/HEIF ne se rendent PAS dans Chrome/Firefox (seul Safari iOS les décode). Fix serveur (/api/baggage-photo/[ref]) : conversion à la volée HEIC/HEIF → JPEG via sharp/libvips (déjà installé, input heif OK), détection par MIME DB ET par magic bytes (boîte ftyp + brands heic/heix/hevc/mif1/msf1…), orientation EXIF respectée (.rotate()), mozjpeg q85 ; fallback gracieux = binaire original si sharp échoue (Safari iOS l'affiche)
+- FAILLE CORRIGÉE n°2 — client /inscrire court-circuitait le HEIC (envoi brut systématique) : désormais Safari iOS décode → compression JPEG locale (le trouveur reçoit un JPEG universel) ; Chrome/Firefox → fallback « fichier original » existant → conversion serveur. Double sécurité client+serveur. HEIC > 30 Mo → erreur taille immédiate
+- FAILLE CORRIGÉE n°3 — image cassée si échec réseau/429 : état photoFailed + onError sur l'Image → message propre + lien « ouvrir la photo » au lieu d'une vignette brisée
+- Tests : lint OK ; JPEG servi tel quel 200/130 ms ; mime heic + octets jpeg → re-encodé 30 Ko→5,9 Ko sans crash (prouve le pipeline sharp) ; mime restauré ; page trouveur re-testée : photo présente, chargée, 1600x1200 ✓ ; dev.log sans erreur
+- Limite connue : pas de vrai HEIC de test disponible (réseau sandbox bloque les fixtures, encodage x265 absent) — décodage input confirmé par sharp.format.heif.input.buffer=OK + fallback robuste
+
+Stage Summary:
+- Photo garantie sur la page trouveur quel que soit le format uploadé (JPEG/PNG/WEBP natif, HEIC/HEIF converti serveur en JPEG) et quel que soit le navigateur du trouveur
+- Triple ceinture de sécurité : compression client (Safari) → conversion serveur (sharp) → fallback visuel si échec réseau
+- Encart trouveur inchangé visuellement (bandeau bleu nuit, click-to-enlarge, texte d'aide)

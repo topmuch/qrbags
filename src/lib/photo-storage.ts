@@ -28,8 +28,9 @@ export const PHOTO_MIME_BY_EXT: Record<string, string> = {
   heif: 'image/heif',
 };
 
-/** Taille max acceptée pour une photo (10 Mo, aligné sur les endpoints d'upload) */
-export const PHOTO_MAX_BYTES = 10 * 1024 * 1024;
+/** Taille max acceptée pour une photo (30 Mo — photos haute résolution de téléphone :
+ *  capteurs 48-200 MP, mode ProRAW… — aligné sur les endpoints d'upload) */
+export const PHOTO_MAX_BYTES = 30 * 1024 * 1024;
 
 /** Résout un chemin relatif `uploads/...` depuis le cwd, en neutralisant la traversée. */
 export function safePhotoAbsolutePath(photoPath: string): string {

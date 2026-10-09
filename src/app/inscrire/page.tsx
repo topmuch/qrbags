@@ -123,7 +123,9 @@ function InscrireContent() {
   const qrFromUrl = searchParams.get('qr') || '';
 
   const { t, lang, setLang, dir, countryCode } = useTranslation();
-  const [step, setStep] = useState(1);
+  // FLOW-SIMPLIFIED : l'étape intermédiaire « Continuer » a été supprimée —
+  // après la page de bienvenue du scan, le formulaire s'affiche directement.
+  const step = 2;
 
   const [loading, setLoading] = useState(false);
   const [phoneCountry, setPhoneCountry] = useState(countryCode);
@@ -150,6 +152,13 @@ function InscrireContent() {
 
   // REWARD-FEATURE: récompense proposée en cas de perte
   const [reward, setReward] = useState('');
+  // REWARD-CURRENCY : 3 devises proposées (FCFA par défaut — zone produit principale, USD, EUR)
+  const [rewardCurrency, setRewardCurrency] = useState<'FCFA' | 'USD' | 'EUR'>('FCFA');
+  const REWARD_CURRENCY_SUFFIX: Record<'FCFA' | 'USD' | 'EUR', string> = {
+    FCFA: 'FCFA',
+    USD: '$',
+    EUR: '€',
+  };
 
   // 🔔 Sync phoneCountry when countryCode is detected (IP / locales / fuseau).
   // Garde-fous : l'utilisateur n'a ni saisi de numéro WhatsApp, ni choisi
@@ -168,9 +177,9 @@ function InscrireContent() {
   //  - chaque étape asynchrone est sous timeout (FileReader, décodage <img>, canvas.toBlob, fetch) :
   //    sur certains téléphones le décodage d'une photo (HEIC iPhone, capteur 48 MP) ne déclenche
   //    NI onload NI onerror → l'ancien code restait bloqué sur « Envoi en cours... » indéfiniment ;
-  //  - si la compression échoue, on envoie le fichier original tel quel (≤ 10 Mo, format image) ;
+  //  - si la compression échoue, on envoie le fichier original tel quel (≤ 30 Mo, format image) ;
   //  - un watchdog global garantit la fin de l'état « envoi en cours » quoi qu'il arrive.
-  const photoMaxBytes = 10 * 1024 * 1024; // 10 Mo (aligné sur PHOTO_MAX_BYTES côté serveur)
+  const photoMaxBytes = 30 * 1024 * 1024; // 30 Mo (aligné sur PHOTO_MAX_BYTES côté serveur)
   const photoAllowedRaw = /\.(jpe?g|png|webp|gif|heic|heif)$/i;
 
   const uploadPhotoFile = async (blob: Blob, filename: string): Promise<string> => {
@@ -214,18 +223,15 @@ function InscrireContent() {
       ]);
 
     try {
-      // HEIC/HEIF (format natif caméra iPhone) : le canvas ne peut pas les décoder sur la
-      // plupart des navigateurs → envoi direct du fichier original, sans tentative de compression.
+      // HEIC/HEIF (format natif caméra iPhone) trop volumineux → erreur immédiate,
+      // inutile de tenter le décodage. Sinon on PROCEDE au flux standard :
+      //  - Safari iOS sait décoder le HEIC → compression JPEG locale → le trouveur
+      //    reçoit un JPEG affichable partout ✓
+      //  - Chrome/Firefox échouent au décodage → fallback « envoi du fichier original »
+      //    ci-dessous → le serveur convertit le HEIC en JPEG (sharp) pour le trouveur ✓
       const isHeic = /heic|heif/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
-      if (isHeic) {
-        if (file.size > photoMaxBytes) {
-          setPhotoError(t('inscrire.photo_error_size'));
-          return;
-        }
-        const photoPath = await withTimeout(uploadPhotoFile(file, file.name || 'photo-valise.heic'), 60000);
-        setPhotoPath(photoPath);
-        setPhotoPreview(''); // pas d'aperçu décodable localement → placeholder « photo enregistrée »
-        setPhotoError('');
+      if (isHeic && file.size > photoMaxBytes) {
+        setPhotoError(t('inscrire.photo_error_size'));
         return;
       }
 
@@ -314,6 +320,11 @@ function InscrireContent() {
     setLoading(true);
 
     try {
+      // REWARD-CURRENCY : on concatène le montant saisi avec la devise choisie
+      // (ex: « 1000 FCFA », « 1000 $ », « 1000 € ») — champ libre max 120 chars côté API
+      const rewardWithCurrency = reward.trim()
+        ? `${reward.trim()} ${REWARD_CURRENCY_SUFFIX[rewardCurrency]}`.slice(0, 120)
+        : '';
       const response = await fetch('/api/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -333,7 +344,7 @@ function InscrireContent() {
           departureTime: formData.departureTime || undefined,
           // PHOTO + REWARD FEATURE
           photoPath: photoPath || undefined,
-          reward: reward.trim() || undefined,
+          reward: rewardWithCurrency || undefined,
         }),
       });
 
@@ -351,7 +362,7 @@ function InscrireContent() {
             airlineName: formData.airlineName.trim(),
             flightNumber: formData.flightNumber.trim(),
             transportMode: 'flight',
-            reward: reward.trim(),
+            reward: rewardWithCurrency,
             type: 'voyageur',
             activatedAt: new Date().toISOString(),
             expiresAt: data.baggage?.expiresAt,
@@ -432,10 +443,12 @@ function InscrireContent() {
                   {t('inscrire.hero_subtitle')}
                 </p>
 
-                {/* Chip progression — Étape X/2 */}
-                <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
-                  {t('inscrire.step_progress', { current: String(step) })}
-                </p>
+                {qrFromUrl && (
+                  <p className="relative mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono font-bold text-xs tracking-widest">
+                    <CheckCircle className="w-3.5 h-3.5" aria-hidden />
+                    {formData.reference}
+                  </p>
+                )}
               </div>
 
               {/* Bandeau confiance — réassurance (gratuit / sans app / protégé) */}
@@ -459,31 +472,7 @@ function InscrireContent() {
 
           {/* ─── Carte formulaire (coins viewfinder QR via BrandCard corners) ─── */}
           <BrandCard corners className="w-full p-5 md:p-7">
-            {/* ─── Étape 1 : Bienvenue + Continuer ─── */}
-            {step === 1 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.35 }}
-              >
-                {qrFromUrl && (
-                  <div className="flex items-center justify-center gap-2 mb-4 text-sm font-semibold text-[#2f9bff]">
-                    <CheckCircle className="w-4 h-4" />
-                    {t('inscrire.reference_detected')}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className={`group w-full py-4 px-6 text-lg min-h-[56px] flex items-center justify-center gap-2 ${brandBtnGradient}`}
-                >
-                  {t('inscrire.next_step')}
-                  <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5 rtl:rotate-180" aria-hidden />
-                </button>
-              </motion.div>
-            )}
-
-            {/* ─── Étape 2 : Formulaire d'activation ─── */}
+            {/* ─── Formulaire d'activation (affiché directement — étape « Continuer » supprimée) ─── */}
             {step === 2 && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -491,16 +480,6 @@ function InscrireContent() {
                 transition={{ duration: 0.35 }}
                 className="space-y-4"
               >
-                {/* Back button */}
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="flex items-center gap-1.5 text-[#16234e]/70 hover:text-[#16234e] transition-colors text-sm mb-1 min-h-[44px]"
-                >
-                  <ArrowLeft className="w-4 h-4 rtl:rotate-180" aria-hidden />
-                  {t('inscrire.back_step')}
-                </button>
-
                 {/* 🔒 Référence absente — warning */}
                 {missingReference && (
                   <div className="bg-[#2f9bff]/5 border-2 border-dashed border-[#2f9bff]/30 rounded-xl p-4 flex items-start gap-3">
@@ -802,14 +781,46 @@ function InscrireContent() {
                         <label htmlFor="inscrire-reward" className="sr-only">
                           {t('inscrire.reward_label')}
                         </label>
-                        <input
-                          id="inscrire-reward"
-                          type="text"
-                          placeholder={t('inscrire.reward_placeholder')}
-                          value={reward}
-                          onChange={(e) => setReward(e.target.value)}
-                          className={`${brandInput} relative bg-white/95`}
-                        />
+                        {/* REWARD-CURRENCY : montant + sélecteur de devise (FCFA / $ / €) */}
+                        <div className="relative flex gap-2">
+                          <input
+                            id="inscrire-reward"
+                            type="text"
+                            inputMode="numeric"
+                            placeholder={t('inscrire.reward_placeholder')}
+                            value={reward}
+                            onChange={(e) => setReward(e.target.value)}
+                            className={`${brandInput} relative bg-white/95 flex-1 min-w-0`}
+                          />
+                          <div
+                            role="group"
+                            aria-label={t('inscrire.reward_currency')}
+                            className="flex flex-shrink-0 rounded-xl overflow-hidden border border-[#16234e]/15 bg-white/95"
+                          >
+                            {(
+                              [
+                                { code: 'FCFA', symbol: 'FCFA', label: 'FCFA' },
+                                { code: 'USD', symbol: '$', label: 'Dollar' },
+                                { code: 'EUR', symbol: '€', label: 'Euro' },
+                              ] as const
+                            ).map((cur) => (
+                              <button
+                                key={cur.code}
+                                type="button"
+                                onClick={() => setRewardCurrency(cur.code)}
+                                aria-pressed={rewardCurrency === cur.code}
+                                title={cur.label}
+                                className={`px-3 min-h-[44px] text-xs font-black tracking-wide transition-colors ${
+                                  rewardCurrency === cur.code
+                                    ? 'bg-gradient-qrbag text-white'
+                                    : 'bg-white text-[#16234e]/60 hover:bg-[#16234e]/5'
+                                }`}
+                              >
+                                {cur.symbol}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

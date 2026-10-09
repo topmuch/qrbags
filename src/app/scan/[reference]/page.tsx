@@ -377,6 +377,9 @@ export default function ScanPage() {
 
   const [baggageData, setBaggageData] = useState<BaggageData | null>(null);
   const [loading, setLoading] = useState(true);
+  // PHOTO-FEATURE : si la photo échoue à charger (429, réseau…) on affiche un
+  // message propre au lieu d'une image cassée sur la page trouveur.
+  const [photoFailed, setPhotoFailed] = useState(false);
 
   // UI State
   const [showForm, setShowForm] = useState(false);
@@ -1019,6 +1022,20 @@ export default function ScanPage() {
             title={t('finder.baggage_photo')}
             icon={<span className="text-base" aria-hidden>📸</span>}
           >
+            {photoFailed ? (
+              <div className="w-full aspect-[4/3] rounded-xl border border-[#16234e]/10 bg-[#2f9bff]/5 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                <span className="text-2xl" aria-hidden>🧳</span>
+                <p className="text-sm font-bold text-[#16234e]/70">{t('finder.baggage_photo')}</p>
+                <a
+                  href={`/api/baggage-photo/${baggage.reference}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-semibold text-[#2f9bff] underline underline-offset-2"
+                >
+                  {t('finder.baggage_photo_open')}
+                </a>
+              </div>
+            ) : (
             <a
               href={`/api/baggage-photo/${baggage.reference}`}
               target="_blank"
@@ -1034,11 +1051,13 @@ export default function ScanPage() {
                 sizes="(max-width: 768px) 100vw, 448px"
                 className="object-contain transition-transform duration-300 group-hover:scale-[1.03]"
                 unoptimized
+                onError={() => setPhotoFailed(true)}
               />
               <span className="absolute bottom-2 right-2 bg-[#16234e]/80 text-white text-[10px] md:text-xs px-2.5 py-1 rounded-full opacity-90 group-hover:opacity-100 transition-opacity">
                 🔍 {t('finder.baggage_photo_open')}
               </span>
             </a>
+            )}
             <p className="mt-2.5 text-xs text-[#16234e]/60 text-center">
               {t('finder.baggage_photo_help')}
             </p>

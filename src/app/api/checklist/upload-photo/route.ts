@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto';
 import { rateLimit } from '@/lib/rate-limit';
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads', 'checklist-photos');
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30 Mo (aligné sur PHOTO_MAX_BYTES — photos haute résolution de téléphone)
 const ALLOWED_TYPES = new Set([
   'image/jpeg', 'image/png', 'image/webp', 'image/gif',
 ]);
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'Fichier trop volumineux (max 10 Mo)' }, { status: 400 });
+      return NextResponse.json({ error: 'Fichier trop volumineux (max 30 Mo)' }, { status: 400 });
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';

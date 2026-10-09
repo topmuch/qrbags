@@ -134,6 +134,12 @@ model Baggage {
   agency            Agency?   @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   scanLogs          ScanLog[]
   chatMessages      FinderChatMessage[]
+
+  // ⚡ PERFORMANCE : la page Bagages du dashboard agence filtre par agencyId + statut
+  // et les activations groupées cherchent par setId — sans index, full scan à chaque fois.
+  @@index([agencyId, status])
+  @@index([setId])
+  @@index([activatedAt])
 }
 
 // ScanLog model - tracks all scans for audit

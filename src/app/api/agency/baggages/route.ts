@@ -41,9 +41,44 @@ export async function GET(request: NextRequest) {
 
     // Tri « dernier activé en premier » : activatedAt d'abord (les QR en attente,
     // sans activatedAt, passent en dernier), puis createdAt en tie-breaker.
+    //
+    // ⚡ PERFORMANCE : `select` explicite — on EXCLUT les BLOB photo (photoData,
+    // jusqu'à 30 Mo par bagage !) et les champs binaires inutilisés par la liste.
+    // Sans select, Prisma chargeait toutes les colonnes → payload JSON gigantesque
+    // → chargement très lent de la page Bagages dès qu'une agence avait des photos.
     const baggages = await db.baggage.findMany({
       where,
       orderBy: [{ activatedAt: 'desc' }, { createdAt: 'desc' }],
+      select: {
+        id: true,
+        reference: true,
+        type: true,
+        setId: true,
+        agencyId: true,
+        travelerFirstName: true,
+        travelerLastName: true,
+        whatsappOwner: true,
+        baggageIndex: true,
+        baggageType: true,
+        status: true,
+        transportMode: true,
+        destination: true,
+        departureDate: true,
+        departureTime: true,
+        createdAt: true,
+        activatedAt: true,
+        expiresAt: true,
+        lastScanDate: true,
+        lastLocation: true,
+        declaredLostAt: true,
+        foundAt: true,
+        founderName: true,
+        founderPhone: true,
+        founderAt: true,
+        photoSizeBytes: true, // taille seule (affichage « photo présente ») — jamais le BLOB
+        photoPath: true,
+        reward: true,
+      },
     });
 
     // Normalize statuses in response (frontend always gets English format)
