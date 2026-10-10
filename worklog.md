@@ -2304,3 +2304,42 @@ Stage Summary:
   GitHub → Settings → Developer settings une fois les tests terminés.
 - Déploiement production qrbags.com : nécessite un « Redeploy » Coolify (manuel ou API) —
   le push GitHub ne met pas la prod à jour automatiquement.
+
+---
+Task ID: 31
+Agent: Z.ai Code (main)
+Task: Restauration sandbox depuis GitHub après réinitialisation de l'environnement
+
+Work Log:
+- Constat : la sandbox a été réinitialisée pendant la nuit (10/10 ~11h49) — /home/z/qrbags
+  entièrement effacé (code, node_modules, DB, logs). Heureusement tout était poussé sur
+  GitHub (Task 30) → « synchronise la version github avec la version locale » = restaurer
+  le local depuis GitHub.
+- git clone github.com/topmuch/qrbags → HEAD 6e29c7e (identique à origin/main ✓).
+- .env recréé à l'identique (jamais commité, valeurs reprises de la session :
+  OneSignal app-level, AirLabs, CRON_SECRET, NextAuth, base URL). Les autres variables
+  (WAKIT/GROQ/PAYPAL) étaient déjà vides avant la réinitialisation.
+- bun install (948 paquets) + db:push → db/custom.db neuve, 29 tables, 0 données.
+- ⚠️ Piège 1 : la sandbox exporte DATABASE_URL=file:/home/z/my-project/db/custom.db
+  (ENV conteneur, prioritaire sur .env) → 2 db:push accidentels ont écrit le schéma
+  QRBag dans la db du scaffold (additif, sans casse). TOUT lancement doit préfixer
+  DATABASE_URL="file:/home/z/qrbags/db/custom.db".
+- ⚠️ Piège 2 : la sandbox auto-lance le scaffold my-project sur :3000 → EADDRINUSE
+  silencieux au boot qrbags. Scaffold tué (pkill), qrbags relancé.
+- ⚠️ Piège 3 : dans la nouvelle sandbox, les process nohup+disown sont tués entre les
+  appels shell → relance via setsid (session détachée) : persistance vérifiée sur un
+  appel shell séparé.
+- Services actifs : :3000 (next dev qrbags), :3005 (tracking-ws socket.io), :3040
+  (flight-cron, cycle 10 min). Cron vol : flightApiProvider=airlabs, candidates=0,
+  0 erreur. Backup boot auto créé (db/backups/).
+- Vérification navigateur (agent-browser) : / → titre QRBags + nav complète + 0 erreur ;
+  /inscrire → case « Alert me about my luggage » présente (décochée par défaut, RGPD).
+
+Stage Summary:
+- Local = GitHub = 6e29c7e — restauration complète et vérifiée.
+- Données de test de la sandbox perdues avec la réinitialisation (VOL26-TEST01, comptes
+  démo, réglages email admin…) — recréables à la demande. Production qrbags.com non
+  affectée (Coolify, autre machine).
+- RÈGLE POUR LES PROCHAINES SESSIONS : lancer les services avec
+  DATABASE_URL="file:/home/z/qrbags/db/custom.db" + setsid, et tuer le scaffold
+  my-project s'il occupe :3000.
