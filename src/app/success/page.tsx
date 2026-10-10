@@ -19,7 +19,8 @@ import {
   BellRing,
   BellOff,
 } from 'lucide-react';
-import { optInNotifications, ensureSubscriptionTag } from '@/lib/onesignal-client';
+import { optInNotifications, ensureSubscriptionTag, type OptInOutcome } from '@/lib/onesignal-client';
+import { useOptInProblemMessage } from '@/components/notifications/OptInFeedback';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SuccessOverlay from '@/components/ui/SuccessOverlay';
@@ -177,6 +178,9 @@ function SuccessContent() {
   const [notifyState, setNotifyState] = useState<
     'idle' | 'loading' | 'granted' | 'denied' | 'unsupported' | 'unavailable'
   >('idle');
+  // 🔔 Détail du dernier résultat (raison fine → message actionnable)
+  const [notifyOutcome, setNotifyOutcome] = useState<OptInOutcome | null>(null);
+  const optInProblem = useOptInProblemMessage(notifyOutcome?.reason);
 
   // Si la permission est déjà accordée (retour sur /success, activation d'un
   // autre bagage sur le même appareil), on tague et on affiche directement l'état OK.
@@ -194,12 +198,10 @@ function SuccessContent() {
   const handleEnableNotifications = async () => {
     if (!reference) return;
     setNotifyState('loading');
-    const result = await optInNotifications(reference);
-    if (result === 'granted' || result === 'denied' || result === 'unsupported') {
-      setNotifyState(result);
-    } else {
-      setNotifyState('unavailable');
-    }
+    setNotifyOutcome(null);
+    const outcome = await optInNotifications(reference);
+    setNotifyOutcome(outcome);
+    setNotifyState(outcome.state);
   };
 
   const reference = activationData?.reference || '';
@@ -676,7 +678,7 @@ function SuccessContent() {
                 ) : notifyState === 'unsupported' || notifyState === 'unavailable' ? (
                   <div className="flex items-start gap-2.5 rounded-xl bg-[#16234e]/5 border border-[#16234e]/10 px-4 py-3 text-sm font-medium text-[#16234e]/70">
                     <BellOff className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden />
-                    <span>{t('success.notify_unavailable')}</span>
+                    <span>{optInProblem.text}</span>
                   </div>
                 ) : (
                   <button

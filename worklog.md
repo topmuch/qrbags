@@ -2501,3 +2501,39 @@ Stage Summary:
 - Reste à déployer : commit + push + redeploy Coolify + vérification bundle en ligne.
 - Si feedback « refusées » → permission navigateur à débloquer (réglages du site) ;
   si « non disponibles » sur iPhone → ajouter la PWA à l'écran d'accueil.
+
+---
+Task ID: 37
+Agent: Z.ai Code (main)
+Task: « Notification non disponible sur cet appareil » → messages ACTIONNABLES par cause réelle
+
+Work Log:
+- Rapport utilisateur : au cochage de « M'alerter sur mon bagage », message générique
+  « notification non disponible sur cet appareil pour le moment » — aucune action possible.
+- Cause : OneSignal isPushSupported()=false / init échoué selon l'appareil ; l'UI ne
+  distinguait pas les causes (message unique). Cas réels : iPhone Safari sans PWA installée
+  (push = PWA écran d'accueil, iOS ≥ 16.4), webview WhatsApp/FB/Insta (pas de web push),
+  téléphones Huawei/Honor sans services Google, refus antérieur (permission denied),
+  échec réseau/init SDK.
+- onesignal-client.ts : nouveau type OptInOutcome {state, reason} + raisons typées
+  (ios-add-to-home | in-app-browser | permission-denied | no-push-manager | sdk-failed |
+  prompt-failed) + helpers isIOSDevice / isStandaloneDisplay / isInAppBrowser + console.warn
+  diagnostique sur prompt échoué. optInNotifications retourne désormais OptInOutcome.
+- Nouveau composant src/components/notifications/OptInFeedback.tsx : <OptInFeedback
+  outcome loading> (probleme) + <OptInGrantedBadge> (activé) + hook partagé
+  useOptInProblemMessage(reason) — hooks appelés inconditionnellement (Rules of Hooks).
+- /inscrire : états notifyOutcome/notifyPromptLoading branchés sur le composant ; /success :
+  outcome stocké, la branche unsupported/unavailable affiche le texte actionnable.
+- i18n : section top-level « notify » ajoutée (fr/en/ar, +6 lignes/fichier, 4 clés :
+  problem_ios_add_home, problem_in_app, problem_no_push_manager, problem_sdk_failed).
+- Validation : tsc cible OK (2 erreurs préexistantes hors périmètre), eslint clean,
+  dev :3000 → /inscrire case cochée = message sdk-failed affiché (CDN OneSignal bloqué
+  dans le sandbox → mapping vérifié), /success 200, screenshot OK.
+
+Stage Summary:
+- Chaque cause d'échec affiche désormais SON instruction : iPhone → « Partager ⬆️ → Sur
+  l'écran d'accueil puis recochez » ; webview → « ouvrez dans Chrome/Safari » ; refus →
+  réglages du site ; Huawei/Honor mentionné ; échec réseau → « décochez/recochez ».
+- Déployé ensuite via Coolify (voir commit) — sur le site en ligne, un iPhone Safari
+  affichera l'instruction écran d'accueil au lieu du message générique.
+- Note : sur iPhone, un refus antérieur persiste → réglages du site (icône 🔒) pour débloquer.

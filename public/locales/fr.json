@@ -547,5 +547,11 @@
     "notify_granted": "Notifications activées ! Vous serez alerté dès que votre bagage est retrouvé.",
     "notify_denied": "Notifications refusées. Réactivez-les dans les réglages de votre navigateur si vous changez d'avis.",
     "notify_unavailable": "Notifications non disponibles sur cet appareil pour le moment. Pas d'inquiétude : l'email et WhatsApp restent actifs."
+  },
+  "notify": {
+    "problem_ios_add_home": "📱 Sur iPhone, activez les notifications en 2 étapes : 1) touchez le bouton Partager ⬆️ puis « Sur l'écran d'accueil ». 2) Ouvrez QRBags depuis l'icône et cochez à nouveau la case — le popup apparaîtra.",
+    "problem_in_app": "Les notifications ne fonctionnent pas dans cette application (WhatsApp, Facebook, Instagram…). Ouvrez ce lien dans Chrome (Android) ou Safari (iPhone), puis cochez à nouveau la case.",
+    "problem_no_push_manager": "Ce navigateur ne permet pas les notifications web. Essayez Chrome (Android) ou Safari (iPhone). À noter : certains téléphones Huawei/Honor sans services Google ne peuvent pas recevoir de notifications web.",
+    "problem_sdk_failed": "Impossible d'initialiser les notifications pour le moment (connexion ou blocage navigateur). Vérifiez votre connexion, décochez puis recochez la case pour réessayer."
   }
 }

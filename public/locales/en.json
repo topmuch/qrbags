@@ -547,5 +547,11 @@
     "notify_granted": "Notifications enabled! You'll be alerted as soon as your luggage is found.",
     "notify_denied": "Notifications denied. You can re-enable them in your browser settings if you change your mind.",
     "notify_unavailable": "Notifications are not available on this device right now. Don't worry: email and WhatsApp alerts remain active."
+  },
+  "notify": {
+    "problem_ios_add_home": "📱 On iPhone, enable notifications in 2 steps: 1) tap the Share button ⬆️ then \"Add to Home Screen\". 2) Open QRBags from the new icon and tick the box again — the popup will appear.",
+    "problem_in_app": "Notifications don't work inside this app (WhatsApp, Facebook, Instagram…). Open this link in Chrome (Android) or Safari (iPhone), then tick the box again.",
+    "problem_no_push_manager": "This browser does not allow web notifications. Try Chrome (Android) or Safari (iPhone). Note: some Huawei/Honor phones without Google services cannot receive web notifications.",
+    "problem_sdk_failed": "Could not initialize notifications right now (connection or browser blocking). Check your connection, then untick and re-tick the box to try again."
   }
 }
