@@ -2537,3 +2537,22 @@ Stage Summary:
 - Déployé ensuite via Coolify (voir commit) — sur le site en ligne, un iPhone Safari
   affichera l'instruction écran d'accueil au lieu du message générique.
 - Note : sur iPhone, un refus antérieur persiste → réglages du site (icône 🔒) pour débloquer.
+
+---
+Task ID: 37-bis
+Agent: Z.ai Code (main)
+Task: Déploiement + vérification live du fix messages actionnables
+
+Work Log:
+- Commit 6f3f466 poussé sur GitHub (main) ; redeploy Coolify oksljjg6ptzpdosqy52vmxnn →
+  finished (~2 min).
+- Bundle live vérifié : chunk 42c6b8f6d883ea95.js contient les 5 marqueurs de raison
+  (ios-add-to-home, in-app-browser, no-push-manager, sdk-failed, prompt-failed).
+- Test navigateur sur https://qrbags.com/inscrire : case cochée → feedback inline immédiat ;
+  dans le headless sandbox le CDN OneSignal échoue → message sdk-failed « décochez/recochez
+  pour réessayer » affiché (mapping fidèle à la cause réelle ; sur un vrai téléphone le CDN
+  charge et les raisons iOS/webview/navigateur prendront le relais).
+
+Stage Summary:
+- En production : plus jamais le générique « non disponible » sans explication — chaque
+  appareil/cause reçoit son instruction. Task 37 complet et déployé.
