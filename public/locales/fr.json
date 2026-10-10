@@ -545,7 +545,7 @@
     "notify_cta": "Activer les notifications",
     "notify_loading": "Activation…",
     "notify_granted": "Notifications activées ! Vous serez alerté dès que votre bagage est retrouvé.",
-    "notify_denied": "Notifications refusées. Réactivez-les dans les réglages de votre navigateur si vous changez d'avis.",
+    "notify_denied": "Notifications refusées pour ce site. Pour les activer : touchez l'icône 🔒 à gauche de l'adresse → Autorisations → Notifications → Autoriser, puis rechargez la page et recochez la case.",
     "notify_unavailable": "Notifications non disponibles sur cet appareil pour le moment. Pas d'inquiétude : l'email et WhatsApp restent actifs."
   },
   "notify": {

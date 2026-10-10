@@ -545,7 +545,7 @@
     "notify_cta": "Enable notifications",
     "notify_loading": "Enabling…",
     "notify_granted": "Notifications enabled! You'll be alerted as soon as your luggage is found.",
-    "notify_denied": "Notifications denied. You can re-enable them in your browser settings if you change your mind.",
+    "notify_denied": "Notifications were blocked for this site. To enable them: tap the 🔒 icon next to the address → Permissions → Notifications → Allow, then reload the page and tick the box again.",
     "notify_unavailable": "Notifications are not available on this device right now. Don't worry: email and WhatsApp alerts remain active."
   },
   "notify": {

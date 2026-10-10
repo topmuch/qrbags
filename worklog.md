@@ -2556,3 +2556,32 @@ Work Log:
 Stage Summary:
 - En production : plus jamais le générique « non disponible » sans explication — chaque
   appareil/cause reçoit son instruction. Task 37 complet et déployé.
+
+---
+Task ID: 38
+Agent: Z.ai Code (main)
+Task: Android « impossible d'initialiser les notifications » — 2 bugs corrigés (retry mort + refus masqué)
+
+Work Log:
+- Rapport utilisateur (Android, réglages autorisés) : message sdk-failed « impossible
+  d'initialiser… décochez puis recochez » persistant.
+- Bug 1 (critique) : initOneSignal mémoïsait l'échec dans loadPromise sans jamais le
+  réinitialiser → « décochez/recochez » rejouait éternellement l'échec mémoïsé, le retry
+  conseillé par le message était IMPOSSIBLE. Fix : loadPromise=null sur chaque chemin
+  d'échec (script.onerror, global absent, init rejeté) + console.warn diagnostiques.
+- Bug 2 : une permission site DÉJÀ REFUSÉE faisait échouer promptPush → catch →
+  'prompt-failed' affiché comme erreur d'initialisation (trompeur). Fix : contrôle
+  rawPermission()==='denied' AVANT promptPush → 'denied/permission-denied' (message
+  réglages 🔒) ; détection également dans le catch (re-classification de l'erreur).
+- i18n : problem_sdk_failed reformulé (Chrome, pas navigation privée, connexion) ;
+  success.notify_denied désormais ACTIONNABLE (🔒 à gauche de l'adresse → Autorisations →
+  Notifications → Autoriser → recharger → recocher) — fr/en/ar.
+- Validation : tsc cible clean, eslint clean, dev 200, test navigateur : message à jour +
+  le retry réinjecte réellement le script (plus d'échec figé).
+
+Stage Summary:
+- Sur Android réel : si le site avait été refusé lors des tests précédents (très probable),
+  l'utilisateur voit maintenant l'instruction précise 🔒 au lieu de l'erreur « initialisation ».
+- Le conseil « décochez/recochez » redevient fonctionnel (loadPromise reset).
+- Scénarios restants côté user : navigation privée (push impossible par design), bloqueur
+  de contenu bloquant cdn.onesignal.com, Chrome obsolète.

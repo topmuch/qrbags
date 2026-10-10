@@ -43,7 +43,10 @@ const SDK_URL = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
 
 let loadPromise: Promise<OneSignalSDK | null> | null = null;
 
-/* Charge le SDK une seule fois (promise mémoïsée) puis init avec l'App ID */
+/* Charge le SDK une seule fois (promise mémoïsée) puis init avec l'App ID.
+ * ⚠️ En cas d'ÉCHEC (réseau, CDN bloqué, init rejeté), la promise mémoïsée est
+ * RÉINITIALISÉE : le prochain appel re-tente réellement le chargement — sans ça,
+ * « décochez puis recochez » redonnerait éternellement le même échec. */
 export function initOneSignal(): Promise<OneSignalSDK | null> {
   if (typeof window === 'undefined') return Promise.resolve(null);
 
@@ -53,6 +56,10 @@ export function initOneSignal(): Promise<OneSignalSDK | null> {
   if (loadPromise) return loadPromise;
 
   loadPromise = new Promise<OneSignalSDK | null>((resolve) => {
+    const fail = () => {
+      loadPromise = null; // ← permet un vrai retry au prochain appel
+      resolve(null);
+    };
     try {
       const existing = window.OneSignal;
       if (existing) {
@@ -65,7 +72,7 @@ export function initOneSignal(): Promise<OneSignalSDK | null> {
       script.onload = () => {
         const OneSignal = window.OneSignal;
         if (!OneSignal) {
-          resolve(null);
+          fail();
           return;
         }
         OneSignal.init({
@@ -75,12 +82,19 @@ export function initOneSignal(): Promise<OneSignalSDK | null> {
           serviceWorkerUpdaterPath: '/OneSignalSDKWorker.js',
         })
           .then(() => resolve(OneSignal))
-          .catch(() => resolve(null));
+          .catch((err: unknown) => {
+            console.warn('[OneSignal] init failed:', err);
+            fail();
+          });
       };
-      script.onerror = () => resolve(null);
+      script.onerror = () => {
+        console.warn('[OneSignal] SDK script failed to load:', SDK_URL);
+        fail();
+      };
       document.head.appendChild(script);
-    } catch {
-      resolve(null);
+    } catch (err) {
+      console.warn('[OneSignal] load error:', err);
+      fail();
     }
   });
 
@@ -104,6 +118,8 @@ export type OptInProblemReason =
 export interface OptInOutcome {
   state: OptInResult;
   reason?: OptInProblemReason;
+  /** Détail technique brut (erreur OneSignal) — loggé pour le support, non affiché */
+  detail?: string;
 }
 
 /* Détection iOS (iPhone/iPad/iPod, y compris iPadOS 13+ qui s'identifie en Mac) */
@@ -160,6 +176,13 @@ export async function optInNotifications(reference: string): Promise<OptInOutcom
   try {
     if (!OneSignal.Notifications.isPushSupported()) return diagnoseUnsupported();
 
+    // 🔑 Permission refusée par le passé → prompt inutile (le navigateur ne le
+    // ré-affichera JAMAIS) : on renvoie 'denied' AVANT promptPush, sinon l'échec
+    // du prompt passerait pour une erreur d'initialisation (message trompeur).
+    if (rawPermission() === 'denied') {
+      return { state: 'denied', reason: 'permission-denied' };
+    }
+
     // Tague immédiatement : même si l'utilisateur tarde à cliquer « Autoriser »,
     // le tag reste attaché à son profil et le push partira dès l'abonnement.
     OneSignal.User.addTag(`qr_${reference}`, '1');
@@ -174,8 +197,13 @@ export async function optInNotifications(reference: string): Promise<OptInOutcom
       : { state: 'denied', reason: 'permission-denied' };
   } catch (err) {
     // Diagnostic console pour le support (visible en remote debugging)
+    const detail = err instanceof Error ? err.message : String(err);
     console.warn('[OneSignal] opt-in failed:', err);
-    return { state: 'unavailable', reason: 'prompt-failed' };
+    // Refus détecté via l'erreur du prompt → message réglages plutôt qu'erreur réseau
+    if (rawPermission() === 'denied') {
+      return { state: 'denied', reason: 'permission-denied', detail };
+    }
+    return { state: 'unavailable', reason: 'prompt-failed', detail };
   }
 }
 
