@@ -17,6 +17,9 @@ import {
   Plane,
   Gift,
   Bell,
+  BellRing,
+  BellOff,
+  Loader2,
   Image as ImageIcon,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -25,6 +28,7 @@ import CountryRegionSelect from '@/components/inscrire/CountryRegionSelect';
 
 import { useTranslation } from '@/hooks/useTranslation';
 import { Language, LANGUAGE_NAMES } from '@/lib/i18n';
+import { optInNotifications, type OptInResult } from '@/lib/onesignal-client';
 import {
   brandInput,
   brandLabel,
@@ -157,6 +161,26 @@ function InscrireContent() {
   const [rewardCurrency, setRewardCurrency] = useState<'FCFA' | 'USD' | 'EUR'>('FCFA');
   // 🔔 ONESIGNAL : consentement aux notifications push « bagage retrouvé » (opt-in, décoché par défaut)
   const [notifyConsent, setNotifyConsent] = useState(false);
+  // 🔔 ONESIGNAL : résultat du prompt natif déclenché AU COCHAGE de la case (feedback inline).
+  // Le clic sur la case = geste utilisateur → le navigateur autorise le prompt à cet instant.
+  const [notifyPrompt, setNotifyPrompt] = useState<OptInResult | 'idle'>('idle');
+  const [notifyPromptLoading, setNotifyPromptLoading] = useState(false);
+
+  /* Déclenche le popup natif OneSignal dès que la case est cochée — la demande de
+   * permission n'attend plus la page de confirmation (la surcouche audio-guide de
+   * /success ne peut alors plus la bloquer ni la masquer). Idempotent : re-cocher
+   * après décochement ne re-prompt que si nécessaire, et ne casse jamais le parcours. */
+  const handleNotifyConsentChange = (checked: boolean) => {
+    setNotifyConsent(checked);
+    if (!checked) return;
+    const reference = formData.reference.trim();
+    if (!reference) return; // pas de référence → le bouton /success restera le repli
+    setNotifyPromptLoading(true);
+    optInNotifications(reference)
+      .then((result) => setNotifyPrompt(result))
+      .catch(() => setNotifyPrompt('unavailable'))
+      .finally(() => setNotifyPromptLoading(false));
+  };
   const REWARD_CURRENCY_SUFFIX: Record<'FCFA' | 'USD' | 'EUR', string> = {
     FCFA: 'FCFA',
     USD: '$',
@@ -582,7 +606,7 @@ function InscrireContent() {
                       id="notify-consent"
                       type="checkbox"
                       checked={notifyConsent}
-                      onChange={(e) => setNotifyConsent(e.target.checked)}
+                      onChange={(e) => handleNotifyConsentChange(e.target.checked)}
                       className="mt-0.5 h-5 w-5 shrink-0 rounded accent-[#8b17c9] cursor-pointer"
                     />
                     <span className="flex items-start gap-2.5 min-w-0">
@@ -606,6 +630,32 @@ function InscrireContent() {
                       </span>
                     </span>
                   </label>
+
+                  {/* 🔔 Feedback immédiat du prompt natif déclenché au cochage */}
+                  {notifyPromptLoading && (
+                    <p className="mt-2 flex items-center gap-2 text-xs font-medium text-[#16234e]/60 dark:text-gray-400 px-1" role="status">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" aria-hidden />
+                      {t('success.notify_loading')}
+                    </p>
+                  )}
+                  {!notifyPromptLoading && notifyPrompt === 'granted' && (
+                    <p className="mt-2 flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2" role="status">
+                      <BellRing className="w-4 h-4 shrink-0" aria-hidden />
+                      {t('success.notify_granted')}
+                    </p>
+                  )}
+                  {!notifyPromptLoading && notifyPrompt === 'denied' && (
+                    <p className="mt-2 flex items-start gap-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2" role="status">
+                      <BellOff className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+                      {t('success.notify_denied')}
+                    </p>
+                  )}
+                  {!notifyPromptLoading && (notifyPrompt === 'unsupported' || notifyPrompt === 'unavailable') && (
+                    <p className="mt-2 flex items-start gap-2 text-xs font-medium text-[#16234e]/70 bg-[#16234e]/5 border border-[#16234e]/10 rounded-xl px-3 py-2" role="status">
+                      <BellOff className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+                      {t('success.notify_unavailable')}
+                    </p>
+                  )}
                 </FormSection>
 
                 {/* ═══ 2. VOTRE TRAJET ═══ */}

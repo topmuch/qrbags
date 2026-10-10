@@ -2471,3 +2471,33 @@ Stage Summary:
 - À confirmer côté utilisateur : popup → Autoriser → abonné tagué qr_<REF> visible dans
   le dashboard OneSignal → push scan-alert + arrivée TVF8023 ce soir (21:05-23:50 UTC)
   si Scheduled Task Coolify active.
+
+---
+Task ID: 36
+Agent: Z.ai Code (main)
+Task: Popup OneSignal déclenché dès le cochage de la case notifications sur /inscrire (« rien ne se passe » côté utilisateur)
+
+Work Log:
+- Rapport utilisateur : nouveau bagage activé, case cochée + bouton /success cliqué, AUCUN
+  popup natif ; hypothèse utilisateur : la surcouche audio-guide de /success pourrait bloquer.
+- Audit du flux : /inscrire — la case notifyConsent ne faisait qu'un setState React, AUCUN
+  appel OneSignal ; le prompt ne pouvait venir QUE du bouton /success (derrière la surcouche
+  z-[70] qui bloque les clics tant qu'elle n'est pas fermée — elle ne couvre pas le slidedown
+  OneSignal z-index ~2 Mrd, mais elle retarde/entrave l'accès au bouton).
+- Fix (src/app/inscrire/page.tsx) :
+  - handleNotifyConsentChange(checked) → au cochage : optInNotifications(formData.reference)
+    immédiatement (le tap sur la case = geste utilisateur ; la référence ?qr= est pré-remplie
+    dès l'arrivée sur le formulaire) + états de feedback notifyPrompt/notifyPromptLoading.
+  - Feedback inline sous la case (clés i18n success.notify_* réutilisées, fr/en/ar) :
+    loading (spinner) / granted (vert, BellRing) / denied (ambre, BellOff, conseil réglages) /
+    unsupported-unavailable (neutre, conseil iOS PWA). Renvoi jamais bloquant pour le parcours.
+- /success inchangé (bouton conservé en repli ; ensureSubscriptionTag gère le retour granted).
+- Validation : tsc --noEmit sans erreur sur les fichiers modifiés (erreurs préexistantes
+  ailleurs), eslint clean, dev :3000 (cwd /home/z/qrbags) → GET /inscrire?qr=TEST-1 = 200.
+
+Stage Summary:
+- Le popup natif part maintenant AU MOMENT DU COCHAGE sur la page d'activation — plus aucun
+  risque de blocage par la surcouche guide vocal ni par le cache d'une vieille page /success.
+- Reste à déployer : commit + push + redeploy Coolify + vérification bundle en ligne.
+- Si feedback « refusées » → permission navigateur à débloquer (réglages du site) ;
+  si « non disponibles » sur iPhone → ajouter la PWA à l'écran d'accueil.
