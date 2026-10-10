@@ -2400,3 +2400,40 @@ Stage Summary:
   Coolify toutes les 10 min.
 - Leçon retenue : toute nouvelle variable NEXT_PUBLIC_ doit figurer dans la checklist
   Coolify dès qu'elle est introduite (build-time ≠ runtime).
+
+---
+Task ID: 34
+Agent: Z.ai Code (main)
+Task: Fix complet du pipeline OneSignal prod via API Coolify (token fourni par l'utilisateur)
+
+Work Log:
+- Token API Coolify (Sanctum, 38.247.134.241:8000) → app qrbags = d4o4wwks480og0g84g4k8kgk.
+- GET /envs : NEXT_PUBLIC_ONESIGNAL_APP_ID absente (22 rows = 11 clés x2 build/runtime) →
+  POST création {key, value, is_buildtime:true, is_runtime:true} → 201 (champ API = 
+  is_buildtime sans 2e underscore dans beta.463 ; PATCH/GET single env = 404 non supportés).
+- Deploy #1 via POST /deploy?uuid → finished (~2 min) → APP_ID vérifié PRÉSENT dans le
+  chunk 1e74dbeea0bcf84a.js déployé ✓.
+- Cron re-testé : errors[] mais pre_flight… échecs → cause suivante : ONESIGNAL_API_KEY
+  prod mal collée. siteUrl()/trackingUrl() audités (fallback https://qrbags.com sain) ;
+  horloges sandbox/prod identiques (14:06:55Z) ; parseur AirLabs parseUtcLoose correct.
+- Fix : DELETE des 2 rows ONESIGNAL_API_KEY + POST avec la valeur du .env local (validée
+  en dev) + POST ONESIGNAL_SITE_URL=https://qrbags.com + ONESIGNAL_API… deploy #2 → 
+  finished. Cron : errors:[] définitif (avant : pre_flight …: failed).
+- Vol test identifié via /api/scan public : TVF8023 Transavia DSS→LYS, dép réel AirLabs 
+  15:30 UTC (fenêtre ouverte au moment des tests) → preFlightSent:0 sans erreur ni skip
+  ⇒ preFlightNotifiedAt déjà consommé sur les 2 bagages test (cycle antérieur) → pas de 
+  renvoi prévu pour eux ; arrivalNotifiedAt lui reste null → push arrivée tentera 
+  [arr+15min, arr+3h] = [21:05, 23:50] UTC si la Scheduled Task Coolify tourne.
+- Sandbox ne peut PAS joindre onesignal.com API (hangs /players + /notifications, timeouts 
+  ignorés) ; /api/scan/[ref] public a servi à lire les données vol ; flags non exposés 
+  (suivi page sans payload, diagnostic = superadmin only).
+
+Stage Summary:
+- Pipeline prod RÉPARE : bundle contient APP_ID, clé API valide, URLs push valides,
+  AirLabs actif, cron sans erreur. Reste côté utilisateur : s'abonner (bouton /success),
+  créer la Scheduled Task Coolify (*/10 * * * *), retester scan-alert (indépendant des 
+  flags) et « Bon vol » avec un bagage neuf à départ T+2h30.
+- Opportunité E2E réel ce soir : vol TVF8023 atterrit 20:50 UTC → push arrivée tentera 
+  21:05-23:50 UTC si abonnement fait avant et scheduled task active.
+- Leçon : les flags de dédupe consommés ne se réinitialisent pas via UI → prévoir un 
+  moyen de re-test (bagage neuf ou reset flag dashboard) — piste future.
