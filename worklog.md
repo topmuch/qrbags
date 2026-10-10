@@ -2585,3 +2585,22 @@ Stage Summary:
 - Le conseil « décochez/recochez » redevient fonctionnel (loadPromise reset).
 - Scénarios restants côté user : navigation privée (push impossible par design), bloqueur
   de contenu bloquant cdn.onesignal.com, Chrome obsolète.
+
+---
+Task ID: 38-bis
+Agent: Z.ai Code (main)
+Task: Déploiement Task 38 + correction du texte sdk-failed resté à l'ancienne version
+
+Work Log:
+- Redeploy dek5t7ryglopuqcwtu21ukw9 → finished ; vérif live : clés nouvelles présentes
+  dans le chunk 3e10d24160aa5136.js (permission-denied, problem_sdk_failed) MAIS
+  notify.problem_sdk_failed servait encore l'ANCIEN texte → cause : le script i18n
+  du Task 38 testait `if 'problem_sdk_failed' in msgs` sur des clés préfixées
+  'notify.' → jamais remplacé (success.notify_denied lui, modifié sans condition).
+- Fix : remplacement direct des 3 locales (fr/en/ar) + commit 3171067 + redeploy
+  wnej0rq7jb65b1tflhx2q6m5 → finished ; FR/EN/AR vérifiés en ligne (textes « pas en
+  navigation privée » / « 🔒 Autorisations ») ; test navigateur live OK.
+
+Stage Summary:
+- En ligne : message sdk-failed actionnable (Chrome, pas incognito, connexion, recocher)
+  + message refus 🔒 concret. Le retry re-tente vraiment le chargement du SDK.
