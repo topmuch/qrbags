@@ -1,4 +1,6 @@
-/// <reference lib="webworker" />
+/* QRBags Service Worker — cache PWA (JavaScript pur : les fichiers de /public
+ * ne passent PAS par le compilateur TypeScript, toute annotation TS y est
+ * fatale → « ServiceWorker script evaluation failed » dans le navigateur). */
 
 const CACHE_NAME = 'qrbag-v1';
 
@@ -11,7 +13,7 @@ const PRECACHE_ASSETS = [
 ];
 
 // Install event - pre-cache essential assets
-self.addEventListener('install', (event: ExtendableEvent) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[QRBags SW] Precaching app shell');
@@ -19,11 +21,11 @@ self.addEventListener('install', (event: ExtendableEvent) => {
     })
   );
   // Activate immediately without waiting
-  (self as unknown as ServiceWorkerGlobalScope).skipWaiting();
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event: ExtendableEvent) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -37,11 +39,11 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
     })
   );
   // Take control of all pages immediately
-  (self as unknown as ServiceWorkerGlobalScope).clients.claim();
+  self.clients.claim();
 });
 
 // Fetch event - routing based on request type
-self.addEventListener('fetch', (event: FetchEvent) => {
+self.addEventListener('fetch', (event) => {
   const { request } = event;
 
   // Skip non-GET requests
@@ -79,7 +81,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
  * Network-first strategy: try network, fall back to cache.
  * On success, update the cache with the fresh response.
  */
-async function networkFirstWithCacheFallback(request: Request): Promise<Response> {
+async function networkFirstWithCacheFallback(request) {
   try {
     const response = await fetch(request);
     if (response.status === 200) {
@@ -101,7 +103,7 @@ async function networkFirstWithCacheFallback(request: Request): Promise<Response
  * Cache-first strategy: try cache, fall back to network.
  * On network success, populate the cache for future use.
  */
-async function cacheFirstWithNetworkFallback(request: Request): Promise<Response> {
+async function cacheFirstWithNetworkFallback(request) {
   const cached = await caches.match(request);
   if (cached) {
     return cached;
@@ -117,16 +119,4 @@ async function cacheFirstWithNetworkFallback(request: Request): Promise<Response
   } catch {
     return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
   }
-}
-
-// Type declarations for service worker
-declare const self: ServiceWorkerGlobalScope;
-
-interface ExtendableEvent extends Event {
-  waitUntil(fn: Promise<unknown>): void;
-}
-
-interface FetchEvent extends Event {
-  request: Request;
-  respondWith(response: Promise<Response | undefined> | Response | undefined): void;
 }
