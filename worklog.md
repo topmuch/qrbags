@@ -2437,3 +2437,37 @@ Stage Summary:
   21:05-23:50 UTC si abonnement fait avant et scheduled task active.
 - Leçon : les flags de dédupe consommés ne se réinitialisent pas via UI → prévoir un 
   moyen de re-test (bagage neuf ou reset flag dashboard) — piste future.
+
+---
+Task ID: 35
+Agent: Z.ai Code (main)
+Task: « Pas de popup notification » — reproduction navigateur headless + fix public/sw.js TypeScript
+
+Work Log:
+- Reproduction avec agent-browser sur https://qrbags.com/success (sessionStorage
+  activationData simulée) : SDK OneSignal chargé ✓, init ✓, Notifications.isPushSupported()
+  true ✓ — MAIS console : « SW registration failed: ServiceWorker script evaluation
+  failed » sur /sw.js et navigator.serviceWorker.getRegistrations() = [].
+- Root cause : public/sw.js était du TypeScript brut servi en statique ((event:
+  ExtendableEvent), (self as unknown as ServiceWorkerGlobalScope), interfaces, declare…)
+  → SyntaxError à l'évaluation → SW PWA jamais enregistré.
+- Test croisé : navigator.serviceWorker.register('/OneSignalSDKWorker.js') → OK même avec
+  sw.js cassé (OneSignal ne dépend pas du SW app). Le slidedown absent en headless =
+  comportement OneSignal v16 quand permission déjà 'denied' (navigateur headless) →
+  optInNotifications → 'unavailable' → carte « Notifications are not available… » : le
+  flux affiche bien un état, pas de crash.
+- Fix : public/sw.js réécrit en JS pur (annotations/casts/interfaces retirées, logique
+  identique : precache, skipWaiting, clients.claim, network-first navigation, cache-first
+  images, network-only /api/) → node --check OK → commit 3c3b80c → deploy Coolify
+  bw8fifexwe34uxn4hcs6vliw → vérifié : sw.js OK + OneSignalSW OK + console propre.
+
+Stage Summary:
+- Production : les 2 service workers s'enregistrent, console sans erreur. Le clic
+  « Activer les notifications » doit désormais montrer le slidedown OneSignal sur un
+  navigateur réel (permission 'default'). Si l'utilisateur voit « Notifications refusées »
+  → permission bloquée à débloquer dans les réglages du site ; « non disponibles sur cet
+  appareil » → iPhone Safari nécessite l'ajout à l'écran d'accueil (PWA).
+- Leçon : tout fichier de /public est servi brut — jamais de syntaxe TS dans public/.
+- À confirmer côté utilisateur : popup → Autoriser → abonné tagué qr_<REF> visible dans
+  le dashboard OneSignal → push scan-alert + arrivée TVF8023 ce soir (21:05-23:50 UTC)
+  si Scheduled Task Coolify active.
