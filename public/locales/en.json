@@ -552,6 +552,6 @@
     "problem_ios_add_home": "📱 On iPhone, enable notifications in 2 steps: 1) tap the Share button ⬆️ then \"Add to Home Screen\". 2) Open QRBags from the new icon and tick the box again — the popup will appear.",
     "problem_in_app": "Notifications don't work inside this app (WhatsApp, Facebook, Instagram…). Open this link in Chrome (Android) or Safari (iPhone), then tick the box again.",
     "problem_no_push_manager": "This browser does not allow web notifications. Try Chrome (Android) or Safari (iPhone). Note: some Huawei/Honor phones without Google services cannot receive web notifications.",
-    "problem_sdk_failed": "Could not initialize notifications right now (connection or browser blocking). Check your connection, then untick and re-tick the box to try again."
+    "problem_sdk_failed": "Could not enable notifications right now. Check your internet connection, open the site in Chrome (not incognito), then untick and re-tick the box to try again."
   }
 }
