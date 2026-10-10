@@ -2368,3 +2368,35 @@ Stage Summary:
 - CRON_SECRET prod différent du local (bonne pratique), injecté via Coolify Environment.
 - Reste à l'utilisateur : coller la commande validée dans le Scheduled Task + Run de contrôle.
 - Prochain jalon : premier E2E réel (client avec bagage actif + abonné push sur qrbags.com).
+
+---
+Task ID: 33
+Agent: Z.ai Code (main)
+Task: Debug première notification production — cause racine NEXT_PUBLIC_ONESIGNAL_APP_ID absente
+
+Work Log:
+- Test utilisateur prod : scan + formulaire trouveur soumis (VOL26-A4JMD4) → aucun push
+  OneSignal ; « Bon vol » T-2h (vol 15h40) → rien non plus.
+- Lecture du flow : /api/scan/[reference] POST déclenche sendBaggageScanPush seulement au
+  clic WhatsApp/Appel du trouveur (pas au GET du scan) — anti-spam 1 notif / 10 min / réf.
+- onesignal-client.ts:49 : initOneSignal() retourne null si NEXT_PUBLIC_ONESIGNAL_APP_ID
+  absent → optInNotifications → 'unavailable' → popup jamais affichée (confirmé par
+  l'utilisateur : jamais vu la prompt navigateur).
+- Preuve sur le bundle déployé : 14 chunks /_next/static sondés sur qrbags.com →
+  APP_ID ABSENT de tous → variable manquante dans Coolify (checklist Task 32 était
+  incomplète : ONESIGNAL_APP_ID demandé, pas NEXT_PUBLIC_ONESIGNAL_APP_ID).
+- onesignal.ts:56 : isConfigured exige aussi NEXT_PUBLIC_ONESIGNAL_APP_ID → côté serveur
+  les pushes étaient skippés aussi (scan + pre_flight + arrival).
+- Grep initial du .env local trompeur (ripgrep ignore les fichiers cachés) : le .env local
+  contient bien NEXT_PUBLIC_ONESIGNAL_APP_ID — le problème est uniquement prod/Coolify.
+- API OneSignal /players injoignable depuis le sandbox (hangs répétés même avec timeouts)
+  → vérification substitutions : bundle JS + dashboard utilisateur.
+
+Stage Summary:
+- Fix donné : ajouter NEXT_PUBLIC_ONESIGNAL_APP_ID=31e6d69e-… dans Coolify Environment +
+  Redeploy (build-time inlining obligatoire), puis clic bouton sur /success → Autoriser →
+  1 abonné tagué qr_<REF> → retest scan-alert.
+- Rappels test vol : numéro de vol RÉEL requis (AirLabs), fenêtre T-2h→T, scheduled task
+  Coolify toutes les 10 min.
+- Leçon retenue : toute nouvelle variable NEXT_PUBLIC_ doit figurer dans la checklist
+  Coolify dès qu'elle est introduite (build-time ≠ runtime).
