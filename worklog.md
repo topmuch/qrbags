@@ -2343,3 +2343,28 @@ Stage Summary:
 - RÈGLE POUR LES PROCHAINES SESSIONS : lancer les services avec
   DATABASE_URL="file:/home/z/qrbags/db/custom.db" + setsid, et tuer le scaffold
   my-project s'il occupe :3000.
+
+---
+Task ID: 32
+Agent: Z.ai Code (main)
+Task: Vérification déploiement production OneSignal + AirLabs & configuration Scheduled Task Coolify
+
+Work Log:
+- Sondage production qrbags.com : /OneSignalSDKWorker.js 404→200 et /api/cron/flight-arrivals
+  404→401 après Redeploy Coolify → mises à jour Tasks 25-29 bien déployées.
+- Test cron avec secret local → 401 (attendu) ; utilisateur a configuré un CRON_SECRET prod
+  dédié (hex 64 car.) dans Coolify Environment.
+- Debug scheduled task : commande utilisateur avait process.env.<VALEUR> comme nom de
+  variable → Bearer undefined → 401. Corrigé en process.env.CRON_SECRET.
+- 401 persistant avec le bon secret → variable ajoutée après le dernier deploy → Redeploy
+  refait par l'utilisateur → POST avec Bearer secret prod → HTTP 200 JSON
+  {success:true, flightApiProvider:"airlabs", candidates:0, errors:[]}.
+- Validation finale : commande node exacte exécutée avec CRON_SECRET en env → même JSON 200.
+- Guide Scheduled Task Coolify fourni : frequency */10 * * * *, timeout 300, container name
+  = UUID app Coolify (docker ps si doute), command node fetch + process.env.CRON_SECRET.
+
+Stage Summary:
+- Production qrbags.com = version OneSignal + AirLabs opérationnelle (worker 200, cron 200).
+- CRON_SECRET prod différent du local (bonne pratique), injecté via Coolify Environment.
+- Reste à l'utilisateur : coller la commande validée dans le Scheduled Task + Run de contrôle.
+- Prochain jalon : premier E2E réel (client avec bagage actif + abonné push sur qrbags.com).
